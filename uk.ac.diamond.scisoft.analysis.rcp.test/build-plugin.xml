@@ -1,0 +1,40 @@
+<project name="plugin-uk.ac.diamond.scisoft.analysis.rcp.test" basedir=".">
+
+	<dirname property="GDA-plugin.basedir" file="${ant.file.${ant.project.name}}" />
+	<import file="../../builder/build-common.xml" />
+
+	<!-- ====================================================================
+	       Invoke the tests
+	     ==================================================================== -->
+
+	<target name="junit-tests" depends="toolCheck, set-test-base">
+		<property name="test.libs.location" value="${plugins.dir}/uk.ac.gda.libs" />  <!-- required by JythonInterpreterUtils in uk.ac.diamond.scisoft.analysis.rcp -->
+		<junit-call description="${ant.project.name} Java JUnit tests" maxmemory="1024m">
+			<formatter type="xml" />
+			<classpath>
+				<pathelement location="${junitjar.loc}" />
+				<pathelement location="${jythonjar.loc}" />
+				<pathelement location="${GDA-plugin.basedir}/bin" />
+				<pathelement location="${plugins.dir}/uk.ac.diamond.scisoft.analysis/bin" />
+				<pathelement location="${plugins.dir}/uk.ac.diamond.scisoft.analysis.rcp/bin" />
+				<pathelement location="${plugins.dir}/uk.ac.gda.common/bin" />
+				<pathelement location="${plugins.dir}/uk.ac.gda.common.rcp/bin" />
+				<pathelement location="${plugins.dir}/uk.ac.gda.nexus/bin" />
+				<fileset dir="${plugins.dir}">
+					<include name="uk.ac.diamond.scisoft.analysis/jars/*.jar" />
+					<include name="uk.ac.diamond.CBFlib/jars/*.jar" />
+					<include name="uk.ac.gda.nexus/jars/*.jar" />
+					<include name="ncsa.hdf/jars/*.jar" />
+				</fileset>
+				<path refid="thirdparty.jars.path" />
+			</classpath>
+			<batchtest todir="@{report.dir}">
+				<fileset dir="${GDA-plugin.basedir}/src">
+					<include name="**/*Test.java" />
+					<exclude name="**/*PluginTest.java" />
+				</fileset>
+			</batchtest>
+		</junit-call>
+	</target>
+
+</project>

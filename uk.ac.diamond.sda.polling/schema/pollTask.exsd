@@ -1,0 +1,128 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="uk.ac.diamond.sda.polling" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appinfo>
+         <meta.schema plugin="uk.ac.diamond.sda.polling" id="pollTask" name="Poll Task"/>
+      </appinfo>
+      <documentation>
+         This extension point is used to add additional tasks to the poll manager view so that the user can specify tasks which they want to preform on a periodic basis. 
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appinfo>
+            <meta.element />
+         </appinfo>
+      </annotation>
+      <complexType>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="PollJob"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="PollJob">
+      <complexType>
+         <attribute name="name" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn="uk.ac.diamond.sda.polling.jobs.AbstractPollJob:"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="example_config_text" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="since"/>
+      </appinfo>
+      <documentation>
+         1.0.0
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="examples"/>
+      </appinfo>
+      <documentation>
+         Example usage
+
+&lt;p&gt;
+&lt;pre&gt;
+   &lt;extension point=&quot;uk.ac.diamond.sda.polling.pollTask&quot;&gt;
+      &lt;PollJob
+            class=&quot;uk.ac.diamond.sda.polling.jobs.FilenamePrintJob&quot;
+            example_config_text=&quot;Class=uk.ac.diamond.sda.polling.jobs.FilenamePrintJob\nPollTime=3.0\nFileName=/tmp/test.txt&quot;
+            id=&quot;uk.ac.diamond.sda.polling.PollJob1&quot;
+            name=&quot;File Print Job&quot;&gt;
+      &lt;/PollJob&gt;
+   &lt;/extension&gt;
+&lt;/pre&gt;
+&lt;/p&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="apiinfo"/>
+      </appinfo>
+      <documentation>
+         plugins that want to extend this must subclass &lt;samp&gt;uk.ac.diamond.sda.polling.jobs.AbstractPollJob&lt;/samp&gt;  However they may also extend &lt;samp&gt;FilenameReaderJob&lt;/samp&gt; or &lt;samp&gt;FilenameReaderUpdateOnlyJob&lt;/samp&gt; if they want to make use of the standard functionality to observe a file for a filename, updating continuously or only on changes.
+      </documentation>
+   </annotation>
+
+
+
+</schema>

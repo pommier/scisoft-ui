@@ -1,0 +1,1595 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<fragment>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Data Acquisition - Analysis"
+            id="uk.ac.diamond.scisoft.analysis.rcp">
+      </category>
+      <view
+            name="NeXus Tree"
+            icon="icons/nexus.png"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.NexusTreeView"
+            id="uk.ac.diamond.scisoft.analysis.rcp.views.NexusTreeView">
+      </view>
+      <view
+            name="HDF5 Tree"
+            icon="icons/hdf.gif"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.HDF5TreeView"
+            id="uk.ac.diamond.scisoft.analysis.rcp.views.HDF5TreeView">
+      </view>
+      <view
+            name="Colour Mapping"
+            icon="icons/chart_bar.png"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView"
+            id="uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView"
+            allowMultiple="true">
+      </view>
+      <view
+            name="Transfer Function"
+            icon="icons/chart_bar.png"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.TransferFunctionView"
+            id="uk.ac.diamond.scisoft.analysis.rcp.views.TransferFunctionView"
+            allowMultiple="false">
+      </view>      
+      <view
+             allowMultiple="false"
+             category="uk.ac.diamond.scisoft.analysis.rcp"
+             class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+             icon="icons/chart_curve.png"
+             id="uk.ac.diamond.scisoft.analysis.rcp.plotViewDP"
+             name="Dataset Plot"
+             restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.plotView1"
+            name="Plot 1"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.plotView2"
+            name="Plot 2"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.livePlotView"
+            name="Live Plot"
+            restorable="true">
+      </view>
+      <view
+            name="Side Plot"
+            icon="icons/chart_line.png"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView"
+            id="uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView"
+            allowMultiple="true">
+      </view>
+
+      <view
+            name="Data Window"
+            icon="icons/map_magnify.png"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView"
+            id="uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView"
+            allowMultiple="true">
+      </view>      
+      <view
+            allowMultiple="true"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.plot.StaticScanPlotView"
+            icon="icons/chart_curve_link.png"
+            id="gda.rcp.views.scan.StaticScanPlotView"
+            name="Static Plot"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.DataNavigator"
+            icon="icons/application_view_list.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.ResultsNavigator"
+            name="Data Navigator"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.AsciiTextView"
+            icon="icons/page_white_database.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.AsciiTextView"
+            name="Text">
+      </view>
+      <view
+            name="Remote Volume Viewer"
+            icon="icons/box.png"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.RemoteVolVizView"
+            id="uk.ac.diamond.scisoft.analysis.rcp.views.RemoteVolVizView">
+      </view>
+      <view
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DataSetPlotView"
+            icon="icons/chart_curve.png"
+            id="uk.ac.gda.views.nexus.NexusPlotView"
+            name="Data Sets">
+      </view>
+      <view
+            name="ImageExplorer View"
+            icon="icons/map_magnify.png"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView"
+            id="uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView"
+            allowMultiple="false">
+      </view>
+      <view
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.DatasetTableView"
+            icon="icons/table.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.views.DatasetTableView"
+            name="Dataset table"
+            restorable="true">
+      </view>
+      <view
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView"
+            icon="icons/table_magnify.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView"
+            name="Dataset Inspector"
+            restorable="true">
+      </view>
+      <view
+            name="Stats and Maths"
+            icon="icons/calculator_link.png"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotViewStatsAndMaths"
+            id="uk.ac.diamond.scisoft.analysis.rcp.views.PlotViewStatsAndMaths"
+            allowMultiple="true">
+      </view>
+      <view
+           allowMultiple="true"
+           category="uk.ac.diamond.scisoft.analysis.rcp"
+           class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+           icon="icons/chart_curve.png"
+           id="uk.ac.diamond.scisoft.analysis.rcp.plotViewMultiple"
+           name="Plot"
+           restorable="true">
+      </view>     
+<!-- 
+      <view
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.SampleView"
+            icon="icons/box.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.views.SampleView"
+            name="PlotSampleView">
+      </view> 
+-->           
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.diamond.scisoft.analysis.rcp.AnalysisPerspective"
+            icon="icons/calculator.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.AnalysisPerspective"
+            name="Analysis">
+      </perspective>
+      <perspective
+            class="uk.ac.diamond.scisoft.analysis.rcp.DataExplorationPerspective"
+            icon="icons/chart_curve.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.perspective1"
+            name="Data Explorer">
+      </perspective>
+      <perspective
+            class="uk.ac.diamond.scisoft.analysis.rcp.DataExplorationPerspective"
+            icon="icons/dexplore.png"
+            id="uk.ac.diamond.scisoft.dataexplorationperspective"
+            name="DExplore">
+      </perspective>
+      <perspective
+            class="uk.ac.diamond.scisoft.analysis.rcp.DiffractionViewerPerspective"
+            icon="icons/diva.png"
+            id="uk.ac.diamond.scisoft.diffractionviewerperspective"
+            name="DIVA">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="*">
+         <perspectiveShortcut
+               id="uk.ac.diamond.scisoft.dataexplorationperspective">
+         </perspectiveShortcut>
+         <perspectiveShortcut
+               id="uk.ac.diamond.scisoft.diffractionviewerperspective">
+         </perspectiveShortcut>
+         <perspectiveShortcut
+               id="org.python.pydev.ui.PythonPerspective">
+         </perspectiveShortcut>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.RefreshNavigatorAction"
+            id="uk.ac.diamond.scisoft.analysis.rcp.refreshNavigator"
+            name="Refresh All">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.OpenXmlAction"
+            id="uk.ac.diamond.scisoft.analysis.rcp.openXml"
+            name="Open XML">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.OpenDataFileAction"
+            id="uk.ac.diamond.scisoft.analysis.rcp.results.openResultsFile"
+            name="Open Data">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.SwitchDataSourceAction"
+            id="uk.ac.diamond.scisoft.analysis.rcp.results.switchSource"
+            name="Switch Source">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.nexus.LoadNexusTreeAction"
+            id="uk.ac.diamond.scisoft.analysis.rcp.LoadNexusTreeAction"
+            name="LoadNXTree">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.hdf5.LoadHDF5TreeAction"
+            id="uk.ac.diamond.scisoft.analysis.rcp.LoadHDF5TreeAction"
+            name="LoadHDF5Tree">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.actions.NavigatorDemoAction"
+            id="uk.ac.diamond.scisoft.analysis.rcp.NavigatorDemoAction"
+            name="ActionJackson">
+      </command>      
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotRegionZoomAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotRegionZoomAction"
+      		name="Region Zoom Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      		<state
+      			class="org.eclipse.ui.handlers.RegistryToggleState:false"
+      			id = "org.eclipse.ui.commands.toggleState">
+      		</state>
+      </command>
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotAreaZoomAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotAreaZoomAction"
+      		name="Area Zoom Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      		<state
+      			class="org.eclipse.ui.handlers.RegistryToggleState:false"
+      			id = "org.eclipse.ui.commands.toggleState">
+      		</state>
+      </command> 
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotUnZoomAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotUnZoomAction"
+      		name="Undo Zoom Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotAddToHistoryAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotAddToHistoryAction"
+      		name="Add to history Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotRemoveFromHistoryAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotRemoveFromHistoryAction"
+      		name="Remove from history Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotChangeAppAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotChangeAppAction"
+      		name="Change Appearance Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotPrintGraphAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphAction"
+      		name="Print graph Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotSaveGraphAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotSaveGraphAction"
+      		name="Save graph Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>   
+     <command
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotCopyGraphAction"
+      		name="Copy graph Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>
+     <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotActivateXGridAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotActivateXGridAction"
+      		name="Activate X Grid Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      		<state
+      			class="org.eclipse.ui.handlers.RegistryToggleState:true"
+      			id = "org.eclipse.ui.commands.toggleState">
+      		</state>
+      </command>
+     <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotActivateYGridAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotActivateYGridAction"
+      		name="Activate X Grid Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      		<state
+      			class="org.eclipse.ui.handlers.RegistryToggleState:true"
+      			id = "org.eclipse.ui.commands.toggleState">
+      		</state>
+      </command>
+     <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotActivateRightClickAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotActivateRightClickAction"
+      		name="Activate Right click Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      		<state
+      			class="org.eclipse.ui.handlers.RegistryToggleState:false"
+      			id = "org.eclipse.ui.commands.toggleState">
+      		</state>
+      </command>
+     <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotDisplayPositionAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotDisplayPositionAction"
+      		name="Activate Right click Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      		<state
+      			class="org.eclipse.ui.handlers.RegistryToggleState:false"
+      			id = "org.eclipse.ui.commands.toggleState">
+      		</state>
+      </command>
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotXLabelExpAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotXLabelExpAction"
+      		name="X labels exponent Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotYLabelExpAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotYLabelExpAction"
+      		name="Y labels exponent Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotXLabelFloatAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotXLabelFloatAction"
+      		name="X labels plain Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotYLabelFloatAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotYLabelFloatAction"
+      		name="Y labels plain Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotXLabelRoundAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotXLabelRoundAction"
+      		name="X labels round Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotYLabelRoundAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotYLabelRoundAction"
+      		name="Y labels round Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotXLabelSIUnitAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotXLabelSIUnitAction"
+      		name="X labels SI Unit Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotYLabelSIUnitAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotYLabelSIUnitAction"
+      		name=" labels SI Unit Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command> 
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotYAxisLinearScalingAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotYAxisLinearScalingAction"
+      		name="Y Axis linear scaling">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>    
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotYAxisLogScalingAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotYAxisLogScalingAction"
+      		name="Y Axis logarithmic scaling">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>                                                                                                                           		
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.DefaultDataSourceAction"
+            id="uk.ac.diamond.scisoft.analysis.rcp.results.defaultSource"
+            name="Default Source">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.RefreshFolderAction"
+            id="uk.ac.diamond.scisoft.analysis.rcp.refreshFile"
+            name="Refresh Folder">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.AsciiMonitorAction"
+            id="uk.ac.diamond.scisoft.analysis.rcp.monitorAscii"
+            name="Monitor">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.views.nexus.AddExpressionHandler"
+            id="uk.ac.diamond.scisoft.analysis.rcp.addExpression"
+            name="Add Expression">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DeleteExpressionHandler"
+            id="uk.ac.diamond.scisoft.analysis.rcp.deleteExpression"
+            name="Delete Expression">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.CompareDataSetsHandler"
+            id="uk.ac.diamond.scisoft.analysis.rcp.compareDataSets"
+            name="Compare">
+      </command>
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DemoGridViewSelectionAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.DemoGridViewSelectionAction"
+      		name="Demo Gridview Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>
+       <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.GridOverviewAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.GridOverviewAction"
+      		name="Overview Action">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>               
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.ImageExplorerDirectoryChooseAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.ImageExplorerDirectoryChooseAction"
+      		name="Choose Directory Action">
+         <commandParameter
+               id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+               name="Source View"
+               optional="false">
+         </commandParameter>
+      </command>
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.StopImageLoadingAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.StopImageLoadingAction"
+      		name="Stop Action">
+         <commandParameter
+               id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+               name="Source View"
+               optional="false">
+         </commandParameter>
+         <state id = "org.eclipse.ui.commands.toggleState">
+            <class
+                  class="org.eclipse.ui.handlers.RegistryToggleState">
+               <parameter name="persisted" value="false"/>
+               <parameter name="default" value="false"/>
+            </class>
+         </state>
+      </command>
+      <command
+      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.MonitorDirectoryAction"
+      		id="uk.ac.diamond.scisoft.analysis.rcp.MontorDirectoryAction"
+      		name="Monitor Directory Action">
+       		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      		<state id = "org.eclipse.ui.commands.toggleState">
+      			<class 
+      				class="org.eclipse.ui.handlers.RegistryToggleState">
+      			<parameter name="persisted" value="false"/> 
+      			<parameter name="default" value="false"/>
+      			</class>	      			
+      		</state>
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.NexusFilterHandler"
+            id="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.NexusFilter"
+            name="Nexus Filter">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.DatFilterHandler"
+            id="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.DatFilter"
+            name="Dat Filter">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:uk.ac.diamond.scisoft.analysis.rcp.results.navigator.ResultsNavigator">
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.refreshNavigator"
+               icon="icons/page_refresh.png"
+               label="Refresh All"
+               style="push">
+         </command>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.openXml"
+               icon="icons/page_code.png"
+               label="Open XML"
+               style="push">
+         </command>
+         <separator
+               name="uk.ac.diamond.scisoft.analysis.rcp.separator1"
+               visible="true">
+         </separator>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.results.switchSource"
+               label="Change data folder..."
+               style="push">
+         </command>
+         <separator
+               name="uk.ac.diamond.scisoft.analysis.rcp.separator2"
+               visible="true">
+         </separator>
+         <menu
+               label="Filter">
+            <command
+                  commandId="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.NexusFilter"
+                  label=".nxs files"
+                  style="toggle">
+            </command>
+            <command
+                  commandId="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.DatFilter"
+                  label=".dat files"
+                  style="toggle">
+            </command>
+         </menu>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:uk.ac.diamond.scisoft.analysis.rcp.results.navigator.ResultsNavigator">
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.compareDataSets"
+               icon="icons/chart_curve_go.png"
+               label="Compare..."
+               style="push">
+         </command>
+ 
+         <separator
+               name="uk.ac.diamond.scisoft.analysis.rcp.separator2"
+               visible="true">
+         </separator>
+         <command
+               commandId="org.eclipse.search.ui.openSearchDialog"
+               icon="icons/folder_explore.png"
+               label="Find..."
+               style="push"
+               tooltip="Find a file using a wildcard search.">
+         </command>
+         <separator
+               name="uk.ac.diamond.scisoft.analysis.rcp.separator3"
+               visible="true">
+         </separator>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.refreshFile"
+               icon="icons/folder_page_white.png"
+               label="Refresh Folder"
+               style="push"
+               tooltip="Refreshes the current folder or parent if a file is selected.">
+         </command>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.results.defaultSource"
+               icon="icons/folder_brick.png"
+               label="Default Data"
+               style="push"
+               tooltip="Set data folder to be the one for this visit.">
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="popup:uk.ac.diamond.scisoft.analysis.rcp.results.navigator.ResultsNavigator">
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.refreshFile"
+               icon="icons/folder_page_white.png"
+               label="Refresh Folder"
+               style="push"
+               tooltip="Refreshes the current folder or parent if a file is selected.">
+         </command>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.refreshNavigator"
+               icon="icons/page_refresh.png"
+               label="Refresh All"
+               style="push">
+         </command>
+         <separator
+               name="uk.ac.diamond.scisoft.analysis.rcp.separator1"
+               visible="true">
+         </separator>
+         <command
+               commandId="org.eclipse.search.ui.openSearchDialog"
+               icon="icons/folder_explore.png"
+               label="Find..."
+               style="push"
+               tooltip="Find a file using a wildcard search.">
+         </command>
+         <separator
+               name="uk.ac.diamond.scisoft.analysis.rcp.separator3"
+               visible="true">
+         </separator>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.compareDataSets"
+               icon="icons/chart_curve_go.png"
+               label="Compare..."
+               style="push">
+         </command>
+         <separator
+               name="uk.ac.diamond.scisoft.analysis.rcp.separator2"
+               visible="true">
+         </separator>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.results.switchSource"
+               label="Change data folder..."
+               style="push">
+         </command>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.openXml"
+               icon="icons/page_code.png"
+               label="Open XML"
+               style="push"
+               tooltip="If there is an xml node in the nexus file.">
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:uk.ac.diamond.scisoft.analysis.rcp.views.NexusTreeView">
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.LoadNexusTreeAction"
+               icon="icons/folder_page.png"
+               label="Load tree"
+               style="push"
+               tooltip="Load a NeXus tree from the filesystem">
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:uk.ac.diamond.scisoft.analysis.rcp.views.HDF5TreeView">
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.LoadHDF5TreeAction"
+               icon="icons/folder_page.png"
+               label="Load tree"
+               style="push"
+               tooltip="Load a HDF5 tree from the filesystem">
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:uk.ac.diamond.scisoft.analysis.rcp.results.navigator.AsciiTextView">
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.monitorAscii"
+               icon="icons/page_white_get.png"
+               label="Monitor"
+               style="toggle"
+               tooltip="Switches on/off monitoring of the file. The file is refreshed every five seconds.">
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:uk.ac.gda.views.nexus.NexusPlotView">
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.addExpression"
+               icon="icons/calculator_add.png"
+               label="Add Expression"
+               style="push"
+               tooltip="Adds an expression which can be plotted. Must be function of other data sets.">
+         </command>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.deleteExpression"
+               icon="icons/calculator_delete.png"
+               label="Delete Expression"
+               style="push"
+               tooltip="Deletes an expression.">
+         </command>
+         <separator
+               name="uk.ac.diamond.scisoft.analysis.rcp.separator1"
+               visible="true">
+         </separator>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.preference.preferenceDialog"
+               icon="icons/application_view_list.png"
+               label="Preferences..."
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="popup:uk.ac.gda.views.nexus.NexusPlotView">
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.addExpression"
+               icon="icons/calculator_add.png"
+               label="Add Expression"
+               style="push"
+               tooltip="Adds an expression which can be plotted. Must be function of other data sets.">
+         </command>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.deleteExpression"
+               icon="icons/calculator_delete.png"
+               label="Delete Expression"
+               style="push"
+               tooltip="Deletes an expression.">
+         </command>
+         <separator
+               name="uk.ac.diamond.scisoft.analysis.rcp.separator2"
+               visible="true">
+         </separator>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.preference.preferenceDialog"
+               label="Preferences..."
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:uk.ac.diamond.scisoft.analysis.rcp.views.SampleView">
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotRegionZoomAction"
+               icon="icons/magnify.png"
+               label="Region Zoom"
+               style="toggle"
+               tooltip="Region Zoom">
+               <parameter
+               		name="uk.ac.diamond.scisoft.analysis.command.sourceView"
+               		value="uk.ac.diamond.scisoft.analysis.rcp.views.SampleView">
+               	</parameter>
+         </command>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotAreaZoomAction"
+               icon="icons/zoom_in.png"
+               label="Area Zoom"
+               style="toggle"
+               tooltip="Area Zoom">
+            <parameter
+                  name="uk.ac.diamond.scisoft.analysis.command.sourceView"
+                  value="uk.ac.diamond.scisoft.analysis.rcp.views.SampleView">
+            </parameter>
+         </command>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotUnZoomAction"
+               icon="icons/minify.png"
+               label="Undo Zoom"
+               style="push"
+               tooltip="Undo Zoom">
+            <parameter
+                  name="uk.ac.diamond.scisoft.analysis.command.sourceView"
+                  value="uk.ac.diamond.scisoft.analysis.rcp.views.SampleView">
+            </parameter>
+         </command>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotChangeAppAction"
+               icon="icons/color_wheel.png"
+               label="Change appearance"
+               style="push"
+               tooltip="Change appearance">
+            <parameter
+                  name="uk.ac.diamond.scisoft.analysis.command.sourceView"
+                  value="uk.ac.diamond.scisoft.analysis.rcp.views.SampleView">
+            </parameter>
+         </command>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotAddToHistoryAction"
+               icon="icons/basket_put.png"
+               label="Add to history"
+               style="push"
+               tooltip="Add current plot to history">
+            <parameter
+                  name="uk.ac.diamond.scisoft.analysis.command.sourceView"
+                  value="uk.ac.diamond.scisoft.analysis.rcp.views.SampleView">
+            </parameter>
+         </command>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotRemoveFromHistoryAction"
+               icon="icons/basket_remove.png"
+               label="Remove from history"
+               style="push"
+               tooltip="Remove top history entry">
+            <parameter
+                  name="uk.ac.diamond.scisoft.analysis.command.sourceView"
+                  value="uk.ac.diamond.scisoft.analysis.rcp.views.SampleView">
+            </parameter>
+         </command>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotSaveGraphAction"
+               icon="icons/picture_save.png"
+               label="Export screenshot of graph"
+               style="push"
+               tooltip="Export a screenshot of the current graph and save to disk">
+            <parameter
+                  name="uk.ac.diamond.scisoft.analysis.command.sourceView"
+                  value="uk.ac.diamond.scisoft.analysis.rcp.views.SampleView">
+            </parameter>
+         </command>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotCopyGraphAction"
+               icon="icons/copy_edit_on.gif"
+               label="Copy graph to clip board"
+               style="push"
+               tooltip="Copy the current plot to clip board">
+            <parameter
+                  name="uk.ac.diamond.scisoft.analysis.command.sourceView"
+                  value="uk.ac.diamond.scisoft.analysis.rcp.views.SampleView">
+            </parameter>
+         </command>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphAction"
+               icon="icons/printer.png"
+               label="Print graph"
+               style="push"
+               tooltip="Print the current graph">
+            <parameter
+                  name="uk.ac.diamond.scisoft.analysis.command.sourceView"
+                  value="uk.ac.diamond.scisoft.analysis.rcp.views.SampleView">
+            </parameter>
+         </command>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotXLabelRoundAction"
+               label="X-Axis Label rounding mode"
+               style="push">
+            <parameter
+                  name="uk.ac.diamond.scisoft.analysis.command.sourceView"
+                  value="uk.ac.diamond.scisoft.analysis.rcp.views.SampleView">
+            </parameter>
+         </command>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotYLabelRoundAction"
+               label="Y-Axis Label rounding mode"
+               style="push">
+            <parameter
+                  name="uk.ac.diamond.scisoft.analysis.command.sourceView"
+                  value="uk.ac.diamond.scisoft.analysis.rcp.views.SampleView">
+            </parameter>
+         </command>
+      </menuContribution>
+     <menuContribution
+           locationURI="toolbar:org.eclipse.search.ui.views.SearchView">
+        <command
+              commandId="uk.ac.diamond.scisoft.analysis.rcp.compareDataSets"
+              icon="icons/chart_curve_go.png"
+              label="Compare..."
+              style="push">
+        </command>
+     </menuContribution>
+     <menuContribution
+           locationURI="popup:org.eclipse.search.ui.views.SearchView">
+        <command
+              commandId="uk.ac.diamond.scisoft.analysis.rcp.compareDataSets"
+              icon="icons/chart_curve_go.png"
+              label="Compare..."
+              style="push">
+        </command>
+     </menuContribution>
+         <menuContribution
+            locationURI="toolbar:uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView">
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.ImageExplorerDirectoryChooseAction"
+               icon="icons/folder_edit.png"
+               label="Choose directory"
+               style="push"
+               tooltip="Change the folder being viewed.">
+            <parameter
+                  name="uk.ac.diamond.scisoft.analysis.command.sourceView"
+                  value="uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView">
+            </parameter>
+         </command>
+         <separator
+               name="uk.ac.diamond.scisoft.analysis.rcp.separator.imageView1"
+               visible="true">
+         </separator>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.GridOverviewAction"
+               icon="icons/eye.png"
+               label="Overview"
+               style="toggle"
+               tooltip="Switch to Overview mode">
+            <parameter
+                  name="uk.ac.diamond.scisoft.analysis.command.sourceView"
+                  value="uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView">
+            </parameter>
+         </command>
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.StopImageLoadingAction"
+               icon="icons/stop.png"
+               label="Stop loading"
+               style="toggle"
+               tooltip="Stop/Halt loading of images">
+            <parameter
+                  name="uk.ac.diamond.scisoft.analysis.command.sourceView"
+                  value="uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView">
+            </parameter>
+         </command>         
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.MontorDirectoryAction"
+               icon="icons/folder_explore.png"
+               label="Watch directory"
+               style="toggle"
+               tooltip="Watch / monitor the directory">
+             <parameter
+                   name="uk.ac.diamond.scisoft.analysis.command.sourceView"
+                   value="uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView">
+             </parameter>
+         </command>         
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.DemoGridViewSelectionAction"
+               icon="icons/monitor.png"
+               label="Push selection"
+               style="push"
+               tooltip="Give selection to server">
+            <parameter
+                  name="uk.ac.diamond.scisoft.analysis.command.sourceView"
+                  value="uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView">
+            </parameter>
+         </command>
+        </menuContribution>
+        <menuContribution
+               locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+          <toolbar
+                id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.showPlotViewToolbar"
+                label="Plot View">
+            <command
+                  commandId="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.showPlotView"
+                  icon="icons/chart_curve.png"
+                  id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.showPlotViewToolbarCommand"
+                  label="Open New Plot View"
+                  tooltip="Open New Plot View">
+            </command>
+         </toolbar>
+        </menuContribution>
+         <!-- We insert the "Show Plot View" menu after "Show View" menu so it is most visible.
+              However, the showView ID doesn't appear to be part of the public API and is therefore
+              subject to change -->              
+        <menuContribution
+               locationURI="menu:window?after=showView">
+            <menu
+                  id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.showPlotView"
+                  label="Show Plot View"
+                  mnemonic="t">
+               <dynamic
+                     class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.ShowPlotViewMenu"
+                     id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.availableGuiNames">
+               </dynamic>
+            </menu>
+         </menuContribution>
+   </extension>
+   <extension
+         id="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.GDADataNature"
+         name="Data"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.GDADataNature">
+         </run>
+      </runtime>
+   </extension>
+   <extension
+         point="org.eclipse.search.searchPages">
+      <page
+            class="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.search.DataSearch"
+            icon="icons/folder_explore.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.search.dataSearch"
+            label="Data"
+            tabPosition="0">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.search.searchResultViewPages">
+      <viewPage
+            class="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.search.DataSearchResultPage"
+            icon="icons/folder_explore.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.search.dataSearchPage"
+            searchResultClass="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.search.DataSearchResult">
+      </viewPage>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceInitializer">
+      </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.ScisoftPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            name="SDA">
+      </page>
+     
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.preference.PreferencesHandler"
+            id="uk.ac.diamond.scisoft.analysis.rcp.preference.preferenceDialog"
+            name="Preferences...">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.preference.SidePlotterPreferenceHandler"
+            id="uk.ac.diamond.scisoft.analysis.rcp.preference.sidePlotterPreferenceDialog"
+            name="Side Plotter Settings...">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.preference.GridScanPreferencesHandler"
+            id="uk.ac.diamond.scisoft.analysis.rcp.ViewGridSettingsAction"
+            name="Grid Scan Settings...">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.preference.DiffractionViewerPreferencesHandler"
+            id="uk.ac.diamond.scisoft.analysis.rcp.ViewDiffractionViewerSettings"
+            name="Diffraction Viewer Settings...">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.preference.Fitting1DPreferenceHandler"
+            id="uk.ac.diamond.scisoft.analysis.rcp.Fitting1DSettings"
+            name="Fitting 1D Settings...">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.ShowPlotViewHandler"
+            id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.showPlotView" 
+            name="Show Plot View">
+         <commandParameter
+               id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.showPlotView.viewName"
+               name="Plot View Name"
+               values="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.ShowPlotViewHandler.ShowPlotViewParameterValues">
+         </commandParameter>  
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.InjectPyDevConsoleHandler"
+            description="Inject commands into active console, prompts to open a PyDev console if none active"
+            id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.injectPyDevConsole"
+            name="Inject PyDev Console">
+         <commandParameter
+               id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.injectPyDevConsole.createNewConsoleAlways"
+               name="Create a New Console"
+               optional="true">
+         </commandParameter>
+        <commandParameter
+               id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.injectPyDevConsole.viewName"
+               name="Plot View Name"
+               optional="true">
+         </commandParameter>
+         <commandParameter
+               id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.injectPyDevConsole.addScisoftPySetup"
+               name="Setup scisoftpy"
+               optional="true"
+               values="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.InjectPyDevConsoleHandler.SetupSciSoftPyParameterValues">
+         </commandParameter>
+         <commandParameter
+               id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.injectPyDevConsole.commandToInject"
+               name="Commands To Inject"
+               optional="true">
+         </commandParameter>
+      </command>
+   </extension>
+   <extension
+         point="uk.ac.diamond.scisoft.analysis.rcp.sidePlot">
+      <sideplot
+            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.LineProfile"
+            id="uk.ac.diamond.scisoft.analysis.rcp.LineProfile"
+            name="Line Profile">
+      </sideplot>
+      <sideplot
+            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.BoxProfile"
+            id="uk.ac.diamond.scisoft.analysis.rcp.BoxProfile"
+            name="Box Profile">
+      </sideplot>
+      <sideplot
+            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.SectorProfile"
+            id="uk.ac.diamond.scisoft.analysis.rcp.SectorProfile"
+            name="Sector Profile">
+      </sideplot>
+      <sideplot
+            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.MaskCreator"
+            id="uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.MaskCreator"
+            name="Mask Creator">
+      </sideplot>
+      <sideplot
+            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.DiffractionViewer"
+            id="uk.ac.diamond.scisoft.analysis.rcp.DiffractionViewer"
+            name="Diffraction Viewer">
+      </sideplot>     
+      <sideplot
+     		class = "uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.Fitting1D"
+            id="uk.ac.diamond.scisoft.analysis.rcp.Fitting1DSidePlot"
+            name="1D Fitting Tool"
+            plotMode="1D">
+      </sideplot>
+      <sideplot
+            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.DerivativeViewer"
+            id="uk.ac.diamond.scisoft.analysis.rcp.FirstDerivative"
+            name="First Derivative"
+            plotMode="1D">
+      </sideplot>
+   </extension>
+<!--   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="toolbar:uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView">
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.ViewGridSettingsAction"
+               icon="icons/application_form_edit.png"
+               id="uk.ac.diamond.scisoft.analysis.rcp.ViewGridSettingsAction"
+               label="Grid Scan Settings..."
+               tooltip="Opens the GDA preferences dialog">
+         </command>
+      </menuContribution>
+   </extension>
+   -->
+   <extension
+         point="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewDefault">
+      <ViewDefaultRegister
+            ViewName="Dataset Plot">
+      </ViewDefaultRegister>
+   </extension>
+   <extension
+         id="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewDefault"
+         name="Default"
+         point="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewRegister">
+         <ViewRegister
+         	ViewName="Plot 1">
+         </ViewRegister>
+         <ViewRegister
+         	ViewName="Plot 2">
+         </ViewRegister>
+         <ViewRegister
+         	ViewName="Live Plot">
+         </ViewRegister>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="uk.ac.diamond.scisoft.analysis.rcp.editors.HDF5TreeEditor"
+            default="false"
+            extensions="nxs"
+            icon="icons/nexus.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.editors.NexusTreeEditor"
+            name="NeXus Data Editor">
+      </editor>
+      <editor
+            class="uk.ac.diamond.scisoft.analysis.rcp.editors.HDF5TreeEditor"
+            default="false"
+            extensions="h5, hdf5"
+            icon="icons/hdf.gif"
+            id="uk.ac.diamond.scisoft.analysis.rcp.editors.HDF5TreeEditor"
+            name="HDF5 Data Editor">
+      </editor>
+      <editor
+            class="uk.ac.diamond.scisoft.analysis.rcp.editors.PlotEditor"
+            default="false"
+            extensions="png, jpg, jpeg, tif, tiff, cbf, img, ciff, mccd, edf, pgm, osc"
+            icon="icons/chart_curve.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.editors.PlotEditor"
+            name="Plot Data Editor">
+      </editor>
+      <editor
+            class="uk.ac.diamond.scisoft.analysis.rcp.editors.AsciiEditor"
+            default="false"
+            extensions="srs"
+            icon="icons/page_white_paint.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.editors.AsciiEditor"
+            name="Ascii Data Editor">
+      </editor>
+      <editor
+            class="uk.ac.diamond.scisoft.analysis.rcp.editors.SRSEditor"
+            default="false"
+            extensions="dat"
+            icon="icons/application_view_list.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.editors.srs"
+            name="SRS Editor">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.scisoft.analysis.rcp.editors.describers.SRSDescriber">
+         </contentTypeBinding>
+      </editor>
+      <editor
+            class="org.eclipse.ui.editors.text.TextEditor"
+            default="false"
+            extensions="log"
+            icon="icons/application_view_list.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.logeditor"
+            name="Log Editor">
+      </editor>
+      <editor
+            class="uk.ac.diamond.scisoft.analysis.rcp.editors.XasAsciiEditor"
+            default="false"
+            extensions="dat"
+            icon="icons/chart_curve.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.editors.xas"
+            name="Xas Ascii Editor">
+         <contentTypeBinding
+               contentTypeId="uk.ac.diamond.scisoft.analysis.rcp.editors.describers.XasAsciiDescriber">
+         </contentTypeBinding>
+      </editor>      
+   </extension>
+   <extension
+         point="org.eclipse.ui.editorActions">
+<!--      <editorContribution
+            id="uk.ac.diamond.scisoft.analysis.rcp.nexusEditorContribution"
+            targetID="uk.ac.diamond.scisoft.analysis.rcp.editors.NexusTreeEditor">
+         <action
+               class="uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DeleteExpressionHandler"
+               definitionId="uk.ac.diamond.scisoft.analysis.rcp.deleteExpression"
+               icon="icons/calculator_delete.png"
+               id="uk.ac.diamond.scisoft.analysis.rcp.deleteExpressionEditorAction"
+               label="Delete Expression"
+               style="push"
+               toolbarPath="Normal/additions"
+               tooltip="Delete an expression">
+         </action>
+         <action
+               class="uk.ac.diamond.scisoft.analysis.rcp.views.nexus.AddExpressionHandler"
+               definitionId="uk.ac.diamond.scisoft.analysis.rcp.addExpression"
+               icon="icons/calculator_add.png"
+               id="uk.ac.diamond.scisoft.analysis.rcp.addExpressionEditorAction"
+               label="Add Expression"
+               style="radio"
+               toolbarPath="Normal/additions"
+               tooltip="Add an expression of the other data sets">
+         </action>
+      </editorContribution>
+-->
+      <editorContribution
+            id="uk.ac.diamond.scisoft.analysis.rcp.nexusEditorContribution"
+            targetID="uk.ac.diamond.scisoft.analysis.rcp.editors.AsciiEditor">
+         <action
+               class="uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DeleteExpressionHandler"
+               definitionId="uk.ac.diamond.scisoft.analysis.rcp.deleteExpression"
+               icon="icons/calculator_delete.png"
+               id="uk.ac.diamond.scisoft.analysis.rcp.deleteExpressionEditorAction"
+               label="Delete Expression"
+               style="push"
+               toolbarPath="Normal/additions"
+               tooltip="Delete an expression">
+         </action>
+         <action
+               class="uk.ac.diamond.scisoft.analysis.rcp.views.nexus.AddExpressionHandler"
+               definitionId="uk.ac.diamond.scisoft.analysis.rcp.addExpression"
+               icon="icons/calculator_add.png"
+               id="uk.ac.diamond.scisoft.analysis.rcp.addExpressionEditorAction"
+               label="Add Expression"
+               style="radio"
+               toolbarPath="Normal/additions"
+               tooltip="Add an expression of the other data sets">
+         </action>
+      </editorContribution>
+   </extension>
+<!--   
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="true"
+            id="uk.ac.diamond.scisoft.analysis.rcp.compareObjectContribution"
+            objectClass="org.eclipse.core.resources.IFile">
+         <action
+               class="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.CompareDataSetsHandler"
+               enablesFor="+"
+               icon="icons/chart_curve_go.png"
+               id="uk.ac.diamond.scisoft.analysis.rcp.compareDataSetsDelegate"
+               label="Compare..."
+               tooltip="Compare files">
+         </action>
+      </objectContribution>
+   </extension>
+ -->
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="true"
+            id="uk.ac.diamond.scisoft.analysis.rcp.NavigatorDemoContribution"
+            objectClass="org.eclipse.core.resources.IFile">
+         <action
+               class="uk.ac.diamond.scisoft.analysis.rcp.actions.NavigatorDemoAction"
+               enablesFor="+"
+               id="uk.ac.diamond.scisoft.analysis.rcp.DemoNavigatorDelegate"
+               label="ActionJackson"
+               menubarPath="uk.ac.diamond.scisoft.analysis.rcp.contributions.menu1/group1"
+               tooltip="Demo">
+         </action>
+      </objectContribution>
+      <objectContribution
+            adaptable="false"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.objectContribution2"
+            objectClass="org.eclipse.core.resources.IFile">
+         <menu
+               id="uk.ac.diamond.scisoft.analysis.rcp.contributions.menu1"
+               label="SDA">
+            <separator
+                  name="group1">
+            </separator>
+         </menu>
+      </objectContribution>
+      <objectContribution
+            adaptable="true"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.ImageGridView"
+            objectClass="org.eclipse.core.resources.IFolder">
+         <action
+               class="uk.ac.diamond.scisoft.analysis.rcp.actions.ImageGridViewPathSetterAction"
+               enablesFor="1"
+               id="uk.ac.diamond.scisoft.analysis.rcp.contributions.ImageGridViewPathSetterAction"
+               label="Explore with ImageExplorer View"
+               tooltip="Explores this directory using the Image Explorer View">
+         </action>
+      </objectContribution>
+      <objectContribution
+            adaptable="true"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.SelectedImageGridView"
+            objectClass="org.eclipse.core.resources.IFile">
+         <action
+               class="uk.ac.diamond.scisoft.analysis.rcp.actions.SelectedImageGridViewAction"
+               enablesFor="+"
+               id="uk.ac.diamond.scisoft.analysis.rcp.contributions.SelectedImageGridViewAction"
+               label="Explore images"
+               tooltip="Explores these images using the Image Explorer View">
+         </action>
+      </objectContribution>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.PreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.preferencePage"
+            name="Dataset Viewing">
+      </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.PlotViewPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.plotViewPreferencePage"
+            name="Plot View">
+      </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.ImageExplorerPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.imageExplorerPreferencePage"
+            name="Image Explorer View">
+      </page>      
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.SidePlotterPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.sidePlotterPreferencePage"
+            name="Side Plotter">
+      </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.GridScanPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.gridScanPreferencePage"
+            name="Grid Scan">
+      </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.DiffractionViewerPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.diffractionViewerPreferencePage"
+            name="Diffraction Viewer">
+      </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.Fitting1DPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.fitting1DPreferencePage"
+            name="Fitting 1D">
+      </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.AnalysisRpcAndRmiPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.analysisRpcAndRmiPreferencePage"
+            name="Analysis RPC and RMI">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="uk.ac.diamond.scisoft.analysis.rcp.wizards"
+            name="Data">
+      </category>
+      <wizard
+            category="uk.ac.diamond.scisoft.analysis.rcp.wizards"
+            class="uk.ac.diamond.scisoft.analysis.rcp.wizards.DataWizard"
+            icon="icons/reel.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.wizards.DataWizard"
+            name="Data Project"
+            project="true">
+      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            describer="uk.ac.diamond.scisoft.analysis.rcp.editors.describers.XasAsciiDescriber"
+            file-extensions="dat"
+            id="uk.ac.diamond.scisoft.analysis.rcp.editors.describers.XasAsciiDescriber"
+            name="XAS Ascii File Content"
+            priority="normal">
+      </content-type>
+      <content-type
+            describer="uk.ac.diamond.scisoft.analysis.rcp.editors.describers.SRSDescriber"
+            file-extensions="dat"
+            id="uk.ac.diamond.scisoft.analysis.rcp.editors.describers.SRSDescriber"
+            name="SRS File content"
+            priority="normal">
+      </content-type>
+   </extension>
+   <extension
+         id="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewDefault"
+         name="Default"
+         point="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewRegister">
+         <ViewRegister
+         	ViewName="Plot 1">
+         </ViewRegister>
+   </extension>
+   <extension
+         id="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewDefault"
+         name="Default"
+         point="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewRegister">
+         <ViewRegister
+         	ViewName="Plot 2">
+         </ViewRegister>
+   </extension>
+   <extension
+         point="uk.ac.diamond.scisoft.introRegister">
+      <introPageRegister
+            description="Opens the diffraction view perspective for viewing and analysing diffraction images"
+            icon="icons/diva_intro.png"
+            id="uk.ac.diamond.scisoft.intro.DiffractionViewerPersp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.DiffractionViewerPerspectiveLaunch"
+            name="DIVA">
+      </introPageRegister>
+      <introPageRegister
+            description="Opens the Data Explorer perspective for viewing data files"
+            icon="icons/dexplore_intro.png"
+            id="uk.ac.diamond.scisoft.intro.DataExplorationPersp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.DataExplorationPerspectiveLaunch"
+            name="DEXPLORE">
+      </introPageRegister>
+      <introPageRegister
+            description="Opens the Pydev environment for programmatically opening, editing, analysing, saving and displaying data files"
+            icon="icons/python_intro.png"
+            id="uk.ac.diamond.scisoft.JythonPersp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.JythonPerspectiveLaunch"
+            name="Python/Jython Scripting">
+      </introPageRegister>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotCopyGraphAction"
+            commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotCopyGraphAction">
+         <activeWhen>
+            <with
+                  variable="activePartId">
+               <equals
+                     value="uk.ac.diamond.scisoft.analysis.rcp.plotViewDP">
+               </equals>
+               <equals
+                     value="uk.ac.diamond.scisoft.analysis.rcp.plotView1">
+               </equals>
+               <equals
+                     value="uk.ac.diamond.scisoft.analysis.rcp.plotView2">
+               </equals>
+               <equals
+                     value="uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView">
+               </equals>
+               <equals
+                     value="uk.ac.diamond.scisoft.analysis.rcp.livePlotView">
+               </equals>
+            </with></activeWhen>
+      </handler>
+   </extension>
+</fragment>

@@ -1,0 +1,177 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="uk.ac.diamond.scisoft.analysis.rcp" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appinfo>
+         <meta.schema plugin="uk.ac.diamond.scisoft.analysis.rcp" id="sidePlot" name="Side Plot "/>
+      </appinfo>
+      <documentation>
+         This extension point is used to define additional side plots to support the plot views in the GDA. A side plot is typically displayed in a side plot view and provides supporting information and plotting functionality to the main plot view.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appinfo>
+            <meta.element />
+         </appinfo>
+      </annotation>
+      <complexType>
+         <choice minOccurs="0" maxOccurs="unbounded">
+            <element ref="sideplot"/>
+         </choice>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="sideplot">
+      <complexType>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  a unique name that will be used to identify this sideplot
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string" use="required">
+            <annotation>
+               <documentation>
+                  a translatable name that will be used in the UI for this sideplot
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  a fully qualified name of the class that implements &lt;samp&gt;uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.ISidePlot&lt;/samp&gt;. A common practice is to subclass  &lt;samp&gt;uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.SidePlot&lt;/samp&gt; in order to inherit the default functionality.
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn="uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.SidePlot:uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.ISidePlot"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="plotMode">
+            <annotation>
+               <documentation>
+                  a string chosen from one of the following: 1D, 1D_stack, 2D_image, 2D_surface, 2D_multi, 3D_volume. By default, 2D_image is used
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+            <simpleType>
+               <restriction base="string">
+                  <enumeration value="1D">
+                  </enumeration>
+                  <enumeration value="1D_stack">
+                  </enumeration>
+                  <enumeration value="2D_image">
+                  </enumeration>
+                  <enumeration value="2D_surface">
+                  </enumeration>
+                  <enumeration value="2D_multi">
+                  </enumeration>
+                  <enumeration value="3D_volume">
+                  </enumeration>
+               </restriction>
+            </simpleType>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="since"/>
+      </appinfo>
+      <documentation>
+         [Enter the first release in which this extension point appears.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="examples"/>
+      </appinfo>
+      <documentation>
+         The following is an example of the extension point
+&lt;p&gt;
+&lt;pre&gt;
+      &lt;sideplot
+            class=&quot;uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.GridProfile&quot;
+            id=&quot;uk.ac.diamond.scisoft.analysis.rcp.GridProfile&quot;
+            name=&quot;Grid Profile&quot;&gt;
+      &lt;/sideplot&gt;
+&lt;/pre&gt;
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="apiinfo"/>
+      </appinfo>
+      <documentation>
+         The value of the &lt;samp&gt;class&lt;/samp&gt; attribute must be a fully qualified name of the class that implements  &lt;samp&gt;uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.ISidePlot &lt;/samp&gt;. It is common practice to subclass  &lt;samp&gt;uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.SidePlot&lt;/samp&gt; in order to inherit the default functionality.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="implementation"/>
+      </appinfo>
+      <documentation>
+         GDA provides a number of standard sideplots including Line Profile and Box Profile. These sideplots are typically displayed in the sideplot view. Sideplot views are associated with Plot View. Sideplots are displayed when plot view is used in a supported mode,for example, 2D mode.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="copyright"/>
+      </appinfo>
+      <documentation>
+         /*-
+ * Copyright © 2010 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+ */
+      </documentation>
+   </annotation>
+
+</schema>

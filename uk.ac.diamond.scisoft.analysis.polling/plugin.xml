@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="uk.ac.diamond.sda.polling.pollTask">
+      <PollJob
+            class="uk.ac.diamond.scisoft.analysis.rcp.polling.SRSFilePlotterJob"
+            example_config_text="Class=uk.ac.diamond.scisoft.analysis.rcp.polling.SRSFilePlotterJob\nPollTime=3.0\nFileName=/tmp/test.txt\nPlotViewName=Plot 1\nXAxis=sample_y\nYAxis=roi7_sum"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.PollJob3"
+            name="SRS Scatter Plot">
+      </PollJob>
+      <PollJob
+            class="uk.ac.diamond.scisoft.analysis.rcp.polling.SRSlinePlotJob"
+            example_config_text="Class=uk.ac.diamond.scisoft.analysis.rcp.polling.SRSlinePlotJob\nPollTime=3.0\nFileName=/tmp/test.txt\nPlotViewName=Plot 1\nXAxis=sample_y\nYAxis=roi7_sum"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.SRSlinePlotJob"
+            name="SRS Line Plot">
+      </PollJob>
+      <PollJob
+            class="uk.ac.diamond.scisoft.analysis.rcp.polling.ImagePlotUpdateJob"
+            example_config_text="Class=uk.ac.diamond.scisoft.analysis.rcp.polling.ImagePlotUpdateJob\nPollTime=3.0\nFileName=/tmp/test3.txt\nPlotViewName=Plot 2"
+            id="uk.ac.diamond.scisoft.PollJob1"
+            name="Image Plot Update">
+      </PollJob>
+      <PollJob
+            class="uk.ac.diamond.scisoft.analysis.rcp.polling.ImagePlotCycleJob"
+            example_config_text="Class=uk.ac.diamond.scisoft.analysis.rcp.polling.ImagePlotCycleJob\nPollTime=3.0\nFileName=/tmp/test.txt\nPlotViewName=Plot 2\nMaxImagesToCycle=4"
+            id="uk.ac.diamond.scisoft.analysis.rcp.ImagePlotCycleJob"
+            name="Image Plot Cycle">
+      </PollJob>
+      <PollJob
+            class="uk.ac.diamond.scisoft.analysis.rcp.polling.ImagePlotOverlayJob"
+            example_config_text="Class=uk.ac.diamond.scisoft.analysis.rcp.polling.ImagePlotOverlayJob\nPollTime=3.0\nFileName=/tmp/test.txt\nPlotViewName=Plot 2\nMaxImagesToOverlay=4"
+            id="uk.ac.diamond.scisoft.analysis.rcp.ImagePlotOverlayJob"
+            name="Image Plot Overlay">
+      </PollJob>
+      <PollJob
+            class="uk.ac.diamond.scisoft.analysis.rcp.polling.ImagePlotAccumulatorJob"
+            example_config_text="Class=uk.ac.diamond.scisoft.analysis.rcp.polling.ImagePlotAccumulatorJob\nPollTime=3.0\nFileName=/tmp/test.txt\nPlotViewName=Plot 2\nMaxImagesToAccumulate=4"
+            id="uk.ac.diamond.scisoft.analysis.rcp.ImagePlotAccumulatorJob"
+            name="Image Plot Accumulator">
+      </PollJob>
+      
+   </extension>
+
+</plugin>

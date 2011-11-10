@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView" name="Plot View" schema="schema/uk.ac.diamond.scisoft.analysis.rcp.plot.exsd"/>
+   <extension-point id="uk.ac.diamond.scisoft.analysis.data.set.filter" name="Filter for DataSets in DataSetPlotView" schema="schema/uk.ac.diamond.scisoft.analysis.data.set.filter.exsd"/>
+   <extension-point id="sidePlot" name="Side Plot " schema="schema/sidePlot.exsd"/>
+   <extension-point id="ExplorerViewRegister" name="uk.ac.diamond.scisoft.analysis.rcp.view.ExplorerViewRegister" schema="schema/ExplorerViewRegister.exsd"/>
+   <extension-point id="ExplorerViewDefault" name="uk.ac.diamond.scisoft.analysis.rcp.view.ExplorerViewDefault" schema="schema/ExplorerViewDefault.exsd"/>
+</plugin>

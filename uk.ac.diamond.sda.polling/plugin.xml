@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="pollTask" name="Poll Task" schema="schema/pollTask.exsd"/>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Polling Jobs"
+            id="uk.ac.diamond.sda.polling">
+      </category>
+      <view
+            name="Polling View"
+            icon="icons/sample.gif"
+            category="uk.ac.diamond.sda.polling"
+            class="uk.ac.diamond.sda.polling.views.PollingView"
+            id="uk.ac.diamond.sda.polling.views.PollingView">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.sda.polling"
+            class="uk.ac.diamond.sda.polling.views.URLPollView"
+            id="uk.ac.diamond.sda.polling.URLView"
+            name="URL Poll View"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+   <extension
+         point="uk.ac.diamond.sda.polling.pollTask">
+      <PollJob
+            class="uk.ac.diamond.sda.polling.jobs.FilenamePrintJob"
+            example_config_text="Class=uk.ac.diamond.sda.polling.jobs.FilenamePrintJob\nPollTime=3.0\nFileName=/tmp/test.txt"
+            id="uk.ac.diamond.sda.polling.PollJob1"
+            name="File Print Job">
+      </PollJob>
+      <PollJob
+            class="uk.ac.diamond.sda.polling.jobs.WebBrowserUpdate"
+            example_config_text="Class=uk.ac.diamond.sda.polling.jobs.WebBrowserUpdate\nPollTime=3.0\nFileName=/tmp/test.txt\nURLViewName=Plot 2"
+            id="uk.ac.diamond.sda.polling.browserupdate"
+            name="Browser Update">
+      </PollJob>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="uk.ac.diamond.sda.polling.preferences.PollingPreferencePage"
+            id="uk.ac.diamond.sda.polling.preferences.PollingPreferencePage"
+            name="Polling Preferences">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="uk.ac.diamond.sda.polling.preferences.PreferenceInitializer">
+      </initializer>
+   </extension>
+
+</plugin>

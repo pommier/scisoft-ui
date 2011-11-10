@@ -1,0 +1,86 @@
+/*-
+ * Copyright © 2009 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package uk.ac.diamond.scisoft.analysis.rcp.preference;
+
+public class PreferenceConstants {
+
+	public static final String IGNORE_DATASET_FILTERS = "ignore.data.set.filters";
+	public static final String SHOW_XY_COLUMN         = "show.xy.column.in.nexus.editor";
+	public static final String SHOW_DATA_SIZE         = "show.data.size.in.nexus.editor";
+	public static final String SHOW_DIMS              = "show.dims.in.nexus.editor";
+	public static final String SHOW_SHAPE             = "show.shape.in.nexus.editor";
+	public static final String DATA_FORMAT            = "data.format.editor.view";
+	public static final String PLAY_SPEED             = "data.format.slice.play.speed";
+
+	// sideplotter 1D preferences
+	public static final String SIDEPLOTTER1D_USE_LOG_Y = "sideplotter1d.useLog.y";
+
+	// gridscan sideplot preferences
+	public static final String GRIDSCAN_RESOLUTION_X = "gridscan.res.x";
+	public static final String GRIDSCAN_RESOLUTION_Y = "gridscan.res.y";
+	public static final String GRIDSCAN_BEAMLINE_POSX = "gridscan.beamline.posx";
+	public static final String GRIDSCAN_BEAMLINE_POSY = "gridscan.beamline.posy";
+    // diffraction viewer preferences
+	public static final String DIFFRACTION_VIEWER_PEAK_TYPE = "diffviewer.peaktype";
+	public static final String DIFFRACTION_VIEWER_MAX_PEAK_NUM = "diffviewer.maxNumPeaks";
+	
+	public static final String DIFFRACTION_VIEWER_AUTOSTOPPING = "diffviewer.autoStopping";
+	public static final String DIFFRACTION_VIEWER_STOPPING_THRESHOLD = "diffviewer.stoppingThreshold";
+	
+	public static final String DIFFRACTION_VIEWER_STANDARD_NAME = "diffviewer.standardName";
+	public static final String DIFFRACTION_VIEWER_STANDARD_NAME_LIST = "diffviewer.standardNameList";
+	public static final String DIFFRACTION_VIEWER_STANDARD_DISTANCES = "diffviewer.standardDistances";
+	public static final String DIFFRACTION_VIEWER_STANDARD_DISTANCES_LIST = "diffviewer.standardDistancesList";
+	public static final String DIFFRACTION_VIEWER_PIXELOVERLOAD_THRESHOLD = "diffViewer.pixelOverLoadThreshold";
+	// plot viewer preferences
+	public static final String PLOT_VIEWER_MULTI1D_CAMERA_PROJ = "plotView.multi1Dcamera";
+	public static final String PLOT_VIEWER_PLOT2D_COLOURMAP = "plotView.plot2DcolourMap";
+	public static final String PLOT_VIEWER_PLOT2D_SCALING = "plotView.plot2Dscaling";
+	public static final String PLOT_VIEWER_PLOT2D_CMAP_EXPERT = "plotView.plot2DcmapExpert";
+	public static final String PLOT_VIEWER_PLOT2D_AUTOHISTO = "plotView.plot2Dautohisto";
+	public static final String PLOT_VIEWER_PLOT2D_SHOWSCROLLBAR = "plotView.plot2DshowScrollbar";
+	// image explorer preferences
+	public static final String IMAGEEXPLORER_COLOURMAP = "imageExplorer.colourMap";
+	public static final String IMAGEEXPLORER_HISTOGRAMAUTOSCALETHRESHOLD = "imageExplorer.autoscaleThreshold";
+	public static final String IMAGEEXPLORER_TIMEDELAYBETWEENIMAGES = "imageExplorer.timeDelay";
+	public static final String IMAGEEXPLORER_PLAYBACKVIEW = "imageExplorer.playbackView";
+	public static final String IMAGEEXPLORER_PLAYBACKRATE = "imageExplorer.playbackRate";
+	// Fitting 1D preferences
+	public static final String FITTING_1D_PEAKTYPE = "fitting1d.peak.type";
+	public static final String FITTING_1D_PEAKLIST = "fitting1d.peak.list";
+	public static final String FITTING_1D_PEAK_NUM = "fitting1d.peak.num";
+	public static final String FITTING_1D_ALG_TYPE = "fitting1d.alg.type";
+	public static final String FITTING_1D_ALG_LIST = "fitting1d.alg.list";
+	public static final String FITTING_1D_SMOOTHING_VALUE = "fitting1d.alg.smoothing";
+	public static final String FITTING_1D_ALG_ACCURACY = "fitting1d.alg.accuracy";
+	public static final String FITTING_1D_AUTO_SMOOTHING = "fitting.alg.autosmoothing";
+	public static final String FITTING_1D_AUTO_STOPPING = "fitting.alg.autostopping";
+	public static final String FITTING_1D_THRESHOLD = "fitting.alg.stopping.threshold";
+	public static final String FITTING_1D_THRESHOLD_MEASURE = "fitting.alg.threshold.measure";
+	public static final String FITTING_1D_THRESHOLD_MEASURE_LIST = "fitting.alg.threshold.measure.list";
+	public static final String FITTING_1D_DECIMAL_PLACES = "fitting1d.peak.dp";
+
+	// Analysis RPC preferences
+	public static final String ANALYSIS_RPC_SERVER_PORT = "analysisrpc.server.port";
+	public static final String ANALYSIS_RPC_TEMP_FILE_LOCATION = "analysisrpc.tempfile";
+
+	// RMI preferences
+	public static final String RMI_SERVER_PORT = "rmi.server.port";
+	
+}

@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <!-- Phase 1 -->
+   <!-- Declare the view part to hold the default implementation --> 
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="uk.ac.diamond.sda.navigator.category"
+            name="Custom Navigator"/>
+      <view
+            allowMultiple="false"
+            class="org.eclipse.ui.navigator.CommonNavigator"
+            icon="icons/nav.png"
+            id="uk.ac.diamond.sda.navigator.view"
+            name="SDA Navigator"/>
+   </extension>
+   <!-- Declare the viewer configuration, and the default content/action bindings -->
+   <extension
+         point="org.eclipse.ui.navigator.viewer">
+      <viewer viewerId="uk.ac.diamond.sda.navigator.view">
+         <popupMenu
+               allowsPlatformContributions="true"
+               id="uk.ac.diamond.sda.navigator.view#PopupMenu">
+            <insertionPoint name="group.new"/>
+            <insertionPoint 
+                  name="group.open"
+                  separator="true"/>
+            <insertionPoint name="group.openWith"/>
+            <insertionPoint name="group.edit"
+                  separator="true"/>
+            <insertionPoint name="group.reorganize"/>
+            <insertionPoint 
+                  name="group.port"
+                  separator="true"/>
+            <insertionPoint 
+                  name="group.build"
+                  separator="true"/>
+            <insertionPoint 
+                  name="group.generate"
+                  separator="true"/>
+            <insertionPoint 
+                  name="group.search"
+                  separator="true"/>
+            <insertionPoint  
+                  name="additions"
+                  separator="true"/>
+            <insertionPoint  
+                  name="group.properties"
+                  separator="true"/>
+         </popupMenu>
+      </viewer>
+      <viewerContentBinding viewerId="uk.ac.diamond.sda.navigator.view">
+         <includes>
+            <contentExtension pattern="org.eclipse.ui.navigator.resourceContent"/>
+            <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/> 
+            <contentExtension pattern="org.eclipse.ui.examples.navigator.filters.*"/> 
+         </includes>
+      </viewerContentBinding>
+      <viewerActionBinding viewerId="uk.ac.diamond.sda.navigator.view">
+         <includes>
+            <actionExtension pattern="org.eclipse.ui.navigator.resources.*"/>
+         </includes>
+      </viewerActionBinding>
+   </extension>
+   <!-- Declare a simple filter example that uses core expressions -->
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <commonFilter
+            id="org.eclipse.ui.examples.navigator.filters.hideNonJavaProjects"
+            name="Hide non-Java Projects">
+         <filterExpression>
+            <not>
+               <adapt type="org.eclipse.core.resources.IProject">
+                  <test
+                        property="org.eclipse.core.resources.projectNature"
+                        value="org.eclipse.jdt.core.javanature"/>
+               </adapt>
+            </not>
+         </filterExpression>
+      </commonFilter>
+   </extension>
+  <!-- Phase 2 -->
+  <!-- Declare a content extension that renders the contents of a .properties file -->
+  <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <navigatorContent 
+            id="uk.ac.diamond.sda.navigator.propertiesContent"
+            name="Properties File Contents"
+            contentProvider="uk.ac.diamond.sda.navigator.properties.PropertiesContentProvider"
+            labelProvider="uk.ac.diamond.sda.navigator.properties.PropertiesLabelProvider"
+            activeByDefault="true"
+            icon="icons/prop_ps.gif"
+            priority="normal" >
+         <triggerPoints>
+            <or>
+               <and>
+                  <instanceof value="org.eclipse.core.resources.IResource"/>
+                  <test
+                     forcePluginActivation="true"
+                     property="org.eclipse.core.resources.extension"
+                     value="properties"/>
+                  </and>
+                  <instanceof value="uk.ac.diamond.sda.navigator.properties.PropertiesTreeData"/>
+            </or>
+         </triggerPoints>
+         <possibleChildren>
+            <or>
+               <instanceof value="uk.ac.diamond.sda.navigator.properties.PropertiesTreeData"/> 
+            </or>
+         </possibleChildren>
+         <actionProvider
+               class="uk.ac.diamond.sda.navigator.properties.actions.PropertyActionProvider"
+               id="uk.ac.diamond.sda.navigator.properties.actions.OpenProvider"/>
+      </navigatorContent>
+   </extension>
+   <!-- Declare a content extension that renders the contents of a .h5 file -->
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <navigatorContent 
+         id="uk.ac.diamond.sda.navigator.hdf5Content"
+         name="HDF5 File Contents"
+         contentProvider="uk.ac.diamond.sda.navigator.hdf5.HDF5ContentProvider"
+         labelProvider="uk.ac.diamond.sda.navigator.hdf5.HDF5LabelProvider"
+         activeByDefault="true"
+         icon="icons/prop_ps.gif"
+         priority="normal" >
+         <triggerPoints>
+            <or>
+               <and>
+                  <instanceof value="org.eclipse.core.resources.IResource"/>
+                  <test
+                     forcePluginActivation="true"
+                     property="org.eclipse.core.resources.extension"
+                     value="h5"/>
+               </and>
+               <instanceof value="uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.Tree"/>
+               <instanceof value="uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode"/>
+            </or>
+         </triggerPoints>
+         <possibleChildren>
+            <or>
+               <instanceof value="uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.Tree"/>
+               <instanceof value="uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode"/>
+            </or>
+         </possibleChildren>
+         <actionProvider
+               class="uk.ac.diamond.sda.navigator.actions.HDF5ActionProvider"
+               id="uk.ac.diamond.sda.navigator.actions.HDF5OpenProvider"/>
+      </navigatorContent>
+   </extension>
+   <!-- Declare a content extension that renders the contents of a .nxs file -->
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <navigatorContent 
+         id="uk.ac.diamond.sda.navigator.nexusContent"
+         name="Nexus File Contents"
+         contentProvider="uk.ac.diamond.sda.navigator.nexus.NexusContentProvider"
+         labelProvider="uk.ac.diamond.sda.navigator.nexus.NexusLabelProvider"
+         activeByDefault="true"
+         icon="icons/prop_ps.gif"
+         priority="normal" >
+         <triggerPoints>
+            <or>
+               <and>
+                  <instanceof value="org.eclipse.core.resources.IResource"/>
+                  <test
+                     forcePluginActivation="true"
+                     property="org.eclipse.core.resources.extension"
+                     value="nxs"/>
+               </and>
+               <instanceof value="uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.Tree"/>
+               <instanceof value="uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode"/>
+            </or>
+         </triggerPoints>
+         <possibleChildren>
+            <or>
+               <instanceof value="uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.Tree"/>
+               <instanceof value="uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode"/>
+            </or>
+         </possibleChildren>
+         <actionProvider
+               class="uk.ac.diamond.sda.navigator.actions.HDF5ActionProvider"
+               id="uk.ac.diamond.sda.navigator.actions.HDF5OpenProvider"/>
+      </navigatorContent>
+   </extension>
+   <!-- Declare a content extension that renders the contents of a .dat file -->
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <navigatorContent 
+         id="uk.ac.diamond.sda.navigator.srsContent" 
+         name="SRS File Contents"
+         contentProvider="uk.ac.diamond.sda.navigator.srs.SRSContentProvider"
+         labelProvider="uk.ac.diamond.sda.navigator.srs.SRSLabelProvider" 
+         activeByDefault="true"
+         icon="icons/prop_ps.gif"
+         priority="normal" >
+         <triggerPoints>
+            <or>
+               <and>
+                  <instanceof value="org.eclipse.core.resources.IResource"/>
+                  <test
+                     forcePluginActivation="true"
+                     property="org.eclipse.core.resources.extension"
+                     value="dat"/>
+               </and>
+               <instanceof value="uk.ac.diamond.scisoft.analysis.rcp.navigator.srs.SRSTreeData"/>
+            </or>
+         </triggerPoints>
+         <possibleChildren>
+            <or>
+               <instanceof value="uk.ac.diamond.scisoft.analysis.rcp.navigator.srs.SRSTreeData"/> 
+            </or>
+         </possibleChildren>
+         <actionProvider
+               class="uk.ac.diamond.sda.navigator.actions.SRSActionProvider"
+               id="uk.ac.diamond.sda.navigator.actions.SRSOpenProvider"/>
+      </navigatorContent>
+   </extension>
+   <!-- Bind the content extensions to the navigator viewer -->
+   <extension
+         point="org.eclipse.ui.navigator.viewer">
+      <viewerContentBinding viewerId="uk.ac.diamond.sda.navigator.view">
+         <includes>
+            <contentExtension pattern="uk.ac.diamond.sda.navigator.propertiesContent"/>
+            <contentExtension pattern="uk.ac.diamond.sda.navigator.hdf5Content"/>
+            <contentExtension pattern="uk.ac.diamond.sda.navigator.nexusContent"/>
+            <contentExtension pattern="uk.ac.diamond.sda.navigator.srsContent"/>
+            <contentExtension pattern="org.eclipse.ui.navigator.resourceContent"/>
+         </includes>
+      </viewerContentBinding>
+   </extension>
+   <!-- Contribute an object contribution to delete individual properties in the view -->
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="false"
+            id="uk.ac.diamond.sda.navigator.properties.actions.propertiesResource"
+            objectClass="uk.ac.diamond.sda.navigator.properties.PropertiesTreeData">
+         <action
+               class="uk.ac.diamond.sda.navigator.properties.actions.DeletePropertyAction"
+               enablesFor="1"
+               helpContextId="org.eclipse.ui.edit.delete"
+               icon="icons/delete_obj.gif"
+               id="uk.ac.diamond.sda.navigator.properties.actions.deleteProperty"
+               label="Delete Property"
+               menubarPath="group.edit"
+               tooltip="Delete a specific property"/>
+      </objectContribution>
+   </extension>
+   <!-- Bind the content extensions to the package explorer -->
+   <extension
+         point="org.eclipse.ui.navigator.viewer">
+      <viewerContentBinding
+            viewerId="org.eclipse.ui.navigator.ProjectExplorer">
+         <includes>
+            <contentExtension
+                  pattern="uk.ac.diamond.sda.navigator.propertiesContent">
+            </contentExtension>
+            <contentExtension
+                  pattern="uk.ac.diamond.sda.navigator.nexusContent">
+            </contentExtension>
+            <contentExtension
+                  pattern="uk.ac.diamond.sda.navigator.hdf5Content">
+            </contentExtension>
+            <contentExtension
+                  pattern="uk.ac.diamond.sda.navigator.srsContent">
+            </contentExtension>
+            <contentExtension
+                  pattern="org.eclipse.ui.navigator.resourceContent">
+            </contentExtension>
+         </includes>
+      </viewerContentBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.decorators">
+      <decorator
+            adaptable="true"
+            class="uk.ac.diamond.sda.navigator.decorator.MetadataDecorator"
+            id="uk.ac.diamond.sda.navigator.metaData"
+            label="File Meta Data"
+            state="true">
+            <enablement>
+               <objectClass name="org.eclipse.core.resources.IResource"/>
+            </enablement>
+            <description>
+               Displays the file size and the date of last modification.
+            </description>
+      </decorator>
+   </extension>
+   <!-- Bind the Action Provider independently 
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">         
+      <actionProvider
+           class="uk.ac.diamond.sda.navigator.properties.actions.PropertyActionProvider"
+           id="uk.ac.diamond.sda.navigator.properties.actions.OpenProvider"/>
+      <actionProvider
+           class="uk.ac.diamond.sda.navigator.srs.actions.SRSActionProvider"
+           id="uk.ac.diamond.sda.navigator.srs.actions.OpenProvider"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.navigator.viewer">
+      <viewerActionBinding viewerId="uk.ac.diamond.sda.navigator.view">
+         <includes>
+            <actionExtension 
+                  pattern="uk.ac.diamond.sda.navigator.properties.actions.*"/>
+            <actionExtension 
+                  pattern="uk.ac.diamond.sda.navigator.srs.actions.*"/>
+         </includes>
+      </viewerActionBinding>
+   </extension>
+   -->
+</plugin>

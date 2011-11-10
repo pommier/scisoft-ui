@@ -1,0 +1,117 @@
+/*-
+ * Copyright © 2011 Diamond Light Source Ltd.
+ *
+ * This file is part of GDA.
+ *
+ * GDA is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ *
+ * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package uk.ac.diamond.scisoft.analysis.rcp.plotting.actions;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.IParameterValues;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
+import uk.ac.diamond.scisoft.analysis.PlotService;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotWindowManager;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindowManager;
+import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
+
+public class ShowPlotViewHandler extends AbstractHandler {
+
+	/**
+	 * Command ID (as defined in plugin.xml)
+	 */
+	public static String COMMAND_ID = "uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.showPlotView";
+	/**
+	 * The parameter key for the ExecutionEvent that specifies the name of the view to show. Contains the argument to
+	 * pass as the view name to {@link IPlotWindowManager#openView(org.eclipse.ui.IWorkbenchPage, String)}
+	 * <p>
+	 * Legal values for the parameter are defined by {@link ShowPlotViewParameterValues}
+	 */
+	public static String VIEW_NAME_PARAM = COMMAND_ID + ".viewName";
+	/**
+	 * The text to display for opening a new view, i.e. when VIEW_NAME_PARAM == null
+	 */
+	public static final String NEW_PLOT_VIEW = "New Plot View";
+
+	/**
+	 * Suffix string on Plot View Name in menu when there is corresponding Data and/or Gui bean in the plot server
+	 */
+	public static final String IN_PLOT_SERVER_SUFFIX = " *";
+
+	@Override
+	public Object execute(ExecutionEvent event) throws ExecutionException {
+		String viewName = event.getParameter(VIEW_NAME_PARAM);
+		PlotWindow.getManager().openView(null, viewName);
+
+		return null;
+	}
+
+	public static class ShowPlotViewParameterValues implements IParameterValues {
+		static private Logger logger = LoggerFactory.getLogger(ShowPlotViewParameterValues.class);
+
+		/**
+		 * Returns a list of all legal parameter values for {@link ShowPlotViewHandler}. The key is the display name and
+		 * the value is the parameter value to {@link ShowPlotViewHandler#VIEW_NAME_PARAM}.
+		 * <p>
+		 * The list of legal values is made up of the following sources:
+		 * <ul>
+		 * <li>All of the Plot Views that have been activated and registered themselves with {@link PlotWindowManager#registerPlotWindow(uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotWindow)}</li>
+		 * <li>All views in the view registry whose ID starts with {@link PlotView#ID}</li>
+		 * <li>All the view references whose primary ID is {@link PlotView#PLOT_VIEW_MULTIPLE_ID}</li>
+		 * <li>All Gui Names from {@link PlotService#getGuiNames()}. These are suffixed with {@link ShowPlotViewHandler#IN_PLOT_SERVER_SUFFIX}
+		 * <li>A <code>null</code> value for a option to open a new unique view name.
+		 * </ul>
+		 * 
+		 */
+		@Override
+		public Map<String, String> getParameterValues() {
+			PlotWindowManager manager = PlotWindowManager.getPrivateManager();
+
+			String[] views = manager.getAllPossibleViews(null);
+			Set<String> guiNamesWithData;
+			try {
+				guiNamesWithData = new HashSet<String>(Arrays.asList(PlotServerProvider.getPlotServer().getGuiNames()));
+			} catch (Exception e) {
+				// non-fatal, just means no IN_PLOT_SERVER_SUFFIX next to view name, still shouldn't happen
+				logger.error("Failed to get list of Gui Names from Plot Server", e);
+				guiNamesWithData = Collections.emptySet();
+			}
+			Map<String, String> values = new HashMap<String, String>();
+			for (String view : views) {
+				String viewDisplay = view;
+				if (guiNamesWithData.contains(view)) {
+					viewDisplay = view + IN_PLOT_SERVER_SUFFIX;
+				}
+				values.put(viewDisplay, view);
+			}
+			// null is a legal argument, means open a new view
+			values.put(NEW_PLOT_VIEW, null);
+			return values;
+		}
+	}
+
+}
