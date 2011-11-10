@@ -1,0 +1,6 @@
+<project name="plugin-uk.ac.diamond.scisoft" basedir=".">
+
+	<dirname property="GDA-plugin.basedir" file="${ant.file.${ant.project.name}}" />
+	<import file="../../builder/build-common.xml" />
+
+</project>
