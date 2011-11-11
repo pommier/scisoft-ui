@@ -192,11 +192,11 @@ public class Plot1DUIComplete extends Plot1DUIAdapter {
 		manager.add(changeColour);
 		manager.add(activateXgrid);
 		manager.add(activateYgrid);
-		manager.add(new Separator(getClass().getName()+"Print"));
+		manager.add(new Separator(getClass().getName()+printButtonText));
 		manager.add(saveGraph);
 		manager.add(copyGraph);
 		manager.add(printGraph);
-		
+		manager.add(new Separator(getClass().getName()+"Menu"));
 		// Needed when toolbar is attached to an editor
 		// or else the bar looks empty.
 		manager.update(true);

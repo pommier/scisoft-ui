@@ -1,5 +1,5 @@
 /*-
- * Copyright © 2009 Diamond Light Source Ltd.
+ * Copyright © 2011 Diamond Light Source Ltd.
  *
  * This file is part of GDA.
  *
@@ -18,30 +18,31 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.actions;
 
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.printing.PrintDialog;
+import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 
-/**
- *
- */
-public class PlotCopyGraphAction extends AbstractHandler {
+public class PlotPrintGraphWithScale75Action extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-
-		final PlotView pv = (PlotView)HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().getActivePart();
+		final PlotView pv = (PlotView) HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().getActivePart();
 		DataSetPlotter plotter = pv.getMainPlotter();
-		if (plotter == null)
-			return Boolean.FALSE;
 
-		plotter.copyGraph();
-
+		if (plotter != null) {
+			
+			PrintDialog dialog = new PrintDialog(pv.getSite().getShell(), SWT.NULL);
+			PrinterData printerData = dialog.open();
+			plotter.printGraph(printerData, 0.75f);
+			//Printer pr =new Printer(data)
+		}
 		return Boolean.TRUE;
 	}
 

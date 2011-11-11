@@ -2003,14 +2003,14 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 	 *            SWT specific printer object
 	 */
 
-	public synchronized void printGraph(PrinterData printerData) {
+	public synchronized void printGraph(PrinterData printerData, float scaling) {
 		if (printerData != null) {
 			isInExporting = true;
 			if (currentMode == PlottingMode.ONED || currentMode == PlottingMode.ONED_THREED
 					|| currentMode == PlottingMode.SCATTER2D)
-				PlotExportUtil.printGraph(printerData, viewerApp, container.getDisplay(), graphColourTable);
+				PlotExportUtil.printGraph(printerData, viewerApp, container.getDisplay(), graphColourTable, scaling);
 			else
-				PlotExportUtil.printGraph(printerData, viewerApp, container.getDisplay(), null);
+				PlotExportUtil.printGraph(printerData, viewerApp, container.getDisplay(), null, scaling);
 			isInExporting = false;
 		}
 	}

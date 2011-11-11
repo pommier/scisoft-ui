@@ -32,15 +32,21 @@ import java.util.Map;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.printing.PrintDialog;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
@@ -59,6 +65,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.InjectPyDevConsoleHandler;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
+import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
 
 /**
@@ -90,6 +97,20 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	protected CommandContributionItem openPyDevConsoleCCI;
 	protected CommandContributionItem updateDefaultPlotCCI;
 	protected CommandContributionItem getPlotBeanCCI;
+	
+	protected String[] listPrintScaleText = { ResourceProperties.getResourceString("PRINT_LISTSCALE_0"),
+		ResourceProperties.getResourceString("PRINT_LISTSCALE_1"), ResourceProperties.getResourceString("PRINT_LISTSCALE_2"),
+		ResourceProperties.getResourceString("PRINT_LISTSCALE_3"), ResourceProperties.getResourceString("PRINT_LISTSCALE_4"),
+		ResourceProperties.getResourceString("PRINT_LISTSCALE_5"), ResourceProperties.getResourceString("PRINT_LISTSCALE_6") };
+	protected String printButtonText = ResourceProperties.getResourceString("PRINT_BUTTON");
+	protected String printToolTipText = ResourceProperties.getResourceString("PRINT_TOOLTIP");
+	protected String printImagePath = ResourceProperties.getResourceString("PRINT_IMAGE_PATH");
+	protected String copyButtonText = ResourceProperties.getResourceString("COPY_BUTTON");
+	protected String copyToolTipText = ResourceProperties.getResourceString("COPY_TOOLTIP");
+	protected String copyImagePath = ResourceProperties.getResourceString("COPY_IMAGE_PATH");
+	protected String saveButtonText = ResourceProperties.getResourceString("SAVE_BUTTON");
+	protected String saveToolTipText = ResourceProperties.getResourceString("SAVE_TOOLTIP");
+	protected String saveImagePath = ResourceProperties.getResourceString("SAVE_IMAGE_PATH");
 
 	/**
 	 * PlotWindow may be given toolbars exclusive to the workbench part. In this case, there is no need to remove
@@ -298,9 +319,9 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 					mainPlotter.saveGraph(filename, PlotExportUtil.FILE_TYPES[dialog.getFilterIndex()]);
 				}
 			};
-			saveGraphAction.setText("Save / Export graph");
-			saveGraphAction.setToolTipText("Export / save the plotting");
-			saveGraphAction.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/picture_save.png"));
+			saveGraphAction.setText(saveButtonText);
+			saveGraphAction.setToolTipText(saveToolTipText);
+			saveGraphAction.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(saveImagePath));
 		}
 		
 		if (copyGraphAction == null) {
@@ -310,23 +331,121 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 					mainPlotter.copyGraph();
 				}
 			};
-			copyGraphAction.setText("Copy to Clipboard");
-			copyGraphAction.setToolTipText("Copy the plotting to Clipboard");
-			copyGraphAction.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/copy_edit_on.gif"));
+			copyGraphAction.setText(copyButtonText);
+			copyGraphAction.setToolTipText(copyToolTipText);
+			copyGraphAction.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(copyImagePath));
 		}
 		
 		if (printGraphAction == null) {
-			printGraphAction = new Action() {
+			printGraphAction = new Action(printButtonText, SWT.MENU) {
 				@Override
 				public void run() {
-					  PrintDialog dialog = new PrintDialog(parentComp.getShell(), SWT.NULL);
-					  PrinterData printerData = dialog.open();
-					  mainPlotter.printGraph(printerData);
+					PrintDialog dialog = new PrintDialog(parentComp.getShell(), SWT.NULL);
+					PrinterData printerData = dialog.open();
+					mainPlotter.printGraph(printerData, 1);
 				}
 			};
-			printGraphAction.setText("Print graph");
-			printGraphAction.setToolTipText("Print the plotting");
-			printGraphAction.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/printer.png"));
+			printGraphAction.setText(printButtonText);
+			printGraphAction.setToolTipText(printToolTipText);
+			printGraphAction.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(printImagePath));
+			printGraphAction.setMenuCreator(new IMenuCreator() {
+				@Override
+				public Menu getMenu(Control parent) {
+					return null;
+				}
+				@Override
+				public Menu getMenu(final Menu parent) {
+					Menu menu = new Menu(parent);
+					MenuItem item10 = new MenuItem(menu, SWT.None);
+					item10.setText(listPrintScaleText[0]);
+					item10.addSelectionListener(new SelectionListener() {
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
+							PrinterData printerData = dialog.open();
+							mainPlotter.printGraph(printerData, 0.1f);
+						}
+						@Override
+						public void widgetDefaultSelected(SelectionEvent e) {}
+					});
+					MenuItem item25 = new MenuItem(menu, SWT.None);
+					item25.setText(listPrintScaleText[1]);
+					item25.addSelectionListener(new SelectionListener() {
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
+							PrinterData printerData = dialog.open();
+							mainPlotter.printGraph(printerData, 0.25f);
+						}
+						@Override
+						public void widgetDefaultSelected(SelectionEvent e) {}
+					});
+					MenuItem item33 = new MenuItem(menu, SWT.None);
+					item33.setText(listPrintScaleText[2]);
+					item33.addSelectionListener(new SelectionListener() {
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
+							PrinterData printerData = dialog.open();
+							mainPlotter.printGraph(printerData, 0.33f);
+						}
+						@Override
+						public void widgetDefaultSelected(SelectionEvent e) {}
+					});
+					MenuItem item50 = new MenuItem(menu, SWT.None);
+					item50.setText(listPrintScaleText[3]);
+					item50.addSelectionListener(new SelectionListener() {
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
+							PrinterData printerData = dialog.open();
+							mainPlotter.printGraph(printerData, 0.5f);
+						}
+						@Override
+						public void widgetDefaultSelected(SelectionEvent e) {}
+					});
+					MenuItem item66 = new MenuItem(menu, SWT.None);
+					item66.setText(listPrintScaleText[4]);
+					item66.addSelectionListener(new SelectionListener() {
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
+							PrinterData printerData = dialog.open();
+							mainPlotter.printGraph(printerData, 0.66f);
+						}
+						@Override
+						public void widgetDefaultSelected(SelectionEvent e) {}
+					});
+					MenuItem item75 = new MenuItem(menu, SWT.None);
+					item75.setText(listPrintScaleText[5]);
+					item75.addSelectionListener(new SelectionListener() {
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
+							PrinterData printerData = dialog.open();
+							mainPlotter.printGraph(printerData, 0.75f);
+						}
+						@Override
+						public void widgetDefaultSelected(SelectionEvent e) {}
+					});
+					MenuItem item100 = new MenuItem(menu, SWT.None);
+					item100.setText(listPrintScaleText[6]);
+					item100.addSelectionListener(new SelectionListener() {
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
+							PrinterData printerData = dialog.open();
+							mainPlotter.printGraph(printerData, 1);
+						}
+						@Override
+						public void widgetDefaultSelected(SelectionEvent e) {}
+					});
+					return menu;
+				}
+				@Override
+				public void dispose() {}
+			});
+			
 		}
 
 		if (openPyDevConsoleCCI == null) {
@@ -377,6 +496,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		bars.getMenuManager().add(getPlotBeanCCI);
 		bars.getMenuManager().add(new Separator());
 		bars.getMenuManager().add(duplicateWindowAction);
+		bars.getMenuManager().add(new Separator());
 	}
 
 	private void setup1D() {

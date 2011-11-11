@@ -159,7 +159,7 @@ public class PlotExportUtil {
 	public static synchronized void printGraph(PrinterData printerData,
 											   AbstractViewerApp viewerApp,
 											   Display display,
-											   Plot1DGraphTable legendTable) {//, float scaling) {
+											   Plot1DGraphTable legendTable, float scaling) {
 		if (printerData != null) {
 			File imageFile = null;
 			// create a temporary image file
@@ -210,6 +210,7 @@ public class PlotExportUtil {
 				    Transform t = new Transform(display);
 				    t.translate(area.width*printScaleFactor, 0);
 				    t.rotate(90);
+				    t.scale(scaling, scaling);
 				    pgc.setTransform(t);
 				    pgc.drawImage(reloadedImage, 0, 0);
 				    t.dispose();
@@ -238,6 +239,8 @@ public class PlotExportUtil {
 							
 							legendGap = 10+Math.max(1,(numActiveEntries / 4)) * 32; 
 						}
+						
+						float legendRepositioning=((-500*scaling)+(500));
 						if (imageAspect > printAspect) {
 							gc.drawImage(reloadedImage, 0, 0, imageData.width, imageData.height, -trim.x+legendGap, -trim.y,
 									area.width - (trim.x + trim.width), area.height - (trim.y + trim.height));
@@ -246,7 +249,7 @@ public class PlotExportUtil {
 								for (int i = 0; i < legendTable.getLegendSize(); i++) {
 									Plot1DAppearance app = legendTable.getLegendEntry(i);
 									if (app.isVisible()) {
-										int xpos = -10+legendGap-(currentEntry/4)*25;
+										int xpos = -10+legendGap-(currentEntry/4)*25+ (int)legendRepositioning;
 										int ypos = -trim.y + 60 + (currentEntry%4) * 200;
 										app.drawApp(xpos, ypos, gc, display, (imageAspect > printAspect));
 										currentEntry++;
@@ -261,7 +264,7 @@ public class PlotExportUtil {
 								for (int i = 0; i < legendTable.getLegendSize(); i++) {
 									Plot1DAppearance app = legendTable.getLegendEntry(i);
 									if (app.isVisible()) {
-										int xpos = trim.x + 60 + (currentEntry%4) * 200;
+										int xpos = trim.x + 60 + (currentEntry%4) * 200 +(int)legendRepositioning;
 										int ypos = area.height-legendGap+(currentEntry/4)*25;
 										app.drawApp(xpos, ypos, gc, display, (imageAspect > printAspect));
 										currentEntry++;
