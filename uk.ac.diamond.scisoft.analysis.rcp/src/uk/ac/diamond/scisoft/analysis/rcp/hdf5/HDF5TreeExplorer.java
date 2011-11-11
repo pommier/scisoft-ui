@@ -303,39 +303,43 @@ public class HDF5TreeExplorer extends Composite implements IObserver, ISelection
 				HDF5Dataset d = (HDF5Dataset) l.getDestination();
 				if (!d.isSupported() || d.isString() || dNode == d || d.containsAttribute(NXSIGNAL))
 					continue;
+					ILazyDataset a = d.getDataset();
 
-				ILazyDataset a = d.getDataset();
+					try {
+						int[] s = a.getShape().clone();
+						s = AbstractDataset.squeezeShape(s, true);
 
-				int[] s = a.getShape().clone();
-				s = AbstractDataset.squeezeShape(s, true);
+						if (s.length != 0) // don't make a 0D dataset
+							a.squeeze(true);
 
-				if (s.length != 0) // don't make a 0D dataset
-					a.squeeze(true);
-
-				AxisChoice choice = new AxisChoice(a);
-				HDF5Attribute attr = d.getAttribute(NXAXIS);
-				HDF5Attribute attr_label = d.getAttribute(NXLABEL);
-				if (attr != null) {
-					String[] str = attr.getFirstElement().split(","); // TODO: handle integer arrays
-					int[] intAxis = new int[str.length];
-					for (int i = 0; i < str.length; i++)
-						intAxis[i] = Integer.parseInt(str[i]) - 1;
-					if (attr_label != null)
-						choice.setDimension(intAxis,Integer.parseInt(attr_label.getFirstElement()) - 1);
-					else
-						choice.setDimension(intAxis);
-				} else {
-					if (attr_label != null) {
-						int int_label = Integer.parseInt(attr_label.getFirstElement()) - 1;
-						choice.setDimension(new int[] {int_label});
+						AxisChoice choice = new AxisChoice(a);
+						HDF5Attribute attr = d.getAttribute(NXAXIS);
+						HDF5Attribute attr_label = d.getAttribute(NXLABEL);
+						if (attr != null) {
+							String[] str = attr.getFirstElement().split(","); // TODO: handle integer arrays
+							int[] intAxis = new int[str.length];
+							for (int i = 0; i < str.length; i++)
+								intAxis[i] = Integer.parseInt(str[i]) - 1;
+							if (attr_label != null)
+								choice.setDimension(intAxis,Integer.parseInt(attr_label.getFirstElement()) - 1);
+							else
+								choice.setDimension(intAxis);
+						} else {
+							if (attr_label != null) {
+								int int_label = Integer.parseInt(attr_label.getFirstElement()) - 1;
+								choice.setDimension(new int[] {int_label});
+							}
+						}
+						attr = d.getAttribute(NXPRIMARY);
+						if (attr != null) {
+							Integer intPrimary = Integer.parseInt(attr.getFirstElement());
+							choice.setPrimary(intPrimary);
+						}
+						choices.add(choice);
+					} catch (Exception e) {
+						logger.warn("Axis attributes in {} are invalid - {}", a.getName(), e.getMessage());
+						continue;
 					}
-				}
-				attr = d.getAttribute(NXPRIMARY);
-				if (attr != null) {
-					Integer intPrimary = Integer.parseInt(attr.getFirstElement());
-					choice.setPrimary(intPrimary);
-				}
-				choices.add(choice);
 			}
 		}
 
