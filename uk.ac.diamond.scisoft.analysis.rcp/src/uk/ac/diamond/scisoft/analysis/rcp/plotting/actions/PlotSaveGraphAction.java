@@ -29,7 +29,8 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
-import uk.ac.diamond.scisoft.analysis.rcp.views.plot.AbstractPlotView;
+import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
+//import uk.ac.diamond.scisoft.analysis.rcp.views.plot.AbstractPlotView;
 
 /**
  *
@@ -40,17 +41,19 @@ public class PlotSaveGraphAction extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		String viewID = event.getParameter("uk.ac.diamond.scisoft.analysis.command.sourceView");
-		if (viewID == null)
-			return Boolean.FALSE;
+//		String viewID = event.getParameter("uk.ac.diamond.scisoft.analysis.command.sourceView");
+//		if (viewID == null)
+//			return Boolean.FALSE;
+//
+//		final AbstractPlotView apv = (AbstractPlotView)HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().findView(viewID);
+//		DataSetPlotter plotter = apv.getPlotter();
+//		if (plotter == null)
+//			return Boolean.FALSE;
+		final PlotView pv = (PlotView)HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().getActivePart();
+		DataSetPlotter plotter = pv.getMainPlotter();
 
-		final AbstractPlotView apv = (AbstractPlotView)HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().findView(viewID);
-		DataSetPlotter plotter = apv.getPlotter();
-		if (plotter == null)
-			return Boolean.FALSE;
 
-
-		FileDialog dialog = new FileDialog(apv.getSite().getShell(), SWT.SAVE);
+		FileDialog dialog = new FileDialog(pv.getSite().getShell(), SWT.SAVE);
 
 		String [] filterExtensions = new String [] {"*.jpg;*.JPG;*.jpeg;*.JPEG;*.png;*.PNG", "*.ps;*.eps","*.svg;*.SVG"};
 		if (filename != null) {

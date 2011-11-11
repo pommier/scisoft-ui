@@ -25,7 +25,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
-import uk.ac.diamond.scisoft.analysis.rcp.views.plot.AbstractPlotView;
+import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 
 /**
  *
@@ -34,12 +34,9 @@ public class PlotCopyGraphAction extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		String viewID = event.getParameter("uk.ac.diamond.scisoft.analysis.command.sourceView");
-		if (viewID == null)
-			return Boolean.FALSE;
 
-		final AbstractPlotView apv = (AbstractPlotView)HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().findView(viewID);
-		DataSetPlotter plotter = apv.getPlotter();
+		final PlotView pv = (PlotView)HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().getActivePart();
+		DataSetPlotter plotter = pv.getMainPlotter();
 		if (plotter == null)
 			return Boolean.FALSE;
 

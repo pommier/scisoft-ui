@@ -335,9 +335,8 @@
       		</commandParameter>
       </command>
       <command
-      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotPrintGraphAction"
       		id="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphAction"
-      		name="Print graph Action">
+      		name="Print the plotting">
       		<commandParameter
       			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
       			name="Source View"
@@ -345,9 +344,71 @@
       		</commandParameter>
       </command>
       <command
-      		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotSaveGraphAction"
-      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotSaveGraphAction"
-      		name="Save graph Action">
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale10Action"
+      		name="Print 10 %">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>
+      <command
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale25Action"
+      		name="Print 25 %">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>
+      <command
+            id="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale33Action"
+            name="Print 33 %">
+         <commandParameter
+               id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+               name="Source View"
+               optional="false">
+         </commandParameter>
+      </command>
+      <command
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale50Action"
+      		name="Print 50 %">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>
+      <command
+            id="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale66Action"
+            name="Print 66 %">
+         <commandParameter
+               id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+               name="Source View"
+               optional="false">
+         </commandParameter>
+      </command>
+      <command
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale75Action"
+      		name="Print 75 %">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>
+      <command
+      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale100Action"
+      		name="Print 100 %">
+      		<commandParameter
+      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
+      			name="Source View"
+      			optional="false">
+      		</commandParameter>
+      </command>
+      <command
+            id="uk.ac.diamond.scisoft.analysis.rcp.PlotSaveGraphAction"
+            name="Export / save the plotting">
       		<commandParameter
       			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
       			name="Source View"
@@ -356,7 +417,7 @@
       </command>   
      <command
       		id="uk.ac.diamond.scisoft.analysis.rcp.PlotCopyGraphAction"
-      		name="Copy graph Action">
+      		name="Copy the plotting to clip board">
       		<commandParameter
       			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
       			name="Source View"
@@ -924,9 +985,9 @@
          <command
                commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotCopyGraphAction"
                icon="icons/copy_edit_on.gif"
-               label="Copy graph to clip board"
+               label="Copy the plotting to clip board"
                style="push"
-               tooltip="Copy the current plot to clip board">
+               tooltip="Copy the plotting to clip board">
             <parameter
                   name="uk.ac.diamond.scisoft.analysis.command.sourceView"
                   value="uk.ac.diamond.scisoft.analysis.rcp.views.SampleView">
@@ -936,7 +997,7 @@
                commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphAction"
                icon="icons/printer.png"
                label="Print graph"
-               style="push"
+               style="pulldown"
                tooltip="Print the current graph">
             <parameter
                   name="uk.ac.diamond.scisoft.analysis.command.sourceView"
@@ -1071,6 +1132,184 @@
                </dynamic>
             </menu>
          </menuContribution>
+         <!-- Menu Contribution of Save, Copy and Print buttons using the command extensions: commented until all actions are changed into commands -->
+         <!--menuContribution
+              locationURI="toolbar:uk.ac.diamond.scisoft.analysis.rcp.plotViewDP">
+              <command
+                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotSaveGraphAction"
+                    icon="icons/picture_save.png"
+                    style="push">
+              </command>
+              <command
+                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotCopyGraphAction"
+                    icon="icons/copy_edit_on.gif"
+                    style="push">
+              </command>
+              <command
+                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphAction"
+                    icon="icons/printer.png"
+                    style="pulldown">
+              </command>
+        </menuContribution>
+        <menuContribution locationURI="menu:uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphAction">
+           <command 
+                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale10Action" 
+                    label="Print 10 %" 
+                    style="push">
+           </command>
+           <command
+                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale25Action"
+                 label="Print 25 %"
+                 style="push">
+           </command>
+           <command
+                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale33Action"
+                 label="Print 33 %"
+                 style="push">
+           </command>
+           <command
+                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale50Action"
+                 label="Print 50 %"
+                 style="push">
+           </command>
+           <command
+                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale66Action"
+                 label="Print 66 %"
+                 style="push">
+           </command>
+           <command
+                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale75Action"
+                 label="Print 75 %"
+                 style="push">
+           </command>
+           <command
+                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale100Action"
+                 label="Print 100 %"
+                 style="push">
+           </command>
+        </menuContribution>
+        <menuContribution
+              locationURI="menu:uk.ac.diamond.scisoft.analysis.rcp.plotViewDP">
+           <command
+                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotSaveGraphAction"
+                 icon="icons/picture_save.png"
+                 style="push">
+           </command>
+           <command
+                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotCopyGraphAction"
+                 icon="icons/copy_edit_on.gif"
+                 style="push">
+           </command>
+           <menu
+                 icon="icons/printer.png"
+                 label="Print the plotting">
+              <command
+                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale10Action"
+                    label="Print 10 %"
+                    style="push">
+              </command>
+              <command
+                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale25Action"
+                    label="Print 25 %"
+                    style="push">
+              </command>
+              <command
+                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale33Action"
+                    label="Print 33 %"
+                    style="push">
+              </command>
+              <command
+                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale50Action"
+                    label="Print 50 %"
+                    style="push">
+              </command>
+              <command
+                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale66Action"
+                    label="Print 66 %"
+                    style="push">
+              </command>
+              <command
+                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale75Action"
+                    label="Print 75 %"
+                    style="push">
+              </command>
+              <command
+                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale100Action"
+                    label="Print 100 %"
+                    style="push">
+              </command>
+           </menu>
+        </menuContribution>
+        <menuContribution
+              locationURI="toolbar:uk.ac.diamond.scisoft.analysis.rcp.plotViewMultiple">
+           <command
+                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotSaveGraphAction"
+                 icon="icons/picture_save.png"
+                 style="push">
+           </command>
+           <command
+                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotCopyGraphAction"
+                 icon="icons/copy_edit_on.gif"
+                 style="push">
+           </command>
+           <command
+                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphAction"
+                 icon="icons/printer.png"
+                 style="push">
+           </command>
+        </menuContribution>
+        <menuContribution
+              locationURI="menu:uk.ac.diamond.scisoft.analysis.rcp.plotViewMultiple">
+           <command
+                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotSaveGraphAction"
+                 icon="icons/picture_save.png"
+                 style="push">
+           </command>
+           <command
+                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotCopyGraphAction"
+                 icon="icons/copy_edit_on.gif"
+                 style="push">
+           </command>
+           <menu
+                 icon="icons/printer.png"
+                 label="Print the plotting">
+              <command
+                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale10Action"
+                    label="Print 10 %"
+                    style="push">
+              </command>
+              <command
+                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale25Action"
+                    label="Print 25 %"
+                    style="push">
+              </command>
+              <command
+                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale33Action"
+                    label="Print 33 %"
+                    style="push">
+              </command>
+              <command
+                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale50Action"
+                    label="Print 50 %"
+                    style="push">
+              </command>
+              <command
+                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale66Action"
+                    label="Print 66 %"
+                    style="push">
+              </command>
+              <command
+                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale75Action"
+                    label="Print 75 %"
+                    style="push">
+              </command>
+              <command
+                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale100Action"
+                    label="Print 100 %"
+                    style="push">
+              </command>
+           </menu>
+        </menuContribution-->
    </extension>
    <extension
          id="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.GDADataNature"
@@ -1566,30 +1805,48 @@
             name="Python/Jython Scripting">
       </introPageRegister>
    </extension>
+   <!-- Not active as the commands are not contributed to any menu -->
    <extension
          point="org.eclipse.ui.handlers">
       <handler
             class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotCopyGraphAction"
             commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotCopyGraphAction">
-         <activeWhen>
-            <with
-                  variable="activePartId">
-               <equals
-                     value="uk.ac.diamond.scisoft.analysis.rcp.plotViewDP">
-               </equals>
-               <equals
-                     value="uk.ac.diamond.scisoft.analysis.rcp.plotView1">
-               </equals>
-               <equals
-                     value="uk.ac.diamond.scisoft.analysis.rcp.plotView2">
-               </equals>
-               <equals
-                     value="uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView">
-               </equals>
-               <equals
-                     value="uk.ac.diamond.scisoft.analysis.rcp.livePlotView">
-               </equals>
-            </with></activeWhen>
       </handler>
+      <handler
+            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotSaveGraphAction"
+            commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotSaveGraphAction">
+      </handler>
+      <handler
+            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotPrintGraphAction"
+            commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphAction">
+      </handler>
+      <handler
+            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotPrintGraphWithScale10Action"
+            commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale10Action">
+      </handler>
+      <handler
+            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotPrintGraphWithScale25Action"
+            commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale25Action">
+      </handler>
+      <handler
+            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotPrintGraphWithScale33Action"
+            commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale33Action">
+      </handler>
+      <handler
+            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotPrintGraphWithScale50Action"
+            commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale50Action">
+      </handler>
+      <handler
+            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotPrintGraphWithScale66Action"
+            commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale66Action">
+      </handler>
+      <handler
+            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotPrintGraphWithScale75Action"
+            commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale75Action">
+      </handler>
+      <handler
+            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotPrintGraphAction"
+            commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale100Action">
+      </handler>r>
    </extension>
 </fragment>
