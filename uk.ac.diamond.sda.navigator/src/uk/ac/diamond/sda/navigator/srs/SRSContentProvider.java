@@ -45,7 +45,9 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.progress.UIJob;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.ExtendedSRSLoader;
 import uk.ac.diamond.scisoft.analysis.io.SRSLoader;
@@ -118,17 +120,22 @@ public class SRSContentProvider extends EditorPart implements ITreeContentProvid
 	 * @param modelFile
 	 *            The IFile which contains the persisted model
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked", "rawtypes", "cast" })
 	private synchronized DataHolder updateModel(IFile modelFile) {
 		srsFileLoader(modelFile);
 
 		if (SRS_EXT.equals(modelFile.getFileExtension())) {
 			if (modelFile.exists()) {
 				List properties = new ArrayList();
+				
 				String[] names = getData().getNames();
 				for (int i = 0; i < getData().size(); i++) {
-					properties.add(new SRSTreeData(names[i], getData().getDataset(i).min().toString(), getData().getDataset(i)
+					ILazyDataset lazyData = data.getLazyDataset(i);
+					if(lazyData instanceof AbstractDataset)
+						properties.add(new SRSTreeData(names[i], getData().getDataset(i).min().toString(), getData().getDataset(i)
 							.max().toString(), getClass(getData().getDataset(i).elementClass().toString()), modelFile));
+					else if (lazyData instanceof ILazyDataset)
+						properties.add(new SRSTreeData(names[i], "Not available", "Not available", "Not available", modelFile));
 				}
 				SRSTreeData[] srsTreeData = (SRSTreeData[]) properties.toArray(new SRSTreeData[properties.size()]);
 
