@@ -171,6 +171,8 @@ public class Activator extends AbstractUIPlugin {
 		// Horrible Hack warning: This code is copied from parts of Pydev to set up the interpreter and save it.
 		{
 
+			
+			
 			String defaultPluginsDir = System.getenv("SDA_HOME");
 			File pluginsDir = null;
 			if (defaultPluginsDir != null) {
@@ -459,6 +461,20 @@ public class Activator extends AbstractUIPlugin {
 		try {
 			File f = FileLocator.getBundleFile(b);
 			logger.debug("Bundle loc: {}", f.getParent());
+			
+			String runProp = System.getProperty("run.in.eclipse");
+			if (runProp.contains("True")) {
+				File git = f.getParentFile().getParentFile().getParentFile();
+				File parent = git.getParentFile();
+				String projectName = git.getName().replace("_git", "");
+				File plugins = new File(parent, projectName+"/plugins");
+				
+				if(plugins.isDirectory()) {
+					logger.debug("Plugins Locaction: {}", plugins);
+					return plugins;
+				}
+			}
+			
 			return f.getParentFile();
 		} catch (IOException e) {
 			e.printStackTrace();
