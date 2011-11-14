@@ -272,9 +272,10 @@ public class Activator extends AbstractUIPlugin {
 			if (runProp != null && runProp.equalsIgnoreCase("true")) {
 				File bundles = pluginsDir.getParentFile();
 				if (bundles.isDirectory()) {
-					bundles = new File(bundles, "thirdparty");
+					// ok checking for items inside the tp directory
+					bundles = new File(bundles, "tp");
 					if (bundles.isDirectory()) {
-						bundles = new File(bundles, "bundles");
+						bundles = new File(bundles, "plugins");
 						final List<File> tJars = findJars(bundles);
 						for (File file : tJars) {
 							if (pyPaths.contains(file.getAbsolutePath())) {
@@ -295,7 +296,31 @@ public class Activator extends AbstractUIPlugin {
 						}
 						pyPaths.add(b.getAbsolutePath());
 						logger.debug("Adding dir to library path : {} ", b.getAbsolutePath());
+					} 
+					// also check for internal jars
+					File j = new File(file, "jars");
+					if (j.isDirectory()) {
+						for(File jar : j.listFiles()) {
+							if (pyPaths.contains(jar.getAbsolutePath())) {
+								logger.warn("File already there!");
+							}
+							pyPaths.add(jar.getAbsolutePath());
+							logger.debug("Adding jar to library path : {} ", jar.getAbsolutePath());
+						}
+					} 
+					// and 1 furthur possible place
+					// also check for internal jars
+					File jj = new File(j, "ext");
+					if (jj.isDirectory()) {
+						for(File jar : jj.listFiles()) {
+							if (pyPaths.contains(jar.getAbsolutePath())) {
+								logger.warn("File already there!");
+							}
+							pyPaths.add(jar.getAbsolutePath());
+							logger.debug("Adding jar to library path : {} ", jar.getAbsolutePath());
+						}
 					}
+					
 				}
 			} else {
 				// add ScisoftPy package
@@ -411,13 +436,30 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static final List<File> findDirs(File directoryName) {
 		
+		// ok we get the plugins directory here, so we need to explore a bit further for git
 		final List<File> libs = new ArrayList<File>();
 		
+		// get the basic plugins directory
 		if (directoryName.exists() && directoryName.isDirectory()) {
 			for (File f : directoryName.listFiles()) {
 				if (f.isDirectory()) {
 					if (isRequired(f, pluginKeys))
 						libs.add(f);
+				}
+			}
+		}
+		
+		// get down to the git checkouts
+		String gitpathname = directoryName.getParentFile().getAbsolutePath()+"_git";
+		File git = new File(gitpathname, "scisoft");
+		
+		for (File f : git.listFiles()) {
+			if (f.isDirectory()) {
+				for (File plugin : f.listFiles()) {
+					if (plugin.isDirectory()) {
+						if (isRequired(plugin, pluginKeys))
+							libs.add(plugin);
+					}
 				}
 			}
 		}
@@ -463,7 +505,7 @@ public class Activator extends AbstractUIPlugin {
 			logger.debug("Bundle loc: {}", f.getParent());
 			
 			String runProp = System.getProperty("run.in.eclipse");
-			if (runProp.contains("True")) {
+			if (runProp != null && runProp.equalsIgnoreCase("true")) {
 				File git = f.getParentFile().getParentFile().getParentFile();
 				File parent = git.getParentFile();
 				String projectName = git.getName().replace("_git", "");
