@@ -17,10 +17,10 @@
  */
 package uk.ac.diamond.sda.navigator.srs;
 
-import gda.analysis.io.ScanFileHolderException;
-
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -44,20 +44,18 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.progress.UIJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
-import uk.ac.diamond.scisoft.analysis.io.ExtendedSRSLoader;
-import uk.ac.diamond.scisoft.analysis.io.SRSLoader;
+import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.rcp.navigator.srs.SRSTreeData;
 
 /**
  * Provides the properties contained in a *.dat file as children of that file in a Common Navigator.
  */
-public class SRSContentProvider extends EditorPart implements ITreeContentProvider, IResourceChangeListener,
-		IResourceDeltaVisitor {
+public class SRSContentProvider implements ITreeContentProvider, IResourceChangeListener, IResourceDeltaVisitor {
 
 	private static final Object[] NO_CHILDREN = new Object[0];
 	private static final Object SRS_EXT = "dat"; //$NON-NLS-1$
@@ -65,6 +63,8 @@ public class SRSContentProvider extends EditorPart implements ITreeContentProvid
 	private static StructuredViewer viewer;
 	protected static String fileName;
 	private DataHolder data;
+	private IMetaData metaData;
+	private static final Logger logger = LoggerFactory.getLogger(SRSContentProvider.class);
 
 	/**
 	 * Create the SRSContentProvider instance. Adds the content provider as a resource change listener to track changes
@@ -104,12 +104,21 @@ public class SRSContentProvider extends EditorPart implements ITreeContentProvid
 	public void srsFileLoader(IFile file) {
 
 		fileName = file.getLocation().toString();
+//		try {
+//			SRSLoader dataLoader = new ExtendedSRSLoader(fileName);
+//			data = dataLoader.loadFile();
+//			metaData = dataLoader.getMetaData();
+//		} catch (ScanFileHolderException e) {
+//			data = new DataHolder();
+//			data.addDataset("Failed to load File", new DoubleDataset(1));
+//			logger.warn("Failed to load srs file");
+//		}
 		try {
-			SRSLoader dataLoader = new ExtendedSRSLoader(fileName);
-			data = dataLoader.loadFile();
-		} catch (ScanFileHolderException e) {
-			data = new DataHolder();
-			data.addDataset("Failed to load File", new DoubleDataset(1));
+			metaData = LoaderFactory.getMetaData(fileName, null);
+			//dataSetPlotView.setMetaData(meta);
+			//dataSetPlotView.refresh();
+		} catch (Exception ne) {
+			logger.error("Cannot open dat file", ne);
 		}
 
 	}
@@ -121,26 +130,40 @@ public class SRSContentProvider extends EditorPart implements ITreeContentProvid
 	 *            The IFile which contains the persisted model
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes", "cast" })
-	private synchronized DataHolder updateModel(IFile modelFile) {
+	private synchronized IMetaData updateModel(IFile modelFile) {
 		srsFileLoader(modelFile);
 
 		if (SRS_EXT.equals(modelFile.getFileExtension())) {
 			if (modelFile.exists()) {
 				List properties = new ArrayList();
 				
-				String[] names = getData().getNames();
-				for (int i = 0; i < getData().size(); i++) {
-					ILazyDataset lazyData = data.getLazyDataset(i);
-					if(lazyData instanceof AbstractDataset)
-						properties.add(new SRSTreeData(names[i], getData().getDataset(i).min().toString(), getData().getDataset(i)
-							.max().toString(), getClass(getData().getDataset(i).elementClass().toString()), modelFile));
-					else if (lazyData instanceof ILazyDataset)
-						properties.add(new SRSTreeData(names[i], "Not available", "Not available", "Not available", modelFile));
+//				String[] names = getData().getNames();
+//				
+//				for (int i = 0; i < getData().size(); i++) {
+//					ILazyDataset lazyData = data.getLazyDataset(i);
+//					if(lazyData instanceof AbstractDataset)
+//						properties.add(new SRSTreeData(names[i], getData().getDataset(i).min().toString(), getData().getDataset(i)
+//							.max().toString(), getClass(getData().getDataset(i).elementClass().toString()), modelFile));
+//					else if (lazyData instanceof ILazyDataset)
+//						properties.add(new SRSTreeData(names[i], "Not available", "Not available", "Not available", modelFile));
+//				}
+//				SRSTreeData[] srsTreeData = (SRSTreeData[]) properties.toArray(new SRSTreeData[properties.size()]);
+				Collection<String> metaDataCollec = metaData.getDataNames();
+				String[] names = new String[metaDataCollec.size()];int i=0;
+				for (Iterator iterator = metaDataCollec.iterator(); iterator.hasNext();) {
+					names[i] = (String) iterator.next();
+					System.out.println(names[i]);
+					i++;
+				}
+				
+				for (int j = 0; j < names.length; j++) {
+						properties.add(new SRSTreeData(names[j].trim(), "", "", "", modelFile));
 				}
 				SRSTreeData[] srsTreeData = (SRSTreeData[]) properties.toArray(new SRSTreeData[properties.size()]);
 
 				cachedModelMap.put(modelFile, srsTreeData);
-				return getData();
+//				return getData();
+				return metaData;
 			} else {
 				cachedModelMap.remove(modelFile);
 			}
@@ -237,62 +260,12 @@ public class SRSContentProvider extends EditorPart implements ITreeContentProvid
 		return false;
 	}
 
-	@Override
-	public boolean isDirty() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 	public DataHolder getData() {
 		return data;
 	}
 
 	public void setData(DataHolder data) {
 		this.data= data;
-	}
-	
-	public static StructuredViewer getViewer() {
-		return viewer;
-	}
-
-	public void setViewer(StructuredViewer viewer) {
-		this.viewer = viewer;
-	}
-
-	@Override
-	public void doSave(IProgressMonitor arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void doSaveAs() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void init(IEditorSite arg0, IEditorInput arg1) throws PartInitException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public boolean isSaveAsAllowed() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void createPartControl(Composite arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setFocus() {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

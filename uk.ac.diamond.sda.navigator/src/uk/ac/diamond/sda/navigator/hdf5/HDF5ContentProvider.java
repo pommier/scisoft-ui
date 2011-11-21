@@ -53,7 +53,9 @@ import uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode;
 public class HDF5ContentProvider implements ITreeContentProvider, IResourceChangeListener, IResourceDeltaVisitor {
 	private StructuredViewer viewer;
 	private String DELIMITER = "/";
-	public static final Object HDF5_EXT = "h5"; //$NON-NLS-1$
+	public static final Object H5_EXT = "h5"; //$NON-NLS-1$
+	public static final Object HDF5_EXT = "hdf5"; //$NON-NLS-1$
+	public static final Object NXS_EXT = "nxs"; //$NON-NLS-1$
 	private HDF5File hdf5File;
 	private String fileName;
 	private static final Object[] NO_CHILDREN = new Object[0];
@@ -72,7 +74,6 @@ public class HDF5ContentProvider implements ITreeContentProvider, IResourceChang
 
 	}
 
-	@SuppressWarnings({ "rawtypes" })
 	@Override
 	public Object[] getChildren(Object parentElement) {
 		Object[] children = null;
@@ -83,7 +84,7 @@ public class HDF5ContentProvider implements ITreeContentProvider, IResourceChang
 				children = NO_CHILDREN;
 		} else if (parentElement instanceof IFile) {
 			IFile modelFile = (IFile) parentElement;
-			if (HDF5_EXT.equals(modelFile.getFileExtension())) {
+			if (H5_EXT.equals(modelFile.getFileExtension())||HDF5_EXT.equals(modelFile.getFileExtension())||NXS_EXT.equals(modelFile.getFileExtension())) {
 				Tree hdf5Tree = null;
 				updateModel(modelFile);
 				hdf5Tree = (Tree) cachedModelMap.get(modelFile);
@@ -102,7 +103,6 @@ public class HDF5ContentProvider implements ITreeContentProvider, IResourceChang
 		return getChildren(inputElement);
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	public boolean hasChildren(Object element) {
 		if (((element instanceof TreeNode) && (((TreeNode) element).hasChildren())) || (element instanceof IFile))
@@ -110,7 +110,6 @@ public class HDF5ContentProvider implements ITreeContentProvider, IResourceChang
 		return false;
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Override
 	public Object getParent(Object element) {
 		if (element instanceof TreeNode) {
@@ -159,7 +158,7 @@ public class HDF5ContentProvider implements ITreeContentProvider, IResourceChang
 			return true;
 		case IResource.FILE:
 			final IFile file = (IFile) source;
-			if (HDF5_EXT.equals(file.getFileExtension())) {
+			if (H5_EXT.equals(file.getFileExtension())||HDF5_EXT.equals(file.getFileExtension())||NXS_EXT.equals(file.getFileExtension())) {
 
 				loadHDF5Data(file);
 				new UIJob("Update HDF5 Model in CommonViewer") { //$NON-NLS-1$
@@ -178,7 +177,9 @@ public class HDF5ContentProvider implements ITreeContentProvider, IResourceChang
 
 	protected void loadHDF5Data(IFile file) {
 
+		
 		fileName = file.getLocation().toString();
+		System.out.println(fileName);
 		// if (hdf5File != null)
 		// return;
 		try {
@@ -203,11 +204,8 @@ public class HDF5ContentProvider implements ITreeContentProvider, IResourceChang
 	private synchronized DataHolder updateModel(IFile modelFile) {
 		loadHDF5Data(modelFile);
 
-		if (HDF5_EXT.equals(modelFile.getFileExtension())) {
+		if (H5_EXT.equals(modelFile.getFileExtension())||HDF5_EXT.equals(modelFile.getFileExtension())||NXS_EXT.equals(modelFile.getFileExtension())) {
 			if (modelFile.exists()) {
-				//List<String> allPaths = getAllPathnames(data.getNames());
-				//Collections.sort(allPaths, String.CASE_INSENSITIVE_ORDER);
-				//cachedModelMap.put(modelFile, populate(allPaths));
 				List<HDF5NodeLink> nodes = getAllPathnames(data.getNames());
 
 				cachedModelMap.put(modelFile, populate(nodes, modelFile));
@@ -257,8 +255,6 @@ public class HDF5ContentProvider implements ITreeContentProvider, IResourceChang
 			heightIs = str.length - 2;
 
 			if (i == 0) { // if pathname is "/root"
-				//nodes.add(0, new TreeNode(str[str.length - 1]));
-				//myStack.push(new TreeNode(str[str.length - 1]));
 				nodes.add(0, new TreeNode(list.get(i), file));
 				myStack.push(new TreeNode(list.get(i), file));
 			} else {
@@ -273,7 +269,6 @@ public class HDF5ContentProvider implements ITreeContentProvider, IResourceChang
 						myStack.pop();
 				}
 
-				//nodes.add(i, new TreeNode(str[str.length - 1]));
 				nodes.add(i, new TreeNode(list.get(i), file));
 				myStack.push(nodes.get(i));
 
@@ -283,35 +278,6 @@ public class HDF5ContentProvider implements ITreeContentProvider, IResourceChang
 		}
 		hdf5Tree.setRoot(myStack.get(0));
 		return hdf5Tree;
-	}
-
-	public List<String> getMetadata() {
-		String[] temp = hdf5File.findNodeLink(DELIMITER).toString().split("\n");
-		List<String> list = new ArrayList<String>();
-
-		for (int i = 0; i < temp.length; i++) {
-			temp[i] = temp[i].trim();
-			if (temp[i].startsWith("@")) {
-				String[] val = temp[i].split("=");
-				list.add(val[0].substring(1));// without the @
-			}
-		}
-		return list;
-	}
-
-	public List<String> getMetadataValues() {
-		String[] temp = hdf5File.findNodeLink(DELIMITER).toString().split("\n");
-		List<String> list = new ArrayList<String>();
-
-		for (int i = 0; i < temp.length; i++) {
-			temp[i] = temp[i].trim();
-			if (temp[i].startsWith("@")) {
-				String[] val = temp[i].split("=");
-				val[1]=val[1].replace("/", "\\");
-				list.add(val[1]);
-			}
-		}
-		return list;
 	}
 
 	/**
@@ -371,26 +337,26 @@ public class HDF5ContentProvider implements ITreeContentProvider, IResourceChang
 		return false;
 	}
 
-	public List<String> getNodeListByTreeLevel(int treeLevel) {
-		List<String> list = new ArrayList<String>();
-		String[] pathnames = data.getNames();
-
-		for (int i = 0; i < pathnames.length; i++) {
-			String[] temp = pathnames[i].split(DELIMITER);
-			String str = null;
-			for (int j = 0; j < treeLevel; j++) {
-				if (treeLevel < temp.length) {
-					str = DELIMITER + temp[j].concat(DELIMITER + temp[j + 1]);
-				}
-			}
-			if (!list.contains(str) && str != null) {
-				list.add(str);
-			}
-
-		}
-
-		return list;
-	}
+//	public List<String> getNodeListByTreeLevel(int treeLevel) {
+//		List<String> list = new ArrayList<String>();
+//		String[] pathnames = data.getNames();
+//
+//		for (int i = 0; i < pathnames.length; i++) {
+//			String[] temp = pathnames[i].split(DELIMITER);
+//			String str = null;
+//			for (int j = 0; j < treeLevel; j++) {
+//				if (treeLevel < temp.length) {
+//					str = DELIMITER + temp[j].concat(DELIMITER + temp[j + 1]);
+//				}
+//			}
+//			if (!list.contains(str) && str != null) {
+//				list.add(str);
+//			}
+//
+//		}
+//
+//		return list;
+//	}
 
 	/**
 	 * Method that returns the list of all paths possibles out of a String[] of paths <br>
@@ -450,47 +416,4 @@ public class HDF5ContentProvider implements ITreeContentProvider, IResourceChang
 		
 		return nodeList;
 	}
-
-//	public List<HDF5NodeLink> getAllPathnames(String[] oldFullPaths) {
-//		List<String> list = new ArrayList<String>();
-//
-//		
-//		
-//		int metaDataSize = getMetadata().size();
-//		String[] newFullPaths = new String[metaDataSize + oldFullPaths.length + 1];
-//
-//		for (int i = 0; i < newFullPaths.length; i++) {
-//			if (i == 0)
-//				newFullPaths[i] = "/";
-//			else if ((i > 0) && (i <= metaDataSize))
-//				newFullPaths[i] = (DELIMITER).concat(getMetadata().get(i - 1).concat(
-//						": "+getMetadataValues().get(i - 1)));
-//			else if (i > metaDataSize)
-//				newFullPaths[i] = oldFullPaths[i - (metaDataSize + 1)];
-//
-//			String[] tmp = newFullPaths[i].split(DELIMITER);
-//			String str = "";
-//			for (int j = 1; j < tmp.length; j++) {
-//				str = str.concat(DELIMITER + tmp[j]);
-//				if (!list.contains(str) && str != "") {
-//					list.add(str);
-//				}
-//			}
-//			if (!list.contains(str) && str != "") {
-//				list.add(str);
-//			}
-//		}
-//		//we add a root
-//		list.add("/");
-//		//we sort the list of string paths
-//		Collections.sort(list, String.CASE_INSENSITIVE_ORDER);
-//		
-//		// we create a new list of HDF5NodeLinks from the previous string list of paths
-//		List<HDF5NodeLink> nodeList=new ArrayList<HDF5NodeLink>();
-//		for (int i = 0; i < list.size(); i++) {
-//			
-//			nodeList.add(hdf5File.findNodeLink(list.get(i)));
-//		}
-//		return nodeList;
-//	}
 }

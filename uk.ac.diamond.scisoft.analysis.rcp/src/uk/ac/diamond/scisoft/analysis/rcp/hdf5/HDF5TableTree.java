@@ -28,6 +28,7 @@ import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILazyTreeContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
@@ -187,9 +188,24 @@ public class HDF5TableTree extends Composite {
 	public IStructuredSelection getSelection() {
 		return (IStructuredSelection) tViewer.getSelection();
 	}
+	
+	public void setSelection(IStructuredSelection selection) {
+		tViewer.setSelection(selection);
+	}
 
 	public void expandAll() {
 		tViewer.expandAll();
+	}
+	public void expandToLevel(int level) {
+		tViewer.expandToLevel(level);
+	}
+	
+	public void expandToLevel(Object link, int level) {
+		tViewer.expandToLevel(link, level);
+	}
+	
+	public TreePath[] getExpandedTreePaths() {
+		return tViewer.getExpandedTreePaths();
 	}
 
 }

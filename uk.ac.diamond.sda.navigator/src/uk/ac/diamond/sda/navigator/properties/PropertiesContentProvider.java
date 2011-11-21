@@ -124,7 +124,6 @@ public class PropertiesContentProvider implements ITreeContentProvider, IResourc
 	public Object getParent(Object element) {
 		if (element instanceof PropertiesTreeData) {
 			PropertiesTreeData data = (PropertiesTreeData) element;
-			System.out.println(data.getFile().toString());
 			logger.debug(data.getFile().toString());
 			return data.getFile();
 		}

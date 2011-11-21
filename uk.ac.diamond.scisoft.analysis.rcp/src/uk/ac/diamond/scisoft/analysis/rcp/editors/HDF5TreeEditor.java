@@ -25,6 +25,7 @@ import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.PageChangedEvent;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.Composite;
@@ -148,9 +149,9 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 
 	@Override
 	public void dispose() {
+		unregisterSelectionListener();
 		if (hdfxp != null)
 			hdfxp.dispose();
-		unregisterSelectionListener();
 		super.dispose();
 	}
 
@@ -207,7 +208,8 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 		 * have one object type selected by both the editor and navigator which the plot view listens to using eclipse
 		 * selection events.
 		 */
-		EclipseUtils.getActivePage().activate(this);
+		if(!EclipseUtils.getActivePage().getActivePart().getTitle().equals(this.getPartName()))
+			EclipseUtils.getActivePage().activate(this);
 
 		//System.out.println(treeData.getData().toString());
 		//selection of hedf5 tree element no working
@@ -219,17 +221,44 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 			hdfxp.setCursor(tempCursor);
 
 		try {
+			
+			
+			
+			TreePath navTreePath1 = new TreePath(structuredSelection.toArray());
+			//System.out.println(navTreePath1.getFirstSegment().toString());			
+			hdfxp.expandToLevel(navTreePath1,2);
+			hdfxp.setSelection(structuredSelection);
+			//TreePath[] editorTreePaths=hdfxp.getExpandedTreePaths();
+
+			//hdfxp.setSelection(structuredSelection);
+			//HDF5TableTree tableTree=hdfxp.getTableTree();
+			//tableTree.setSelection(structuredSelection);
+			//HDF5TableTree tableTree=hdfxp.getTableTree();
+			//tableTree.setInput(link);
+			
+		//	hdfxp.expandToLevel(navTreePath1,0);
+//			for (int i = 0; i < hdfxp.getTabList().; i++) {
+//				String name = viewer.getTable().getItem(i).getText();
+//				if (name.equals(srsData.getName())) {
+//					viewer.getTable().setSelection(i);
+//					selectItemAction.run();
+//					break;
+//				}
+//			}
+			
+			//hdfxp.getTableTree().getViewer().setSelection(structuredSelection);
+			
 			HDF5NodeLink link = ((HDF5NodeLink) treeData.getData());
 			hdfxp.selectHDF5Node(link, InspectorType.LINE);
-			hdfxp.getTableTree().getViewer().setSelection(structuredSelection);
 		} catch (Exception e) {
 			logger.error("Error processing selection: {}", e.getMessage());
 		} finally {
 			if (tempCursor != null)
 				hdfxp.setCursor(cursor);
 		}
-		
-		EclipseUtils.getActivePage().activate(original);
+
+		//if(!original.getTitle().equals(this.getPartName()))
+		//	EclipseUtils.getActivePage().activate(original);
 
 	}
 }

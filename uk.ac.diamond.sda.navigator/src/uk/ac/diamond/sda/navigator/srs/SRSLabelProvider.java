@@ -17,6 +17,7 @@
  */
 package uk.ac.diamond.sda.navigator.srs;
 
+import org.eclipse.jface.viewers.ILabelDecorator;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
@@ -29,7 +30,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.navigator.srs.SRSTreeData;
 /**
  * Provides a label and icon for objects of type {@link SRSTreeData}.
  */
-public class SRSLabelProvider extends LabelProvider implements ILabelProvider, IDescriptionProvider {
+public class SRSLabelProvider extends LabelProvider implements ILabelProvider, IDescriptionProvider, ILabelDecorator {
 
 	@Override
 	public Image getImage(Object element) {
@@ -40,10 +41,12 @@ public class SRSLabelProvider extends LabelProvider implements ILabelProvider, I
 
 	@Override
 	public String getText(Object element) {
+		System.out.println("element: "+element.toString());
 		if (element instanceof SRSTreeData) {
 			SRSTreeData data = (SRSTreeData) element;
-			return data.getName() + ": min=" + data.getMinValue() //$NON-NLS-1$
-					+ ", max=" + data.getMaxValue(); //$NON-NLS-1$
+			System.out.println("d: "+data.getName());
+			return data.getName(); //+ ": min=" + data.getMinValue() //$NON-NLS-1$
+					//+ ", max=" + data.getMaxValue(); //$NON-NLS-1$
 			// + ", Class=" + data.getClassValue();
 		}
 		return null;
@@ -55,6 +58,19 @@ public class SRSLabelProvider extends LabelProvider implements ILabelProvider, I
 			SRSTreeData data = (SRSTreeData) anElement;
 			return "Property: " + data.getName(); //$NON-NLS-1$
 		}
+		return null;
+	}
+
+	@Override
+	public Image decorateImage(Image image, Object element) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String decorateText(String label, Object element) {
+		if (element instanceof SRSTreeData)
+			return label+"";
 		return null;
 	}
 

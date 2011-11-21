@@ -35,6 +35,7 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FillLayout;
@@ -483,6 +484,18 @@ public class HDF5TreeExplorer extends Composite implements IObserver, ISelection
 
 	public void expandAll() {
 		tableTree.expandAll();
+	}
+	
+	public void expandToLevel(int level) {
+		tableTree.expandToLevel(level);
+	}
+	
+	public void expandToLevel(Object link, int level) {
+		tableTree.expandToLevel(link, level);
+	}
+	
+	public TreePath[] getExpandedTreePaths() {
+		return tableTree.getExpandedTreePaths();
 	}
 
 	/**

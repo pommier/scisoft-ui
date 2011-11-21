@@ -18,6 +18,7 @@
 package uk.ac.diamond.sda.navigator.nexus;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.jface.viewers.ILabelDecorator;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
@@ -30,7 +31,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode;
 /**
  * Provides a label and icon for objects of type {@link Tree}.
  */
-public class NexusLabelProvider extends LabelProvider implements ILabelProvider, IDescriptionProvider {
+public class NexusLabelProvider extends LabelProvider implements ILabelProvider, IDescriptionProvider, ILabelDecorator {
 
 	@Override
 	public Image getImage(Object element) {
@@ -43,7 +44,6 @@ public class NexusLabelProvider extends LabelProvider implements ILabelProvider,
 	@Override
 	public String getText(Object element) {
 		if (element instanceof IFile) {
-			System.out.println("IFile");
 			IFile file = (IFile) element;
 
 			return file.getName() + "	" + file.getFullPath();
@@ -51,10 +51,10 @@ public class NexusLabelProvider extends LabelProvider implements ILabelProvider,
 
 		if (element instanceof TreeNode) {
 			TreeNode data = (TreeNode) element;
-			if (((HDF5NodeLink) data.getData()).isDestinationADataset()) {
-				//TODO send the data and metadata with the name
-				return ((HDF5NodeLink) data.getData()).getName();
-			}
+//			if (((HDF5NodeLink) data.getData()).isDestinationADataset()) {
+//				//TODO send the data and metadata with the name
+//				return ((HDF5NodeLink) data.getData()).getName();
+//			}
 
 			return ((HDF5NodeLink) data.getData()).getName();
 		}
@@ -69,5 +69,17 @@ public class NexusLabelProvider extends LabelProvider implements ILabelProvider,
 			return "Property: " + ((HDF5NodeLink) data.getData()).getName();
 		}
 		return null;
+	}
+
+	@Override
+	public Image decorateImage(Image image, Object element) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String decorateText(String label, Object element) {
+		// TODO Auto-generated method stub
+		return label+"";
 	}
 }
