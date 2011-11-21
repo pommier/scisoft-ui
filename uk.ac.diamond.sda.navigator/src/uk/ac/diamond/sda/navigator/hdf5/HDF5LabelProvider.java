@@ -100,6 +100,10 @@ public class HDF5LabelProvider extends LabelProvider implements ILabelProvider, 
 				}
 			}
 		}
+
+		if (strData.length() > 100) // restrict to 100 characters
+			strData = strData.substring(0, 100) + "...";
+		
 		return strClass + strData;
 	}
 }
