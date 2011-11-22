@@ -632,7 +632,7 @@ class PlotTab extends ATab {
 		if (dataset instanceof AbstractDataset) {
 			metadata = ((AbstractDataset) dataset).getMetadataMap();
 		}
-		IMetaData metaDataObject = dataset.getMetaData();
+		IMetaData metaDataObject = dataset.getMetadata();
 
 		switch(itype) {
 		case LINE:
