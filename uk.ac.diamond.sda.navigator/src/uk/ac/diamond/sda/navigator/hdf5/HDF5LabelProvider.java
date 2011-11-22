@@ -22,6 +22,7 @@ import org.eclipse.jface.viewers.ILabelDecorator;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.navigator.IDescriptionProvider;
 
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
@@ -33,12 +34,22 @@ import uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode;
  * Provides a label and icon for objects of type {@link Tree}.
  */
 public class HDF5LabelProvider extends LabelProvider implements ILabelProvider, IDescriptionProvider, ILabelDecorator {
-
+	
 	@Override
 	public Image getImage(Object element) {
-		// if (element instanceof TreeNode)
-		// return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_INFO_TSK);
-		return null;
+		TreeNode data = (TreeNode) element;
+		HDF5Node node = ((HDF5NodeLink) data.getData()).getDestination();
+		
+		String[] str = node.toString().split("\n");
+		for (int i = 0; i < str.length; i++) {
+			if (str[0].contains("@NX")) {
+				return  new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/hdf5/folderopen.gif"));
+			}
+			else if(str[i].contains("@target")||(str[i].contains("shape"))){
+				return  new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/hdf5/dataset.gif"));
+			}
+		}
+		return  new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/hdf5/text.gif"));
 	}
 
 	@Override
@@ -66,7 +77,7 @@ public class HDF5LabelProvider extends LabelProvider implements ILabelProvider, 
 	@Override
 	public Image decorateImage(Image image, Object element) {
 		// TODO Auto-generated method stub
-		return null;
+		return image;
 	}
 
 	@Override

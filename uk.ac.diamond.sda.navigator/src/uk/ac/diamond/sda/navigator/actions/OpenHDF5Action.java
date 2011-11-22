@@ -29,7 +29,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.ide.IDE;
 
 import uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode;
-import uk.ac.diamond.sda.intro.navigator.Activator;
+import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 
 public class OpenHDF5Action extends Action {
 
@@ -83,7 +83,7 @@ public class OpenHDF5Action extends Action {
 
 			}
 		} catch (PartInitException e) {
-			Activator.logError(0, "Could not open HDF5 Editor!", e); //$NON-NLS-1$
+			NavigatorRCPActivator.logError(0, "Could not open HDF5 Editor!", e); //$NON-NLS-1$
 			MessageDialog.openError(Display.getDefault().getActiveShell(), "Error Opening HDF5 Editor", //$NON-NLS-1$
 					"Could not open HDF5 Editor!"); //$NON-NLS-1$
 		}

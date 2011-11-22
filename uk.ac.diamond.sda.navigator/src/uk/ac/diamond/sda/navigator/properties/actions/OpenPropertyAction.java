@@ -35,7 +35,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import uk.ac.diamond.sda.intro.navigator.Activator;
+import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 import uk.ac.diamond.sda.navigator.properties.PropertiesTreeData;
 
 public class OpenPropertyAction extends Action {
@@ -105,7 +105,7 @@ public class OpenPropertyAction extends Action {
 						((ITextEditor) editor).selectAndReveal(region.getOffset(), region.getLength());
 
 					} catch (BadLocationException e) {
-						Activator.logError(0, "Could not open property!", e); //$NON-NLS-1$
+						NavigatorRCPActivator.logError(0, "Could not open property!", e); //$NON-NLS-1$
 						MessageDialog.openError(Display.getDefault().getActiveShell(), "Error Opening Property", //$NON-NLS-1$
 								"Could not open property!"); //$NON-NLS-1$
 					}
@@ -113,7 +113,7 @@ public class OpenPropertyAction extends Action {
 				}
 			}
 		} catch (PartInitException e) {
-			Activator.logError(0, "Could not open property!", e); //$NON-NLS-1$
+			NavigatorRCPActivator.logError(0, "Could not open property!", e); //$NON-NLS-1$
 			MessageDialog.openError(Display.getDefault().getActiveShell(), "Error Opening Property", //$NON-NLS-1$
 					"Could not open property!"); //$NON-NLS-1$
 		}

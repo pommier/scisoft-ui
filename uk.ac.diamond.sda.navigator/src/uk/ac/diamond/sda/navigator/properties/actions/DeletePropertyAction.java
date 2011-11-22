@@ -37,7 +37,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionDelegate;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 
-import uk.ac.diamond.sda.intro.navigator.Activator;
+import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 import uk.ac.diamond.sda.navigator.properties.PropertiesTreeData;
 
 /**
@@ -109,7 +109,7 @@ public class DeletePropertyAction extends ActionDelegate {
 									monitor.worked(1);
 								} catch (IOException e) {
 									// handle error gracefully
-									Activator.logError(0, "Could not delete property!", e); //$NON-NLS-1$
+									NavigatorRCPActivator.logError(0, "Could not delete property!", e); //$NON-NLS-1$
 									MessageDialog.openError(Display.getDefault().getActiveShell(),
 											"Error Deleting Property", //$NON-NLS-1$
 											"Could not delete property!"); //$NON-NLS-1$
@@ -138,12 +138,12 @@ public class DeletePropertyAction extends ActionDelegate {
 			PlatformUI.getWorkbench().getProgressService().run(true, false, deletePropertyOperation);
 		} catch (InvocationTargetException e) {
 			// handle error gracefully
-			Activator.logError(0, "Could not delete property!", e); //$NON-NLS-1$
+			NavigatorRCPActivator.logError(0, "Could not delete property!", e); //$NON-NLS-1$
 			MessageDialog.openError(Display.getDefault().getActiveShell(), "Error Deleting Property", //$NON-NLS-1$
 					"Could not delete property!"); //$NON-NLS-1$
 		} catch (InterruptedException e) {
 			// handle error gracefully
-			Activator.logError(0, "Could not delete property!", e); //$NON-NLS-1$
+			NavigatorRCPActivator.logError(0, "Could not delete property!", e); //$NON-NLS-1$
 			MessageDialog.openError(Display.getDefault().getActiveShell(), "Error Deleting Property", //$NON-NLS-1$
 					"Could not delete property!"); //$NON-NLS-1$
 		}

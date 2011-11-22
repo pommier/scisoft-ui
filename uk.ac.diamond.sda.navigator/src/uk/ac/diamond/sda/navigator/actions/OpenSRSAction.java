@@ -29,7 +29,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.ide.IDE;
 
 import uk.ac.diamond.scisoft.analysis.rcp.navigator.srs.SRSTreeData;
-import uk.ac.diamond.sda.intro.navigator.Activator;
+import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 
 public class OpenSRSAction extends Action {
 
@@ -81,7 +81,7 @@ public class OpenSRSAction extends Action {
 
 			}
 		} catch (PartInitException e) {
-			Activator.logError(0, "Could not open SRS Editor!", e); //$NON-NLS-1$
+			NavigatorRCPActivator.logError(0, "Could not open SRS Editor!", e); //$NON-NLS-1$
 			MessageDialog.openError(Display.getDefault().getActiveShell(), "Error Opening SRS Editor", //$NON-NLS-1$
 					"Could not open SRS Editor!"); //$NON-NLS-1$
 		}
