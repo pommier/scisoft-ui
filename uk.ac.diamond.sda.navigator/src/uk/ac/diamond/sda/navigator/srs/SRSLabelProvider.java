@@ -41,10 +41,8 @@ public class SRSLabelProvider extends LabelProvider implements ILabelProvider, I
 
 	@Override
 	public String getText(Object element) {
-		System.out.println("element: "+element.toString());
 		if (element instanceof SRSTreeData) {
 			SRSTreeData data = (SRSTreeData) element;
-			System.out.println("d: "+data.getName());
 			return data.getName(); //+ ": min=" + data.getMinValue() //$NON-NLS-1$
 					//+ ", max=" + data.getMaxValue(); //$NON-NLS-1$
 			// + ", Class=" + data.getClassValue();
@@ -63,14 +61,15 @@ public class SRSLabelProvider extends LabelProvider implements ILabelProvider, I
 
 	@Override
 	public Image decorateImage(Image image, Object element) {
-		// TODO Auto-generated method stub
+		if (element instanceof SRSTreeData)
+			return image;
 		return null;
 	}
 
 	@Override
 	public String decorateText(String label, Object element) {
 		if (element instanceof SRSTreeData)
-			return label+"";
+			return label;
 		return null;
 	}
 

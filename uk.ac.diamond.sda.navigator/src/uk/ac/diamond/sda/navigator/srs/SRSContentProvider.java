@@ -38,11 +38,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorSite;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,7 +147,6 @@ public class SRSContentProvider implements ITreeContentProvider, IResourceChange
 				String[] names = new String[metaDataCollec.size()];int i=0;
 				for (Iterator iterator = metaDataCollec.iterator(); iterator.hasNext();) {
 					names[i] = (String) iterator.next();
-					System.out.println(names[i]);
 					i++;
 				}
 				
@@ -169,11 +163,6 @@ public class SRSContentProvider implements ITreeContentProvider, IResourceChange
 			}
 		}
 		return null;
-	}
-
-	private String getClass(String str) {
-		String[] parts = str.split("\\."); //$NON-NLS-1$
-		return parts[parts.length - 1];
 	}
 
 	@Override
@@ -211,6 +200,7 @@ public class SRSContentProvider implements ITreeContentProvider, IResourceChange
 		if (oldInput != null && !oldInput.equals(newInput))
 			cachedModelMap.clear();
 		viewer = (StructuredViewer) aViewer;
+		viewer.setComparator(null);	// automatic sorting out of children disabled 
 	}
 
 	/*
@@ -249,8 +239,10 @@ public class SRSContentProvider implements ITreeContentProvider, IResourceChange
 				new UIJob("Update SRS Model in CommonViewer") { //$NON-NLS-1$
 					@Override
 					public IStatus runInUIThread(IProgressMonitor monitor) {
-						if (viewer != null && !viewer.getControl().isDisposed())
+						if (viewer != null && !viewer.getControl().isDisposed()){
 							viewer.refresh(file);
+							viewer.setComparator(null); // automatic sorting out of children disabled
+						}
 						return Status.OK_STATUS;
 					}
 				}.schedule();
