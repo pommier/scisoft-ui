@@ -1,10 +1,12 @@
 package uk.ac.diamond.scisoft.analysis.rcp.views;
 
+import gda.observable.IObservable;
+import gda.observable.IObserver;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.IPage;
@@ -40,27 +42,23 @@ public class SidePageView extends PageBookView {
 		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(
 				"uk.ac.diamond.scisoft.analysis.rcp.diffractionpage");
 
-		IMetaData metadata = null;
-		if (part instanceof IMetadataProvider) {
-			try {
-				metadata = ((IMetadataProvider) part).getMetadata();
-			} catch (NullPointerException npe) {
-				logger.warn("Metadata could not be found");
-			}
-		}
 		Page page = null;
 		try {
 			for (IConfigurationElement e : config) {
 				final Object o = e.createExecutableExtension("class");
-				if (o instanceof ISidePageView) {
-					((ISidePageView) o).setMetadataObject(metadata);
-					if (o instanceof Page)
-						page = (Page) o;
-					if (page != null) {
-						initPage(page);
-						page.createControl(getPageBook());
-						return new PageRec(part, page);
+				if (o instanceof Page) {
+					page = (Page) o;
+					if (part instanceof IMetadataProvider) {
+						IMetaData metadata = ((IMetadataProvider) part).getMetadata();
+						if (page instanceof ISidePageView)
+							((ISidePageView) page).setMetadataObject(metadata);
 					}
+					if (part instanceof PlotView) {
+						((PlotView) part).addDataObserver(((IObserver) page));
+					}
+					initPage(page);
+					page.createControl(getPageBook());
+					return new PageRec(part, page);
 				}
 			}
 		} catch (CoreException ex) {
