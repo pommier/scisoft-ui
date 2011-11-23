@@ -40,6 +40,9 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
+import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
@@ -55,7 +58,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
  * Plot View is the main Analysis panel that can display any n-D scalar data it is the replacement of the Data Vector
  * panel inside the new RCP framework
  */
-public class PlotView extends ViewPart implements IObserver, IObservable, IGuiInfoManager, IUpdateNotificationListener  {
+public class PlotView extends ViewPart implements IObserver, IObservable, IGuiInfoManager, IUpdateNotificationListener, IMetadataProvider  {
 
 	// Adding in some logging to help with getting this running
 	private static final Logger logger = LoggerFactory.getLogger(PlotView.class);
@@ -424,6 +427,14 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 	@Override
 	public void updateProcessed() {
 
+	}
+
+	@Override
+	public IMetaData getMetadata() {
+		IDataset currentData = getMainPlotter().getCurrentDataSet();
+		if (currentData != null)
+			return currentData.getMetadata();
+		return null;
 	}
 
 }
