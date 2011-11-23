@@ -4,6 +4,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.IPage;
@@ -11,6 +12,8 @@ import org.eclipse.ui.part.MessagePage;
 import org.eclipse.ui.part.Page;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.PageBookView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
@@ -20,7 +23,9 @@ import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 public class SidePageView extends PageBookView {
 
 	public static final String ID = "uk.ac.diamond.scisoft.diffraction.rcp.DiffractionView";
-
+	private static final Logger logger = LoggerFactory.getLogger(SidePageView.class);
+	
+	
 	@Override
 	protected IPage createDefaultPage(PageBook book) {
 		MessagePage messagePage = new MessagePage();
@@ -32,8 +37,6 @@ public class SidePageView extends PageBookView {
 
 	@Override
 	protected PageRec doCreatePage(IWorkbenchPart part) {
-		// somehow in here I need to implement a blank page and
-		// then get the pages from the scosoft.diffraction plugin
 		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(
 				"uk.ac.diamond.scisoft.analysis.rcp.diffractionpage");
 
@@ -42,7 +45,7 @@ public class SidePageView extends PageBookView {
 			try {
 				metadata = ((IMetadataProvider) part).getMetadata();
 			} catch (NullPointerException npe) {
-				// do nothing
+				logger.warn("Metadata could not be found");
 			}
 		}
 		Page page = null;
@@ -61,7 +64,7 @@ public class SidePageView extends PageBookView {
 				}
 			}
 		} catch (CoreException ex) {
-			System.out.println("CoreException:: " + ex);
+			logger.warn("Could not find a page");
 		}
 		return null;
 	}
