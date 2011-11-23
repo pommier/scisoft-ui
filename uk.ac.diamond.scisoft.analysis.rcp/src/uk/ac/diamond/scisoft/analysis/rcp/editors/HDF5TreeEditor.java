@@ -258,7 +258,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 		}
 
 		//if(!original.getTitle().equals(this.getPartName()))
-		//	EclipseUtils.getActivePage().activate(original);
+		EclipseUtils.getActivePage().activate(original);
 
 	}
 }

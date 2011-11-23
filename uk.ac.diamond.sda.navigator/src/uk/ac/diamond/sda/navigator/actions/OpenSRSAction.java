@@ -30,6 +30,7 @@ import org.eclipse.ui.ide.IDE;
 
 import uk.ac.diamond.scisoft.analysis.rcp.navigator.srs.SRSTreeData;
 import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
+import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 public class OpenSRSAction extends Action {
 
@@ -78,7 +79,8 @@ public class OpenSRSAction extends Action {
 			if (isEnabled()) {
 				IFile srsFile = data.getFile();
 				IDE.openEditor(page, srsFile);
-
+				// we reactivate the ProjectExplorer view 
+				EclipseUtils.activateView("org.eclipse.ui.navigator.ProjectExplorer");
 			}
 		} catch (PartInitException e) {
 			NavigatorRCPActivator.logError(0, "Could not open SRS Editor!", e); //$NON-NLS-1$
