@@ -287,8 +287,10 @@ public class DatasetInspector extends Composite {
 
 		@Override
 		public void run(IProgressMonitor monitor) {
-			if (!isNull())
+			if (!isNull()) {
+				tab.stopInspection();
 				tab.pushToView(new ProgressMonitorWrapper(monitor), slices);
+			}
 		}
 
 		@Override
@@ -393,6 +395,7 @@ public class DatasetInspector extends Composite {
 				if (cData == null)
 					return;
 
+				cInspectionTab.stopInspection();
 				CTabItem item = plotTabFolder.getSelection();
 				int t = plotTabFolder.getSelectionIndex();
 				InspectorType type = InspectorType.getType(t);
@@ -462,6 +465,7 @@ public class DatasetInspector extends Composite {
 		slicerListener = new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
+				cInspectionTab.stopInspection();
 				//FIXME: Need to update slicer ranges when scrolling through a miltidimensional axis.
 				//       Calling updateSlicers() here doesn't work because it breaks slicing functionality.
 				sliceDataAndView();
@@ -471,6 +475,7 @@ public class DatasetInspector extends Composite {
 		plotTabListener = new PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
+				cInspectionTab.stopInspection();
 				axisSelector.refresh();
 				updateSlicers();
 				sliceDataAndView();
@@ -481,6 +486,7 @@ public class DatasetInspector extends Composite {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				if (cData != null && display != null)
+					cInspectionTab.stopInspection();
 					display.asyncExec(new Runnable() {
 						@Override
 						public void run() {
