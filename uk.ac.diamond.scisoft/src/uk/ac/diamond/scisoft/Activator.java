@@ -267,6 +267,8 @@ public class Activator extends AbstractUIPlugin {
 
 			final List<File> gdaDirs = findDirs(pluginsDir);
 
+			logger.debug("All Jars prepared");
+			
 			// thirdparty/bundles jars for running in eclipse
 			String runProp = System.getProperty("run.in.eclipse");
 			if (runProp != null && runProp.equalsIgnoreCase("true")) {
@@ -450,15 +452,24 @@ public class Activator extends AbstractUIPlugin {
 		}
 		
 		// get down to the git checkouts
-		String gitpathname = directoryName.getParentFile().getAbsolutePath()+"_git";
-		File git = new File(gitpathname, "scisoft");
+		// only do this if we are running inside Eclipse
 		
-		for (File f : git.listFiles()) {
-			if (f.isDirectory()) {
-				for (File plugin : f.listFiles()) {
-					if (plugin.isDirectory()) {
-						if (isRequired(plugin, pluginKeys))
-							libs.add(plugin);
+		String runProp = System.getProperty("run.in.eclipse");
+		if (runProp != null && runProp.equalsIgnoreCase("true")) {
+		
+			String gitpathname = directoryName.getParentFile().getAbsolutePath()+"_git";
+			File git = new File(gitpathname, "scisoft");
+			
+			if (git.exists() && git.isDirectory()) {
+			
+				for (File f : git.listFiles()) {
+					if (f.isDirectory()) {
+						for (File plugin : f.listFiles()) {
+							if (plugin.isDirectory()) {
+								if (isRequired(plugin, pluginKeys))
+									libs.add(plugin);
+							}
+						}
 					}
 				}
 			}
