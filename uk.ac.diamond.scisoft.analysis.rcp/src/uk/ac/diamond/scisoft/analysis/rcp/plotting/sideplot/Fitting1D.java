@@ -886,8 +886,8 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 			algNames[count] = temp;
 			if (temp.equalsIgnoreCase(algDefaultName)) {
 				algName = temp;
-			}
-			selectedAlg = count;
+				selectedAlg = count;
+			}	
 			count++;
 		}
 
