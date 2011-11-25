@@ -64,45 +64,45 @@ public class Activator extends AbstractUIPlugin {
 	 * Setup the logging facilities
 	 */
 	transient private static final Logger logger = LoggerFactory.getLogger(Activator.class);
-	
+
 	// The plug-in ID
 	public static final String PLUGIN_ID = "uk.ac.diamond.scisoft";
-	
+
 	public static final String INTERPRETER_NAME = "Jython2.5.1";
 
 	// The shared instance
 	private static Activator plugin;
 
 	private static String[] requiredKeys = {"org.python.pydev",
-											"uk.ac.gda.libs",
-											"cbflib",
-											"org.apache.commons.codec",
-											"org.apache.commons.math",
-											"uk.ac.diamond.CBFlib",
-											"uk.ac.diamond.jama",
-											"uk.ac.diamond.scisoft",
-											"jnexus",
-											"uk.ac.gda.nexus",
-											"uk.ac.gda.common",
-											"uk.ac.gda.server.ncd",
-											"jhdf",
-											"com.springsource.slf4j",
-											"com.springsource.ch.qos.logback",
-											"com.springsource.org.castor",
-											"com.springsource.org.exolab.castor",
-											"com.springsource.org.apache.commons",
-											"com.springsource.javax.media",
-											"jtransforms",
-											"jai_imageio",
-											"it.tidalwave.imageio.raw",
-											"vecmath",
-											"jython",
-											"commons-math",
-											"uk.ac.diamond.org.apache.ws.commons.util",
-											"uk.ac.diamond.org.apache.xmlrpc.client",
-											"uk.ac.diamond.org.apache.xmlrpc.common",
-											"uk.ac.diamond.org.apache.xmlrpc.server",
-											};
+		"uk.ac.gda.libs",
+		"cbflib",
+		"org.apache.commons.codec",
+		"org.apache.commons.math",
+		"uk.ac.diamond.CBFlib",
+		"uk.ac.diamond.jama",
+		"uk.ac.diamond.scisoft",
+		"jnexus",
+		"uk.ac.gda.nexus",
+		"uk.ac.gda.common",
+		"uk.ac.gda.server.ncd",
+		"jhdf",
+		"com.springsource.slf4j",
+		"com.springsource.ch.qos.logback",
+		"com.springsource.org.castor",
+		"com.springsource.org.exolab.castor",
+		"com.springsource.org.apache.commons",
+		"com.springsource.javax.media",
+		"jtransforms",
+		"jai_imageio",
+		"it.tidalwave.imageio.raw",
+		"vecmath",
+		"jython",
+		"commons-math",
+		"uk.ac.diamond.org.apache.ws.commons.util",
+		"uk.ac.diamond.org.apache.xmlrpc.client",
+		"uk.ac.diamond.org.apache.xmlrpc.common",
+		"uk.ac.diamond.org.apache.xmlrpc.server",
+	};
 
 	private static String[] pluginKeys = { "uk.ac.diamond", "uk.ac.gda", "ncsa.hdf" };
 
@@ -127,7 +127,7 @@ public class Activator extends AbstractUIPlugin {
 		pydevDebugPreferenceStore.setDefault(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS, "#Configuring Jython Environment, please wait\nimport sys;sys.executable=''\n");
 		pydevDebugPreferenceStore.setDefault(PydevConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS, "-Xmx512m");
 		pydevDebugPreferenceStore.setDefault(PydevConsoleConstants.INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS, 500);
-		
+
 		// We need to point Jython cache to a directory writable by a user
 		// Setting -Dpython.cachedir option to .jython_cachedir in users SDA workspace
 		IPreferenceStore pydevPreferenceStore =  new ScopedPreferenceStore(InstanceScope.INSTANCE,"org.python.pydev");
@@ -136,12 +136,12 @@ public class Activator extends AbstractUIPlugin {
 
 		// Doing the pydev imports properly
 		logger.debug("Starting Jython Property process");
-		
+
 		Job job = new Job("Initialising script analyser"){
 
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				
+
 				monitor.setTaskName("Initialising interpreter");
 				try {
 					initialiseInterpreter(monitor);
@@ -163,16 +163,16 @@ public class Activator extends AbstractUIPlugin {
 		for (String p : paths.split(File.pathSeparator))
 			logger.debug("\t{}", p);
 	}
-	
+
 	private void initialiseInterpreter(IProgressMonitor monitor) throws CoreException {
-		
+
 		logger.debug("Initialising the Jython interpreter setup");
-		
+
 		// Horrible Hack warning: This code is copied from parts of Pydev to set up the interpreter and save it.
 		{
 
-			
-			
+
+
 			String defaultPluginsDir = System.getenv("SDA_HOME");
 			File pluginsDir = null;
 			if (defaultPluginsDir != null) {
@@ -268,8 +268,8 @@ public class Activator extends AbstractUIPlugin {
 			final List<File> gdaDirs = findDirs(pluginsDir);
 
 			logger.debug("All Jars prepared");
-			
-			// thirdparty/bundles jars for running in eclipse
+
+
 			String runProp = System.getProperty("run.in.eclipse");
 			if (runProp != null && runProp.equalsIgnoreCase("true")) {
 				File bundles = pluginsDir.getParentFile();
@@ -322,20 +322,16 @@ public class Activator extends AbstractUIPlugin {
 							logger.debug("Adding jar to library path : {} ", jar.getAbsolutePath());
 						}
 					}
-					
+
 				}
 			} else {
-				// add ScisoftPy package
+				// and add all unjared folders
 				for (File file: gdaDirs) {
-					File b = new File(file, "scisoftpy");
-					if (b.isDirectory()) {
-						if (pyPaths.contains(file.getAbsolutePath())) {
-							logger.warn("File already there!");
-						}
-						pyPaths.add(file.getAbsolutePath());
-						logger.debug("Adding dir to library path : {} ", file.getAbsolutePath());
-						break;
+					if (pyPaths.contains(file.getAbsolutePath())) {
+						logger.warn("File already there!");
 					}
+					pyPaths.add(file.getAbsolutePath());
+					logger.debug("Adding dir to library path : {} ", file.getAbsolutePath());
 				}
 			}
 
@@ -379,25 +375,25 @@ public class Activator extends AbstractUIPlugin {
 			info.setName(INTERPRETER_NAME);
 
 			logger.debug("Finalising the Jython interpreter manager");
-			
+
 			final JythonInterpreterManager man = (JythonInterpreterManager) PydevPlugin.getJythonInterpreterManager();
 			HashSet<String> set = new HashSet<String>();
 			set.add(INTERPRETER_NAME);
 			man.setInfos(new IInterpreterInfo[] {info},set, monitor);
-			
+
 			logger.debug("Finished the Jython interpreter setup");
 		}
 	}
 
-	
+
 	private File getInterpreterDirectory(File pluginsDir) {
-		
+
 		for (File file : pluginsDir.listFiles()) {
 			if(file.getName().startsWith("uk.ac.gda.libs_")) {
 				File d = new File(file, "jython2.5.1");
 				return d;
 			}
-			
+
 		}
 		logger.error("Could not find a folder for 'uk.ac.gda.libs' defaulting to standard");
 		return new File(pluginsDir, "uk.ac.gda.libs/jython2.5.1/");
@@ -430,38 +426,39 @@ public class Activator extends AbstractUIPlugin {
 
 		return libs;
 	}
-	
+
 	/**
 	 * Method returns path to directories
 	 * 
 	 * @return list of directories
 	 */
 	public static final List<File> findDirs(File directoryName) {
-		
+
 		// ok we get the plugins directory here, so we need to explore a bit further for git
 		final List<File> libs = new ArrayList<File>();
-		
+
 		// get the basic plugins directory
 		if (directoryName.exists() && directoryName.isDirectory()) {
 			for (File f : directoryName.listFiles()) {
 				if (f.isDirectory()) {
 					if (isRequired(f, pluginKeys))
-						libs.add(f);
+						logger.debug("Adding library direcotyr {}", f);
+					libs.add(f);
 				}
 			}
 		}
-		
+
 		// get down to the git checkouts
 		// only do this if we are running inside Eclipse
-		
+
 		String runProp = System.getProperty("run.in.eclipse");
 		if (runProp != null && runProp.equalsIgnoreCase("true")) {
-		
+
 			String gitpathname = directoryName.getParentFile().getAbsolutePath()+"_git";
 			File git = new File(gitpathname, "scisoft");
-			
+
 			if (git.exists() && git.isDirectory()) {
-			
+
 				for (File f : git.listFiles()) {
 					if (f.isDirectory()) {
 						for (File plugin : f.listFiles()) {
@@ -474,7 +471,7 @@ public class Activator extends AbstractUIPlugin {
 				}
 			}
 		}
-		
+
 		return libs;
 	}
 
@@ -486,7 +483,7 @@ public class Activator extends AbstractUIPlugin {
 		}
 		return false;
 	}
-	
+
 
 
 	/**
@@ -507,27 +504,27 @@ public class Activator extends AbstractUIPlugin {
 	public static Activator getDefault() {
 		return plugin;
 	}
-	
+
 	private File getPluginsDirectory() {
 		Bundle b = getBundle();
 		logger.debug("Bundle: {}", b);
 		try {
 			File f = FileLocator.getBundleFile(b);
 			logger.debug("Bundle loc: {}", f.getParent());
-			
+
 			String runProp = System.getProperty("run.in.eclipse");
 			if (runProp != null && runProp.equalsIgnoreCase("true")) {
 				File git = f.getParentFile().getParentFile().getParentFile();
 				File parent = git.getParentFile();
 				String projectName = git.getName().replace("_git", "");
 				File plugins = new File(parent, projectName+"/plugins");
-				
+
 				if(plugins.isDirectory()) {
 					logger.debug("Plugins Locaction: {}", plugins);
 					return plugins;
 				}
 			}
-			
+
 			return f.getParentFile();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -560,7 +557,7 @@ public class Activator extends AbstractUIPlugin {
 			return true;
 		return false;
 	}
-	
+
 	private class InterpreterThread extends Thread {
 
 		private IInterpreterInfo info = null;
