@@ -6,4 +6,5 @@
    <extension-point id="sidePlot" name="Side Plot " schema="schema/sidePlot.exsd"/>
    <extension-point id="ExplorerViewRegister" name="uk.ac.diamond.scisoft.analysis.rcp.view.ExplorerViewRegister" schema="schema/ExplorerViewRegister.exsd"/>
    <extension-point id="ExplorerViewDefault" name="uk.ac.diamond.scisoft.analysis.rcp.view.ExplorerViewDefault" schema="schema/ExplorerViewDefault.exsd"/>
+   <extension-point id="diffractionpage" name="DiffractionPage" schema="schema/diffractionpage.exsd"/>
 </plugin>

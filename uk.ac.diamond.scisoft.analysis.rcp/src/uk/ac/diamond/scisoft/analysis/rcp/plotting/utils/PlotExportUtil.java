@@ -286,4 +286,59 @@ public class PlotExportUtil {
 		}
 	}	
 
+
+	public static synchronized Image createImage(AbstractViewerApp viewerApp, Display display,
+			Plot1DGraphTable legendTable) {
+		File imageFile = null;
+		// create a temporary image file
+		try {
+			imageFile = File.createTempFile("test", ".png");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Image image = null;
+
+		ImageData imageData;
+		ExportImage.exportImage(viewerApp.getCurrentViewer(), imageFile, 600, 530, 1);
+
+		ImageLoader loader = new ImageLoader();
+		imageData = loader.load(imageFile.getAbsolutePath())[0];
+		Image reloadedImage = new Image(display, imageData);
+
+		Image bigImage = new Image(display, reloadedImage.getBounds().width+200,reloadedImage.getBounds().height+200);
+		GC gc = new GC(bigImage);
+
+		int legendGap = 0;
+		int numActiveEntries = 0;
+
+		if (legendTable != null) {
+			for (int i = 0; i < legendTable.getLegendSize(); i++)
+				if (legendTable.getLegendEntry(i).isVisible())
+					numActiveEntries++;
+
+			legendGap = 10 + Math.max(1, (numActiveEntries / 4)) * 32;
+		}
+
+		gc.drawImage(reloadedImage, 0, 0);
+		if (legendTable != null) {
+			int currentEntry = 0;
+			for (int i = 0; i < legendTable.getLegendSize(); i++) {
+				Plot1DAppearance app = legendTable.getLegendEntry(i);
+				if (app.isVisible()) {
+					int xpos = 60 - (currentEntry / 4);
+					int ypos = reloadedImage.getBounds().height + 20 + (currentEntry % 4);
+					app.drawApp(xpos, ypos, gc, display, false);
+					currentEntry++;
+				}
+			}
+		}
+
+		reloadedImage.dispose();
+		image=gc.getGCData().image;
+		gc.dispose();
+		imageFile.delete();
+		
+		return image;
+	}
+
 }

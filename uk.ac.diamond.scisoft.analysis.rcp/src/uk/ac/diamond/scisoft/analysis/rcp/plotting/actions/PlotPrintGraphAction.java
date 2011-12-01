@@ -47,9 +47,9 @@ public class PlotPrintGraphAction extends AbstractHandler {
 		DataSetPlotter plotter = pv.getMainPlotter();
 
 		if (plotter != null) {
-			PrintDialog dialog = new PrintDialog(pv.getSite().getShell(), SWT.NULL);
-			PrinterData printerData = dialog.open();
-			plotter.printGraph(printerData, 1);//scale 1
+//			PrintDialog dialog = new PrintDialog(pv.getSite().getShell(), SWT.NULL);
+//			PrinterData printerData = dialog.open();
+			plotter.printGraph();
 		}
 		return Boolean.TRUE;
 

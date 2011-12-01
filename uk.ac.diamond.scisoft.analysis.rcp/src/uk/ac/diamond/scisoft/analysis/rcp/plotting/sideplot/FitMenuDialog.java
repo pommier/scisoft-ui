@@ -75,7 +75,8 @@ public class FitMenuDialog extends Dialog {
 	private ComboWrapper        peakSelection;
 	private SpinnerWrapper      numberOfPeaks;
 	private ComboWrapper        algType;
-	private FloatSpinner accuracy;
+	private FloatSpinner 		accuracySpinner;
+	private double 				accuracy = 0.01; 
 	private SpinnerWrapper      smoothing;
 	private int 				selectAlg;
 	private int 				selectPeak;
@@ -96,7 +97,7 @@ public class FitMenuDialog extends Dialog {
 		selectPeak = 0;
 	}
 
-	public FitMenuDialog(Shell parent, String[] peakList, String [] fittingAlgNames, int selectedPeak, int selectedFittingAlg) {
+	public FitMenuDialog(Shell parent, String[] peakList, String [] fittingAlgNames, int selectedPeak, int selectedFittingAlg, double accuracyValue) {
 		
 		// Without this it does not work on windows or some linux versions
 		super(parent, SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM);
@@ -107,6 +108,7 @@ public class FitMenuDialog extends Dialog {
 		algNames = fittingAlgNames;
 		selectAlg = selectedFittingAlg;
 		selectPeak = selectedPeak;
+		accuracy = accuracyValue;
 	}
 
 	public boolean open() {
@@ -171,9 +173,9 @@ public class FitMenuDialog extends Dialog {
 		accuractlab.setText("Accuracy");
 		accuractlab.setToolTipText("This sets the accuracy of the optomisation. The lower the number to more accurate the calculation");
 
-		accuracy = new FloatSpinner(advanced, SWT.NONE,6,5);
-		accuracy.setMinimum(0.00001);
-		accuracy.setDouble(0.01);
+		accuracySpinner = new FloatSpinner(advanced, SWT.NONE,6,5);
+		accuracySpinner.setMinimum(0.00001);
+		accuracySpinner.setDouble(accuracy);
 
 		Label smoothingLab = new Label(advanced, SWT.NONE);
 		smoothingLab.setText("Smoothing");
@@ -315,7 +317,7 @@ public class FitMenuDialog extends Dialog {
 	 * @return unknown
 	 */
 	public FloatSpinner getAccuracy() {
-		return accuracy;
+		return accuracySpinner;
 	}
 
 	/**

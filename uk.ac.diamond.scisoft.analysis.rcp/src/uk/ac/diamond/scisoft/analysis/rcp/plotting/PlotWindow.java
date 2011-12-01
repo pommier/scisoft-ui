@@ -337,114 +337,114 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		}
 		
 		if (printGraphAction == null) {
-			printGraphAction = new Action(printButtonText, SWT.MENU) {
+			printGraphAction = new Action() {
 				@Override
 				public void run() {
-					PrintDialog dialog = new PrintDialog(parentComp.getShell(), SWT.NULL);
-					PrinterData printerData = dialog.open();
-					mainPlotter.printGraph(printerData, 1);
+//					PrintDialog dialog = new PrintDialog(parentComp.getShell(), SWT.NULL);
+//					PrinterData printerData = dialog.open();
+					mainPlotter.printGraph();
 				}
 			};
 			printGraphAction.setText(printButtonText);
 			printGraphAction.setToolTipText(printToolTipText);
 			printGraphAction.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(printImagePath));
-			printGraphAction.setMenuCreator(new IMenuCreator() {
-				@Override
-				public Menu getMenu(Control parent) {
-					return null;
-				}
-				@Override
-				public Menu getMenu(final Menu parent) {
-					Menu menu = new Menu(parent);
-					MenuItem item10 = new MenuItem(menu, SWT.None);
-					item10.setText(listPrintScaleText[0]);
-					item10.addSelectionListener(new SelectionListener() {
-						@Override
-						public void widgetSelected(SelectionEvent e) {
-							PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
-							PrinterData printerData = dialog.open();
-							mainPlotter.printGraph(printerData, 0.1f);
-						}
-						@Override
-						public void widgetDefaultSelected(SelectionEvent e) {}
-					});
-					MenuItem item25 = new MenuItem(menu, SWT.None);
-					item25.setText(listPrintScaleText[1]);
-					item25.addSelectionListener(new SelectionListener() {
-						@Override
-						public void widgetSelected(SelectionEvent e) {
-							PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
-							PrinterData printerData = dialog.open();
-							mainPlotter.printGraph(printerData, 0.25f);
-						}
-						@Override
-						public void widgetDefaultSelected(SelectionEvent e) {}
-					});
-					MenuItem item33 = new MenuItem(menu, SWT.None);
-					item33.setText(listPrintScaleText[2]);
-					item33.addSelectionListener(new SelectionListener() {
-						@Override
-						public void widgetSelected(SelectionEvent e) {
-							PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
-							PrinterData printerData = dialog.open();
-							mainPlotter.printGraph(printerData, 0.33f);
-						}
-						@Override
-						public void widgetDefaultSelected(SelectionEvent e) {}
-					});
-					MenuItem item50 = new MenuItem(menu, SWT.None);
-					item50.setText(listPrintScaleText[3]);
-					item50.addSelectionListener(new SelectionListener() {
-						@Override
-						public void widgetSelected(SelectionEvent e) {
-							PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
-							PrinterData printerData = dialog.open();
-							mainPlotter.printGraph(printerData, 0.5f);
-						}
-						@Override
-						public void widgetDefaultSelected(SelectionEvent e) {}
-					});
-					MenuItem item66 = new MenuItem(menu, SWT.None);
-					item66.setText(listPrintScaleText[4]);
-					item66.addSelectionListener(new SelectionListener() {
-						@Override
-						public void widgetSelected(SelectionEvent e) {
-							PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
-							PrinterData printerData = dialog.open();
-							mainPlotter.printGraph(printerData, 0.66f);
-						}
-						@Override
-						public void widgetDefaultSelected(SelectionEvent e) {}
-					});
-					MenuItem item75 = new MenuItem(menu, SWT.None);
-					item75.setText(listPrintScaleText[5]);
-					item75.addSelectionListener(new SelectionListener() {
-						@Override
-						public void widgetSelected(SelectionEvent e) {
-							PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
-							PrinterData printerData = dialog.open();
-							mainPlotter.printGraph(printerData, 0.75f);
-						}
-						@Override
-						public void widgetDefaultSelected(SelectionEvent e) {}
-					});
-					MenuItem item100 = new MenuItem(menu, SWT.None);
-					item100.setText(listPrintScaleText[6]);
-					item100.addSelectionListener(new SelectionListener() {
-						@Override
-						public void widgetSelected(SelectionEvent e) {
-							PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
-							PrinterData printerData = dialog.open();
-							mainPlotter.printGraph(printerData, 1);
-						}
-						@Override
-						public void widgetDefaultSelected(SelectionEvent e) {}
-					});
-					return menu;
-				}
-				@Override
-				public void dispose() {}
-			});
+//			printGraphAction.setMenuCreator(new IMenuCreator() {
+//				@Override
+//				public Menu getMenu(Control parent) {
+//					return null;
+//				}
+//				@Override
+//				public Menu getMenu(final Menu parent) {
+//					Menu menu = new Menu(parent);
+//					MenuItem item10 = new MenuItem(menu, SWT.None);
+//					item10.setText(listPrintScaleText[0]);
+//					item10.addSelectionListener(new SelectionListener() {
+//						@Override
+//						public void widgetSelected(SelectionEvent e) {
+//							PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
+//							PrinterData printerData = dialog.open();
+//							mainPlotter.printGraph(printerData, 0.1f);
+//						}
+//						@Override
+//						public void widgetDefaultSelected(SelectionEvent e) {}
+//					});
+//					MenuItem item25 = new MenuItem(menu, SWT.None);
+//					item25.setText(listPrintScaleText[1]);
+//					item25.addSelectionListener(new SelectionListener() {
+//						@Override
+//						public void widgetSelected(SelectionEvent e) {
+//							PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
+//							PrinterData printerData = dialog.open();
+//							mainPlotter.printGraph(printerData, 0.25f);
+//						}
+//						@Override
+//						public void widgetDefaultSelected(SelectionEvent e) {}
+//					});
+//					MenuItem item33 = new MenuItem(menu, SWT.None);
+//					item33.setText(listPrintScaleText[2]);
+//					item33.addSelectionListener(new SelectionListener() {
+//						@Override
+//						public void widgetSelected(SelectionEvent e) {
+//							PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
+//							PrinterData printerData = dialog.open();
+//							mainPlotter.printGraph(printerData, 0.33f);
+//						}
+//						@Override
+//						public void widgetDefaultSelected(SelectionEvent e) {}
+//					});
+//					MenuItem item50 = new MenuItem(menu, SWT.None);
+//					item50.setText(listPrintScaleText[3]);
+//					item50.addSelectionListener(new SelectionListener() {
+//						@Override
+//						public void widgetSelected(SelectionEvent e) {
+//							PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
+//							PrinterData printerData = dialog.open();
+//							mainPlotter.printGraph(printerData, 0.5f);
+//						}
+//						@Override
+//						public void widgetDefaultSelected(SelectionEvent e) {}
+//					});
+//					MenuItem item66 = new MenuItem(menu, SWT.None);
+//					item66.setText(listPrintScaleText[4]);
+//					item66.addSelectionListener(new SelectionListener() {
+//						@Override
+//						public void widgetSelected(SelectionEvent e) {
+//							PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
+//							PrinterData printerData = dialog.open();
+//							mainPlotter.printGraph(printerData, 0.66f);
+//						}
+//						@Override
+//						public void widgetDefaultSelected(SelectionEvent e) {}
+//					});
+//					MenuItem item75 = new MenuItem(menu, SWT.None);
+//					item75.setText(listPrintScaleText[5]);
+//					item75.addSelectionListener(new SelectionListener() {
+//						@Override
+//						public void widgetSelected(SelectionEvent e) {
+//							PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
+//							PrinterData printerData = dialog.open();
+//							mainPlotter.printGraph(printerData, 0.75f);
+//						}
+//						@Override
+//						public void widgetDefaultSelected(SelectionEvent e) {}
+//					});
+//					MenuItem item100 = new MenuItem(menu, SWT.None);
+//					item100.setText(listPrintScaleText[6]);
+//					item100.addSelectionListener(new SelectionListener() {
+//						@Override
+//						public void widgetSelected(SelectionEvent e) {
+//							PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
+//							PrinterData printerData = dialog.open();
+//							mainPlotter.printGraph(printerData, 1);
+//						}
+//						@Override
+//						public void widgetDefaultSelected(SelectionEvent e) {}
+//					});
+//					return menu;
+//				}
+//				@Override
+//				public void dispose() {}
+//			});
 			
 		}
 
