@@ -43,7 +43,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.diffraction.DetectorProperties;
 import uk.ac.diamond.scisoft.analysis.diffraction.DiffractionCrystalEnvironment;
-import uk.ac.diamond.scisoft.analysis.diffraction.DiffractionImage;
 import uk.ac.diamond.scisoft.analysis.diffraction.QSpace;
 import uk.ac.diamond.scisoft.analysis.diffraction.Resolution;
 import uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata;
@@ -991,7 +990,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 					(Double) data.mean());
 			setThreshold();
 			try {
-				IMetaData localMetaData = data.getMetaData();
+				IMetaData localMetaData = data.getMetadata();
 				if (localMetaData instanceof IDiffractionMetadata) {
 					IDiffractionMetadata localDiffractionMetaData = (IDiffractionMetadata)localMetaData;
 					detConfig = localDiffractionMetaData.getDetector2DProperties();

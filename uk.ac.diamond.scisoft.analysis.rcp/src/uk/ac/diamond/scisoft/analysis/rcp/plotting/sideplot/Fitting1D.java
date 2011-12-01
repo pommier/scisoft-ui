@@ -214,7 +214,7 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 				case ROITableViewer.ROITABLEMENU_EDIT:
 
 					FitMenuDialog menu = new FitMenuDialog(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
-							peaknames, algNames, selectedPeak, selectedAlg);
+							peaknames, algNames, selectedPeak, selectedAlg, accuracy);
 					final boolean ok = menu.open();
 					if (!ok) {
 						overlaysVisible(false);
@@ -607,7 +607,7 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 						// Must use active shell as parent or icon is not correct on some platforms
 						// and it appears in a different window with a different window manager bar.
 						FitMenuDialog menu = new FitMenuDialog(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
-								peaknames, algNames, selectedPeak, selectedAlg);
+								peaknames, algNames, selectedPeak, selectedAlg, accuracy);
 						final boolean ok = menu.open();
 						if (!ok) {
 							overlaysVisible(false);
@@ -886,8 +886,8 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 			algNames[count] = temp;
 			if (temp.equalsIgnoreCase(algDefaultName)) {
 				algName = temp;
-			}
-			selectedAlg = count;
+				selectedAlg = count;
+			}	
 			count++;
 		}
 

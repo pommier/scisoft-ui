@@ -39,9 +39,7 @@ public class StopImageLoadingAction extends AbstractHandler {
 			Command command = event.getCommand();
 			boolean oldValue = HandlerUtil.toggleCommandState(command);
 			view.stopLoading(!oldValue);
-			System.err.println("old was " + oldValue);
 		}
 		return null;
 	}
-
 }

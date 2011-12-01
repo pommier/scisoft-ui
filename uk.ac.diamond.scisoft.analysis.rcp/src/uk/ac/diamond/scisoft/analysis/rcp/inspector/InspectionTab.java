@@ -22,6 +22,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -122,6 +123,11 @@ interface InspectionTab {
 	 */
 	public boolean[] getUsedDims();
 
+	/**
+	 * Stop inspection process in tab (for long running processes)
+	 */
+	public void stopInspection();
+
 }
 
 /**
@@ -141,7 +147,7 @@ abstract class ATab implements InspectionTab {
 	protected IWorkbenchPartSite site;
 	protected ILazyDataset dataset;
 	protected int comboOffset = 0;
-	
+
 	public ATab(IWorkbenchPartSite partSite, InspectorType type, String title, String[] axisNames) {
 		site = partSite;
 		itype = type;
@@ -198,6 +204,8 @@ class PlotTab extends ATab {
 	private final static int STACKPLOTLIMIT = 100;
 
 	private PropertyChangeListener axesListener = null;
+	private ImageExplorerView explorer = null;
+	protected boolean runLongJob = false;
 
 	public PlotTab(IWorkbenchPartSite partSite, InspectorType type, String title, String[] axisNames) {
 		super(partSite, type, title, axisNames);
@@ -252,6 +260,19 @@ class PlotTab extends ATab {
 	@Override
 	public void drawTab() {
 		repopulateCombos(null, null);
+	}
+
+	@Override
+	public synchronized void stopInspection() {
+		runLongJob = false;
+	}
+
+	private synchronized void setInspectionRunning() {
+		runLongJob = true;
+	}
+
+	private synchronized boolean canContinueInspection() {
+		return runLongJob;
 	}
 
 	@Override
@@ -563,6 +584,7 @@ class PlotTab extends ATab {
 			slicedData = DatasetUtils.convertToAbstractDataset(dataset.getSlice(monitor, slices));
 		} catch (Exception e) {
 			logger.error("Problem getting slice of data: {}", e);
+			logger.error("Tried to get slices: {}", Arrays.toString(slices));
 		}
 		return slicedData;
 	}
@@ -581,6 +603,7 @@ class PlotTab extends ATab {
 
 		return reorderedData;
 	}
+
 	protected void swapFirstTwoInOrder(int[] order) {
 		if (order.length > 1) {
 			final int t = order[0];
@@ -606,12 +629,11 @@ class PlotTab extends ATab {
 
 		AbstractDataset reorderedData;
 		Map<String, ? extends Serializable> metadata = null;
-		IMetaData metaDataObject = null;
 		if (dataset instanceof AbstractDataset) {
 			metadata = ((AbstractDataset) dataset).getMetadataMap();
 		}
-		metaDataObject = dataset.getMetaData();
-		
+		IMetaData metaDataObject = dataset.getMetadata();
+
 		switch(itype) {
 		case LINE:
 			reorderedData = slicedAndReorderData(monitor, slices, order);
@@ -700,9 +722,10 @@ class PlotTab extends ATab {
 
 			reorderedData.setName(dataset.getName()); // TODO add slice string
 			reorderedData.setMetadataMap(metadata);
-			if(metaDataObject != null){
+			if (metaDataObject != null) {
 				reorderedData.setMetadata(metaDataObject);
 			}
+
 			try {
 				if (itype == InspectorType.IMAGE)
 					SDAPlotter.imagePlot(PLOTNAME, slicedAxes.get(0), slicedAxes.get(1), reorderedData);
@@ -713,7 +736,7 @@ class PlotTab extends ATab {
 			}
 			break;
 		case MULTIIMAGE:
-			if (isExplorerNameNull())
+			if (isExplorerNull())
 				return;
 
 			pushImages(monitor, slices, order);
@@ -741,13 +764,15 @@ class PlotTab extends ATab {
 
 	}
 
-	public boolean isExplorerNameNull() {
-		if (explorerName == null) {
+	public boolean isExplorerNull() {
+		if (explorerName == null || explorer == null) {
 			try {
-				ImageExplorerView explorer = (ImageExplorerView) site.getPage().showView(ImageExplorerView.ID,
+				explorer = (ImageExplorerView) site.getPage().showView(ImageExplorerView.ID,
 						null, IWorkbenchPage.VIEW_CREATE);
 				if (explorer != null) {
-					explorerName = explorer.plotViewName;
+					explorerName = explorer.getPlotViewName();
+				} else {
+					explorerName = null;
 				}
 			} catch (PartInitException e) {
 				logger.error("Cannot find image explorer view");
@@ -776,57 +801,47 @@ class PlotTab extends ATab {
 		}
 
 		final int nimages = shape[sliceAxis];
-		Thread t = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					SDAPlotter.setupNewImageGrid(explorerName, nimages);
-				} catch (Exception e) {
-					logger.warn("Problem with setting up image explorer");
-				}
-			}
-		}, "Set up image explorer");
 
-		t.start();
 		try {
-			t.join();
-		} catch (InterruptedException e) {
-			logger.error("Something wrong with setting up image explorer", e);
+			SDAPlotter.setupNewImageGrid(explorerName, nimages);
+		} catch (Exception e) {
+			logger.warn("Problem with setting up image explorer", e);
 		}
 
-		
-		t = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Slice subSlice = subSlices[sliceAxis];
-					int start = subSlice.getStart() == null ? 0 : subSlice.getStart();
-					subSlices[sliceAxis].setStop(start+1);
-					for (int i = 0; i < nimages; i++) {
-						subSlices[sliceAxis].setPosition(start + i);
-						AbstractDataset slicedData = sliceData(monitor, subSlices);
-						if (slicedData == null)
-							return;
-
-						AbstractDataset reorderedData = DatasetUtils.transpose(slicedData, order);
-
-						reorderedData.setName(slicedData.getName());
-						reorderedData.squeeze();
-						if (reorderedData.getSize() < 1)
-							return;
-						reorderedData.setName(dataset.getName() + "." + i);
-						SDAPlotter.plotImageToGrid(explorerName, reorderedData, true);
-					}
-				} catch (Exception e) {
-					logger.warn("Problem with send data to image explorer");
-				}
-			}
-		}, "Scan for images");
-		t.start();
 		try {
-			t.join();
-		} catch (InterruptedException e) {
-			logger.error("Something wrong in sending data to image explorer", e);
+			Slice subSlice = subSlices[sliceAxis];
+			int start = subSlice.getStart() == null ? 0 : subSlice.getStart();
+			subSlices[sliceAxis].setStop(start+1);
+			setInspectionRunning();
+			for (int i = 0; i < nimages; i++) {
+				subSlices[sliceAxis].setPosition(start + i);
+				AbstractDataset slicedData = sliceData(monitor, subSlices);
+				if (slicedData == null)
+					return;
+
+				AbstractDataset reorderedData = DatasetUtils.transpose(slicedData, order);
+
+				reorderedData.setName(slicedData.getName());
+				reorderedData.squeeze();
+				if (reorderedData.getSize() < 1)
+					return;
+
+				reorderedData.setName(dataset.getName() + "." + i);
+				if (!canContinueInspection()) {
+					return;
+				}
+
+				if (explorer.isStopped()) {
+					stopInspection();
+					return;
+				}
+
+				SDAPlotter.plotImageToGrid(explorerName, reorderedData, true);
+			}
+		} catch (Exception e) {
+			logger.warn("Problem with sending data to image explorer", e);
+		} finally {
+			stopInspection();
 		}
 	}
 }
