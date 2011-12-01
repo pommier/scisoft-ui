@@ -8,3 +8,4 @@ Export-Package: uk.ac.diamond.scisoft.system.info
 Import-Package: org.slf4j
 Require-Bundle: org.eclipse.ui,
  uk.ac.gda.libs;bundle-version="1.0.0"
+Bundle-Vendor: Diamond Light Source
