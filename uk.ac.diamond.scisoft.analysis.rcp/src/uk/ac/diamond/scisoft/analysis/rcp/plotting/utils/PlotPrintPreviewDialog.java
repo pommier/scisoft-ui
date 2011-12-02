@@ -19,14 +19,14 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.utils;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseWheelListener;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.printing.PrintDialog;
@@ -56,6 +56,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 	private Printer printer;
 	private PrintMargin margin;
 	private Combo combo;
+	private Combo comboOrientation;
 
 	protected String[] listPrintScaleText = { "10", "25", "33", "50", "66", "75", "100" };
 	protected String printScaleText = ResourceProperties.getResourceString("PRINT_SCALE");
@@ -63,16 +64,69 @@ public class PlotPrintPreviewDialog extends Dialog {
 	protected String printToolTipText = ResourceProperties.getResourceString("PRINT_TOOLTIP");
 	protected String printerSelectText = ResourceProperties.getResourceString("PRINTER_SELECT");
 	protected String printPreviewText = ResourceProperties.getResourceString("PRINT_PREVIEW");
+	protected String orientationText = ResourceProperties.getResourceString("ORIENTATION_TEXT");
+	protected String portraitText = ResourceProperties.getResourceString("PORTRAIT_ORIENTATION");
+	protected String landscapeText = ResourceProperties.getResourceString("LANDSCAPE_ORIENTATION");
+	private String orientation = portraitText;
+
+	private Image image;
+	private String fileName = "SDA plot";
 
 	private static final Logger logger = LoggerFactory.getLogger(PlotPrintPreviewDialog.class);
 
 	public PlotPrintPreviewDialog(AbstractViewerApp viewerApp, Display device, Plot1DGraphTable legendTable) {
 		super(device.getActiveShell());
 		this.display = device;
-		this.image = PlotExportUtil.createImage(viewerApp, device, legendTable);
+		// this.image = PlotExportUtil.createImage(viewerApp, device, legendTable, getPrinterData());
+
+		// We put the image creation into a thread and display a busy kind of indicator during while the thread is
+		// running
+		Runnable createImage = new CreateImage(viewerApp, device, legendTable, getPrinterData());
+		@SuppressWarnings("unused")
+		Thread thread = new Thread(createImage);
+		BusyIndicator.showWhile(display, createImage);
+
+		this.image = CreateImage.getImage();
+	}
+
+	/**
+	 * CreateImage Class used to create a Thread because of the amount of time it eventually takes to create an image
+	 */
+	public static class CreateImage implements Runnable {
+		private AbstractViewerApp viewerApp;
+		private Display device;
+		private Plot1DGraphTable legendTable;
+		private PrinterData printerData;
+		private static Image image;
+
+		public CreateImage(AbstractViewerApp viewerApp, Display device, Plot1DGraphTable legendTable,
+				PrinterData printerData) {
+			this.viewerApp = viewerApp;
+			this.device = device;
+			this.legendTable = legendTable;
+			this.printerData = printerData;
+		}
+
+		@Override
+		public void run() {
+			setImage(PlotExportUtil.createImage(viewerApp, device, legendTable, printerData));
+		}
+
+		public static Image getImage() {
+			return image;
+		}
+
+		public void setImage(Image image) {
+			CreateImage.image = image;
+		}
 	}
 
 	private PrinterData printData;
+
+	public PrinterData getPrinterData() {
+		setPrinter(printer, 0.5);
+		return printer.getPrinterData();
+	}
 
 	public PrinterData open() {
 		shell = new Shell(display.getActiveShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
@@ -93,8 +147,8 @@ public class PlotPrintPreviewDialog extends Dialog {
 				// Loads the printer.
 				final Printer printer = new Printer(printerData);
 				setPrinter(printer, Double.parseDouble(combo.getItem(combo.getSelectionIndex())));
-				//print the plot
-				print(printer, margin);
+				// print the plot
+				print(printer, margin, orientation);
 				shell.dispose();
 			}
 		});
@@ -129,140 +183,66 @@ public class PlotPrintPreviewDialog extends Dialog {
 				if (printer == null)
 					print();
 				else
-					print(printer, margin);
+					print(printer, margin, orientation);
 				shell.dispose();
 			}
 		});
+
+		//TODO orientation button disabled: works for preview not for data sent to printer
+//		new Label(shell, SWT.NULL).setText(orientationText);
+//		comboOrientation = new Combo(shell, SWT.READ_ONLY);
+//		comboOrientation.add(portraitText);
+//		comboOrientation.add(landscapeText);
+//		comboOrientation.select(0);
+//		comboOrientation.addListener(SWT.Selection, new Listener() {
+//			@Override
+//			public void handleEvent(Event e) {
+//				orientation = comboOrientation.getItem(comboOrientation.getSelectionIndex());
+//				// setPrinter(printer, value);
+//				canvas.redraw();
+//			}
+//		});
 
 		canvas = new Canvas(shell, SWT.BORDER);
 
 		GridData gridData = new GridData(GridData.FILL_BOTH);
 		gridData.horizontalSpan = 4;
 		canvas.setLayoutData(gridData);
-//		canvas.addPaintListener(new PaintListener() {
-//			@Override
-//			public void paintControl(PaintEvent e) {
-//				int canvasBorder = 20;
-//
-//				if (printer == null || printer.isDisposed())
-//					return;
-//				Rectangle rectangle = printer.getBounds();
-//				Point canvasSize = canvas.getSize();
-//
-//				double viewScaleFactor = (canvasSize.x - canvasBorder * 2) * 1.0 / rectangle.width;
-//				viewScaleFactor = Math.min(viewScaleFactor, (canvasSize.y - canvasBorder * 2) * 1.0 / rectangle.height);
-//
-//				int offsetX = (canvasSize.x - (int) (viewScaleFactor * rectangle.width)) / 2;
-//				int offsetY = (canvasSize.y - (int) (viewScaleFactor * rectangle.height)) / 2;
-//
-//				e.gc.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_WHITE));
-//				// draws the page layout
-//				e.gc.fillRectangle(offsetX, offsetY, (int) (viewScaleFactor * rectangle.width),
-//						(int) (viewScaleFactor * rectangle.height));
-//
-//				// draws the margin.
-//				e.gc.setLineStyle(SWT.LINE_DASH);
-//				e.gc.setForeground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-//
-//				int marginOffsetX = offsetX + (int) (viewScaleFactor * margin.left);
-//				int marginOffsetY = offsetY + (int) (viewScaleFactor * margin.top);
-//				e.gc.drawRectangle(marginOffsetX, marginOffsetY,
-//						(int) (viewScaleFactor * (margin.right - margin.left)),
-//						(int) (viewScaleFactor * (margin.bottom - margin.top)));
-//
-//				if (image != null) {
-//					int imageWidth = image.getBounds().width;
-//					int imageHeight = image.getBounds().height;
-//
-//					double dpiScaleFactorX = printer.getDPI().x * 1.0 / shell.getDisplay().getDPI().x;
-//					double dpiScaleFactorY = printer.getDPI().y * 1.0 / shell.getDisplay().getDPI().y;
-//
-//					double imageSizeFactor = Math.min(1, (margin.right - margin.left) * 1.0
-//							/ (dpiScaleFactorX * imageWidth));
-//					imageSizeFactor = Math.min(imageSizeFactor, (margin.bottom - margin.top) * 1.0
-//							/ (dpiScaleFactorY * imageHeight));
-//
-//					e.gc.drawImage(image, 0, 0, imageWidth, imageHeight, marginOffsetX, marginOffsetY,
-//							(int) (dpiScaleFactorX * imageSizeFactor * imageWidth * viewScaleFactor),
-//							(int) (dpiScaleFactorY * imageSizeFactor * imageHeight * viewScaleFactor));
-//
-//				}
-//
-//			}
-//		});
+		// canvas.addPaintListener(new PaintListener() {
+		// @Override
+		// public void paintControl(PaintEvent e) {
+		// paint(e,orientation);
+		// }
+		// });
 
 		Listener listener = new Listener() {
 			int zoomFactor = 1;
 
 			@Override
 			public void handleEvent(Event e) {
-				Canvas canvas = (Canvas) e.widget;
+				Canvas canvas = null;
 				switch (e.type) {
 				case SWT.MouseWheel:
-					zoomFactor = (Math.max(0, zoomFactor + e.count)*2);
-					//canvas = (Canvas) e.widget;
+					canvas = (Canvas) e.widget;
+					zoomFactor = (Math.max(0, zoomFactor + e.count) * 2);
 					canvas.redraw();
-					
+
 					break;
 				case SWT.Paint:
-					int canvasBorder = 20;
-
-					if (printer == null || printer.isDisposed())
-						return;
-					Rectangle rectangle = printer.getBounds();
-					Point canvasSize = canvas.getSize();
-
-					double viewScaleFactor = (canvasSize.x - canvasBorder * 2) * 1.0 / rectangle.width;
-					viewScaleFactor = (zoomFactor) * Math.min(viewScaleFactor, (canvasSize.y - canvasBorder * 2) * 1.0 / rectangle.height);
-
-					int offsetX = (canvasSize.x - (int) (viewScaleFactor * rectangle.width)) / 2;
-					int offsetY = (canvasSize.y - (int) (viewScaleFactor * rectangle.height)) / 2;
-
-					e.gc.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_WHITE));
-					// draws the page layout
-					e.gc.fillRectangle(offsetX, offsetY, (int) (viewScaleFactor * rectangle.width),
-							(int) (viewScaleFactor * rectangle.height));
-
-					// draws the margin.
-					e.gc.setLineStyle(SWT.LINE_DASH);
-					e.gc.setForeground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-
-					int marginOffsetX = offsetX + (int) (viewScaleFactor * margin.left);
-					int marginOffsetY = offsetY + (int) (viewScaleFactor * margin.top);
-					e.gc.drawRectangle(marginOffsetX, marginOffsetY,
-							(int) (viewScaleFactor * (margin.right - margin.left)),
-							(int) (viewScaleFactor * (margin.bottom - margin.top)));
-
-					if (image != null) {
-						int imageWidth = image.getBounds().width;
-						int imageHeight = image.getBounds().height;
-
-						double dpiScaleFactorX = printer.getDPI().x * 1.0 / shell.getDisplay().getDPI().x;
-						double dpiScaleFactorY = printer.getDPI().y * 1.0 / shell.getDisplay().getDPI().y;
-
-						double imageSizeFactor = Math.min(1, (margin.right - margin.left) * 1.0
-								/ (dpiScaleFactorX * imageWidth));
-						imageSizeFactor = Math.min(imageSizeFactor, (margin.bottom - margin.top) * 1.0
-								/ (dpiScaleFactorY * imageHeight));
-
-						e.gc.drawImage(image, 0, 0, imageWidth, imageHeight, marginOffsetX, marginOffsetY,
-								(int) (dpiScaleFactorX * imageSizeFactor * imageWidth * viewScaleFactor),
-								(int) (dpiScaleFactorY * imageSizeFactor * imageHeight * viewScaleFactor));
-
-					}
-
+					canvas = (Canvas) e.widget;
+					paint(e, orientation);
 					break;
 				}
 			}
 		};
-		//canvas.addListener(SWT.MouseWheel, listener);
-	//	canvas.addListener(SWT.MouseUp, listener);
-		//canvas.addListener(SWT.MouseDown, listener);
+		// canvas.addListener(SWT.MouseWheel, listener);
+		// canvas.addListener(SWT.MouseUp, listener);
+		// canvas.addListener(SWT.MouseDown, listener);
 		canvas.addListener(SWT.Paint, listener);
-	//	canvas.addListener(SWT.KeyDown, listener);
-		
-		
-		shell.setSize(500, 700);
+		// comboOrientation.addListener(SWT.Selection, listener);
+		// canvas.addListener(SWT.KeyDown, listener);
+
+		shell.setSize(800, 650);
 		shell.open();
 		setPrinter(null, 0.5);
 
@@ -276,6 +256,107 @@ public class PlotPrintPreviewDialog extends Dialog {
 		return printData;
 	}
 
+	private void paint(Event e, String orientation) {
+		if (orientation.equals(portraitText)) {
+
+			int canvasBorder = 20;
+
+			if (printer == null || printer.isDisposed())
+				return;
+			Rectangle rectangle = printer.getBounds();
+			Point canvasSize = canvas.getSize();
+
+			double viewScaleFactor = (canvasSize.x - canvasBorder * 2) * 1.0 / rectangle.width;
+			viewScaleFactor = Math.min(viewScaleFactor, (canvasSize.y - canvasBorder * 2) * 1.0 / rectangle.height);
+
+			int offsetX = (canvasSize.x - (int) (viewScaleFactor * rectangle.width)) / 2;
+			int offsetY = (canvasSize.y - (int) (viewScaleFactor * rectangle.height)) / 2;
+
+			e.gc.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+			// draws the page layout
+			e.gc.fillRectangle(offsetX, offsetY, (int) (viewScaleFactor * rectangle.width),
+					(int) (viewScaleFactor * rectangle.height));
+
+			// draws the margin.
+			e.gc.setLineStyle(SWT.LINE_DASH);
+			e.gc.setForeground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
+
+			int marginOffsetX = offsetX + (int) (viewScaleFactor * margin.left);
+			int marginOffsetY = offsetY + (int) (viewScaleFactor * margin.top);
+			//e.gc.drawRectangle(marginOffsetX, marginOffsetY, (int) (viewScaleFactor * (margin.right - margin.left)),
+			//		(int) (viewScaleFactor * (margin.bottom - margin.top)));
+
+			if (image != null) {
+				int imageWidth = image.getBounds().width;
+				int imageHeight = image.getBounds().height;
+
+				double dpiScaleFactorX = printer.getDPI().x * 1.0 / shell.getDisplay().getDPI().x;
+				double dpiScaleFactorY = printer.getDPI().y * 1.0 / shell.getDisplay().getDPI().y;
+
+				double imageSizeFactor = Math.min(1, (margin.right - margin.left) * 1.0
+						/ (dpiScaleFactorX * imageWidth));
+				imageSizeFactor = Math.min(imageSizeFactor, (margin.bottom - margin.top) * 1.0
+						/ (dpiScaleFactorY * imageHeight));
+
+				e.gc.drawImage(image, 0, 0, imageWidth, imageHeight, marginOffsetX, marginOffsetY,
+						(int) (dpiScaleFactorX * imageSizeFactor * imageWidth * viewScaleFactor),
+						(int) (dpiScaleFactorY * imageSizeFactor * imageHeight * viewScaleFactor));
+
+			}
+
+		} else if (orientation.equals(landscapeText)) {
+			int canvasBorder = 20;
+
+			if (printer == null || printer.isDisposed())
+				return;
+			Rectangle rectangle = printer.getBounds();
+			Point canvasSize = canvas.getSize();
+		
+			double viewScaleFactor = (canvasSize.x - canvasBorder * 2) * 1.0 / rectangle.width;
+			viewScaleFactor = Math.min(viewScaleFactor, (canvasSize.y - canvasBorder * 2) * 1.0 / rectangle.height);
+
+			int offsetX = (canvasSize.x - (int) (viewScaleFactor * rectangle.width)) / 2;
+			int offsetY = (canvasSize.y - (int) (viewScaleFactor * rectangle.height)) / 2;
+
+			e.gc.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+			// draws the page layout
+			e.gc.fillRectangle(offsetX, offsetY, (int) (viewScaleFactor * rectangle.height),
+					(int) (viewScaleFactor * rectangle.width));
+
+			// draws the margin.
+			e.gc.setLineStyle(SWT.LINE_DASH);
+			e.gc.setForeground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
+
+			int marginOffsetX = offsetX + (int) (viewScaleFactor * margin.left);
+			int marginOffsetY = offsetY + (int) (viewScaleFactor * margin.top);
+			// e.gc.drawRectangle(marginOffsetX, marginOffsetY, (int) (viewScaleFactor * (margin.right - margin.left)),
+			// (int) (viewScaleFactor * (margin.bottom - margin.top)));
+
+			if (image != null) {
+				int imageWidth = image.getBounds().width;
+				int imageHeight = image.getBounds().height;
+
+				double dpiScaleFactorX = printer.getDPI().x * 1.0 / shell.getDisplay().getDPI().x;
+				double dpiScaleFactorY = printer.getDPI().y * 1.0 / shell.getDisplay().getDPI().y;
+
+				double imageSizeFactor = Math.min(1, (margin.right - margin.left) * 1.0
+						/ (dpiScaleFactorX * imageWidth));
+				imageSizeFactor = Math.min(imageSizeFactor, (margin.bottom - margin.top) * 1.0
+						/ (dpiScaleFactorY * imageHeight));
+
+				float imageFactor = imageWidth / rectangle.width;
+				// e.gc.drawImage(image, 0, 0, imageWidth, imageHeight, marginOffsetX, marginOffsetY,
+				// (int) (dpiScaleFactorX * imageSizeFactor * imageWidth * viewScaleFactor),
+				// (int) (dpiScaleFactorY * imageSizeFactor * imageHeight * viewScaleFactor));
+				e.gc.drawImage(image, 0, 0, imageWidth, imageHeight, marginOffsetX, marginOffsetY,
+						(int) (rectangle.height * imageFactor * dpiScaleFactorX * viewScaleFactor * imageSizeFactor),
+						(int) (rectangle.width * imageFactor * dpiScaleFactorY * viewScaleFactor * imageSizeFactor));
+
+			}
+		}
+
+	}
+
 	/**
 	 * Sets target printer.
 	 * 
@@ -287,11 +368,9 @@ public class PlotPrintPreviewDialog extends Dialog {
 		}
 		this.printer = printer;
 		margin = PrintMargin.getPrintMargin(printer, marginSize);
-		canvas.redraw();
+		if (canvas != null)
+			canvas.redraw();
 	}
-
-	private Image image;
-	private String fileName = "plot.jpg";
 
 	/**
 	 * Lets the user to select a printer and prints the image on it.
@@ -305,7 +384,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 			return;
 		// Loads the printer.
 		Printer printer = new Printer(printerData);
-		print(printer, null);
+		print(printer, null, orientation);
 	}
 
 	/**
@@ -313,7 +392,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 	 * 
 	 * @param printer
 	 */
-	void print(final Printer printer, PrintMargin printMargin) {
+	void print(final Printer printer, PrintMargin printMargin, final String orientation) {
 		if (image == null) // If no image is loaded, do not print.
 			return;
 
@@ -339,24 +418,54 @@ public class PlotPrintPreviewDialog extends Dialog {
 					gc.dispose();
 					return;
 				} else {
-					int imageWidth = image.getBounds().width;
-					int imageHeight = image.getBounds().height;
+					if (orientation.equals(portraitText)) {
+						int imageWidth = image.getBounds().width;
+						int imageHeight = image.getBounds().height;
 
-					// Handles DPI conversion.
-					double dpiScaleFactorX = printerDPI.x * 1.0 / displayDPI.x;
-					double dpiScaleFactorY = printerDPI.y * 1.0 / displayDPI.y;
+						// Handles DPI conversion.
+						double dpiScaleFactorX = printerDPI.x * 1.0 / displayDPI.x;
+						double dpiScaleFactorY = printerDPI.y * 1.0 / displayDPI.y;
 
-					// If the image is too large to draw on a page, reduces its
-					// width and height proportionally.
-					double imageSizeFactor = Math.min(1, (margin.right - margin.left) * 1.0
-							/ (dpiScaleFactorX * imageWidth));
-					imageSizeFactor = Math.min(imageSizeFactor, (margin.bottom - margin.top) * 1.0
-							/ (dpiScaleFactorY * imageHeight));
+						// If the image is too large to draw on a page, reduces its
+						// width and height proportionally.
+						double imageSizeFactor = Math.min(1, (margin.right - margin.left) * 1.0
+								/ (dpiScaleFactorX * imageWidth));
+						imageSizeFactor = Math.min(imageSizeFactor, (margin.bottom - margin.top) * 1.0
+								/ (dpiScaleFactorY * imageHeight));
 
-					// Draws the image to the printer.
-					gc.drawImage(image, 0, 0, imageWidth, imageHeight, margin.left, margin.top, (int) (dpiScaleFactorX
-							* imageSizeFactor * imageWidth), (int) (dpiScaleFactorY * imageSizeFactor * imageHeight));
-					gc.dispose();
+						// Draws the image to the printer.
+						gc.drawImage(image, 0, 0, imageWidth, imageHeight, margin.left, margin.top,
+								(int) (dpiScaleFactorX * imageSizeFactor * imageWidth), (int) (dpiScaleFactorY
+										* imageSizeFactor * imageHeight));
+						gc.dispose();
+
+					}
+					if (orientation.equals(landscapeText)) {
+						//TODO orientation: need to have the image rotating to work...
+						int imageHeight = image.getBounds().width;
+						int imageWidth = image.getBounds().height;
+
+						// Handles DPI conversion.
+						double dpiScaleFactorX = printerDPI.x * 1.0 / displayDPI.x;
+						double dpiScaleFactorY = printerDPI.y * 1.0 / displayDPI.y;
+
+						// If the image is too large to draw on a page, reduces its
+						// width and height proportionally.
+						double imageSizeFactor = Math.min(1, (margin.right - margin.left) * 1.0
+								/ (dpiScaleFactorX * imageWidth));
+						imageSizeFactor = Math.min(imageSizeFactor, (margin.bottom - margin.top) * 1.0
+								/ (dpiScaleFactorY * imageHeight));
+
+						// Draws the image to the printer.
+						Transform t = new Transform(printer);
+						t.rotate(90);
+						gc.setTransform(t);
+						gc.drawImage(image, 0, 0, imageWidth, imageHeight, margin.left, margin.top,
+								(int) (dpiScaleFactorX * imageSizeFactor * imageWidth), (int) (dpiScaleFactorY
+										* imageSizeFactor * imageHeight));
+						gc.dispose();
+						t.dispose();
+					}
 				}
 
 				image.dispose();
@@ -409,8 +518,6 @@ class PrintMargin {
 		Rectangle clientArea = printer.getClientArea();
 		Rectangle trim = printer.computeTrim(0, 0, 0, 0);
 
-		// System.out.println(printer.getBounds() + " - " + clientArea + "" +
-		// trim);
 		Point dpi = printer.getDPI();
 
 		int leftMargin = (int) (marginLeft * dpi.x) - trim.x;

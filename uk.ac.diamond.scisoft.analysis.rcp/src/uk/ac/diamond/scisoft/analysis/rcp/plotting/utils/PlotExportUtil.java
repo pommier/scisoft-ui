@@ -288,7 +288,7 @@ public class PlotExportUtil {
 
 
 	public static synchronized Image createImage(AbstractViewerApp viewerApp, Display display,
-			Plot1DGraphTable legendTable) {
+			Plot1DGraphTable legendTable, PrinterData printerData) {
 		File imageFile = null;
 		// create a temporary image file
 		try {
@@ -299,13 +299,26 @@ public class PlotExportUtil {
 		Image image = null;
 
 		ImageData imageData;
-		ExportImage.exportImage(viewerApp.getCurrentViewer(), imageFile, 600, 530, 1);
+		Printer printer = new Printer(printerData);
+		Rectangle area = printer.getClientArea();
+		
+		//float printAspect = (float)area.width / (float)area.height;
+		int printScaleFactor = 1;
+
+		// check if we run on gtk don't trust gtk when it comes down to
+		// the printer resolution so increase it by a major factor
+	
+		if (SWT.getPlatform().toLowerCase().equals("gtk"))
+			printScaleFactor = 4;
+		
+		
+		ExportImage.exportImage(viewerApp.getCurrentViewer(), imageFile, area.height*printScaleFactor, area.width*printScaleFactor, 1);
 
 		ImageLoader loader = new ImageLoader();
 		imageData = loader.load(imageFile.getAbsolutePath())[0];
 		Image reloadedImage = new Image(display, imageData);
 
-		Image bigImage = new Image(display, reloadedImage.getBounds().width+200,reloadedImage.getBounds().height+200);
+		Image bigImage = new Image(display, reloadedImage.getBounds().width,reloadedImage.getBounds().height+200);
 		GC gc = new GC(bigImage);
 
 		int legendGap = 0;
@@ -320,6 +333,8 @@ public class PlotExportUtil {
 		}
 
 		gc.drawImage(reloadedImage, 0, 0);
+		//gc.drawImage(reloadedImage, 0, 0, reloadedImage.getBounds().width, reloadedImage.getBounds().height, 0, 0,
+		//		area.width, area.height );
 		if (legendTable != null) {
 			int currentEntry = 0;
 			for (int i = 0; i < legendTable.getLegendSize(); i++) {
