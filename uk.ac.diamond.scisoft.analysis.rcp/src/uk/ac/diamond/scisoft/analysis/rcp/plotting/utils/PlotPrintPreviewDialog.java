@@ -29,12 +29,14 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.printing.PrintDialog;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
@@ -65,9 +67,9 @@ public class PlotPrintPreviewDialog extends Dialog {
 	protected String printerSelectText = ResourceProperties.getResourceString("PRINTER_SELECT");
 	protected String printPreviewText = ResourceProperties.getResourceString("PRINT_PREVIEW");
 	protected String orientationText = ResourceProperties.getResourceString("ORIENTATION_TEXT");
-	protected String portraitText = ResourceProperties.getResourceString("PORTRAIT_ORIENTATION");
-	protected String landscapeText = ResourceProperties.getResourceString("LANDSCAPE_ORIENTATION");
-	private String orientation = portraitText;
+	protected static String portraitText = ResourceProperties.getResourceString("PORTRAIT_ORIENTATION");
+	protected static String landscapeText = ResourceProperties.getResourceString("LANDSCAPE_ORIENTATION");
+	private static String orientation = portraitText;
 
 	private Image image;
 	private String fileName = "SDA plot";
@@ -79,7 +81,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 		this.display = device;
 		// this.image = PlotExportUtil.createImage(viewerApp, device, legendTable, getPrinterData());
 
-		// We put the image creation into a thread and display a busy kind of indicator during while the thread is
+		// We put the image creation into a thread and display a busy kind of indicator while the thread is
 		// running
 		Runnable createImage = new CreateImage(viewerApp, device, legendTable, getPrinterData());
 		@SuppressWarnings("unused")
@@ -133,7 +135,9 @@ public class PlotPrintPreviewDialog extends Dialog {
 		shell.setText(printPreviewText);
 		shell.setLayout(new GridLayout(4, false));
 
-		final Button buttonSelectPrinter = new Button(shell, SWT.PUSH);
+		final Composite previewComposite = new Composite(shell, SWT.TOP);
+		previewComposite.setLayout(new RowLayout());
+		final Button buttonSelectPrinter = new Button(previewComposite, SWT.PUSH);
 		buttonSelectPrinter.setText(printerSelectText);
 		buttonSelectPrinter.addListener(SWT.Selection, new Listener() {
 			@Override
@@ -153,11 +157,10 @@ public class PlotPrintPreviewDialog extends Dialog {
 			}
 		});
 
-		new Label(shell, SWT.NULL).setText(printScaleText);
-		combo = new Combo(shell, SWT.READ_ONLY);
-		// for (int i = 0; i < listPrintScaleText.length; i++) {
-		// combo.add(listPrintScaleText[i]);
-		// }
+		Composite scaleComposite = new Composite(previewComposite, SWT.BORDER);
+		scaleComposite.setLayout(new RowLayout());
+		new Label(scaleComposite, SWT.NULL).setText(printScaleText+":");
+		combo = new Combo(scaleComposite, SWT.READ_ONLY);
 		combo.add("0.5");
 		combo.add("2.0");
 		combo.add("3.0");
@@ -174,7 +177,25 @@ public class PlotPrintPreviewDialog extends Dialog {
 			}
 		});
 
-		final Button buttonPrint = new Button(shell, SWT.PUSH);
+		// TODO orientation button disabled: works for preview not for data sent to printer
+//		Composite orientationComposite = new Composite(previewComposite, SWT.BORDER);
+//		orientationComposite.setLayout(new RowLayout());
+//		new Label(orientationComposite, SWT.NULL).setText(orientationText+":");
+//		comboOrientation = new Combo(orientationComposite, SWT.READ_ONLY);
+//		comboOrientation.add(portraitText);
+//		comboOrientation.add(landscapeText);
+//		comboOrientation.select(0);
+//		orientation = portraitText;
+//		comboOrientation.addListener(SWT.Selection, new Listener() {
+//			@Override
+//			public void handleEvent(Event e) {
+//				orientation = comboOrientation.getItem(comboOrientation.getSelectionIndex());
+//				// setPrinter(printer, value);
+//				canvas.redraw();
+//			}
+//		});
+		
+		final Button buttonPrint = new Button(previewComposite, SWT.PUSH);
 		buttonPrint.setText(printButtonText);
 		buttonPrint.setToolTipText(printToolTipText);
 		buttonPrint.addListener(SWT.Selection, new Listener() {
@@ -187,21 +208,6 @@ public class PlotPrintPreviewDialog extends Dialog {
 				shell.dispose();
 			}
 		});
-
-		//TODO orientation button disabled: works for preview not for data sent to printer
-//		new Label(shell, SWT.NULL).setText(orientationText);
-//		comboOrientation = new Combo(shell, SWT.READ_ONLY);
-//		comboOrientation.add(portraitText);
-//		comboOrientation.add(landscapeText);
-//		comboOrientation.select(0);
-//		comboOrientation.addListener(SWT.Selection, new Listener() {
-//			@Override
-//			public void handleEvent(Event e) {
-//				orientation = comboOrientation.getItem(comboOrientation.getSelectionIndex());
-//				// setPrinter(printer, value);
-//				canvas.redraw();
-//			}
-//		});
 
 		canvas = new Canvas(shell, SWT.BORDER);
 
@@ -418,6 +424,8 @@ public class PlotPrintPreviewDialog extends Dialog {
 					gc.dispose();
 					return;
 				} else {
+					Rectangle trim = printer.computeTrim(0,0,0,0);
+					
 					if (orientation.equals(portraitText)) {
 						int imageWidth = image.getBounds().width;
 						int imageHeight = image.getBounds().height;
@@ -435,15 +443,16 @@ public class PlotPrintPreviewDialog extends Dialog {
 
 						// Draws the image to the printer.
 						gc.drawImage(image, 0, 0, imageWidth, imageHeight, margin.left, margin.top,
-								(int) (dpiScaleFactorX * imageSizeFactor * imageWidth), (int) (dpiScaleFactorY
-										* imageSizeFactor * imageHeight));
+								(int) (dpiScaleFactorX * imageSizeFactor * imageWidth), 
+								(int) (dpiScaleFactorY * imageSizeFactor * imageHeight));
 						gc.dispose();
+						
 
 					}
 					if (orientation.equals(landscapeText)) {
-						//TODO orientation: need to have the image rotating to work...
-						int imageHeight = image.getBounds().width;
-						int imageWidth = image.getBounds().height;
+						// TODO orientation: need to have the image rotating to work...
+						int imageWidth = image.getBounds().width;
+						int imageHeight = image.getBounds().height;
 
 						// Handles DPI conversion.
 						double dpiScaleFactorX = printerDPI.x * 1.0 / displayDPI.x;
@@ -457,12 +466,14 @@ public class PlotPrintPreviewDialog extends Dialog {
 								/ (dpiScaleFactorY * imageHeight));
 
 						// Draws the image to the printer.
+						gc.setAdvanced(true);
 						Transform t = new Transform(printer);
 						t.rotate(90);
+						t.translate(0, (float)-(dpiScaleFactorY * imageSizeFactor * imageWidth*1.1));	 
 						gc.setTransform(t);
 						gc.drawImage(image, 0, 0, imageWidth, imageHeight, margin.left, margin.top,
-								(int) (dpiScaleFactorX * imageSizeFactor * imageWidth), (int) (dpiScaleFactorY
-										* imageSizeFactor * imageHeight));
+								(int) (dpiScaleFactorX * imageSizeFactor * imageWidth*1.35), 
+								(int) (dpiScaleFactorY * imageSizeFactor * imageHeight*1.35));
 						gc.dispose();
 						t.dispose();
 					}

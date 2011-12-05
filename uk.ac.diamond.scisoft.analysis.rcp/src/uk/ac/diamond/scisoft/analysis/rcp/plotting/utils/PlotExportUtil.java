@@ -323,7 +323,8 @@ public class PlotExportUtil {
 
 		int legendGap = 0;
 		int numActiveEntries = 0;
-
+		Rectangle trim = printer.computeTrim(0,0,0,0);
+		
 		if (legendTable != null) {
 			for (int i = 0; i < legendTable.getLegendSize(); i++)
 				if (legendTable.getLegendEntry(i).isVisible())
@@ -332,9 +333,9 @@ public class PlotExportUtil {
 			legendGap = 10 + Math.max(1, (numActiveEntries / 4)) * 32;
 		}
 
-		gc.drawImage(reloadedImage, 0, 0);
-		//gc.drawImage(reloadedImage, 0, 0, reloadedImage.getBounds().width, reloadedImage.getBounds().height, 0, 0,
-		//		area.width, area.height );
+		gc.drawImage(reloadedImage, -trim.x, -trim.y);
+		//gc.drawImage(reloadedImage, 0, 0, reloadedImage.getBounds().width, reloadedImage.getBounds().height, -trim.x, -trim.y,
+		//		area.width*printScaleFactor, area.height*printScaleFactor*2);
 		if (legendTable != null) {
 			int currentEntry = 0;
 			for (int i = 0; i < legendTable.getLegendSize(); i++) {
@@ -342,7 +343,7 @@ public class PlotExportUtil {
 				if (app.isVisible()) {
 					int xpos = 60 - (currentEntry / 4);
 					int ypos = reloadedImage.getBounds().height + 20 + (currentEntry % 4);
-					app.drawApp(xpos, ypos, gc, display, false);
+					app.drawApp(xpos, ypos, gc, display, false, printScaleFactor);
 					currentEntry++;
 				}
 			}
