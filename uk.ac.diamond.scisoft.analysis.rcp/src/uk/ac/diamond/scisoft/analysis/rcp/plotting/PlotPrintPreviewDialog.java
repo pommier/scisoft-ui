@@ -16,7 +16,7 @@
  * with GDA. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.plotting.utils;
+package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
@@ -46,7 +46,7 @@ import org.eclipse.swt.widgets.Dialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DGraphTable;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 
 import de.jreality.ui.viewerapp.AbstractViewerApp;
@@ -69,6 +69,9 @@ public class PlotPrintPreviewDialog extends Dialog {
 	protected String orientationText = ResourceProperties.getResourceString("ORIENTATION_TEXT");
 	protected static String portraitText = ResourceProperties.getResourceString("PORTRAIT_ORIENTATION");
 	protected static String landscapeText = ResourceProperties.getResourceString("LANDSCAPE_ORIENTATION");
+	protected String defaultPrinterText = ResourceProperties.getResourceString("DEFAULT_PRINTER");
+	private String defaultPrinterName; 
+	
 	private static String orientation = portraitText;
 
 	private Image image;
@@ -83,7 +86,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 
 		// We put the image creation into a thread and display a busy kind of indicator while the thread is
 		// running
-		Runnable createImage = new CreateImage(viewerApp, device, legendTable, getPrinterData());
+		Runnable createImage = new CreateImage(viewerApp, device, legendTable, Printer.getDefaultPrinterData());
 		@SuppressWarnings("unused")
 		Thread thread = new Thread(createImage);
 		BusyIndicator.showWhile(display, createImage);
@@ -125,11 +128,6 @@ public class PlotPrintPreviewDialog extends Dialog {
 
 	private PrinterData printData;
 
-	public PrinterData getPrinterData() {
-		setPrinter(printer, 0.5);
-		return printer.getPrinterData();
-	}
-
 	public PrinterData open() {
 		shell = new Shell(display.getActiveShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
 		shell.setText(printPreviewText);
@@ -159,7 +157,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 
 		Composite scaleComposite = new Composite(previewComposite, SWT.BORDER);
 		scaleComposite.setLayout(new RowLayout());
-		new Label(scaleComposite, SWT.NULL).setText(printScaleText+":");
+		new Label(scaleComposite, SWT.BOTTOM).setText(printScaleText+":");
 		combo = new Combo(scaleComposite, SWT.READ_ONLY);
 		combo.add("0.5");
 		combo.add("2.0");
@@ -203,12 +201,19 @@ public class PlotPrintPreviewDialog extends Dialog {
 			public void handleEvent(Event event) {
 				if (printer == null)
 					print();
-				else
+				else{
 					print(printer, margin, orientation);
+				}
 				shell.dispose();
 			}
 		});
-
+		
+		String[] tmp = Printer.getDefaultPrinterData().toString().split("name =");
+		String defaultPrinterName="";
+		if (tmp.length>1)
+			defaultPrinterName=tmp[1].split("}")[0];
+		new Label(previewComposite, SWT.RIGHT).setText(defaultPrinterText+": "+defaultPrinterName);
+		
 		canvas = new Canvas(shell, SWT.BORDER);
 
 		GridData gridData = new GridData(GridData.FILL_BOTH);
