@@ -18,27 +18,9 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.views;
 
-import org.eclipse.ui.IWorkbenchPart;
+import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 
-import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
+public interface ISidePageView {
 
-public interface ISidePlotPart extends IMetadataProvider, IWorkbenchPart{
-
-	/**
-	 * Different side plot choices which may be made by the user.
-	 */
-	public enum SidePlotPreference {
-		LINE,
-		PROFILE,
-		DIFFRACTION_3D,
-		IMAGE
-	}
-	public SidePlotPreference getSidePlotPreference();
-	
-	/**
-	 * Returns the plotter used on the part
-	 * @return DataSetPlotter
-	 */
-	public DataSetPlotter getMainPlotter();
+	public void setMetadataObject(IMetaData meta);
 }

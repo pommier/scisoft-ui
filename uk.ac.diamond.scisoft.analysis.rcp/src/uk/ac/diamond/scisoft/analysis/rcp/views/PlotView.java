@@ -58,7 +58,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
  * Plot View is the main Analysis panel that can display any n-D scalar data it is the replacement of the Data Vector
  * panel inside the new RCP framework
  */
-public class PlotView extends ViewPart implements IObserver, IObservable, IGuiInfoManager, IUpdateNotificationListener, ISidePlotPart  {
+public class PlotView extends ViewPart implements IObserver, IObservable, IGuiInfoManager, IUpdateNotificationListener, IMetadataProvider  {
 
 	// Adding in some logging to help with getting this running
 	private static final Logger logger = LoggerFactory.getLogger(PlotView.class);
@@ -435,12 +435,6 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 		if (currentData != null)
 			return currentData.getMetadata();
 		return null;
-	}
-
-	@Override
-	public SidePlotPreference getSidePlotPreference() {
-		// TODO Return the real side preference, always diffraction for now.
-		return SidePlotPreference.DIFFRACTION_3D;
 	}
 
 }
