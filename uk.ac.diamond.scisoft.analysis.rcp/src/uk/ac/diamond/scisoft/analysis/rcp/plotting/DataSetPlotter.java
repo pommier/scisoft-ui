@@ -92,7 +92,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEventListener;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.SceneDragTool;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotPrintPreviewDialog;
 import uk.ac.diamond.scisoft.system.info.JOGLChecker;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import de.jreality.math.MatrixBuilder;
