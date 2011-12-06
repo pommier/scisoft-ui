@@ -18,11 +18,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp;
 
-import gda.analysis.functions.APeak;
-
 import java.io.Serializable;
 import java.util.ArrayList;
-
 
 import junit.framework.Assert;
 
@@ -35,6 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.APeak;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.rcp.editors.AsciiEditor;
