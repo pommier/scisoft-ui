@@ -92,6 +92,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEventListener;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.SceneDragTool;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotPrintPreviewDialog;
 import uk.ac.diamond.scisoft.system.info.JOGLChecker;
 import uk.ac.gda.common.rcp.util.GridUtils;
 import de.jreality.math.MatrixBuilder;
@@ -2013,6 +2014,20 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 				PlotExportUtil.printGraph(printerData, viewerApp, container.getDisplay(), null, scaling);
 			isInExporting = false;
 		}
+	}
+	
+	public void printGraph() {
+		isInExporting = true;
+		if (currentMode == PlottingMode.ONED || currentMode == PlottingMode.ONED_THREED
+				|| currentMode == PlottingMode.SCATTER2D) {
+			PlotPrintPreviewDialog dialog = new PlotPrintPreviewDialog(viewerApp, container.getDisplay(),graphColourTable);
+			dialog.open();
+		} else{
+			PlotPrintPreviewDialog dialog = new PlotPrintPreviewDialog(viewerApp, container.getDisplay(),null);
+			dialog.open();
+		}
+		isInExporting = false;
+
 	}
 	
 	/**

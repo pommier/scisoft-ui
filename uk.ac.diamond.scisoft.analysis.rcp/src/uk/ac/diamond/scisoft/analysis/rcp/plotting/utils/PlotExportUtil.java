@@ -286,4 +286,75 @@ public class PlotExportUtil {
 		}
 	}	
 
+
+	public static synchronized Image createImage(AbstractViewerApp viewerApp, Display display,
+			Plot1DGraphTable legendTable, PrinterData printerData) {
+		File imageFile = null;
+		// create a temporary image file
+		try {
+			imageFile = File.createTempFile("test", ".png");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Image image = null;
+
+		ImageData imageData;
+		Printer printer = new Printer(printerData);
+		Rectangle area = printer.getClientArea();
+		
+		//float printAspect = (float)area.width / (float)area.height;
+		int printScaleFactor = 1;
+
+		// check if we run on gtk don't trust gtk when it comes down to
+		// the printer resolution so increase it by a major factor
+	
+		if (SWT.getPlatform().toLowerCase().equals("gtk"))
+			printScaleFactor = 4;
+		
+		
+		ExportImage.exportImage(viewerApp.getCurrentViewer(), imageFile, area.height*printScaleFactor, area.width*printScaleFactor, 1);
+
+		ImageLoader loader = new ImageLoader();
+		imageData = loader.load(imageFile.getAbsolutePath())[0];
+		Image reloadedImage = new Image(display, imageData);
+
+		Image bigImage = new Image(display, reloadedImage.getBounds().width,reloadedImage.getBounds().height+200);
+		GC gc = new GC(bigImage);
+
+		int legendGap = 0;
+		int numActiveEntries = 0;
+		Rectangle trim = printer.computeTrim(0,0,0,0);
+		
+		if (legendTable != null) {
+			for (int i = 0; i < legendTable.getLegendSize(); i++)
+				if (legendTable.getLegendEntry(i).isVisible())
+					numActiveEntries++;
+
+			legendGap = 10 + Math.max(1, (numActiveEntries / 4)) * 32;
+		}
+
+		gc.drawImage(reloadedImage, -trim.x, -trim.y);
+		//gc.drawImage(reloadedImage, 0, 0, reloadedImage.getBounds().width, reloadedImage.getBounds().height, -trim.x, -trim.y,
+		//		area.width*printScaleFactor, area.height*printScaleFactor*2);
+		if (legendTable != null) {
+			int currentEntry = 0;
+			for (int i = 0; i < legendTable.getLegendSize(); i++) {
+				Plot1DAppearance app = legendTable.getLegendEntry(i);
+				if (app.isVisible()) {
+					int xpos = 60 - (currentEntry / 4);
+					int ypos = reloadedImage.getBounds().height + 20 + (currentEntry % 4);
+					app.drawApp(xpos, ypos, gc, display, false, printScaleFactor);
+					currentEntry++;
+				}
+			}
+		}
+
+		reloadedImage.dispose();
+		image=gc.getGCData().image;
+		gc.dispose();
+		imageFile.delete();
+		
+		return image;
+	}
+
 }

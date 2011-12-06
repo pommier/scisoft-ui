@@ -282,114 +282,114 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 		copyGraph.setToolTipText(copyToolTipText);
 		copyGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(copyImagePath));
 
-		printGraph = new Action(printButtonText, SWT.DROP_DOWN) {
+		printGraph = new Action() {
 			@Override
 			public void run() {
-				PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
-				PrinterData printerData = dialog.open();
-				plotter.printGraph(printerData, 1);
+//				PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
+//				PrinterData printerData = dialog.open();
+				plotter.printGraph();
 			}
 		};
 		printGraph.setText(printButtonText);
 		printGraph.setToolTipText(printToolTipText);
 		printGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(printImagePath));
-		printGraph.setMenuCreator(new IMenuCreator() {
-			@Override
-			public Menu getMenu(final Control parent) {
-				Menu menu = new Menu(parent);
-				MenuItem item10 = new MenuItem(menu, SWT.None);
-				item10.setText(listPrintScaleText[0]);
-				item10.addSelectionListener(new SelectionListener() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
-						PrinterData printerData = dialog.open();
-						plotter.printGraph(printerData, 0.1f);
-					}
-					@Override
-					public void widgetDefaultSelected(SelectionEvent e) {}
-				});
-				MenuItem item25 = new MenuItem(menu, SWT.None);
-				item25.setText(listPrintScaleText[1]);
-				item25.addSelectionListener(new SelectionListener() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
-						PrinterData printerData = dialog.open();
-						plotter.printGraph(printerData, 0.25f);
-					}
-					@Override
-					public void widgetDefaultSelected(SelectionEvent e) {}
-				});
-				MenuItem item33 = new MenuItem(menu, SWT.None);
-				item33.setText(listPrintScaleText[2]);
-				item33.addSelectionListener(new SelectionListener() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
-						PrinterData printerData = dialog.open();
-						plotter.printGraph(printerData, 0.33f);
-					}
-					@Override
-					public void widgetDefaultSelected(SelectionEvent e) {}
-				});
-				MenuItem item50 = new MenuItem(menu, SWT.None);
-				item50.setText(listPrintScaleText[3]);
-				item50.addSelectionListener(new SelectionListener() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
-						PrinterData printerData = dialog.open();
-						plotter.printGraph(printerData, 0.5f);
-					}
-					@Override
-					public void widgetDefaultSelected(SelectionEvent e) {}
-				});
-				MenuItem item66 = new MenuItem(menu, SWT.None);
-				item66.setText(listPrintScaleText[4]);
-				item66.addSelectionListener(new SelectionListener() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
-						PrinterData printerData = dialog.open();
-						plotter.printGraph(printerData, 0.66f);
-					}
-					@Override
-					public void widgetDefaultSelected(SelectionEvent e) {}
-				});
-				MenuItem item75 = new MenuItem(menu, SWT.None);
-				item75.setText(listPrintScaleText[5]);
-				item75.addSelectionListener(new SelectionListener() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
-						PrinterData printerData = dialog.open();
-						plotter.printGraph(printerData, 0.75f);
-					}
-					@Override
-					public void widgetDefaultSelected(SelectionEvent e) {}
-				});
-				MenuItem item100 = new MenuItem(menu, SWT.None);
-				item100.setText(listPrintScaleText[6]);
-				item100.addSelectionListener(new SelectionListener() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
-						PrinterData printerData = dialog.open();
-						plotter.printGraph(printerData, 1);
-					}
-					@Override
-					public void widgetDefaultSelected(SelectionEvent e) {}
-				});
-				return menu;
-			}
-			@Override
-			public Menu getMenu(Menu parent) {
-				return null;
-			}
-			@Override
-			public void dispose() {}
-		});
+//		printGraph.setMenuCreator(new IMenuCreator() {
+//			@Override
+//			public Menu getMenu(final Control parent) {
+//				Menu menu = new Menu(parent);
+//				MenuItem item10 = new MenuItem(menu, SWT.None);
+//				item10.setText(listPrintScaleText[0]);
+//				item10.addSelectionListener(new SelectionListener() {
+//					@Override
+//					public void widgetSelected(SelectionEvent e) {
+//						PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
+//						PrinterData printerData = dialog.open();
+//						plotter.printGraph(printerData, 0.1f);
+//					}
+//					@Override
+//					public void widgetDefaultSelected(SelectionEvent e) {}
+//				});
+//				MenuItem item25 = new MenuItem(menu, SWT.None);
+//				item25.setText(listPrintScaleText[1]);
+//				item25.addSelectionListener(new SelectionListener() {
+//					@Override
+//					public void widgetSelected(SelectionEvent e) {
+//						PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
+//						PrinterData printerData = dialog.open();
+//						plotter.printGraph(printerData, 0.25f);
+//					}
+//					@Override
+//					public void widgetDefaultSelected(SelectionEvent e) {}
+//				});
+//				MenuItem item33 = new MenuItem(menu, SWT.None);
+//				item33.setText(listPrintScaleText[2]);
+//				item33.addSelectionListener(new SelectionListener() {
+//					@Override
+//					public void widgetSelected(SelectionEvent e) {
+//						PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
+//						PrinterData printerData = dialog.open();
+//						plotter.printGraph(printerData, 0.33f);
+//					}
+//					@Override
+//					public void widgetDefaultSelected(SelectionEvent e) {}
+//				});
+//				MenuItem item50 = new MenuItem(menu, SWT.None);
+//				item50.setText(listPrintScaleText[3]);
+//				item50.addSelectionListener(new SelectionListener() {
+//					@Override
+//					public void widgetSelected(SelectionEvent e) {
+//						PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
+//						PrinterData printerData = dialog.open();
+//						plotter.printGraph(printerData, 0.5f);
+//					}
+//					@Override
+//					public void widgetDefaultSelected(SelectionEvent e) {}
+//				});
+//				MenuItem item66 = new MenuItem(menu, SWT.None);
+//				item66.setText(listPrintScaleText[4]);
+//				item66.addSelectionListener(new SelectionListener() {
+//					@Override
+//					public void widgetSelected(SelectionEvent e) {
+//						PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
+//						PrinterData printerData = dialog.open();
+//						plotter.printGraph(printerData, 0.66f);
+//					}
+//					@Override
+//					public void widgetDefaultSelected(SelectionEvent e) {}
+//				});
+//				MenuItem item75 = new MenuItem(menu, SWT.None);
+//				item75.setText(listPrintScaleText[5]);
+//				item75.addSelectionListener(new SelectionListener() {
+//					@Override
+//					public void widgetSelected(SelectionEvent e) {
+//						PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
+//						PrinterData printerData = dialog.open();
+//						plotter.printGraph(printerData, 0.75f);
+//					}
+//					@Override
+//					public void widgetDefaultSelected(SelectionEvent e) {}
+//				});
+//				MenuItem item100 = new MenuItem(menu, SWT.None);
+//				item100.setText(listPrintScaleText[6]);
+//				item100.addSelectionListener(new SelectionListener() {
+//					@Override
+//					public void widgetSelected(SelectionEvent e) {
+//						PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
+//						PrinterData printerData = dialog.open();
+//						plotter.printGraph(printerData, 1);
+//					}
+//					@Override
+//					public void widgetDefaultSelected(SelectionEvent e) {}
+//				});
+//				return menu;
+//			}
+//			@Override
+//			public Menu getMenu(Menu parent) {
+//				return null;
+//			}
+//			@Override
+//			public void dispose() {}
+//		});
 		manager.add(resetView);
 		manager.add(boundingBox);
 		manager.add(xCoordGrid);

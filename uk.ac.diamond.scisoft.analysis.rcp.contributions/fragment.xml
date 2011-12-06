@@ -1656,6 +1656,11 @@
             </separator>
          </menu>
       </objectContribution>
+      <!-- 
+      
+      Explore folders with the dawb image monitor rather than the ImageGridView
+      Commented out unless we decide to put this back and have both.
+      
       <objectContribution
             adaptable="true"
             id="uk.ac.diamond.scisoft.analysis.rcp.contributions.ImageGridView"
@@ -1668,6 +1673,7 @@
                tooltip="Explores this directory using the Image Explorer View">
          </action>
       </objectContribution>
+      -->
       <objectContribution
             adaptable="true"
             id="uk.ac.diamond.scisoft.analysis.rcp.contributions.SelectedImageGridView"

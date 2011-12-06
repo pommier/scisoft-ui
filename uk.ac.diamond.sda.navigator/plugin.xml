@@ -323,6 +323,20 @@
             Displays the HDF5 tree elements caracteristics.
          </description>
       </decorator>
+      <decorator
+            adaptable="true"
+            class="uk.ac.diamond.sda.navigator.decorator.SRSFileDecorator"
+            id="uk.ac.diamond.sda.navigator.srsFileDecorator"
+            label="SRS File Meta Data">
+         <enablement>
+            <objectClass
+                  name="org.eclipse.core.resources.IResource">
+            </objectClass>
+         </enablement>
+         <description>
+            Displays the meta data of a SRS file (Scan Command).
+         </description>
+      </decorator>
    </extension>
    <!-- Bind the Action Provider independently 
    <extension

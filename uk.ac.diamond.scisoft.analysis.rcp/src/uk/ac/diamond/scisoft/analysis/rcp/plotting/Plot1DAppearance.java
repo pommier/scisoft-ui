@@ -341,4 +341,73 @@ public class Plot1DAppearance implements Serializable {
 			gc.drawText(plotName.substring(0,Math.min(15,plotName.length())), xpos+35,ypos-10);	    	
 	    }
 	}
+	
+	public void drawApp(int xpos, int ypos, GC gc, Display display, boolean rotated, int scaleFactor) 
+	{
+		org.eclipse.swt.graphics.RGB rgb = new org.eclipse.swt.graphics.RGB(plotColour.getRed(),
+				plotColour.getGreen(),
+				plotColour.getBlue());
+		org.eclipse.swt.graphics.Color color = new
+			org.eclipse.swt.graphics.Color(display,rgb);
+		gc.setBackground(color);
+	    switch (plotStyle)
+		{
+			case SOLID:
+			case SOLID_POINT:
+				if (rotated)
+					gc.fillRectangle(xpos,ypos, 2*scaleFactor,30*scaleFactor);
+				else
+					gc.fillRectangle(xpos,ypos,30*scaleFactor,2*scaleFactor);
+				break;
+			case DASHED:
+			case DASHED_POINT:
+			{
+				int dashSize = 30 >> 3;
+				for (int i = 0; i < 4; i++)
+				{
+					if (rotated)
+						gc.fillRectangle(xpos,ypos+i*2*dashSize,2*scaleFactor,dashSize*scaleFactor);
+					else
+						gc.fillRectangle(xpos+i*2*dashSize,ypos,dashSize*scaleFactor,2*scaleFactor);
+				}
+			}
+			break;
+			case POINT:
+				int dashSize = 30 >> 3;
+				for (int i = 0; i < 4; i++)
+				{
+					if (rotated)
+						gc.fillOval(xpos,ypos+i*2*dashSize,(dashSize >> 1)*scaleFactor,(dashSize >> 1)*scaleFactor);
+					else
+						gc.fillOval(xpos+i*2*dashSize,ypos,(dashSize >> 1)*scaleFactor,(dashSize >> 1)*scaleFactor);
+				}
+			break;
+		}
+	    if (rotated) {
+	  	    gc.setAdvanced(true);
+			color.dispose();
+		    Transform t = new Transform(display);
+		    t.rotate(90);
+		    t.translate(ypos+35, -xpos-75);	    
+		    t.scale(scaleFactor, scaleFactor);
+		    gc.setTransform(t);
+			gc.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
+			gc.drawText(plotName.substring(0,Math.min(15,plotName.length())), 0,0);
+		    t.translate(-ypos-35, xpos+10);	
+			t.rotate(-90);
+		    gc.setTransform(t);
+			t.dispose();
+	    } else {
+	    	gc.setAdvanced(true);
+			color.dispose();
+		    Transform t = new Transform(display);
+		    t.translate(xpos+75,ypos-25);	    
+		    t.scale(scaleFactor, scaleFactor);
+		    gc.setTransform(t);
+			gc.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
+			gc.drawText(plotName.substring(0,Math.min(15,plotName.length())), 0,0);
+		    gc.setTransform(t);
+			t.dispose();
+	    }
+	}
 }
