@@ -18,7 +18,10 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> SCISOFT-UI: part of gda.analysis clean up
 import gda.util.TestUtils;
 
 import org.eclipse.ui.IWorkbenchWindow;

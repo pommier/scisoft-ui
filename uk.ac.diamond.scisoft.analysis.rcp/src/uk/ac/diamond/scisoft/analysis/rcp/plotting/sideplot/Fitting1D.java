@@ -18,15 +18,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
-import gda.analysis.functions.APeak;
-import gda.analysis.functions.CompositeFunction;
-import gda.analysis.functions.Gaussian;
-import gda.analysis.functions.IdentifiedPeak;
-import gda.analysis.functions.Lorentzian;
-import gda.analysis.functions.Offset;
-import gda.analysis.functions.PearsonVII;
-import gda.analysis.functions.PseudoVoigt;
-
 import java.awt.Color;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -88,6 +79,14 @@ import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.fitting.Generic1DFitter;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.APeak;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.Gaussian;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.IdentifiedPeak;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.Lorentzian;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.Offset;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.PearsonVII;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.PseudoVoigt;
 import uk.ac.diamond.scisoft.analysis.optimize.ApacheNelderMead;
 import uk.ac.diamond.scisoft.analysis.optimize.GeneticAlg;
 import uk.ac.diamond.scisoft.analysis.optimize.IOptimizer;
