@@ -19,14 +19,6 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
 
-import gda.analysis.functions.APeak;
-import gda.analysis.functions.CompositeFunction;
-import gda.analysis.functions.Gaussian;
-import gda.analysis.functions.IdentifiedPeak;
-import gda.analysis.functions.Lorentzian;
-import gda.analysis.functions.PearsonVII;
-import gda.analysis.functions.PseudoVoigt;
-
 import java.awt.Color;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -51,6 +43,13 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.diffraction.Resolution;
 import uk.ac.diamond.scisoft.analysis.fitting.Generic1DFitter;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.APeak;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.CompositeFunction;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.Gaussian;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.IdentifiedPeak;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.Lorentzian;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.PearsonVII;
+import uk.ac.diamond.scisoft.analysis.fitting.functions.PseudoVoigt;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AxisValues;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DAppearance;

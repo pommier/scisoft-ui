@@ -18,7 +18,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
-
 import gda.util.TestUtils;
 
 import org.eclipse.ui.IWorkbenchWindow;
