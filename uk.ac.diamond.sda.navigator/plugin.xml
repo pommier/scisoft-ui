@@ -325,16 +325,16 @@
       </decorator>
       <decorator
             adaptable="true"
-            class="uk.ac.diamond.sda.navigator.decorator.SRSFileDecorator"
+            class="uk.ac.diamond.sda.navigator.decorator.ScanCommandDecorator"
             id="uk.ac.diamond.sda.navigator.srsFileDecorator"
-            label="SRS File Meta Data">
+            label="SRS/Nexus Scan Command and Title Decorator">
          <enablement>
             <objectClass
                   name="org.eclipse.core.resources.IResource">
             </objectClass>
          </enablement>
          <description>
-            Displays the meta data of a SRS file (Scan Command).
+            Displays the Scan Command of a .dat file and the Title and Scan Command of a Nexus file (if there are any).
          </description>
       </decorator>
    </extension>
