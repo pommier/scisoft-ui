@@ -18,16 +18,10 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.editors;
 
-import gda.analysis.io.ScanFileHolderException;
-
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
-
-import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
-import uk.ac.diamond.scisoft.analysis.io.XasAsciiLoader;
-import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
 
 /**
  * Should act identically to the SRS Editor, but for tab separated data files with the Xas format header and footer.
@@ -36,21 +30,12 @@ public class XasAsciiEditor extends SRSEditor {
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
-        setSite(site);
-        setInput(input);
-        
-        getSite().setSelectionProvider(this);
-        
-        // now load the data
-	    try {
-	    	XasAsciiLoader dataLoader = new XasAsciiLoader(fileName);
-	    	data = dataLoader.loadFile();
-		} catch (ScanFileHolderException e) {
-			data = new DataHolder();
-			data.addDataset("Failed to load File", new DoubleDataset(1));
-		}
-
-		setSelection(new DatasetSelection()); // set up null selection to clear plot
+		super.init(site, input);
 	}
-	
+
+	@Override
+	public void createPartControl(Composite parent) {
+		super.createPartControl(parent);
+		setXas();
+	}
 }

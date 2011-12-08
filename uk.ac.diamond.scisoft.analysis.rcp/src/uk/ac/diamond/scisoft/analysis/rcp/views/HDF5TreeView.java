@@ -31,15 +31,15 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
-import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5TreeExplorer;
+import uk.ac.gda.monitor.ProgressMonitorWrapper;
 
 public class HDF5TreeView extends ViewPart {
 	HDF5TreeExplorer hdfxp;
@@ -56,8 +56,10 @@ public class HDF5TreeView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		display = parent.getDisplay();
-		hdfxp = new HDF5TreeExplorer(parent, SWT.NONE, getSite());
-		
+		IWorkbenchPartSite site = getSite();
+		hdfxp = new HDF5TreeExplorer(parent, site, SWT.NONE);
+		site.setSelectionProvider(hdfxp);
+
 		// set up the help context
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(hdfxp, "uk.ac.diamond.scisoft.analysis.rcp.hdf5View");
 
@@ -102,13 +104,12 @@ public class HDF5TreeView extends ViewPart {
 		monitor.worked(1);
 		if (monitor.isCanceled()) return;
 
-		final HDF5File htree = new HDF5Loader(path).loadTree(null);
 		long start = System.nanoTime();
-		if (htree != null) {
+		hdfxp.loadFile(path, new ProgressMonitorWrapper(monitor));
+		if (hdfxp.getHDF5Tree() != null) {
 			display.syncExec(new Runnable() {
 				@Override
 				public void run() {
-					hdfxp.setHDF5Tree(htree);
 					setPartName((new File(path)).getName());
 				}
 			});
@@ -125,7 +126,7 @@ public class HDF5TreeView extends ViewPart {
 		}
 
 		String [] filterNames = new String [] {"HDF5 files", "All Files (*)"};
-		String [] filterExtensions = new String [] {"*.nxs;*.h5", "*"};
+		String [] filterExtensions = new String [] {"*.nxs;*.h5;*.hdf5", "*"};
 		fileDialog.setFilterNames(filterNames);
 		fileDialog.setFilterExtensions(filterExtensions);
 		final String path = fileDialog.open();
