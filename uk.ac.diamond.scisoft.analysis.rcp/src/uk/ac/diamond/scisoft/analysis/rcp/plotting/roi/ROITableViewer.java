@@ -185,7 +185,7 @@ public abstract class ROITableViewer {
 
 		@Override
 		protected Object getValue(Object element) {
-			ROIData lrdata = (ROIData) element;
+			IRowData lrdata = (IRowData) element;
 			if (column == CHECKCOLNUM) {
 				return lrdata.isPlot();
 			}
