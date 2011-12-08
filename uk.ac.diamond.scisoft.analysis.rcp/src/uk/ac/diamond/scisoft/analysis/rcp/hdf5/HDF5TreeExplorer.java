@@ -18,15 +18,11 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.hdf5;
 
-import gda.observable.IObserver;
-
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.jface.viewers.ISelection;
@@ -47,8 +43,6 @@ import org.eclipse.ui.PartInitException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.PlotServer;
-import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Attribute;
@@ -58,10 +52,6 @@ import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Group;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
@@ -70,16 +60,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorTy
 import uk.ac.diamond.scisoft.analysis.rcp.results.navigator.AsciiTextView;
 import uk.ac.gda.monitor.IMonitor;
 
-public class HDF5TreeExplorer extends AbstractExplorer implements IObserver, ISelectionProvider {
+public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProvider {
 	private static final Logger logger = LoggerFactory.getLogger(HDF5TreeExplorer.class);
-
-	// Variables for the plotServer
-	private PlotServer plotServer;
-	private GuiBean guiBean;
-
-	private static final String NAME = "hdf5TreeViewer";
-
-	private UUID plotID;
 
 	HDF5File tree = null;
 	private HDF5TableTree tableTree = null;
@@ -94,7 +76,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements IObserver, ISe
 	 */
 	public static final String HDF5FILENAME_NODEPATH_SEPARATOR = "#";
 
-	private class HDF5Selection extends DatasetSelection {
+	public class HDF5Selection extends DatasetSelection {
 		private String fileName;
 		private String node;
 
@@ -127,6 +109,14 @@ public class HDF5TreeExplorer extends AbstractExplorer implements IObserver, ISe
 		public String toString() {
 			return node + " = " + super.toString();
 		}
+
+		public String getFileName() {
+			return fileName;
+		}
+
+		public String getNode() {
+			return node;
+		}
 	}
 
 	private HDF5Selection hdf5Selection;
@@ -136,20 +126,6 @@ public class HDF5TreeExplorer extends AbstractExplorer implements IObserver, ISe
 		super(parent, partSite, style);
 
 		display = parent.getDisplay();
-
-		plotID = UUID.randomUUID();
-		plotServer = PlotServerProvider.getPlotServer();
-		plotServer.addIObserver(this);
-		// generate the bean that will contain all the information about this GUI
-		guiBean = new GuiBean();
-		guiBean.put(GuiParameters.PLOTID, plotID); // put plotID in bean
-		// publish this to the server
-		try {
-			plotServer.updateGui(NAME, guiBean);
-		} catch (Exception e) {
-			logger.error("Problem pushing initial GUI bean to plot server");
-			e.printStackTrace();
-		}
 
 		setLayout(new FillLayout());
 
@@ -161,7 +137,6 @@ public class HDF5TreeExplorer extends AbstractExplorer implements IObserver, ISe
 		});
 
 		cListeners = new HashSet<ISelectionChangedListener>();
-		getTreeFromServer();
 		axes = new ArrayList<AxisSelection>();
 	}
 
@@ -176,8 +151,6 @@ public class HDF5TreeExplorer extends AbstractExplorer implements IObserver, ISe
 			// provide selection
 			setSelection(new HDF5Selection(type, filename, link.getFullName(), axes, cData));
 
-			// notify other clients that a node has been selected
-			pushGUIUpdate(GuiParameters.TREENODEPATH, filename + HDF5FILENAME_NODEPATH_SEPARATOR + link.getFullName());
 		} else
 			logger.error("Could not process update of selected node: {}", link.getName());
 	}
@@ -196,6 +169,23 @@ public class HDF5TreeExplorer extends AbstractExplorer implements IObserver, ISe
 		return true;
 	}
 
+	/**
+	 * Handle a node given by the path
+	 * @param path
+	 */
+	public void handleNode(String path) {
+		HDF5NodeLink link = tree.findNodeLink(path);
+
+		if (link != null) {
+			if (handleSelectedNode(link)) {
+				// provide selection
+				setSelection(new HDF5Selection(InspectorType.LINE, filename, link.getName(), axes, cData));
+				return;
+			}
+			logger.debug("Could not handle selected node: {}", link.getName());
+		}
+		logger.debug("Could not find selected node: {}", path);
+	}
 
 	private void handleDoubleClick() {
 		final Cursor cursor = getCursor();
@@ -454,7 +444,6 @@ public class HDF5TreeExplorer extends AbstractExplorer implements IObserver, ISe
 	@Override
 	public void dispose() {
 		cListeners.clear();
-		plotServer.deleteIObserver(this);
 		super.dispose();
 	}
 
@@ -522,142 +511,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements IObserver, ISe
 		return tableTree.getExpandedTreePaths();
 	}
 
-	/**
-	 * @param bean
-	 */
-	private void processGUIUpdate(GuiBean bean) {
-		if (bean.containsKey(GuiParameters.TREENODEPATH)) {
-			String fullname = (String) bean.get(GuiParameters.TREENODEPATH);
-			int i = fullname.indexOf(HDF5FILENAME_NODEPATH_SEPARATOR);
 
-			if (i > 0) {
-				String file = fullname.substring(0, i);
-
-				if (filename.equals(file)) {
-					String path = fullname.substring(i + 1);
-					HDF5NodeLink link = tree.findNodeLink(path);
-
-					if (link != null) {
-						if (handleSelectedNode(link)) {
-							// provide selection
-							setSelection(new HDF5Selection(InspectorType.LINE, filename, link.getName(), axes, cData));
-							return;
-						}
-						logger.debug("Could not handle selected node: {}", link.getName());
-					}
-					logger.debug("Could not find selected node: {}", path);
-				}
-//				logger.debug("File from selected node does not match: {}", file);
-			}
-//			logger.warn("Could not process update of selected node: {}", fullname);
-		}
-	}
-
-	@Override
-	public void update(Object theObserved, Object changeCode) {
-		if (changeCode instanceof GuiUpdate) {
-			GuiUpdate gu = (GuiUpdate) changeCode;
-
-			if (gu.getGuiName().contains(NAME)) {
-				guiBean = gu.getGuiData();
-				syncGuiToBean();
-				GuiBean bean = gu.getGuiData();
-				UUID id = (UUID) bean.get(GuiParameters.PLOTID);
-
-				if (id == null || plotID.compareTo(id) != 0) { // filter out own beans
-					if (guiBean == null)
-						guiBean = bean.copy(); // cache a local copy
-					else
-						guiBean.merge(bean);   // or merge it
-
-					logger.debug("Processing update received from {}: {}", theObserved, changeCode);
-
-					// now update GUI
-					processGUIUpdate(bean);
-				}
-			}
-		} else if (changeCode instanceof String) {
-			String guiName = (String) changeCode;
-			if (guiName.equals(NAME)) {
-				getTreeFromServer();
-			}
-		}
-
-	}
-
-	/**
-	 * Push gui information back to plot server
-	 * @param key 
-	 * @param value 
-	 */
-	public void pushGUIUpdate(GuiParameters key, Serializable value) {
-		if (guiBean == null) {
-			try {
-				guiBean = plotServer.getGuiState(NAME);
-			} catch( Exception e) {
-				logger.error("Problem with getting GUI data from plot server");
-			}
-			if (guiBean == null)
-				guiBean = new GuiBean();
-		}
-
-		guiBean.put(GuiParameters.PLOTID, plotID); // put plotID in bean
-
-		guiBean.put(key, value);
-
-		try {
-			plotServer.updateGui(NAME, guiBean);
-		} catch (Exception e) {
-			logger.error("Problem with updating plot server with GUI data");
-			e.printStackTrace();
-		}
-	}
-
-	private void getTreeFromServer() {
-		DataBean dataBean;
-
-		try {
-			logger.debug("Pulling data to client");
-			long start = System.nanoTime();
-			dataBean = plotServer.getData(NAME);
-			start = System.nanoTime() - start;
-			logger.debug("Data pushed to client: {} in {} s", dataBean, String.format("%.3g", start*1e-9));
-			syncTreeToBean(dataBean);
-		} catch (Exception e) {
-			logger.error("Problem pushing data to plot server");
-			e.printStackTrace();
-		}
-	}
-
-	private void syncGuiToBean() {
-		if (display != null)
-			display.asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					display.update();
-				}
-			});
-	}
-
-	private void syncTreeToBean(DataBean bean) {
-		if (bean == null) {
-			logger.warn("Plot server has no info for NTV");
-			return;
-		}
-
-		// grab first metadata tree
-		List<HDF5File> htList = bean.getHDF5Trees();
-		if (htList == null) {
-			logger.warn("Plot server did not push a list of trees");
-			return;
-		}
-		if (htList.size() == 0) {
-			logger.warn("Plot server pushed an empty list of trees");
-			return;
-		}
-		setHDF5Tree(htList.get(0));
-	}
-	
 	// selection provider interface
 	@Override
 	public void addSelectionChangedListener(ISelectionChangedListener listener) {

@@ -11,8 +11,8 @@
             name="NeXus Tree"
             icon="icons/nexus.png"
             category="uk.ac.diamond.scisoft.analysis.rcp"
-            class="uk.ac.diamond.scisoft.analysis.rcp.views.NexusTreeView"
-            id="uk.ac.diamond.scisoft.analysis.rcp.views.NexusTreeView">
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.HDF5TreeView"
+            id="uk.ac.diamond.scisoft.analysis.rcp.views.HDF5TreeView">
       </view>
       <view
             name="HDF5 Tree"
