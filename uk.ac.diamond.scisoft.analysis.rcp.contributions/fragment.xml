@@ -171,15 +171,6 @@
            name="Plot"
            restorable="true">
       </view>     
-<!-- 
-      <view
-            category="uk.ac.diamond.scisoft.analysis.rcp"
-            class="uk.ac.diamond.scisoft.analysis.rcp.views.SampleView"
-            icon="icons/box.png"
-            id="uk.ac.diamond.scisoft.analysis.rcp.views.SampleView"
-            name="PlotSampleView">
-      </view> 
--->           
    </extension>
    <extension
          point="org.eclipse.help.contexts">
@@ -261,11 +252,13 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.LoadHDF5TreeAction"
             name="LoadHDF5Tree">
       </command>
+<!-- Demo command
       <command
             defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.actions.NavigatorDemoAction"
             id="uk.ac.diamond.scisoft.analysis.rcp.NavigatorDemoAction"
             name="ActionJackson">
-      </command>      
+      </command>
+-->
       <command
       		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotRegionZoomAction"
       		id="uk.ac.diamond.scisoft.analysis.rcp.PlotRegionZoomAction"
@@ -683,6 +676,68 @@
             defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.DatFilterHandler"
             id="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.DatFilter"
             name="Dat Filter">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.preference.PreferencesHandler"
+            id="uk.ac.diamond.scisoft.analysis.rcp.preference.preferenceDialog"
+            name="Preferences...">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.preference.SidePlotterPreferenceHandler"
+            id="uk.ac.diamond.scisoft.analysis.rcp.preference.sidePlotterPreferenceDialog"
+            name="Side Plotter Settings...">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.preference.GridScanPreferencesHandler"
+            id="uk.ac.diamond.scisoft.analysis.rcp.ViewGridSettingsAction"
+            name="Grid Scan Settings...">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.preference.DiffractionViewerPreferencesHandler"
+            id="uk.ac.diamond.scisoft.analysis.rcp.ViewDiffractionViewerSettings"
+            name="Diffraction Viewer Settings...">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.preference.Fitting1DPreferenceHandler"
+            id="uk.ac.diamond.scisoft.analysis.rcp.Fitting1DSettings"
+            name="Fitting 1D Settings...">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.ShowPlotViewHandler"
+            id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.showPlotView"
+            name="Show Plot View">
+         <commandParameter
+               id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.showPlotView.viewName"
+               name="Plot View Name"
+               values="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.ShowPlotViewHandler.ShowPlotViewParameterValues">
+         </commandParameter>
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.InjectPyDevConsoleHandler"
+            description="Inject commands into active console, prompts to open a PyDev console if none active"
+            id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.injectPyDevConsole"
+            name="Inject PyDev Console">
+         <commandParameter
+               id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.injectPyDevConsole.createNewConsoleAlways"
+               name="Create a New Console"
+               optional="true">
+         </commandParameter>
+         <commandParameter
+               id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.injectPyDevConsole.viewName"
+               name="Plot View Name"
+               optional="true">
+         </commandParameter>
+         <commandParameter
+               id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.injectPyDevConsole.addScisoftPySetup"
+               name="Setup scisoftpy"
+               optional="true"
+               values="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.InjectPyDevConsoleHandler.SetupSciSoftPyParameterValues">
+         </commandParameter>
+         <commandParameter
+               id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.injectPyDevConsole.commandToInject"
+               name="Commands To Inject"
+               optional="true">
+         </commandParameter>
       </command>
    </extension>
    <extension
@@ -1356,71 +1411,6 @@
      
    </extension>
    <extension
-         point="org.eclipse.ui.commands">
-      <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.preference.PreferencesHandler"
-            id="uk.ac.diamond.scisoft.analysis.rcp.preference.preferenceDialog"
-            name="Preferences...">
-      </command>
-      <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.preference.SidePlotterPreferenceHandler"
-            id="uk.ac.diamond.scisoft.analysis.rcp.preference.sidePlotterPreferenceDialog"
-            name="Side Plotter Settings...">
-      </command>
-      <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.preference.GridScanPreferencesHandler"
-            id="uk.ac.diamond.scisoft.analysis.rcp.ViewGridSettingsAction"
-            name="Grid Scan Settings...">
-      </command>
-      <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.preference.DiffractionViewerPreferencesHandler"
-            id="uk.ac.diamond.scisoft.analysis.rcp.ViewDiffractionViewerSettings"
-            name="Diffraction Viewer Settings...">
-      </command>
-      <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.preference.Fitting1DPreferenceHandler"
-            id="uk.ac.diamond.scisoft.analysis.rcp.Fitting1DSettings"
-            name="Fitting 1D Settings...">
-      </command>
-      <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.ShowPlotViewHandler"
-            id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.showPlotView" 
-            name="Show Plot View">
-         <commandParameter
-               id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.showPlotView.viewName"
-               name="Plot View Name"
-               values="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.ShowPlotViewHandler.ShowPlotViewParameterValues">
-         </commandParameter>  
-      </command>
-      <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.InjectPyDevConsoleHandler"
-            description="Inject commands into active console, prompts to open a PyDev console if none active"
-            id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.injectPyDevConsole"
-            name="Inject PyDev Console">
-         <commandParameter
-               id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.injectPyDevConsole.createNewConsoleAlways"
-               name="Create a New Console"
-               optional="true">
-         </commandParameter>
-        <commandParameter
-               id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.injectPyDevConsole.viewName"
-               name="Plot View Name"
-               optional="true">
-         </commandParameter>
-         <commandParameter
-               id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.injectPyDevConsole.addScisoftPySetup"
-               name="Setup scisoftpy"
-               optional="true"
-               values="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.InjectPyDevConsoleHandler.SetupSciSoftPyParameterValues">
-         </commandParameter>
-         <commandParameter
-               id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.injectPyDevConsole.commandToInject"
-               name="Commands To Inject"
-               optional="true">
-         </commandParameter>
-      </command>
-   </extension>
-   <extension
          point="uk.ac.diamond.scisoft.analysis.rcp.sidePlot">
       <sideplot
             class="uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.LineProfile"
@@ -1631,7 +1621,7 @@
  -->
    <extension
          point="org.eclipse.ui.popupMenus">
-      <objectContribution
+<!--      <objectContribution
             adaptable="true"
             id="uk.ac.diamond.scisoft.analysis.rcp.NavigatorDemoContribution"
             objectClass="org.eclipse.core.resources.IFile">
@@ -1655,7 +1645,7 @@
                   name="group1">
             </separator>
          </menu>
-      </objectContribution>
+      </objectContribution> -->
       <!-- 
       
       Explore folders with the dawb image monitor rather than the ImageGridView
