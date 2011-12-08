@@ -397,6 +397,27 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 				}
 			}
 
+			for (AxisChoice c : choices) {
+				if (!checkAxisDimensions(c)) {
+					int[] choiceDims = c.getValues().getShape();
+					for (int j = 0; j < choiceDims.length; j++) {
+						if (choiceDims[j] == dim) {
+							int[] start = (int[]) AbstractDataset.zeros(new int[] {choiceDims.length}, AbstractDataset.INT).getBuffer();
+							int[] stop = (int[]) AbstractDataset.ones(new int[] {choiceDims.length}, AbstractDataset.INT).getBuffer();
+							int[] step = (int[]) AbstractDataset.ones(new int[] {choiceDims.length}, AbstractDataset.INT).getBuffer();
+							stop[j] = dim;
+							AbstractDataset sliceAxis = c.getValues().getSlice(start, stop, step).flatten();
+							// Add dimension label to prevent axis name clashes for different dimensions 
+							sliceAxis.setName(c.getName() + "_" + "dim:" + (i + 1));
+							AxisChoice tmpChoice = new AxisChoice(sliceAxis);
+							tmpChoice.setDimension(new int[] {i});
+							aSel.addSelection(tmpChoice, 0);
+						}
+					}
+					
+				}
+			}
+			
 			// add in an automatically generated axis with top order so it appears after primary axes
 			AbstractDataset axis = AbstractDataset.arange(dim, AbstractDataset.INT32);
 			axis.setName("dim:" + (i + 1));
@@ -420,6 +441,12 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		int len = cData.getShape().length;
 		if (cAxis == null) {
 			logger.warn("Ignoring node {} as it doesn't have axis attribute",
+					new Object[] { c.getName() });
+			return false;
+		}
+		
+		if (cAxis.length != c.getValues().getShape().length) {
+			logger.warn("Ignoring axis {} as its axis attribute rank does not match axis data rank",
 					new Object[] { c.getName() });
 			return false;
 		}
