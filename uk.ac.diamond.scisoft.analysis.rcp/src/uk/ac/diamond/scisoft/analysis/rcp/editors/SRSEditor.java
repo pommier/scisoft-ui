@@ -178,10 +178,7 @@ public class SRSEditor extends EditorPart {
 			if (name.equals(srsData.getName())) {
 				viewer.getTable().setSelection(i);
 				//selectItemAction.run();
-				try {
-					srsxp.loadFile(fileName, null);
-				} catch (Exception e) {
-				}
+				srsxp.selectItemSelection();
 				break;
 			}
 		}

@@ -265,4 +265,9 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 			setSelection(datasetSelection);
 		}
 	}
+	
+	public void selectItemSelection(){
+		DatasetSelection datasetSelection = new DatasetSelection(getAxes(), getActiveData());
+		setSelection(datasetSelection);
+	}
 }
