@@ -1,6 +1,5 @@
 package uk.ac.diamond.scisoft.analysis.rcp.views;
 
-import gda.observable.IObservable;
 import gda.observable.IObserver;
 
 import org.eclipse.core.runtime.CoreException;
@@ -19,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 
 
 
@@ -26,6 +26,7 @@ public class SidePageView extends PageBookView {
 
 	public static final String ID = "uk.ac.diamond.scisoft.diffraction.rcp.DiffractionView";
 	private static final Logger logger = LoggerFactory.getLogger(SidePageView.class);
+	private DataSetPlotter mainPlotter;
 	
 	
 	@Override
@@ -39,32 +40,25 @@ public class SidePageView extends PageBookView {
 
 	@Override
 	protected PageRec doCreatePage(IWorkbenchPart part) {
+		
+		// TODO diffractionpage -> side.plot.page
+		// Also the class must be an ISidePage
 		IConfigurationElement[] config = Platform.getExtensionRegistry().getConfigurationElementsFor(
 				"uk.ac.diamond.scisoft.analysis.rcp.diffractionpage");
 
-		Page page = null;
+		ISidePage page = null;
 		try {
 			for (IConfigurationElement e : config) {
 				final Object o = e.createExecutableExtension("class");
-				if (o instanceof Page) {
-					page = (Page) o;
-					if (part instanceof IMetadataProvider) {
-						IMetaData metadata=null;
-						try {
-							metadata = ((IMetadataProvider) part).getMetadata();
-						} catch (Exception e1) {
-							logger.error("Cannot get meta data from "+part.getTitle(), e1);
-						}
-						if (page instanceof ISidePageView && metadata!=null)
-							((ISidePageView) page).setMetadataObject(metadata);
-					}
-					if (part instanceof PlotView) {
-						((PlotView) part).addDataObserver(((IObserver) page));
-					}
+
+				if (o instanceof ISidePage) {
+					page = (ISidePage) o;
+					if (!page.isApplicableFor((ISidePlotPart)part)) 
+						continue;
 					initPage(page);
 					page.createControl(getPageBook());
 					return new PageRec(part, page);
-				}
+				} 
 			}
 		} catch (CoreException ex) {
 			logger.warn("Could not find a page");
@@ -89,9 +83,19 @@ public class SidePageView extends PageBookView {
 
 	@Override
 	protected boolean isImportant(IWorkbenchPart part) {
-		return part instanceof IMetadataProvider;
+		return part instanceof ISidePlotPart;
 	}
 
+//	if (part instanceof IMetadataProvider) {
+//		IMetaData metadata = ((IMetadataProvider) part).getMetadata();
+//		if (page instanceof ISidePageView)
+//			((ISidePageView) page).setMetadataObject(metadata);
+//		if (part instanceof PlotView) {
+//			((PlotView) part).addDataObserver(((IObserver) page));
+//			setMainPlotter(((PlotView) part).getMainPlotter());
+//		}
+//	}
+	 
 	@Override
 	public void partActivated(IWorkbenchPart part) {
 
