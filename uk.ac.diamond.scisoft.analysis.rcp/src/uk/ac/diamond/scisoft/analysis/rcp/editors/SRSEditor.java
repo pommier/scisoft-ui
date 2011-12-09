@@ -122,9 +122,10 @@ public class SRSEditor extends EditorPart {
 						final Object element = structuredSelection.getFirstElement();
 						if (element instanceof SRSTreeData) {
 							SRSTreeData srsData = (SRSTreeData) element;
-							String filename = srsData.getFile().getName();
+							String filename = srsData.getFile().getLocation().toString();
 							//update only the relevant srseditor
-							if(filename.equals(getSite().getPart().getTitle()))
+							String editorName= getSite().getPart().getTitle();
+							if(filename.equals(editorName))
 								update(part, srsData);			
 						}
 					}
@@ -162,7 +163,6 @@ public class SRSEditor extends EditorPart {
 	}
 
 	public void update(final IWorkbenchPart original, final SRSTreeData srsData) {
-		//System.out.println(srsData.getName());
 
 		/**
 		 * TODO Instead of selecting the editor, firing the selection and then selecting the naigator again, better to
@@ -177,7 +177,11 @@ public class SRSEditor extends EditorPart {
 			String name = viewer.getTable().getItem(i).getText();
 			if (name.equals(srsData.getName())) {
 				viewer.getTable().setSelection(i);
-				selectItemAction.run();
+				//selectItemAction.run();
+				try {
+					srsxp.loadFile(fileName, null);
+				} catch (Exception e) {
+				}
 				break;
 			}
 		}
