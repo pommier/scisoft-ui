@@ -49,8 +49,13 @@ public class SidePageView extends PageBookView {
 				if (o instanceof Page) {
 					page = (Page) o;
 					if (part instanceof IMetadataProvider) {
-						IMetaData metadata = ((IMetadataProvider) part).getMetadata();
-						if (page instanceof ISidePageView)
+						IMetaData metadata=null;
+						try {
+							metadata = ((IMetadataProvider) part).getMetadata();
+						} catch (Exception e1) {
+							logger.error("Cannot get meta data from "+part.getTitle(), e1);
+						}
+						if (page instanceof ISidePageView && metadata!=null)
 							((ISidePageView) page).setMetadataObject(metadata);
 					}
 					if (part instanceof PlotView) {
