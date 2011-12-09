@@ -19,33 +19,57 @@
 package uk.ac.diamond.scisoft.analysis.rcp.views;
 
 import gda.analysis.io.ScanFileHolderException;
+import gda.observable.IObserver;
 
 import java.io.File;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+import java.util.UUID;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.PlotServer;
+import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
-import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5TreeExplorer;
+import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5TreeExplorer.HDF5Selection;
+import uk.ac.gda.monitor.ProgressMonitorWrapper;
 
-public class HDF5TreeView extends ViewPart {
+public class HDF5TreeView extends ViewPart implements IObserver {
 	HDF5TreeExplorer hdfxp;
 	Display display;
 	FileDialog fileDialog = null;
-	
+
+	// Variables for the plotServer
+	private PlotServer plotServer;
+	private GuiBean guiBean;
+
+	private static final String NAME = "hdf5TreeViewer";
+
+	private UUID plotID;
+	private Object filename;
+
 	/**
 	 * 
 	 */
@@ -53,11 +77,30 @@ public class HDF5TreeView extends ViewPart {
 
 	private static final Logger logger = LoggerFactory.getLogger(HDF5TreeView.class);
 
+	public HDF5TreeView() {
+		plotID = UUID.randomUUID();
+		plotServer = PlotServerProvider.getPlotServer();
+		plotServer.addIObserver(this);
+		// generate the bean that will contain all the information about this GUI
+		guiBean = new GuiBean();
+		guiBean.put(GuiParameters.PLOTID, plotID); // put plotID in bean
+		// publish this to the server
+		try {
+			plotServer.updateGui(NAME, guiBean);
+		} catch (Exception e) {
+			logger.error("Problem pushing initial GUI bean to plot server");
+			e.printStackTrace();
+		}
+
+	}
+
 	@Override
 	public void createPartControl(Composite parent) {
 		display = parent.getDisplay();
-		hdfxp = new HDF5TreeExplorer(parent, SWT.NONE, getSite());
-		
+		IWorkbenchPartSite site = getSite();
+		hdfxp = new HDF5TreeExplorer(parent, site, SWT.NONE);
+		site.setSelectionProvider(hdfxp);
+
 		// set up the help context
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(hdfxp, "uk.ac.diamond.scisoft.analysis.rcp.hdf5View");
 
@@ -65,6 +108,22 @@ public class HDF5TreeView extends ViewPart {
 
 		initializeToolBar();
 		initializeMenu();
+		getTreeFromServer();
+		hdfxp.addSelectionChangedListener(new ISelectionChangedListener() {
+			
+			@Override
+			public void selectionChanged(SelectionChangedEvent e) {
+				if (e.getSource() == hdfxp) {
+				ISelection s = e.getSelection();
+					if (s instanceof HDF5Selection) {
+						HDF5Selection h = (HDF5Selection) s;
+						// notify other clients that a node has been selected
+						pushGUIUpdate(GuiParameters.TREENODEPATH, h.getFileName()
+								+ HDF5TreeExplorer.HDF5FILENAME_NODEPATH_SEPARATOR + h.getNode());
+					}
+				}
+			}
+		});
 	}
 
 	/**
@@ -97,18 +156,17 @@ public class HDF5TreeView extends ViewPart {
 		}
 	}
 
-	public void loadTree(final String path, IProgressMonitor monitor) throws Exception {
+	private void loadTree(final String path, IProgressMonitor monitor) throws Exception {
 		monitor.beginTask("Opening HDF5 file " + path, 10);
 		monitor.worked(1);
 		if (monitor.isCanceled()) return;
 
-		final HDF5File htree = new HDF5Loader(path).loadTree(null);
 		long start = System.nanoTime();
-		if (htree != null) {
+		hdfxp.loadFile(path, new ProgressMonitorWrapper(monitor));
+		if (hdfxp.getHDF5Tree() != null) {
 			display.syncExec(new Runnable() {
 				@Override
 				public void run() {
-					hdfxp.setHDF5Tree(htree);
 					setPartName((new File(path)).getName());
 				}
 			});
@@ -125,7 +183,7 @@ public class HDF5TreeView extends ViewPart {
 		}
 
 		String [] filterNames = new String [] {"HDF5 files", "All Files (*)"};
-		String [] filterExtensions = new String [] {"*.nxs;*.h5", "*"};
+		String [] filterExtensions = new String [] {"*.nxs;*.h5;*.hdf5", "*"};
 		fileDialog.setFilterNames(filterNames);
 		fileDialog.setFilterExtensions(filterExtensions);
 		final String path = fileDialog.open();
@@ -139,6 +197,12 @@ public class HDF5TreeView extends ViewPart {
 	@Override
 	public void setFocus() {
 		hdfxp.setFocus();
+	}
+
+	@Override
+	public void dispose() {
+		plotServer.deleteIObserver(this);
+		super.dispose();
 	}
 
 	/**
@@ -168,4 +232,129 @@ public class HDF5TreeView extends ViewPart {
 		hdfxp.expandAll();
 	}
 
+	@Override
+	public void update(Object theObserved, Object changeCode) {
+		if (changeCode instanceof GuiUpdate) {
+			GuiUpdate gu = (GuiUpdate) changeCode;
+
+			if (gu.getGuiName().contains(NAME)) {
+				guiBean = gu.getGuiData();
+				syncGuiToBean();
+				GuiBean bean = gu.getGuiData();
+				UUID id = (UUID) bean.get(GuiParameters.PLOTID);
+
+				if (id == null || plotID.compareTo(id) != 0) { // filter out own beans
+					if (guiBean == null)
+						guiBean = bean.copy(); // cache a local copy
+					else
+						guiBean.merge(bean);   // or merge it
+
+					logger.debug("Processing update received from {}: {}", theObserved, changeCode);
+
+					// now update GUI
+					processGUIUpdate(bean);
+				}
+			}
+		} else if (changeCode instanceof String) {
+			String guiName = (String) changeCode;
+			if (guiName.equals(NAME)) {
+				getTreeFromServer();
+			}
+		}
+
+	}
+
+	/**
+	 * Push gui information back to plot server
+	 * @param key 
+	 * @param value 
+	 */
+	public void pushGUIUpdate(GuiParameters key, Serializable value) {
+		if (guiBean == null) {
+			try {
+				guiBean = plotServer.getGuiState(NAME);
+			} catch( Exception e) {
+				logger.error("Problem with getting GUI data from plot server");
+			}
+			if (guiBean == null)
+				guiBean = new GuiBean();
+		}
+
+		guiBean.put(GuiParameters.PLOTID, plotID); // put plotID in bean
+
+		guiBean.put(key, value);
+
+		try {
+			plotServer.updateGui(NAME, guiBean);
+		} catch (Exception e) {
+			logger.error("Problem with updating plot server with GUI data");
+			e.printStackTrace();
+		}
+	}
+
+	private void getTreeFromServer() {
+		DataBean dataBean;
+
+		try {
+			logger.debug("Pulling data to client");
+			long start = System.nanoTime();
+			dataBean = plotServer.getData(NAME);
+			start = System.nanoTime() - start;
+			logger.debug("Data pushed to client: {} in {} s", dataBean, String.format("%.3g", start*1e-9));
+			syncTreeToBean(dataBean);
+		} catch (Exception e) {
+			logger.error("Problem pushing data to plot server");
+			e.printStackTrace();
+		}
+	}
+
+	private void syncGuiToBean() {
+		if (display != null)
+			display.asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					display.update();
+				}
+			});
+	}
+
+	private void syncTreeToBean(DataBean bean) {
+		if (bean == null) {
+			logger.warn("Plot server has no info for NTV");
+			return;
+		}
+
+		// grab first metadata tree
+		List<HDF5File> htList = bean.getHDF5Trees();
+		if (htList == null) {
+			logger.warn("Plot server did not push a list of trees");
+			return;
+		}
+		if (htList.size() == 0) {
+			logger.warn("Plot server pushed an empty list of trees");
+			return;
+		}
+		hdfxp.setHDF5Tree(htList.get(0));
+	}
+
+	/**
+	 * @param bean
+	 */
+	private void processGUIUpdate(GuiBean bean) {
+		if (bean.containsKey(GuiParameters.TREENODEPATH)) {
+			String fullname = (String) bean.get(GuiParameters.TREENODEPATH);
+			int i = fullname.indexOf(HDF5TreeExplorer.HDF5FILENAME_NODEPATH_SEPARATOR);
+
+			if (i > 0) {
+				String file = fullname.substring(0, i);
+
+				if (filename.equals(file)) {
+					String path = fullname.substring(i + 1);
+					hdfxp.handleNode(path);
+				}
+//				logger.debug("File from selected node does not match: {}", file);
+			}
+//			logger.warn("Could not process update of selected node: {}", fullname);
+		}
+	}
 }

@@ -111,8 +111,8 @@ public class AxisChoice {
 		this.axes = axes;
 		this.dimension = dimension;
 		if (values != null) {
-			if (values.getRank() != axes.length)
-				throw new IllegalArgumentException("Invalid axes: Axes attribute does not match axis data shape.");
+//			if (values.getRank() != axes.length)
+//				throw new IllegalArgumentException("Invalid axes: Axes attribute does not match axis data shape.");
 			length = values.getShape()[idx];
 		}
 	}

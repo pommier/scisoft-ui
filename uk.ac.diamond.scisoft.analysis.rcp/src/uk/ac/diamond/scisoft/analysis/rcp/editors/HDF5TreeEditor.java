@@ -34,6 +34,7 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
-import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5TreeExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
 import uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode;
@@ -50,8 +51,7 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
 public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 
 	private HDF5TreeExplorer hdfxp;
-	private HDF5File hdf5Tree;
-	private String fileName;
+	private File file;
 
 	private ISelectionListener selectionListener;
 
@@ -61,28 +61,35 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 	/**
 	 * 
 	 */
-	public static final String ID = "uk.ac.diamond.scisoft.analysis.rcp.editors.NexusTreeEditor"; //$NON-NLS-1$
+	public static final String ID = "uk.ac.diamond.scisoft.analysis.rcp.editors.HDF5TreeEditor"; //$NON-NLS-1$
 
 	private static final Logger logger = LoggerFactory.getLogger(HDF5TreeEditor.class);
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		setSite(site);
+		file = EclipseUtils.getFile(input);
+		if (file == null || !file.exists()) {
+			logger.warn("File does not exist: {}", input.getName());
+			throw new PartInitException("Input is not a file or file does not exist");
+		}
 		setInput(input);
-		setPartName(input.getName());
 	}
 
-	protected void createHDF5Tree() {
-		if (hdf5Tree != null)
+	protected void loadHDF5Tree() {
+		if (getHDF5Tree() != null)
 			return;
+
+		final String fileName = file.getAbsolutePath();
 		try {
-			hdf5Tree = new HDF5Loader(fileName).loadTree(null);
-			if (hdf5Tree != null && hdfxp != null) {
-				hdfxp.setFilename(fileName);
-				hdfxp.setHDF5Tree(hdf5Tree);
+			if (hdfxp != null) {
+				hdfxp.loadFile(fileName, null);
 			}
 		} catch (Exception e) {
-			logger.warn("Could not load NeXus file {}", fileName);
+			if (e.getCause() != null)
+				logger.warn("Could not load NeXus file {}: {}", fileName, e.getCause().getMessage());
+			else
+				logger.warn("Could not load NeXus file {}: {}", fileName, e.getMessage());
 		}
 		return;
 	}
@@ -100,15 +107,18 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 	@Override
 	public void createPartControl(Composite parent) {
 		registerSelectionListener();
-		hdfxp = new HDF5TreeExplorer(parent, SWT.NONE, getSite());
+		IWorkbenchPartSite site = getSite();
+		hdfxp = new HDF5TreeExplorer(parent, site, SWT.NONE);
+		site.setSelectionProvider(hdfxp);
 
-		createHDF5Tree();
+		setPartName(file.getName());
+		loadHDF5Tree();
 	}
 
 	@Override
 	public void pageChanged(PageChangedEvent event) {
 		if (event.getSelectedPage() == this) { // Just selected this page
-			createHDF5Tree();
+			loadHDF5Tree();
 		}
 	}
 
@@ -127,28 +137,13 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 		hdfxp.setFocus();
 	}
 
-	@Override
-	public void setInput(final IEditorInput input) {
-
-		super.setInput(input);
-
-		File f = EclipseUtils.getFile(input);
-		if (!f.exists()) {
-			logger.warn("File does not exist: {}", input.getName());
-			return;
-		}
-		this.fileName = f.getAbsolutePath();
-		setPartName(f.getName());
-		hdf5Tree = null;
-
-	}
-
 	public void expandAll() {
 		hdfxp.expandAll();
 	}
 
 	@Override
 	public void dispose() {
+		file = null;
 		unregisterSelectionListener();
 		if (hdfxp != null)
 			hdfxp.dispose();
@@ -160,7 +155,17 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 	}
 	
 	public HDF5File getHDF5Tree() {
-		return hdf5Tree;
+		if (hdfxp == null)
+			return null;
+		return hdfxp.getHDF5Tree();
+	}
+
+	/**
+	 * This editor uses a HDF5 explorer
+	 * @return explorer class
+	 */
+	public static Class<? extends AbstractExplorer> getExplorerClass() {
+		return HDF5TreeExplorer.class;
 	}
 
 	/* Setting up of the SRSEditor as a Selection listener on the navigator selectionProvider */
