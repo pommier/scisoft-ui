@@ -50,6 +50,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
@@ -184,6 +185,11 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 	private double cacheMinValue;
 	private double cacheMaxValue;
 
+	private PrinterData defaultPrinterData;
+	private String printOrientation;
+	private double printScale;
+	private int printResolution;
+	
 	/**
 	 * Define the handness of the coordinate system
 	 */
@@ -258,6 +264,11 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 			hasJOGL = JOGLChecker.canUseJOGL_OpenGL(viewer, parent);
 		}
 		hasData = false;
+		
+		defaultPrinterData = Printer.getDefaultPrinterData();
+		printOrientation = PlotPrintPreviewDialog.portraitText;
+		printScale= 0.5;
+		printResolution = 2;
 	}
 
 	public void setUseLegend(final boolean useLeg) {
@@ -331,6 +342,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 	 */
 
 	private Composite createSWTGUI(Composite parent) {
+		
 		container = new SashForm(parent, SWT.NONE|SWT.VERTICAL);
 		container.addPaintListener(this);
 		GridLayout gridLayout = new GridLayout();
@@ -2019,11 +2031,23 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 		isInExporting = true;
 		if (currentMode == PlottingMode.ONED || currentMode == PlottingMode.ONED_THREED
 				|| currentMode == PlottingMode.SCATTER2D) {
-			PlotPrintPreviewDialog dialog = new PlotPrintPreviewDialog(viewerApp, container.getDisplay(),graphColourTable);
-			dialog.open();
+			if(defaultPrinterData==null)
+				defaultPrinterData=Printer.getDefaultPrinterData();
+			PlotPrintPreviewDialog dialog = new PlotPrintPreviewDialog(viewerApp, container.getDisplay(),graphColourTable, 
+					defaultPrinterData, printOrientation, printScale, printResolution);
+			defaultPrinterData=dialog.open();
+			printOrientation = dialog.getOrientation();
+			printScale = dialog.getScale();
+			printResolution = dialog.getResolution();
 		} else{
-			PlotPrintPreviewDialog dialog = new PlotPrintPreviewDialog(viewerApp, container.getDisplay(),null);
-			dialog.open();
+			if(defaultPrinterData==null)
+				defaultPrinterData=Printer.getDefaultPrinterData();
+			PlotPrintPreviewDialog dialog = new PlotPrintPreviewDialog(viewerApp, container.getDisplay(),null,
+					defaultPrinterData, printOrientation, printScale, printResolution);
+			defaultPrinterData=dialog.open();
+			printOrientation = dialog.getOrientation();
+			printScale = dialog.getScale();
+			printResolution = dialog.getResolution();
 		}
 		isInExporting = false;
 

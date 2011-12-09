@@ -43,6 +43,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,14 +52,20 @@ import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 
 import de.jreality.ui.viewerapp.AbstractViewerApp;
 
+/**
+ * Class based on the preview SWT dialog example found in "Professional Java Interfaces with SWT/JFace" Jackwind Li
+ * Guojie John Wiley & Sons 2005
+ */
 public class PlotPrintPreviewDialog extends Dialog {
 	private Shell shell;
 	private Display display;
 	private Canvas canvas;
 	private Printer printer;
 	private PrintMargin margin;
-	private Combo combo;
+	private Combo comboScale;
 	private Combo comboOrientation;
+	private Combo comboResolution;
+	private Combo comboPrinterList;
 
 	protected String[] listPrintScaleText = { "10", "25", "33", "50", "66", "75", "100" };
 	protected String printScaleText = ResourceProperties.getResourceString("PRINT_SCALE");
@@ -67,29 +74,40 @@ public class PlotPrintPreviewDialog extends Dialog {
 	protected String printerSelectText = ResourceProperties.getResourceString("PRINTER_SELECT");
 	protected String printPreviewText = ResourceProperties.getResourceString("PRINT_PREVIEW");
 	protected String orientationText = ResourceProperties.getResourceString("ORIENTATION_TEXT");
+	protected String resolutionText = ResourceProperties.getResourceString("RESOLUTION_TEXT");
 	protected static String portraitText = ResourceProperties.getResourceString("PORTRAIT_ORIENTATION");
 	protected static String landscapeText = ResourceProperties.getResourceString("LANDSCAPE_ORIENTATION");
 	protected String defaultPrinterText = ResourceProperties.getResourceString("DEFAULT_PRINTER");
-	private String defaultPrinterName; 
-	
-	private static String orientation = portraitText;
+	private PrinterData currentPrinterData;
+	private AbstractViewerApp viewerApp = null;
+	private Plot1DGraphTable legendTable;
+	private String orientation;
+	private double scale;
+	private int resolution;
 
 	private Image image;
 	private String fileName = "SDA plot";
 
 	private static final Logger logger = LoggerFactory.getLogger(PlotPrintPreviewDialog.class);
 
-	public PlotPrintPreviewDialog(AbstractViewerApp viewerApp, Display device, Plot1DGraphTable legendTable) {
+	public PlotPrintPreviewDialog(AbstractViewerApp viewerApp, Display device, Plot1DGraphTable legendTable,
+			PrinterData defaultPrinterData, String printOrientation, double printScale, int printResolution) {
 		super(device.getActiveShell());
 		this.display = device;
-		// this.image = PlotExportUtil.createImage(viewerApp, device, legendTable, getPrinterData());
-
+		this.viewerApp = viewerApp;
+		this.legendTable = legendTable;
+		this.currentPrinterData = defaultPrinterData;
+		this.orientation = printOrientation;
+		this.scale = printScale;
+		this.resolution = printResolution;
+		this.printer = new Printer(currentPrinterData);
 		// We put the image creation into a thread and display a busy kind of indicator while the thread is
 		// running
-		Runnable createImage = new CreateImage(viewerApp, device, legendTable, Printer.getDefaultPrinterData());
+		System.out.println(currentPrinterData.toString());
+		Runnable createImage = new CreateImage(viewerApp, device, legendTable, this.currentPrinterData, this.resolution);
 		@SuppressWarnings("unused")
 		Thread thread = new Thread(createImage);
-		BusyIndicator.showWhile(display, createImage);
+		BusyIndicator.showWhile(this.display, createImage);
 
 		this.image = CreateImage.getImage();
 	}
@@ -103,18 +121,21 @@ public class PlotPrintPreviewDialog extends Dialog {
 		private Plot1DGraphTable legendTable;
 		private PrinterData printerData;
 		private static Image image;
+		private int resolution;
 
 		public CreateImage(AbstractViewerApp viewerApp, Display device, Plot1DGraphTable legendTable,
-				PrinterData printerData) {
+				PrinterData printerData, int resolution) {
 			this.viewerApp = viewerApp;
 			this.device = device;
 			this.legendTable = legendTable;
 			this.printerData = printerData;
+			this.resolution = resolution;
 		}
 
 		@Override
 		public void run() {
-			setImage(PlotExportUtil.createImage(viewerApp, device, legendTable, printerData));
+			setImage(PlotExportUtil.createImage(this.viewerApp, this.device, this.legendTable, this.printerData,
+					this.resolution));
 		}
 
 		public static Image getImage() {
@@ -126,15 +147,23 @@ public class PlotPrintPreviewDialog extends Dialog {
 		}
 	}
 
-	private PrinterData printData;
+	// private PrinterData printData;
 
 	public PrinterData open() {
+		setPrinter(printer, scale);
+
 		shell = new Shell(display.getActiveShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
 		shell.setText(printPreviewText);
 		shell.setLayout(new GridLayout(4, false));
 
 		final Composite previewComposite = new Composite(shell, SWT.TOP);
-		previewComposite.setLayout(new RowLayout());
+		RowLayout previewLayout = new RowLayout();
+		previewLayout.wrap = true;
+	//	previewLayout.pack = true;
+		//previewLayout.justify = false;
+		previewComposite.setLayout(previewLayout);
+
+
 		final Button buttonSelectPrinter = new Button(previewComposite, SWT.PUSH);
 		buttonSelectPrinter.setText(printerSelectText);
 		buttonSelectPrinter.addListener(SWT.Selection, new Listener() {
@@ -142,57 +171,100 @@ public class PlotPrintPreviewDialog extends Dialog {
 			public void handleEvent(Event event) {
 				PrintDialog dialog = new PrintDialog(shell);
 				// Prompts the printer dialog to let the user select a printer.
-				PrinterData printerData = dialog.open();
-				printData = printerData;
-				if (printerData == null) // the user cancels the dialog
+				currentPrinterData = dialog.open();
+				// printData = currentPrinterData;
+				if (currentPrinterData == null) // the user cancels the dialog
 					return;
 				// Loads the printer.
-				final Printer printer = new Printer(printerData);
-				setPrinter(printer, Double.parseDouble(combo.getItem(combo.getSelectionIndex())));
+				// final Printer printer = new Printer(currentPrinterData);
+				setPrinter(printer, Double.parseDouble(comboScale.getItem(comboScale.getSelectionIndex())));
 				// print the plot
 				print(printer, margin, orientation);
 				shell.dispose();
 			}
 		});
 
+		Composite printerNameComposite = new Composite(previewComposite,SWT.NONE);
+		printerNameComposite.setLayout(new RowLayout());
+		new Label(printerNameComposite, SWT.RIGHT).setText(defaultPrinterText + ":");
+		String[] tmp = currentPrinterData.toString().split("name =");
+		String currentPrinterName = "";
+		if (tmp.length > 1)
+			currentPrinterName = tmp[1].split("}")[0];
+		new Text(printerNameComposite, SWT.RIGHT|SWT.READ_ONLY).setText(currentPrinterName);
+		
 		Composite scaleComposite = new Composite(previewComposite, SWT.BORDER);
 		scaleComposite.setLayout(new RowLayout());
-		new Label(scaleComposite, SWT.BOTTOM).setText(printScaleText+":");
-		combo = new Combo(scaleComposite, SWT.READ_ONLY);
-		combo.add("0.5");
-		combo.add("2.0");
-		combo.add("3.0");
-		combo.add("4.0");
-		combo.add("5.0");
-		combo.add("6.0");
-		combo.add("7.0");
-		combo.select(0);// default 100% scaling
-		combo.addListener(SWT.Selection, new Listener() {
+		new Label(scaleComposite, SWT.BOTTOM).setText(printScaleText + ":");
+		comboScale = new Combo(scaleComposite, SWT.READ_ONLY);
+		comboScale.add("0.5");
+		comboScale.add("2.0");
+		comboScale.add("3.0");
+		comboScale.add("4.0");
+		comboScale.add("5.0");
+		comboScale.add("6.0");
+		comboScale.add("7.0");
+		for (int i = 0; i < comboScale.getItemCount(); i++) {
+			if (scale == Double.parseDouble(comboScale.getItem(i))) {
+				comboScale.select(i);
+				break;
+			}
+		}
+		comboScale.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				double value = Double.parseDouble(combo.getItem(combo.getSelectionIndex()));
-				setPrinter(printer, value);
+				scale = Double.parseDouble(comboScale.getItem(comboScale.getSelectionIndex()));
+				setPrinter(printer, scale);
+			}
+		});
+
+		Composite resolutionComposite = new Composite(previewComposite, SWT.BORDER);
+		RowLayout resolutionLayout = new RowLayout();
+		resolutionComposite.setLayout(resolutionLayout);
+		Label resolutionLabel = new Label(resolutionComposite, SWT.SINGLE);
+		resolutionLabel.setText(resolutionText + ":");
+		comboResolution = new Combo(resolutionComposite, SWT.READ_ONLY);
+		comboResolution.add("1");
+		comboResolution.add("2");
+		comboResolution.add("3");
+		comboResolution.add("4");
+		for (int i = 0; i < comboResolution.getItemCount(); i++) {
+			if (resolution == Integer.parseInt(comboResolution.getItem(i))) {
+				comboResolution.select(i);
+				break;
+			}
+		}
+		comboResolution.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				resolution = Integer.parseInt(comboResolution.getItem(comboResolution.getSelectionIndex()));
+				Runnable createImage = new CreateImage(viewerApp, display, legendTable, currentPrinterData, resolution);
+				@SuppressWarnings("unused")
+				Thread thread = new Thread(createImage);
+				BusyIndicator.showWhile(display, createImage);
+				image = CreateImage.getImage();
+				setPrinter(printer, scale);
 			}
 		});
 
 		// TODO orientation button disabled: works for preview not for data sent to printer
-//		Composite orientationComposite = new Composite(previewComposite, SWT.BORDER);
-//		orientationComposite.setLayout(new RowLayout());
-//		new Label(orientationComposite, SWT.NULL).setText(orientationText+":");
-//		comboOrientation = new Combo(orientationComposite, SWT.READ_ONLY);
-//		comboOrientation.add(portraitText);
-//		comboOrientation.add(landscapeText);
-//		comboOrientation.select(0);
-//		orientation = portraitText;
-//		comboOrientation.addListener(SWT.Selection, new Listener() {
-//			@Override
-//			public void handleEvent(Event e) {
-//				orientation = comboOrientation.getItem(comboOrientation.getSelectionIndex());
-//				// setPrinter(printer, value);
-//				canvas.redraw();
-//			}
-//		});
-		
+		// Composite orientationComposite = new Composite(previewComposite, SWT.BORDER);
+		// orientationComposite.setLayout(new RowLayout());
+		// new Label(orientationComposite, SWT.NULL).setText(orientationText+":");
+		// comboOrientation = new Combo(orientationComposite, SWT.READ_ONLY);
+		// comboOrientation.add(portraitText);
+		// comboOrientation.add(landscapeText);
+		// comboOrientation.select(0);
+		// orientation = portraitText;
+		// comboOrientation.addListener(SWT.Selection, new Listener() {
+		// @Override
+		// public void handleEvent(Event e) {
+		// orientation = comboOrientation.getItem(comboOrientation.getSelectionIndex());
+		// // setPrinter(printer, value);
+		// canvas.redraw();
+		// }
+		// });
+
 		final Button buttonPrint = new Button(previewComposite, SWT.PUSH);
 		buttonPrint.setText(printButtonText);
 		buttonPrint.setToolTipText(printToolTipText);
@@ -201,19 +273,27 @@ public class PlotPrintPreviewDialog extends Dialog {
 			public void handleEvent(Event event) {
 				if (printer == null)
 					print();
-				else{
+				else {
 					print(printer, margin, orientation);
 				}
 				shell.dispose();
 			}
 		});
-		
-		String[] tmp = Printer.getDefaultPrinterData().toString().split("name =");
-		String defaultPrinterName="";
-		if (tmp.length>1)
-			defaultPrinterName=tmp[1].split("}")[0];
-		new Label(previewComposite, SWT.RIGHT).setText(defaultPrinterText+": "+defaultPrinterName);
-		
+
+//		final Button buttonOldPrint = new Button(previewComposite, SWT.PUSH);
+//		buttonOldPrint.setText("Old Print");
+//		buttonOldPrint.setToolTipText(printToolTipText);
+//		buttonOldPrint.addListener(SWT.Selection, new Listener() {
+//			@Override
+//			public void handleEvent(Event event) {
+//				PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
+//				PrinterData printerData = dialog.open();
+//				PlotExportUtil.printGraph(printerData, viewerApp, display, legendTable, 1);
+//
+//				shell.dispose();
+//			}
+//		});
+
 		canvas = new Canvas(shell, SWT.BORDER);
 
 		GridData gridData = new GridData(GridData.FILL_BOTH);
@@ -255,7 +335,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 
 		shell.setSize(800, 650);
 		shell.open();
-		setPrinter(null, 0.5);
+		setPrinter(printer, scale);
 
 		// Set up the event loop.
 		while (!shell.isDisposed()) {
@@ -264,7 +344,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 				shell.getDisplay().sleep();
 			}
 		}
-		return printData;
+		return currentPrinterData;
 	}
 
 	private void paint(Event e, String orientation) {
@@ -294,8 +374,8 @@ public class PlotPrintPreviewDialog extends Dialog {
 
 			int marginOffsetX = offsetX + (int) (viewScaleFactor * margin.left);
 			int marginOffsetY = offsetY + (int) (viewScaleFactor * margin.top);
-			//e.gc.drawRectangle(marginOffsetX, marginOffsetY, (int) (viewScaleFactor * (margin.right - margin.left)),
-			//		(int) (viewScaleFactor * (margin.bottom - margin.top)));
+			// e.gc.drawRectangle(marginOffsetX, marginOffsetY, (int) (viewScaleFactor * (margin.right - margin.left)),
+			// (int) (viewScaleFactor * (margin.bottom - margin.top)));
 
 			if (image != null) {
 				int imageWidth = image.getBounds().width;
@@ -322,7 +402,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 				return;
 			Rectangle rectangle = printer.getBounds();
 			Point canvasSize = canvas.getSize();
-		
+
 			double viewScaleFactor = (canvasSize.x - canvasBorder * 2) * 1.0 / rectangle.width;
 			viewScaleFactor = Math.min(viewScaleFactor, (canvasSize.y - canvasBorder * 2) * 1.0 / rectangle.height);
 
@@ -429,8 +509,8 @@ public class PlotPrintPreviewDialog extends Dialog {
 					gc.dispose();
 					return;
 				} else {
-					Rectangle trim = printer.computeTrim(0,0,0,0);
-					
+					Rectangle trim = printer.computeTrim(0, 0, 0, 0);
+
 					if (orientation.equals(portraitText)) {
 						int imageWidth = image.getBounds().width;
 						int imageHeight = image.getBounds().height;
@@ -447,11 +527,10 @@ public class PlotPrintPreviewDialog extends Dialog {
 								/ (dpiScaleFactorY * imageHeight));
 
 						// Draws the image to the printer.
-						gc.drawImage(image, 0, 0, imageWidth, imageHeight, margin.left, margin.top,
-								(int) (dpiScaleFactorX * imageSizeFactor * imageWidth), 
-								(int) (dpiScaleFactorY * imageSizeFactor * imageHeight));
+						gc.drawImage(image, 0, 0, imageWidth, imageHeight, margin.left - 20, margin.top - 20,
+								(int) (dpiScaleFactorX * imageSizeFactor * imageWidth), (int) (dpiScaleFactorY
+										* imageSizeFactor * imageHeight));
 						gc.dispose();
-						
 
 					}
 					if (orientation.equals(landscapeText)) {
@@ -474,11 +553,11 @@ public class PlotPrintPreviewDialog extends Dialog {
 						gc.setAdvanced(true);
 						Transform t = new Transform(printer);
 						t.rotate(90);
-						t.translate(0, (float)-(dpiScaleFactorY * imageSizeFactor * imageWidth*1.1));	 
+						t.translate(0, (float) -(dpiScaleFactorY * imageSizeFactor * imageWidth * 1.1));
 						gc.setTransform(t);
 						gc.drawImage(image, 0, 0, imageWidth, imageHeight, margin.left, margin.top,
-								(int) (dpiScaleFactorX * imageSizeFactor * imageWidth*1.35), 
-								(int) (dpiScaleFactorY * imageSizeFactor * imageHeight*1.35));
+								(int) (dpiScaleFactorX * imageSizeFactor * imageWidth * 1.35), (int) (dpiScaleFactorY
+										* imageSizeFactor * imageHeight * 1.35));
 						gc.dispose();
 						t.dispose();
 					}
@@ -493,6 +572,18 @@ public class PlotPrintPreviewDialog extends Dialog {
 			}
 		};
 		printThread.start();
+	}
+
+	public String getOrientation() {
+		return orientation;
+	}
+
+	public double getScale() {
+		return scale;
+	}
+
+	public int getResolution() {
+		return resolution;
 	}
 }
 
