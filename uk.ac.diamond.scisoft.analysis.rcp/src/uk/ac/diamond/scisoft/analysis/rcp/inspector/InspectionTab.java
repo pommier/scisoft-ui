@@ -632,7 +632,12 @@ class PlotTab extends ATab {
 		if (dataset instanceof AbstractDataset) {
 			metadata = ((AbstractDataset) dataset).getMetadataMap();
 		}
-		IMetaData metaDataObject = dataset.getMetadata();
+		IMetaData metaDataObject = null;
+		try {
+			metaDataObject = dataset.getMetadata();
+		} catch (Exception e1) {
+			logger.error("Could not retreve metadata object", e1);
+		}
 
 		switch(itype) {
 		case LINE:

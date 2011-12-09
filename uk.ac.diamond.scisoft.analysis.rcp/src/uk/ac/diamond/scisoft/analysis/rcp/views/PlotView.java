@@ -41,7 +41,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
@@ -58,7 +57,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
  * Plot View is the main Analysis panel that can display any n-D scalar data it is the replacement of the Data Vector
  * panel inside the new RCP framework
  */
-public class PlotView extends ViewPart implements IObserver, IObservable, IGuiInfoManager, IUpdateNotificationListener, ISidePlotPart  {
+public class PlotView extends ViewPart implements IObserver, IObservable, IGuiInfoManager, IUpdateNotificationListener,
+		ISidePlotPart {
 
 	// Adding in some logging to help with getting this running
 	private static final Logger logger = LoggerFactory.getLogger(PlotView.class);
@@ -103,8 +103,6 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 
 	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
 
-
-
 	/**
 	 * Default Constructor of the plot view
 	 */
@@ -136,7 +134,7 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 
 	@Override
 	public void createPartControl(Composite parent) {
-		
+
 		if (id != null) {
 			// process extension configuration
 			logger.info("ID: {}", id);
@@ -154,34 +152,26 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 		}
 		logger.info("View name is {}", plotViewName);
 
-
-		//plotConsumer = new PlotConsumer(plotServer, plotViewName, this);
+		// plotConsumer = new PlotConsumer(plotServer, plotViewName, this);
 		parent.setLayout(new FillLayout());
 
-		final GuiBean bean  = getGUIInfo();
-		plotWindow = new PlotWindow(parent,
-				(GuiPlotMode) bean.get(GuiParameters.PLOTMODE),
-				this,
-				this,getViewSite().getActionBars(),
-				getSite().getPage(),
-				plotViewName);
-		plotWindow.updatePlotMode(bean,false);
+		final GuiBean bean = getGUIInfo();
+		plotWindow = new PlotWindow(parent, (GuiPlotMode) bean.get(GuiParameters.PLOTMODE), this, this, getViewSite()
+				.getActionBars(), getSite().getPage(), plotViewName);
+		plotWindow.updatePlotMode(bean, false);
 
-		//plotConsumer.addIObserver(this);
+		// plotConsumer.addIObserver(this);
 		dataBeanAvailable = plotViewName;
 		updateBeans();
 	}
-
 
 	@Override
 	public void setFocus() {
 	}
 
-
 	public void clearPlot() {
 		plotWindow.clearPlot();
-	}	
-
+	}
 
 	private GuiBean stashedGuiBean;
 	private String dataBeanAvailable;
@@ -209,11 +199,11 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 						return;
 
 					// update the GUI if needed
-					updateGuiBean(dataBean);					
+					updateGuiBean(dataBean);
 					plotWindow.processPlotUpdate(dataBean);
-					notifyDataObservers(dataBean);					
+					notifyDataObservers(dataBean);
 				} catch (Exception e) {
-					logger.error("There has been an issue retrieving the databean from the plotserver",e);
+					logger.error("There has been an issue retrieving the databean from the plotserver", e);
 				}
 			}
 		}
@@ -226,7 +216,7 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 		if (dataBean.getGuiPlotMode() != null) {
 			guiBean.put(GuiParameters.PLOTMODE, dataBean.getGuiPlotMode());
 		}
-		if (dataBean.getGuiParameters() != null) { 
+		if (dataBean.getGuiParameters() != null) {
 			guiBean.merge(dataBean.getGuiParameters());
 		}
 	}
@@ -249,11 +239,10 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 		}
 	}
 
-
 	@Override
 	public void update(Object theObserved, Object changeCode) {
 		if (changeCode instanceof String && changeCode.equals(plotViewName)) {
-			logger.debug("Getting a plot data update from "+ plotViewName);
+			logger.debug("Getting a plot data update from " + plotViewName);
 			dataBeanAvailable = plotViewName;
 			updateBeans();
 		}
@@ -267,7 +256,7 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 					if (guiBean == null)
 						guiBean = bean.copy(); // cache a local copy
 					else
-						guiBean.merge(bean);   // or merge it
+						guiBean.merge(bean); // or merge it
 					stashedGuiBean = bean;
 					updateBeans();
 				}
@@ -296,6 +285,7 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 	 * Allow another observer to see plot data.
 	 * <p>
 	 * A data observer gets an update with a data bean.
+	 * 
 	 * @param observer
 	 */
 	public void addDataObserver(IObserver observer) {
@@ -358,8 +348,9 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 
 	/**
 	 * Push GUI information back to plot server
-	 * @param key 
-	 * @param value 
+	 * 
+	 * @param key
+	 * @param value
 	 */
 	@Override
 	public void putGUIInfo(GuiParameters key, Serializable value) {
@@ -374,6 +365,7 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 
 	/**
 	 * Remove GUI information from plot server
+	 * 
 	 * @param key
 	 */
 	@Override
@@ -384,14 +376,14 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 
 		guiBean.remove(key);
 
-		pushGUIState();	
+		pushGUIState();
 	}
 
 	@Override
 	public void dispose() {
 		if (plotWindow != null)
 			plotWindow.dispose();
-		//plotConsumer.stop();
+		// plotConsumer.stop();
 		execSvc.shutdown();
 		deleteIObservers();
 		deleteDataObservers();
@@ -409,13 +401,14 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 
 	public void processPlotUpdate(DataBean dBean) {
 		plotWindow.processPlotUpdate(dBean);
-		notifyDataObservers(dBean);		
+		notifyDataObservers(dBean);
 	}
 
 	public void processGUIUpdate(GuiBean bean) {
-		plotWindow.processGUIUpdate(bean);		
+		plotWindow.processGUIUpdate(bean);
 	}
 
+	@Override
 	public DataSetPlotter getMainPlotter() {
 		return plotWindow.getMainPlotter();
 	}
@@ -430,7 +423,7 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 	}
 
 	@Override
-	public IMetaData getMetadata() {
+	public IMetaData getMetadata() throws Exception {
 		IDataset currentData = getMainPlotter().getCurrentDataSet();
 		if (currentData != null)
 			return currentData.getMetadata();
