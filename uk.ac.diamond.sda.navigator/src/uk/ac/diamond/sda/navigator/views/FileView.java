@@ -2,22 +2,45 @@ package uk.ac.diamond.sda.navigator.views;
 
 import java.io.File;
 
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceAdapter;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.FileTransfer;
+import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IMemento;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.gda.common.rcp.util.EclipseUtils;
+
+/**
+ * Could use interface instead of hard import of ImageMonitorView.
+ * However ImageMonitorView is in a low dependency plugin designed to be
+ * used as an API.
+ */
+import org.dawb.common.ui.views.ImageMonitorView;
 /**
  * This class navigates a file system and remembers where you last left it. 
  * 
@@ -71,7 +94,7 @@ public class FileView extends ViewPart {
 		
 		parent.setLayout(new GridLayout(1, false));
 
-		tree = new TreeViewer(parent, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER |SWT.VIRTUAL);
+		tree = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER |SWT.VIRTUAL);
 		tree.getTree().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		tree.getTree().setHeaderVisible(true);
 		tree.setUseHashlookup(true);
@@ -99,8 +122,84 @@ public class FileView extends ViewPart {
 				tree.setSelection(new StructuredSelection(savedSelection.getParentFile()));
 			}
 		}
+		
+		
+		// Make drag source, it can then drag into projects
+		final DragSource dragSource = new DragSource(tree.getControl(), DND.DROP_MOVE| DND.DROP_DEFAULT| DND.DROP_COPY);
+		dragSource.setTransfer(new Transfer[] { FileTransfer.getInstance () });
+		dragSource.addDragListener(new DragSourceAdapter() {
+			@Override
+			public void dragSetData(DragSourceEvent event){
+				if (getSelectedFile()==null) return;
+				event.data = new String[]{getSelectedFile().getAbsolutePath()};
+			}
+		});
+		
+		// Add ability to open any file double clicked on (folders open in Image Monitor View)
+		tree.getTree().addListener(SWT.MouseDoubleClick, new Listener() {
+
+             public void handleEvent(Event event) {
+                 Point point = new Point(event.x, event.y);
+                 TreeItem item = tree.getTree().getItem(point);
+                 openSelectedFile();
+             }
+         });
+		
+		tree.getTree().addKeyListener(new KeyListener() {		
+			@Override
+			public void keyReleased(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.character == '\n') {
+					openSelectedFile();
+				}
+			}
+		});
+
+		createRightClickMenu();
+
 	}
 	
+	private void createRightClickMenu() {
+		final MenuManager menuManager = new MenuManager();
+		tree.getControl().setMenu(menuManager.createContextMenu(tree.getControl()));
+		getSite().registerContextMenu(menuManager, tree);
+	}
+
+	protected void openSelectedFile() {
+		final File file = getSelectedFile();
+		if (file==null) return;
+		
+		if (file.isDirectory()) {
+			final IWorkbenchPage page = EclipseUtils.getActivePage();
+			if (page==null) return;
+			
+			IViewPart part=null;
+			try {
+				part = page.showView("org.dawb.workbench.views.imageMonitorView");
+			} catch (PartInitException e) {
+				// TODO Auto-generated catch block
+				logger.error("TODO put description of error here", e);
+				return;
+			}
+			if (part != null && part instanceof ImageMonitorView) {
+			    ((ImageMonitorView)part).setDirectoryPath(file.getAbsolutePath());
+			}
+			
+		} else { // Open file
+			
+			try {
+				EclipseUtils.openExternalEditor(file.getAbsolutePath());
+			} catch (PartInitException e) {
+				logger.error("Cannot open file "+file, e);
+			}
+		}
+	}
+
 	@Override
 	public void dispose() {
 		super.dispose();

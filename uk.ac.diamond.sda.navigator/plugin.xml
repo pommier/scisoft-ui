@@ -10,11 +10,13 @@
             name="Custom Navigator"/>
       <view
             allowMultiple="false"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
             class="org.eclipse.ui.navigator.CommonNavigator"
             icon="icons/nav.png"
             id="uk.ac.diamond.sda.navigator.view"
             name="SDA Navigator"/>
       <view
+            category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.sda.navigator.views.FileView"
             icon="icons/folder.png"
             id="uk.ac.diamond.sda.navigator.views.FileView"

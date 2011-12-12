@@ -12,6 +12,7 @@ Require-Bundle: org.eclipse.core.resources,
  uk.ac.gda.common
 Bundle-Activator: uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator
 Import-Package: gda.analysis.io,
+ org.dawb.common.ui.views,
  org.eclipse.jface.text,
  org.eclipse.ui.texteditor,
  org.slf4j,
