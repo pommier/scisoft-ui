@@ -2,8 +2,13 @@ package uk.ac.diamond.sda.navigator.views;
 
 import java.io.File;
 
+import org.dawb.common.ui.views.ImageMonitorView;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.fieldassist.ContentProposalAdapter;
+import org.eclipse.jface.fieldassist.TextContentAdapter;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
@@ -16,12 +21,18 @@ import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IMemento;
@@ -34,13 +45,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.gda.common.rcp.util.EclipseUtils;
-
-/**
- * Could use interface instead of hard import of ImageMonitorView.
- * However ImageMonitorView is in a low dependency plugin designed to be
- * used as an API.
- */
-import org.dawb.common.ui.views.ImageMonitorView;
+import uk.ac.gda.ui.content.FileContentProposalProvider;
+import uk.ac.gda.ui.content.IFilterExtensionProvider;
+import uk.ac.gda.util.OSUtils;
 /**
  * This class navigates a file system and remembers where you last left it. 
  * 
@@ -93,11 +100,48 @@ public class FileView extends ViewPart {
 	public void createPartControl(final Composite parent) {
 		
 		parent.setLayout(new GridLayout(1, false));
+		
+		final Composite top = new Composite(parent, SWT.NONE);
+		top.setLayout(new GridLayout(2, false));
+		top.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
+		
+		final Label fileLabel = new Label(top, SWT.NONE);
+		fileLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
+		fileLabel.setImage(FileLabelProvider.getImage(OSUtils.isWindowsOS() ? new File("C:/Windows/") : new File("/")));
+		
+		final Text filePath = new Text(top, SWT.BORDER);
+		filePath.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		FileContentProposalProvider prov = new FileContentProposalProvider();
+		new ContentProposalAdapter(filePath, new TextContentAdapter(), prov, null, null);
+		
+		filePath.addSelectionListener(new SelectionListener() {			
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setSelectedFile(filePath.getText());
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				setSelectedFile(filePath.getText());
+			}
+		});
 
 		tree = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER |SWT.VIRTUAL);
 		tree.getTree().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		tree.getTree().setHeaderVisible(true);
 		tree.setUseHashlookup(true);
+		
+		tree.addSelectionChangedListener(new ISelectionChangedListener() {			
+			@Override
+			public void selectionChanged(SelectionChangedEvent event) {
+				
+				final File file = getSelectedFile();
+				if (file!=null &&  file.isDirectory()) {
+				    filePath.setText(file.getAbsolutePath());
+				    filePath.setSelection(filePath.getText().length()-1);
+				}
+			}
+		});
 
 		final String[] titles = { "Name", "Date", "Type", "Size" };
 		final int[]    widths = { 250, 120, 80, 150 };
@@ -113,17 +157,7 @@ public class FileView extends ViewPart {
 		getSite().setSelectionProvider(tree);
 		
 		refresh();
-		
-		if (savedSelection!=null) {
-			if (savedSelection.exists()) {
-			    tree.setSelection(new StructuredSelection(savedSelection));
-			} else if (savedSelection.getParentFile().exists()) {
-				// If file deleted, select parent.
-				tree.setSelection(new StructuredSelection(savedSelection.getParentFile()));
-			}
-		}
-		
-		
+				
 		// Make drag source, it can then drag into projects
 		final DragSource dragSource = new DragSource(tree.getControl(), DND.DROP_MOVE| DND.DROP_DEFAULT| DND.DROP_COPY);
 		dragSource.setTransfer(new Transfer[] { FileTransfer.getInstance () });
@@ -162,8 +196,25 @@ public class FileView extends ViewPart {
 
 		createRightClickMenu();
 
+		if (savedSelection!=null) {
+			if (savedSelection.exists()) {
+			    tree.setSelection(new StructuredSelection(savedSelection));
+			} else if (savedSelection.getParentFile().exists()) {
+				// If file deleted, select parent.
+				tree.setSelection(new StructuredSelection(savedSelection.getParentFile()));
+			}
+		}
+		
+
 	}
 	
+	protected void setSelectedFile(String path) {
+		final File file = new File(path);
+		if (file.exists()) {
+			tree.setSelection(new StructuredSelection(file));
+		}	
+	}
+
 	private void createRightClickMenu() {
 		final MenuManager menuManager = new MenuManager();
 		tree.getControl().setMenu(menuManager.createContextMenu(tree.getControl()));

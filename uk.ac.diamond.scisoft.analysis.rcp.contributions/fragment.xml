@@ -739,6 +739,12 @@
                optional="true">
          </commandParameter>
       </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.actions.SelectedImageGridViewAction"
+            description="Open files in image grid view"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.openImageGridView"
+            name="Open Image Grid">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">

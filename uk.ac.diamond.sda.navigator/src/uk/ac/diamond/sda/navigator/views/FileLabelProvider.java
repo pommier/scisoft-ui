@@ -6,19 +6,18 @@ import java.awt.image.DirectColorModel;
 import java.awt.image.IndexColorModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.filechooser.FileSystemView;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
-import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
@@ -100,15 +99,15 @@ public class FileLabelProvider extends ColumnLabelProvider {
         return "" + (int)size + " bytes";
     }
 
-    private Image folderImage;
+    private static Image folderImage;
     
     /**
      * Caching seems to be needed for icons on large dirs.
      * NOTE Caching usually a bad idea check if can be done another way.
      */
-    private Map<String,Image> extensionCache;
+    private static Map<String,Image> extensionCache;
     
-    private Image getImage(File file) {
+    static Image getImage(File file) {
     	
     	if (file.isDirectory()) {
     		if (folderImage==null) {
@@ -116,7 +115,7 @@ public class FileLabelProvider extends ColumnLabelProvider {
     		}
     		return folderImage;
     	}
-    	if (extensionCache==null) extensionCache = new HashMap<String,Image>(31);
+    	if (extensionCache==null) extensionCache = new WeakHashMap<String,Image>(31);
    	
     	final String ext = FileUtils.getFileExtension(file);
     	if (extensionCache.containsKey(ext)) return extensionCache.get(ext);
@@ -154,11 +153,24 @@ public class FileLabelProvider extends ColumnLabelProvider {
     @Override
 	public void dispose() {
     	super.dispose();
-    	if (folderImage!=null) folderImage.dispose();
+    	
+    	try {
+	    	if (folderImage!=null) {
+	    		folderImage.dispose();
+	    		folderImage = null;
+	    	}
+    	} catch (Throwable ne) {
+    		// Nothing
+    	}
     	
     	for (String ext : extensionCache.keySet()) {
-    		extensionCache.get(ext).dispose();
+    	   	try {
+    		    extensionCache.get(ext).dispose();
+        	} catch (Throwable ne) {
+        		continue;
+        	}
 		}
+    	extensionCache = null;
     }
     
     static ImageData convertToSWT(BufferedImage bufferedImage) {
