@@ -14,6 +14,13 @@
             icon="icons/nav.png"
             id="uk.ac.diamond.sda.navigator.view"
             name="SDA Navigator"/>
+      <view
+            class="uk.ac.diamond.sda.navigator.views.FileView"
+            icon="icons/folder.png"
+            id="uk.ac.diamond.sda.navigator.views.FileView"
+            name="File Navigator"
+            restorable="true">
+      </view>
    </extension>
    <!-- Declare the viewer configuration, and the default content/action bindings -->
    <extension
