@@ -1,7 +1,5 @@
 package uk.ac.diamond.scisoft.analysis.rcp.views;
 
-import gda.observable.IObserver;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -10,14 +8,11 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.IPage;
 import org.eclipse.ui.part.MessagePage;
-import org.eclipse.ui.part.Page;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.PageBookView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 
 
@@ -26,7 +21,7 @@ public class SidePageView extends PageBookView {
 
 	public static final String ID = "uk.ac.diamond.scisoft.diffraction.rcp.DiffractionView";
 	private static final Logger logger = LoggerFactory.getLogger(SidePageView.class);
-	private DataSetPlotter mainPlotter;
+	//private DataSetPlotter mainPlotter;
 	
 	
 	@Override
