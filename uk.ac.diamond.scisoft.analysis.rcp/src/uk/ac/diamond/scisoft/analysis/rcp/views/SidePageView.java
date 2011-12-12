@@ -1,6 +1,5 @@
 package uk.ac.diamond.scisoft.analysis.rcp.views;
 
-import gda.observable.IObservable;
 import gda.observable.IObserver;
 
 import org.eclipse.core.runtime.CoreException;
@@ -19,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
-
 
 
 public class SidePageView extends PageBookView {
