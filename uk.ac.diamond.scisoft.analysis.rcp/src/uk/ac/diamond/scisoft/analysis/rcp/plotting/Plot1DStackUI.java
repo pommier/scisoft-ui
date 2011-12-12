@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -28,8 +29,11 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionBars;
 
@@ -41,7 +45,9 @@ import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.Plot1DStyles;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.TickFormatting;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
+import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 
 /**
  * A very general UI for 1D Stacked Plots using SWT / Eclipse RCP
@@ -64,10 +70,22 @@ public class Plot1DStackUI extends AbstractPlotUI {
 	private Action tooglePerspectiveAction;
 	private Action resetView;
 	private Action boundingBox;
+	private Action saveGraph;
+	private Action copyGraph;
+	private Action printGraph;
 	private PlotWindow plotWindow;
 	private boolean setInitialPersp = false;
 	//private SliderAction expansionAction;
 	
+	private String printButtonText = ResourceProperties.getResourceString("PRINT_BUTTON");
+	private String printToolTipText = ResourceProperties.getResourceString("PRINT_TOOLTIP");
+	private String printImagePath = ResourceProperties.getResourceString("PRINT_IMAGE_PATH");
+	private String copyButtonText = ResourceProperties.getResourceString("COPY_BUTTON");
+	private String copyToolTipText = ResourceProperties.getResourceString("COPY_TOOLTIP");
+	private String copyImagePath = ResourceProperties.getResourceString("COPY_IMAGE_PATH");
+	private String saveButtonText = ResourceProperties.getResourceString("SAVE_BUTTON");
+	private String saveToolTipText = ResourceProperties.getResourceString("SAVE_TOOLTIP");
+	private String saveImagePath = ResourceProperties.getResourceString("SAVE_IMAGE_PATH");
 	
 	/**
 	 * Constructor of the Plot1DStackUI
@@ -317,6 +335,65 @@ public class Plot1DStackUI extends AbstractPlotUI {
 		boundingBox.setToolTipText("Bounding box on/off");
 		boundingBox.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/box.png"));				
 		boundingBox.setChecked(true);
+		
+		saveGraph = new Action() {
+			
+			// Cache file name otherwise they have to keep
+			// choosing the folder.
+			private String filename;
+			
+			@Override
+			public void run() {
+				
+				FileDialog dialog = new FileDialog (parent.getShell(), SWT.SAVE);
+				
+				String [] filterExtensions = new String [] {"*.jpg;*.JPG;*.jpeg;*.JPEG;*.png;*.PNG", "*.ps;*.eps","*.svg;*.SVG"};
+				if (filename!=null) {
+					dialog.setFilterPath((new File(filename)).getParent());
+				} else {
+					String filterPath = "/";
+					String platform = SWT.getPlatform();
+					if (platform.equals("win32") || platform.equals("wpf")) {
+						filterPath = "c:\\";
+					}
+					dialog.setFilterPath (filterPath);
+				}
+				dialog.setFilterNames (PlotExportUtil.FILE_TYPES);
+				dialog.setFilterExtensions (filterExtensions);
+				filename = dialog.open();
+				if (filename == null)
+					return;
+
+				plotter.saveGraph(filename, PlotExportUtil.FILE_TYPES[dialog.getFilterIndex()]);
+			}
+		};
+		saveGraph.setText(saveButtonText);
+		saveGraph.setToolTipText(saveToolTipText);
+		saveGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(saveImagePath));
+		
+		copyGraph = new Action() {
+			@Override
+			public void run() {
+				plotter.copyGraph();
+			}
+		};
+		copyGraph.setText(copyButtonText);
+		copyGraph.setToolTipText(copyToolTipText);
+		copyGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(copyImagePath));
+		
+		printGraph = new Action() {
+			@Override
+			public void run() {
+//				plotter.printGraph(printerData, 1);
+				plotter.printGraph();
+				
+			}
+		};
+		
+		printGraph.setText(printButtonText);
+		printGraph.setToolTipText(printToolTipText);
+		printGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(printImagePath));
+		
 		//expansionAction = new SliderAction(plotter);
 		manager.add(activateRegionZoom);
 		manager.add(activateAreaZoom);
@@ -326,6 +403,10 @@ public class Plot1DStackUI extends AbstractPlotUI {
 		manager.add(tooglePerspectiveAction);
 		manager.add(resetView);
 		manager.add(boundingBox);
+		manager.add(new Separator(getClass().getName()+"Print"));
+		manager.add(saveGraph);
+		manager.add(copyGraph);
+		manager.add(printGraph);
 		//manager.add(expansionAction);
 		manager.update(true);
 	}
