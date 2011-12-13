@@ -251,7 +251,6 @@ public class FileView extends ViewPart {
 			}
 		};
 		dirsTop.setImageDescriptor(NavigatorRCPActivator.getImageDescriptor("icons/alpha_mode_folder.png"));
-		dirsTop.setChecked(true);
 		grp.add(dirsTop);
 		toolMan.add(dirsTop);
 		
@@ -265,6 +264,7 @@ public class FileView extends ViewPart {
 			}
 		};
 		alpha.setImageDescriptor(NavigatorRCPActivator.getImageDescriptor("icons/alpha_mode.gif"));
+		alpha.setChecked(true);
 		grp.add(alpha);
 		toolMan.add(alpha);
 
