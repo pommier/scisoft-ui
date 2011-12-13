@@ -122,19 +122,14 @@ public class FileLabelProvider extends ColumnLabelProvider {
     	
     	Image returnImage = imageRegistry.get(ext);
     	if (returnImage != null) return returnImage;   	
-    	
-    	
-    	// Not sure about the order of this. If always use the eclipse icon,
-    	// eclipse too often provides default icons.
-    	
+    	    	
     	// Eclipse icon
     	ECLISPE_BLOCK: if (returnImage==null) {
     		final IEditorDescriptor desc = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(file.getAbsolutePath());
     		if (desc==null) break ECLISPE_BLOCK;
     		final ImageDescriptor imageDescriptor = desc.getImageDescriptor();
-	    	if (imageDescriptor!=null) {
-	    		returnImage = imageDescriptor.createImage();
-	    	}
+    		if (imageDescriptor==null) break ECLISPE_BLOCK;
+	    	returnImage = imageDescriptor.createImage();
     	}
 
     	
