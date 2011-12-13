@@ -3,6 +3,9 @@ package uk.ac.diamond.sda.navigator.views;
 import java.io.File;
 
 import org.dawb.common.ui.views.ImageMonitorView;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.fieldassist.ContentProposalAdapter;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
@@ -44,9 +47,12 @@ import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
+import uk.ac.diamond.sda.navigator.views.FileContentProvider.FileSortType;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.ui.content.FileContentProposalProvider;
 import uk.ac.gda.ui.content.IFilterExtensionProvider;
+import uk.ac.gda.ui.actions.CheckableActionGroup;
 import uk.ac.gda.util.OSUtils;
 /**
  * This class navigates a file system and remembers where you last left it. 
@@ -156,7 +162,7 @@ public class FileView extends ViewPart {
 		}
 		getSite().setSelectionProvider(tree);
 		
-		refresh();
+		createContent();
 				
 		// Make drag source, it can then drag into projects
 		final DragSource dragSource = new DragSource(tree.getControl(), DND.DROP_MOVE| DND.DROP_DEFAULT| DND.DROP_COPY);
@@ -195,6 +201,7 @@ public class FileView extends ViewPart {
 		});
 
 		createRightClickMenu();
+		addToolbar();
 
 		if (savedSelection!=null) {
 			if (savedSelection.exists()) {
@@ -207,7 +214,7 @@ public class FileView extends ViewPart {
 		
 
 	}
-	
+
 	protected void setSelectedFile(String path) {
 		final File file = new File(path);
 		if (file.exists()) {
@@ -220,6 +227,50 @@ public class FileView extends ViewPart {
 		tree.getControl().setMenu(menuManager.createContextMenu(tree.getControl()));
 		getSite().registerContextMenu(menuManager, tree);
 	}
+	
+    /**
+     * Never really figured out how to made toggle buttons work properly with
+     * contributions. Use hard coded actions
+     * 
+     * TODO Move this to contributi	
+     */
+	private void addToolbar() {
+		
+        // TODO Save preference as property
+		
+		final IToolBarManager toolMan = getViewSite().getActionBars().getToolBarManager();
+		
+		final CheckableActionGroup grp = new CheckableActionGroup();
+		
+		final Action dirsTop = new Action("Sort alpha numeric, directories at top.", IAction.AS_CHECK_BOX) {
+			public void run() {
+				final File selection = getSelectedFile();
+				((FileContentProvider)tree.getContentProvider()).setSort(FileSortType.ALPHA_NUMERIC_DIRS_FIRST);
+				tree.refresh();
+				if (selection!=null)tree.setSelection(new StructuredSelection(selection));
+			}
+		};
+		dirsTop.setImageDescriptor(NavigatorRCPActivator.getImageDescriptor("icons/alpha_mode_folder.png"));
+		dirsTop.setChecked(true);
+		grp.add(dirsTop);
+		toolMan.add(dirsTop);
+		
+		
+		final Action alpha = new Action("Alpha numeric sort for everything.", IAction.AS_CHECK_BOX) {
+			public void run() {
+				final File selection = getSelectedFile();
+				((FileContentProvider)tree.getContentProvider()).setSort(FileSortType.ALPHA_NUMERIC);
+				tree.refresh();
+				if (selection!=null)tree.setSelection(new StructuredSelection(selection));
+			}
+		};
+		alpha.setImageDescriptor(NavigatorRCPActivator.getImageDescriptor("icons/alpha_mode.gif"));
+		grp.add(alpha);
+		toolMan.add(alpha);
+
+	}
+
+
 
 	protected void openSelectedFile() {
 		final File file = getSelectedFile();
@@ -263,7 +314,7 @@ public class FileView extends ViewPart {
 		tree.getControl().setFocus();
 	}
 
-	private void refresh() {
+	private void createContent() {
 		
 		final File root = uk.ac.gda.util.OSUtils.isWindowsOS() ? new File("C:/") : new File("/");
 		tree.getTree().setItemCount(root.listFiles().length);

@@ -23,6 +23,7 @@ Import-Package: gda.analysis.io,
  uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel,
  uk.ac.gda.common.rcp.util,
  uk.ac.gda.monitor,
+ uk.ac.gda.ui.actions,
  uk.ac.gda.ui.content
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
