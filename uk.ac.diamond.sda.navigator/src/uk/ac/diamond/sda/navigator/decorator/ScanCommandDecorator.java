@@ -37,9 +37,11 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+import uk.ac.diamond.scisoft.analysis.io.IExtendedMetadata;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
@@ -50,6 +52,7 @@ public class ScanCommandDecorator extends LabelProvider implements ILabelDecorat
 	private static final Object HDF5_EXT = "hdf5"; //$NON-NLS-1$
 	private static final Object NXS_EXT = "nxs"; //$NON-NLS-1$
 	private IMetaData metaData;
+	private IMetadataProvider metaDataProvider;
 	// private String hdf5scanCommand;
 	private String fileName;
 	private static final Logger logger = LoggerFactory.getLogger(ScanCommandDecorator.class);
@@ -75,17 +78,17 @@ public class ScanCommandDecorator extends LabelProvider implements ILabelDecorat
 				// File file = path.toFile();
 				srsMetaDataLoader(ifile);
 
-				Collection<String> list;
 				try {
-					list = metaData.getMetaNames();
-					decorator = metaData.getMetaValue("cmd");
-					if (decorator.length() > 100) // restrict to 100 characters
-						decorator = decorator.substring(0, 100) + "...";
-					if (decorator == null)
-						decorator = "* No Scan Command";
-					else
+					//Collection<String> list = metaData.getMetaNames();
+					decorator = (String) metaData.getMetaValue("cmd");
+					if(decorator==null){
+						decorator="Scan Command: N/A";
+					}else{
+						if (decorator.length() > 100) // restrict to 100 characters
+							decorator = decorator.substring(0, 100) + "...";
 						decorator = "* " + decorator;
-				} catch (Exception e) {
+					}
+				}catch (Exception e) {
 					logger.error("Could not read metadata: ", e);
 				}
 
