@@ -107,7 +107,7 @@ public class FileView extends ViewPart {
 		
 		final Label fileLabel = new Label(top, SWT.NONE);
 		fileLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
-		fileLabel.setImage(FileLabelProvider.getImage(OSUtils.isWindowsOS() ? new File("C:/Windows/") : new File("/")));
+		fileLabel.setImage(FileLabelProvider.getFolderImage(null));
 		
 		final Text filePath = new Text(top, SWT.BORDER);
 		filePath.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));

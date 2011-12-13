@@ -16,6 +16,7 @@ import java.util.WeakHashMap;
 import javax.swing.ImageIcon;
 import javax.swing.filechooser.FileSystemView;
 
+import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.SWT;
@@ -26,10 +27,17 @@ import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.IDE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.eclipse.jface.resource.ImageRegistry;
 
+import com.sun.corba.se.spi.activation.Activator;
+
+import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
+import uk.ac.gda.util.OSUtils;
 import uk.ac.gda.util.io.FileUtils;
 
 public class FileLabelProvider extends ColumnLabelProvider {
@@ -101,29 +109,34 @@ public class FileLabelProvider extends ColumnLabelProvider {
 
     private static Image folderImage;
     
-    /**
-     * Caching seems to be needed for icons on large dirs.
-     * NOTE Caching usually a bad idea check if can be done another way.
-     */
-    private static Map<String,Image> extensionCache;
-    
-    static Image getImage(File file) {
+    private ImageRegistry imageRegistry;
+        
+    private Image getImage(File file) {
     	
     	if (file.isDirectory()) {
-    		if (folderImage==null) {
-     			folderImage = getImageSWT(file);
-    		}
-    		return folderImage;
+    		return getFolderImage(file);
     	}
-    	if (extensionCache==null) extensionCache = new WeakHashMap<String,Image>(31);
-   	
+
     	final String ext = FileUtils.getFileExtension(file);
-    	if (extensionCache.containsKey(ext)) return extensionCache.get(ext);
+    	if (imageRegistry == null) imageRegistry = new ImageRegistry();
     	
-    	Image returnImage = null;
+    	Image returnImage = imageRegistry.get(ext);
+    	if (returnImage != null) return returnImage;   	
+    	
     	
     	// Not sure about the order of this. If always use the eclipse icon,
     	// eclipse too often provides default icons.
+    	
+    	// Eclipse icon
+    	ECLISPE_BLOCK: if (returnImage==null) {
+    		final IEditorDescriptor desc = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(file.getAbsolutePath());
+    		if (desc==null) break ECLISPE_BLOCK;
+    		final ImageDescriptor imageDescriptor = desc.getImageDescriptor();
+	    	if (imageDescriptor!=null) {
+	    		returnImage = imageDescriptor.createImage();
+	    	}
+    	}
+
     	
     	// Program icon from system
     	if (returnImage==null) {
@@ -134,43 +147,19 @@ public class FileLabelProvider extends ColumnLabelProvider {
 		    	returnImage = new Image(Display.getCurrent(), iconData);
 	    	}
     	}
-    	
-    	// Eclipse icon
-    	if (returnImage==null) {
-		    ImageDescriptor imageDescriptor = PlatformUI.getWorkbench().getEditorRegistry().getImageDescriptor(file.getName());
-	    	if (imageDescriptor!=null) {
-	    		returnImage = imageDescriptor.createImage();
-	    	}
-    	}
-    	
+    	    	
     	if (returnImage==null)	returnImage = getImageSWT(file);
     	
-    	extensionCache.put(ext, returnImage);
+    	imageRegistry.put(ext, returnImage);
     	
     	return returnImage;
     }
     
     @Override
 	public void dispose() {
-    	super.dispose();
-    	
-    	try {
-	    	if (folderImage!=null) {
-	    		folderImage.dispose();
-	    		folderImage = null;
-	    	}
-    	} catch (Throwable ne) {
-    		// Nothing
-    	}
-    	
-    	for (String ext : extensionCache.keySet()) {
-    	   	try {
-    		    extensionCache.get(ext).dispose();
-        	} catch (Throwable ne) {
-        		continue;
-        	}
-		}
-    	extensionCache = null;
+    	super.dispose(); 	
+    	if (imageRegistry!=null) imageRegistry.dispose();
+    	imageRegistry = null;
     }
     
     static ImageData convertToSWT(BufferedImage bufferedImage) {
@@ -232,4 +221,23 @@ public class FileLabelProvider extends ColumnLabelProvider {
         g2d.dispose();
         return new Image(Display.getDefault(), convertToSWT(bufferedImage));
     }
+
+	public static Image getFolderImage(File file) {
+		
+		if (folderImage==null) {
+			
+			if (file==null) file = OSUtils.isWindowsOS() ? new File("C:/Windows/") : new File("/");
+			/**
+			 * On windows, use windows icon for folder,
+			 * on unix folder icon can be not very nice looking, use folder.png
+			 */
+	        if (OSUtils.isWindowsOS()) {
+	        	folderImage = getImageSWT(file);
+	        } else {
+	        	folderImage = NavigatorRCPActivator.getImageDescriptor("icons/folder.png").createImage();
+	        }
+ 			
+		}
+		return folderImage;
+	}
 }
