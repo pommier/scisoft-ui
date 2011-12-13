@@ -70,6 +70,7 @@ public class ScanCommandDecorator extends LabelProvider implements ILabelDecorat
 
 	@Override
 	public String decorateText(String label, Object element) {
+		decorator = "";
 		if (element instanceof IFile) {
 			IFile modelFile = (IFile) element;
 			if (SRS_EXT.equals(modelFile.getFileExtension())) {
