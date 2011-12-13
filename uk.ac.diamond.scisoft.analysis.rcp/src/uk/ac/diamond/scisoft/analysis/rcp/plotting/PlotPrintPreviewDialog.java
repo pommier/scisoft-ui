@@ -147,20 +147,18 @@ public class PlotPrintPreviewDialog extends Dialog {
 		}
 	}
 
-	// private PrinterData printData;
-
 	public PrinterData open() {
 		setPrinter(printer, scale);
 
 		shell = new Shell(display.getActiveShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
 		shell.setText(printPreviewText);
-		shell.setLayout(new GridLayout(4, false));
+		GridLayout previewGridLayout =new GridLayout(4, false);
+		shell.setLayout(previewGridLayout);
 
 		final Composite previewComposite = new Composite(shell, SWT.TOP);
 		RowLayout previewLayout = new RowLayout();
-		previewLayout.wrap = true;
-	//	previewLayout.pack = true;
-		//previewLayout.justify = false;
+		previewLayout.wrap=true;
+		previewLayout.center=true;
 		previewComposite.setLayout(previewLayout);
 
 
@@ -183,8 +181,23 @@ public class PlotPrintPreviewDialog extends Dialog {
 				shell.dispose();
 			}
 		});
+		
+		final Button buttonPrint = new Button(previewComposite, SWT.PUSH);
+		buttonPrint.setText(printButtonText);
+		buttonPrint.setToolTipText(printToolTipText);
+		buttonPrint.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				if (printer == null)
+					print();
+				else {
+					print(printer, margin, orientation);
+				}
+				shell.dispose();
+			}
+		});
 
-		Composite printerNameComposite = new Composite(previewComposite,SWT.NONE);
+		Composite printerNameComposite = new Composite(previewComposite,SWT.TOP);
 		printerNameComposite.setLayout(new RowLayout());
 		new Label(printerNameComposite, SWT.RIGHT).setText(defaultPrinterText + ":");
 		String[] tmp = currentPrinterData.toString().split("name =");
@@ -194,7 +207,9 @@ public class PlotPrintPreviewDialog extends Dialog {
 		new Text(printerNameComposite, SWT.RIGHT|SWT.READ_ONLY).setText(currentPrinterName);
 		
 		Composite scaleComposite = new Composite(previewComposite, SWT.BORDER);
-		scaleComposite.setLayout(new RowLayout());
+		RowLayout scaleLayout=new RowLayout();
+		scaleLayout.center=true;
+		scaleComposite.setLayout(scaleLayout);
 		new Label(scaleComposite, SWT.BOTTOM).setText(printScaleText + ":");
 		comboScale = new Combo(scaleComposite, SWT.READ_ONLY);
 		comboScale.add("0.5");
@@ -220,6 +235,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 
 		Composite resolutionComposite = new Composite(previewComposite, SWT.BORDER);
 		RowLayout resolutionLayout = new RowLayout();
+		resolutionLayout.center=true;
 		resolutionComposite.setLayout(resolutionLayout);
 		Label resolutionLabel = new Label(resolutionComposite, SWT.SINGLE);
 		resolutionLabel.setText(resolutionText + ":");
@@ -248,37 +264,28 @@ public class PlotPrintPreviewDialog extends Dialog {
 		});
 
 		// TODO orientation button disabled: works for preview not for data sent to printer
-		// Composite orientationComposite = new Composite(previewComposite, SWT.BORDER);
-		// orientationComposite.setLayout(new RowLayout());
-		// new Label(orientationComposite, SWT.NULL).setText(orientationText+":");
-		// comboOrientation = new Combo(orientationComposite, SWT.READ_ONLY);
-		// comboOrientation.add(portraitText);
-		// comboOrientation.add(landscapeText);
-		// comboOrientation.select(0);
-		// orientation = portraitText;
-		// comboOrientation.addListener(SWT.Selection, new Listener() {
-		// @Override
-		// public void handleEvent(Event e) {
-		// orientation = comboOrientation.getItem(comboOrientation.getSelectionIndex());
-		// // setPrinter(printer, value);
-		// canvas.redraw();
-		// }
-		// });
-
-		final Button buttonPrint = new Button(previewComposite, SWT.PUSH);
-		buttonPrint.setText(printButtonText);
-		buttonPrint.setToolTipText(printToolTipText);
-		buttonPrint.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				if (printer == null)
-					print();
-				else {
-					print(printer, margin, orientation);
-				}
-				shell.dispose();
-			}
-		});
+//		Composite orientationComposite = new Composite(previewComposite, SWT.BORDER);
+//		RowLayout orientationLayout=new RowLayout();
+//		orientationLayout.center=true;
+//		orientationComposite.setLayout(orientationLayout);
+//		new Label(orientationComposite, SWT.NULL).setText(orientationText + ":");
+//		comboOrientation = new Combo(orientationComposite, SWT.READ_ONLY);
+//		comboOrientation.add(portraitText);
+//		comboOrientation.add(landscapeText);
+//		for (int i = 0; i < comboOrientation.getItemCount(); i++) {
+//			if (orientation.equals(comboOrientation.getItem(i))) {
+//				comboOrientation.select(i);
+//				break;
+//			}
+//		}
+//		comboOrientation.addListener(SWT.Selection, new Listener() {
+//			@Override
+//			public void handleEvent(Event e) {
+//				orientation = comboOrientation.getItem(comboOrientation.getSelectionIndex());
+//				// setPrinter(printer, value);
+//				canvas.redraw();
+//			}
+//		});
 
 //		final Button buttonOldPrint = new Button(previewComposite, SWT.PUSH);
 //		buttonOldPrint.setText("Old Print");
@@ -406,8 +413,8 @@ public class PlotPrintPreviewDialog extends Dialog {
 			double viewScaleFactor = (canvasSize.x - canvasBorder * 2) * 1.0 / rectangle.width;
 			viewScaleFactor = Math.min(viewScaleFactor, (canvasSize.y - canvasBorder * 2) * 1.0 / rectangle.height);
 
-			int offsetX = (canvasSize.x - (int) (viewScaleFactor * rectangle.width)) / 2;
-			int offsetY = (canvasSize.y - (int) (viewScaleFactor * rectangle.height)) / 2;
+			int offsetY = (canvasSize.y - (int) (viewScaleFactor * rectangle.width)) / 2;
+			int offsetX = (canvasSize.x - (int) (viewScaleFactor * rectangle.height)) / 2;
 
 			e.gc.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_WHITE));
 			// draws the page layout
@@ -436,12 +443,12 @@ public class PlotPrintPreviewDialog extends Dialog {
 						/ (dpiScaleFactorY * imageHeight));
 
 				float imageFactor = imageWidth / rectangle.width;
-				// e.gc.drawImage(image, 0, 0, imageWidth, imageHeight, marginOffsetX, marginOffsetY,
-				// (int) (dpiScaleFactorX * imageSizeFactor * imageWidth * viewScaleFactor),
-				// (int) (dpiScaleFactorY * imageSizeFactor * imageHeight * viewScaleFactor));
 				e.gc.drawImage(image, 0, 0, imageWidth, imageHeight, marginOffsetX, marginOffsetY,
-						(int) (rectangle.height * imageFactor * dpiScaleFactorX * viewScaleFactor * imageSizeFactor),
-						(int) (rectangle.width * imageFactor * dpiScaleFactorY * viewScaleFactor * imageSizeFactor));
+				 (int) (dpiScaleFactorX * imageSizeFactor * imageHeight * viewScaleFactor),
+				 (int) (dpiScaleFactorY * imageSizeFactor * imageWidth * viewScaleFactor));
+				//e.gc.drawImage(image, 0, 0, imageWidth, imageHeight, marginOffsetX, marginOffsetY,
+				//		(int) (rectangle.height * imageFactor * dpiScaleFactorX * viewScaleFactor * imageSizeFactor),
+				//		(int) (rectangle.width * imageFactor * dpiScaleFactorY * viewScaleFactor * imageSizeFactor));
 
 			}
 		}
