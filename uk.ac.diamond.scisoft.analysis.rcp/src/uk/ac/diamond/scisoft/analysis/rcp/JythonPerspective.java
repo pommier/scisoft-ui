@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp;
 
+import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.console.IConsoleConstants;
@@ -34,11 +35,15 @@ public class JythonPerspective implements IPerspectiveFactory {
 		// get the editor area
 		String editorArea = layout.getEditorArea();
 		
+		IFolderLayout navigatorLayout = layout.createFolder("navigators", IPageLayout.LEFT, 0.15f, editorArea);
+		navigatorLayout.addView("org.python.pydev.navigator.view");
+		navigatorLayout.addView("uk.ac.diamond.sda.navigator.views.FileView");
+
 		// add plot 1 to the left
-		layout.addView(PLOT1_VIEW_ID, IPageLayout.RIGHT, 0.5f, editorArea);
+		layout.addView("uk.ac.diamond.scisoft.analysis.rcp.plotView1", IPageLayout.RIGHT, 0.6f, editorArea);
 		
-		// add the console to the top
-		layout.addView(IConsoleConstants.ID_CONSOLE_VIEW, IPageLayout.TOP, 0.5f, editorArea);
+		// add the console to the bottom
+		layout.addView(IConsoleConstants.ID_CONSOLE_VIEW, IPageLayout.BOTTOM, 0.6f, editorArea);
 		
 		// finaly add the outline view to the right of the editor area
 		layout.addView(IPageLayout.ID_OUTLINE, IPageLayout.RIGHT, 0.75f, editorArea);

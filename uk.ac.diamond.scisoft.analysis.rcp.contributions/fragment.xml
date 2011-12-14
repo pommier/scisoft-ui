@@ -204,6 +204,12 @@
             id="uk.ac.diamond.scisoft.diffractionviewerperspective"
             name="DIVA">
       </perspective>
+      <perspective
+            class="uk.ac.diamond.scisoft.analysis.rcp.JythonPerspective"
+            icon="icons/jython.png"
+            id="uk.ac.diamond.scisoft.jythonperspective"
+            name="Python">
+      </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
