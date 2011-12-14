@@ -51,7 +51,8 @@ public class ScanCommandDecorator extends LabelProvider implements ILabelDecorat
 	private static final Object H5_EXT = "h5"; //$NON-NLS-1$
 	private static final Object HDF5_EXT = "hdf5"; //$NON-NLS-1$
 	private static final Object NXS_EXT = "nxs"; //$NON-NLS-1$
-	private IMetaData metaData;
+	private IExtendedMetadata metaData;
+	private String decorator = "";
 	private IMetadataProvider metaDataProvider;
 	// private String hdf5scanCommand;
 	private String fileName;
@@ -69,7 +70,7 @@ public class ScanCommandDecorator extends LabelProvider implements ILabelDecorat
 
 	@Override
 	public String decorateText(String label, Object element) {
-		String decorator = "";
+		decorator = "";
 		if (element instanceof IFile) {
 			IFile modelFile = (IFile) element;
 			if (SRS_EXT.equals(modelFile.getFileExtension())) {
@@ -80,7 +81,7 @@ public class ScanCommandDecorator extends LabelProvider implements ILabelDecorat
 
 				try {
 					//Collection<String> list = metaData.getMetaNames();
-					decorator = (String) metaData.getMetaValue("cmd");
+					decorator = metaData.getScanCommand();
 					if(decorator==null){
 						decorator="Scan Command: N/A";
 					}else{
@@ -132,8 +133,15 @@ public class ScanCommandDecorator extends LabelProvider implements ILabelDecorat
 
 	private void srsMetaDataLoader(IFile file) {
 		fileName = file.getLocation().toString();
+		
 		try {
-			metaData = LoaderFactory.getMetaData(fileName, null);
+			IMetaData metaDataTest=LoaderFactory.getMetaData(fileName, null);
+			if(metaDataTest instanceof IExtendedMetadata)
+				metaData = (IExtendedMetadata)LoaderFactory.getMetaData(fileName, null);
+			else{
+				decorator="Scan Command: N/A";
+				logger.warn("Cannot decorate SRS decorator");
+			}
 		} catch (Exception ne) {
 			logger.error("Cannot open dat file", ne);
 		}

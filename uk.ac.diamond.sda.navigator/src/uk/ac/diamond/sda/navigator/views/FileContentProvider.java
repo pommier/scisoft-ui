@@ -63,9 +63,9 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		final File node = (File) element;
 		if (node==null) return;
 		
-		final List<File> fa = getFileList(node);
+		final File[] fa = node.listFiles();
 		if (fa!=null) {
-			int size = fa.size();
+			int size = fa.length;
 			treeViewer.setChildCount(element, size);
 		} else {
 		
@@ -87,7 +87,13 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		if (cachedSorting.containsKey(node)) {
 			return cachedSorting.get(node);
 		}
-		final List<File> sorted = SortingUtils.getSortedFileList(node);
+		
+		final List<File> sorted;
+		if (sort==FileSortType.ALPHA_NUMERIC) {
+			sorted = SortingUtils.getSortedFileList(node, false);
+		} else {
+			sorted = SortingUtils.getSortedFileList(node, true);
+		}
 		cachedSorting.put(node, sorted);
 		return sorted;
 	}
