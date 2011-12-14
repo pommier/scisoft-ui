@@ -336,11 +336,20 @@ class HDF5LabelProvider implements ITableLabelProvider {
 			case 1: // class
 				msg = "Attr";
 				break;
+			case 2: // dimensions
+				if (attr.getSize() > 1) {
+					for (int i : attr.getShape()) {
+						msg += i + ", ";
+					}
+					if (msg.length() > 2)
+						msg = msg.substring(0, msg.length() - 2);
+				}
+				break;
 			case 3: // type
 				msg = attr.getTypeName();
 				break;
 			case 4: // data
-				msg = attr.toString();
+				msg = attr.getSize() == 1 ? attr.getFirstElement() : attr.toString();
 				break;
 			}
 
@@ -358,7 +367,7 @@ class HDF5LabelProvider implements ITableLabelProvider {
 			break;
 		case 1: // class
 			HDF5Attribute attr = node.getAttribute(HDF5File.NXCLASS);
-			msg = attr != null ? attr.toString() : "Group";
+			msg = attr != null ? attr.getFirstElement() : "Group";
 			break;
 		}
 

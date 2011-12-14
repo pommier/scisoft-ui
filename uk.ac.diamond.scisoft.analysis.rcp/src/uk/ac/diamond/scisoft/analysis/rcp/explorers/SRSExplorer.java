@@ -47,8 +47,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
-import uk.ac.diamond.scisoft.analysis.io.ExtendedSRSLoader;
-import uk.ac.diamond.scisoft.analysis.io.XasAsciiLoader;
+import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
@@ -246,10 +245,8 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 
 	@Override
 	public void loadFile(String fileName, IMonitor mon) throws Exception {
-		IFileLoader dataLoader;
-		dataLoader = isXAS ? new XasAsciiLoader(fileName) : new ExtendedSRSLoader(fileName);
 
-		data = dataLoader.loadFile(mon);
+		data = LoaderFactory.getData(fileName, mon);
 		if (data != null) {
 			if (display != null) {
 				display.asyncExec(new Runnable() {

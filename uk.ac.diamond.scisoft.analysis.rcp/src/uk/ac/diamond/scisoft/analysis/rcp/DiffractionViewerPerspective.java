@@ -38,18 +38,12 @@ public class DiffractionViewerPerspective implements IPerspectiveFactory {
 		plotsLayout.addView("uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView:Dataset Plot");
 		plotsLayout.addView("uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView");
 		
-		layout.addView("uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView", IPageLayout.TOP, 0.5f,"toolsFolder");
-
-		layout.addView("org.eclipse.ui.navigator.ProjectExplorer", IPageLayout.TOP, 0.5f, layout.getEditorArea());
+		IFolderLayout explorerLayout = layout.createFolder("explorerFolder", IPageLayout.TOP, 0.5f, "toolsFolder");
+		explorerLayout.addView("org.dawb.workbench.views.imageMonitorView");
+		explorerLayout.addView("uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView");
 		
-//		if (layout.getViewLayout("uk.ac.diamond.scisoft.analysis.rcp.plotView1") != null)
-//			layout.getViewLayout("uk.ac.diamond.scisoft.analysis.rcp.plotView1").setCloseable(false);
-//		if (layout.getViewLayout("uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView") != null)
-//			layout.getViewLayout("uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView").setCloseable(false);
-//		if (layout.getViewLayout("uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView:Plot 1") != null)
-//			layout.getViewLayout("uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView:Plot 1").setCloseable(false);
-
-		layout.setEditorAreaVisible(false);
+		layout.addView("uk.ac.diamond.sda.navigator.views.FileView", IPageLayout.TOP, 0.8f, layout.getEditorArea());
+		
 	}
 
 }

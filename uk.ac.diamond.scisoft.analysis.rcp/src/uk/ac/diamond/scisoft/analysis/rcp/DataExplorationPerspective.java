@@ -43,7 +43,6 @@ public class DataExplorationPerspective implements IPerspectiveFactory {
 
 		IFolderLayout dataLayout = layout.createFolder("data", IPageLayout.RIGHT, 0.25f, editorArea);
 		String plot = PlotView.ID + "DP";
-		dataLayout.addView("fable.imageviewer.views.HeaderView");
 		dataLayout.addView(plot);
 		
 		layout.addView(plot, IPageLayout.RIGHT, 0.25f, editorArea);
@@ -54,6 +53,8 @@ public class DataExplorationPerspective implements IPerspectiveFactory {
 		layout.addView(sidePlot, IPageLayout.RIGHT, 0.60f, plot);
 		if (layout.getViewLayout(sidePlot) != null)
 			layout.getViewLayout(sidePlot).setCloseable(false);
+		
+		layout.addView("fable.imageviewer.views.HeaderView", IPageLayout.BOTTOM, 0.60f, sidePlot);
 
 		String inspector = DatasetInspectorView.ID;
 		layout.addStandaloneView(inspector, false, IPageLayout.BOTTOM, 0.60f, editorArea);

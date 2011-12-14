@@ -63,6 +63,8 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.diffraction.QSpace;
+import uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata;
+import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColourImageData;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColourLookupTable;
@@ -1099,11 +1101,16 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 			boolean isDiffImage = false;
 			if (currentDataset instanceof AbstractDataset) {
 				AbstractDataset image = (AbstractDataset) currentDataset;
-				try {
-					qSpace = new QSpace(image);
-					isDiffImage = true;
-				} catch (IllegalArgumentException e) {
-					logger.debug("Could not create a detector properties object from metadata");
+				IMetaData metadata = image.getMetadata();
+				if (metadata instanceof IDiffractionMetadata) {
+					IDiffractionMetadata diffnMetadata = (IDiffractionMetadata) metadata;
+					try {
+						qSpace = new QSpace(diffnMetadata.getDetector2DProperties(),
+								diffnMetadata.getDiffractionCrystalEnvironment());
+						isDiffImage = true;
+					} catch (IllegalArgumentException e) {
+						logger.debug("Could not create a detector properties object from metadata");
+					}
 				}
 			}
 			final boolean l_bfDiffImage = isDiffImage;
@@ -1114,8 +1121,8 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 					public void run() {
 						infoBox.isDiffractionImage(l_bfDiffImage);
 					}
-				});						
-			}			
+				});
+			}
 		}
 	}
 

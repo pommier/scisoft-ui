@@ -80,7 +80,7 @@ public class JythonInterpreterUtils {
 		state.path.append(new PyString(jyLib+"nose-0.11.1-py2.5.egg/nose/ext"));
 
 		try {
-			File pythonPlugin = BundleUtils.getBundleLocation("uk.ac.diamond.scisoft.python");
+			File pythonPlugin = new File(libsLocation.getParentFile(), "uk.ac.diamond.scisoft.python");
 			state.path.append(new PyString(new File(pythonPlugin, "bin").getAbsolutePath()));
 		} catch (Exception e) {
 			logger.error("Could not find Scisoft Python plugin", e);
