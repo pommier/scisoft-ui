@@ -637,6 +637,7 @@ class PlotTab extends ATab {
 			metaDataObject = dataset.getMetadata();
 		} catch (Exception e1) {
 			logger.error("Meta data cannot be retreived from "+dataset.getName(), e1);
+
 		}
 
 		switch(itype) {
