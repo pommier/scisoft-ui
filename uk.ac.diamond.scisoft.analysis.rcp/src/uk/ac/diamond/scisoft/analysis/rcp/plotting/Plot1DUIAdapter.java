@@ -34,6 +34,7 @@ import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -220,6 +221,10 @@ public class Plot1DUIAdapter extends AbstractPlotUI {
 		manager.add(changeColour);
 		manager.add(activateXgrid);
 		manager.add(activateYgrid);
+		manager.add(new Separator(getClass().getName()+printButtonText));
+		manager.add(saveGraph);
+		manager.add(copyGraph);
+		manager.add(printGraph);
 	}
 
 	/**
