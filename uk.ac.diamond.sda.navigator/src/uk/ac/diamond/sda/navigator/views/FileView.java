@@ -24,8 +24,6 @@ import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
@@ -50,10 +48,8 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 import uk.ac.diamond.sda.navigator.views.FileContentProvider.FileSortType;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
-import uk.ac.gda.ui.content.FileContentProposalProvider;
-import uk.ac.gda.ui.content.IFilterExtensionProvider;
 import uk.ac.gda.ui.actions.CheckableActionGroup;
-import uk.ac.gda.util.OSUtils;
+import uk.ac.gda.ui.content.FileContentProposalProvider;
 /**
  * This class navigates a file system and remembers where you last left it. 
  * 
@@ -116,6 +112,7 @@ public class FileView extends ViewPart {
 		fileLabel.setImage(FileLabelProvider.getFolderImage(null));
 		
 		final Text filePath = new Text(top, SWT.BORDER);
+		if (savedSelection!=null) filePath.setText(savedSelection.getAbsolutePath());
 		filePath.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		FileContentProposalProvider prov = new FileContentProposalProvider();
 		new ContentProposalAdapter(filePath, new TextContentAdapter(), prov, null, null);
