@@ -30,7 +30,7 @@ import org.osgi.framework.BundleContext;
 public class NavigatorRCPActivator extends AbstractUIPlugin {
 
 	/** The plug-in ID */
-	public static final String PLUGIN_ID = "org.eclipse.ui.examples.navigator"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "uk.ac.diamond.sda.navigator"; //$NON-NLS-1$
 	  
 	// The shared instance
 	private static NavigatorRCPActivator NavigatorRCPActivator;  

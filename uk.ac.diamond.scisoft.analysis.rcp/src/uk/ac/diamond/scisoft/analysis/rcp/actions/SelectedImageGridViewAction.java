@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.actions;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -84,6 +85,10 @@ public class SelectedImageGridViewAction extends AbstractHandler implements IObj
 						if(obj instanceof IFile) {
 							IFile file = (IFile)obj;
 							String path = file.getLocation().toString();
+							files.add(path);
+						} else if (obj instanceof File) {
+							File file = (File)obj;
+							String path = file.getAbsolutePath();
 							files.add(path);
 						}
 					}

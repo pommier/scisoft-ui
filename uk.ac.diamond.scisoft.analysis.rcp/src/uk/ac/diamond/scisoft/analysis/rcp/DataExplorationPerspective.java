@@ -18,6 +18,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp;
 
+import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
@@ -31,13 +32,19 @@ public class DataExplorationPerspective implements IPerspectiveFactory {
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();
-
+		
+		IFolderLayout navigatorLayout = layout.createFolder("navigators", IPageLayout.LEFT, 0.15f, editorArea);
 		String explorer = "org.eclipse.ui.navigator.ProjectExplorer";
-		layout.addView(explorer, IPageLayout.LEFT, 0.15f, editorArea);
+		navigatorLayout.addView(explorer);
+		navigatorLayout.addView("uk.ac.diamond.sda.navigator.views.FileView");
+		
 		if (layout.getViewLayout(explorer) != null)
 			layout.getViewLayout(explorer).setCloseable(false);
 
+		IFolderLayout dataLayout = layout.createFolder("data", IPageLayout.RIGHT, 0.25f, editorArea);
 		String plot = PlotView.ID + "DP";
+		dataLayout.addView(plot);
+		
 		layout.addView(plot, IPageLayout.RIGHT, 0.25f, editorArea);
 		if (layout.getViewLayout(plot) != null)
 			layout.getViewLayout(plot).setCloseable(false);
@@ -46,12 +53,14 @@ public class DataExplorationPerspective implements IPerspectiveFactory {
 		layout.addView(sidePlot, IPageLayout.RIGHT, 0.60f, plot);
 		if (layout.getViewLayout(sidePlot) != null)
 			layout.getViewLayout(sidePlot).setCloseable(false);
+		
+		layout.addView("fable.imageviewer.views.HeaderView", IPageLayout.BOTTOM, 0.60f, sidePlot);
 
 		String inspector = DatasetInspectorView.ID;
 		layout.addStandaloneView(inspector, false, IPageLayout.BOTTOM, 0.60f, editorArea);
 		if (layout.getViewLayout(inspector) != null)
 			layout.getViewLayout(inspector).setCloseable(false);
-
+		
 	}
 
 }

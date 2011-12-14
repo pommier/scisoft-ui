@@ -37,9 +37,11 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
+import uk.ac.diamond.scisoft.analysis.io.IExtendedMetadata;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
@@ -49,7 +51,9 @@ public class ScanCommandDecorator extends LabelProvider implements ILabelDecorat
 	private static final Object H5_EXT = "h5"; //$NON-NLS-1$
 	private static final Object HDF5_EXT = "hdf5"; //$NON-NLS-1$
 	private static final Object NXS_EXT = "nxs"; //$NON-NLS-1$
-	private IMetaData metaData;
+	private IExtendedMetadata metaData;
+	private String decorator = "";
+	private IMetadataProvider metaDataProvider;
 	// private String hdf5scanCommand;
 	private String fileName;
 	private static final Logger logger = LoggerFactory.getLogger(ScanCommandDecorator.class);
@@ -66,7 +70,7 @@ public class ScanCommandDecorator extends LabelProvider implements ILabelDecorat
 
 	@Override
 	public String decorateText(String label, Object element) {
-		String decorator = "";
+		decorator = "";
 		if (element instanceof IFile) {
 			IFile modelFile = (IFile) element;
 			if (SRS_EXT.equals(modelFile.getFileExtension())) {
@@ -75,17 +79,17 @@ public class ScanCommandDecorator extends LabelProvider implements ILabelDecorat
 				// File file = path.toFile();
 				srsMetaDataLoader(ifile);
 
-				Collection<String> list;
 				try {
-					list = metaData.getMetaNames();
-					decorator = metaData.getMetaValue("cmd");
-					if (decorator.length() > 100) // restrict to 100 characters
-						decorator = decorator.substring(0, 100) + "...";
-					if (decorator == null)
-						decorator = "* No Scan Command";
-					else
+					//Collection<String> list = metaData.getMetaNames();
+					decorator = metaData.getScanCommand();
+					if(decorator==null){
+						decorator="Scan Command: N/A";
+					}else{
+						if (decorator.length() > 100) // restrict to 100 characters
+							decorator = decorator.substring(0, 100) + "...";
 						decorator = "* " + decorator;
-				} catch (Exception e) {
+					}
+				}catch (Exception e) {
 					logger.error("Could not read metadata: ", e);
 				}
 
@@ -129,8 +133,15 @@ public class ScanCommandDecorator extends LabelProvider implements ILabelDecorat
 
 	private void srsMetaDataLoader(IFile file) {
 		fileName = file.getLocation().toString();
+		
 		try {
-			metaData = LoaderFactory.getMetaData(fileName, null);
+			IMetaData metaDataTest=LoaderFactory.getMetaData(fileName, null);
+			if(metaDataTest instanceof IExtendedMetadata)
+				metaData = (IExtendedMetadata)LoaderFactory.getMetaData(fileName, null);
+			else{
+				decorator="Scan Command: N/A";
+				logger.warn("Cannot decorate SRS decorator");
+			}
 		} catch (Exception ne) {
 			logger.error("Cannot open dat file", ne);
 		}

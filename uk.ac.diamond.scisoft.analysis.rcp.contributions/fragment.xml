@@ -204,6 +204,12 @@
             id="uk.ac.diamond.scisoft.diffractionviewerperspective"
             name="DIVA">
       </perspective>
+      <perspective
+            class="uk.ac.diamond.scisoft.analysis.rcp.JythonPerspective"
+            icon="icons/jython.png"
+            id="uk.ac.diamond.scisoft.jythonperspective"
+            name="Python">
+      </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
@@ -738,6 +744,12 @@
                name="Commands To Inject"
                optional="true">
          </commandParameter>
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.actions.SelectedImageGridViewAction"
+            description="Open files in image grid view"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.openImageGridView"
+            name="Open Image Grid">
       </command>
    </extension>
    <extension

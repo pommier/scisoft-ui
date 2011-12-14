@@ -10,10 +10,19 @@
             name="Custom Navigator"/>
       <view
             allowMultiple="false"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
             class="org.eclipse.ui.navigator.CommonNavigator"
             icon="icons/nav.png"
             id="uk.ac.diamond.sda.navigator.view"
             name="SDA Navigator"/>
+      <view
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.sda.navigator.views.FileView"
+            icon="icons/folder.png"
+            id="uk.ac.diamond.sda.navigator.views.FileView"
+            name="File Navigator"
+            restorable="true">
+      </view>
    </extension>
    <!-- Declare the viewer configuration, and the default content/action bindings -->
    <extension
@@ -337,6 +346,18 @@
             Displays the Scan Command of a .dat file and the Title and Scan Command of a Nexus file (if there are any).
          </description>
       </decorator>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:uk.ac.diamond.sda.navigator.views.FileView">
+         <command
+               commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.openImageGridView"
+               label="Open in Image Grid"
+               style="push">
+         </command>
+      </menuContribution>
    </extension>
    <!-- Bind the Action Provider independently 
    <extension

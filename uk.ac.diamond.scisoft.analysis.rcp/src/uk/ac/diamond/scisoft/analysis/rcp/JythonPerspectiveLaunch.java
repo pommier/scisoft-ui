@@ -24,14 +24,13 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.WorkbenchException;
-import org.python.pydev.ui.perspective.PythonPerspectiveFactory;
 
 public class JythonPerspectiveLaunch implements IWorkbenchWindowActionDelegate{
 
 	@Override
 	public void run(IAction action) {
 		try {
-			PlatformUI.getWorkbench().showPerspective(PythonPerspectiveFactory.PERSPECTIVE_ID,PlatformUI.getWorkbench().getActiveWorkbenchWindow());
+			PlatformUI.getWorkbench().showPerspective(JythonPerspective.ID, PlatformUI.getWorkbench().getActiveWorkbenchWindow());
 		} catch (WorkbenchException e) {
 			e.printStackTrace();
 		} 		
