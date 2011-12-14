@@ -54,6 +54,7 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.ui.actions.CheckableActionGroup;
 import uk.ac.gda.ui.content.FileContentProposalProvider;
 import uk.ac.gda.util.OSUtils;
+
 /**
  * This class navigates a file system and remembers where you last left it. 
  * 
@@ -123,6 +124,7 @@ public class FileView extends ViewPart {
 		}
 		
 		final Text filePath = new Text(top, SWT.BORDER);
+		if (savedSelection!=null) filePath.setText(savedSelection.getAbsolutePath());
 		filePath.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		FileContentProposalProvider prov = new FileContentProposalProvider();
 		new ContentProposalAdapter(filePath, new TextContentAdapter(), prov, null, null);
