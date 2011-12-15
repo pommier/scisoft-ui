@@ -2,12 +2,16 @@ package uk.ac.diamond.sda.navigator.views;
 
 import java.io.File;
 
+import org.dawb.common.services.IFileIconService;
+import org.dawb.common.services.ServiceManager;
 import org.dawb.common.ui.views.ImageMonitorView;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.fieldassist.ContentProposalAdapter;
+import org.eclipse.jface.fieldassist.IContentProposal;
+import org.eclipse.jface.fieldassist.IContentProposalListener;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -24,11 +28,9 @@ import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -37,7 +39,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.TreeColumn;
-import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewSite;
@@ -50,10 +51,10 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 import uk.ac.diamond.sda.navigator.views.FileContentProvider.FileSortType;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
-import uk.ac.gda.ui.content.FileContentProposalProvider;
-import uk.ac.gda.ui.content.IFilterExtensionProvider;
 import uk.ac.gda.ui.actions.CheckableActionGroup;
+import uk.ac.gda.ui.content.FileContentProposalProvider;
 import uk.ac.gda.util.OSUtils;
+
 /**
  * This class navigates a file system and remembers where you last left it. 
  * 
@@ -113,12 +114,27 @@ public class FileView extends ViewPart {
 		
 		final Label fileLabel = new Label(top, SWT.NONE);
 		fileLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
-		fileLabel.setImage(FileLabelProvider.getFolderImage(null));
+		
+		try {
+			IFileIconService service = (IFileIconService)ServiceManager.getService(IFileIconService.class);
+			final Image       icon    = service.getIconForFile(OSUtils.isWindowsOS() ? new File("C:/Windows/") : new File("/"));
+			fileLabel.setImage(icon);
+		} catch (Exception e) {
+			logger.error("Cannot get icon for system root!", e);
+		}
 		
 		final Text filePath = new Text(top, SWT.BORDER);
+		if (savedSelection!=null) filePath.setText(savedSelection.getAbsolutePath());
 		filePath.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		FileContentProposalProvider prov = new FileContentProposalProvider();
-		new ContentProposalAdapter(filePath, new TextContentAdapter(), prov, null, null);
+		ContentProposalAdapter ad = new ContentProposalAdapter(filePath, new TextContentAdapter(), prov, null, null);
+		ad.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
+		ad.addContentProposalListener(new IContentProposalListener() {		
+			@Override
+			public void proposalAccepted(IContentProposal proposal) {
+				setSelectedFile(filePath.getText());
+			}
+		});
 		
 		filePath.addSelectionListener(new SelectionListener() {			
 			@Override
@@ -144,7 +160,7 @@ public class FileView extends ViewPart {
 				final File file = getSelectedFile();
 				if (file!=null &&  file.isDirectory()) {
 				    filePath.setText(file.getAbsolutePath());
-				    filePath.setSelection(filePath.getText().length()-1);
+				    filePath.setSelection(filePath.getText().length());
 				}
 			}
 		});
@@ -158,7 +174,11 @@ public class FileView extends ViewPart {
 			tCol.setText(titles[i]);
 			tCol.setWidth(widths[i]);
 			tCol.setMoveable(true);
-			tVCol.setLabelProvider(new FileLabelProvider(i));
+			try {
+				tVCol.setLabelProvider(new FileLabelProvider(i));
+			} catch (Exception e1) {
+				logger.error("Cannot create label provider "+i, e1);
+			}
 		}
 		getSite().setSelectionProvider(tree);
 		
@@ -178,9 +198,8 @@ public class FileView extends ViewPart {
 		// Add ability to open any file double clicked on (folders open in Image Monitor View)
 		tree.getTree().addListener(SWT.MouseDoubleClick, new Listener() {
 
-             public void handleEvent(Event event) {
-                 Point point = new Point(event.x, event.y);
-                 TreeItem item = tree.getTree().getItem(point);
+             @Override
+			public void handleEvent(Event event) {
                  openSelectedFile();
              }
          });
