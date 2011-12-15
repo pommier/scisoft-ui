@@ -78,6 +78,7 @@ public class FileView extends ViewPart {
 		
 		String path = null;
 		if (memento!=null) path = memento.getString("DIR");
+		if (path==null) path = System.getProperty("uk.ac.diamond.sda.navigator.default.file.view.location");
 		if (path==null) path = System.getProperty("user.home");
 		
 		if (path!=null){
