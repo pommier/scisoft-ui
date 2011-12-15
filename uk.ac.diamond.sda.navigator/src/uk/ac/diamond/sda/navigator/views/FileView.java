@@ -76,9 +76,12 @@ public class FileView extends ViewPart {
 		
 		super.init(site, memento);
 		
-		if (memento==null) return;
-		final String path = memento.getString("DIR");
-		if (path!=null) {
+		String path = null;
+		if (memento!=null) path = memento.getString("DIR");
+		if (path==null) path = System.getProperty("uk.ac.diamond.sda.navigator.default.file.view.location");
+		if (path==null) path = System.getProperty("user.home");
+		
+		if (path!=null){
 			savedSelection = new File(path);
 		}
 	}
