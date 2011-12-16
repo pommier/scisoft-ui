@@ -98,12 +98,15 @@ public class ScanCommandDecorator extends LabelProvider implements ILabelDecorat
 				IFile ifile = (IFile) element;
 
 				try {
+					System.out.println("");
 					String[][] listTitlesAndScanCmd = getHDF5TitleAndScanCmd(ifile);
 					for (int i = 0; i < listTitlesAndScanCmd[0].length; i++) {
 						decorator = listTitlesAndScanCmd[0][i] + listTitlesAndScanCmd[1][i];
 					}
 				} catch (ScanFileHolderException e) {
 					logger.error("Could not read hdf5 file: ", e);
+				}catch (Exception e){
+					logger.error("Could not read hdf5metadata: ", e);
 				}
 			}
 		}
@@ -147,12 +150,12 @@ public class ScanCommandDecorator extends LabelProvider implements ILabelDecorat
 		}
 	}
 
-	private String[][] getHDF5TitleAndScanCmd(IFile file) throws ScanFileHolderException {
+	private String[][] getHDF5TitleAndScanCmd(IFile file) throws Exception {
 		fileName = file.getLocation().toString();
 		String hdf5scanCommand = "";
 		String hdf5Title = "";
 
-		HDF5File data = new HDF5Loader(fileName).loadTree();
+		//HDF5File data = new HDF5Loader(fileName).loadTree();
 		DataHolder dataHolder= new HDF5Loader(fileName).loadFile();
 
 		List<String> list = getAllRootEntries(dataHolder.getNames());
@@ -166,22 +169,17 @@ public class ScanCommandDecorator extends LabelProvider implements ILabelDecorat
 		for (int i = 0; i < entries.length; i++) {
 			// scan command
 			if (dataHolder.contains("/" + entries[i].toString() + "/scan_command")) {
-				hdf5scanCommand = data.findNodeLink("/" + entries[i].toString() + "/scan_command").toString();
-				String[] tmp = hdf5scanCommand.split("\n");
-				if (tmp.length > 1)
-					hdf5scanCommand = tmp[1].trim();
+				//hdf5scanCommand = data.findNodeLink("/" + entries[i].toString() + "/scan_command").toString();
+				hdf5scanCommand = dataHolder.getDataset("/" + entries[i].toString() + "/scan_command").toString();
 				scanCmd[i] = "\nScanCmd" + (i+1) + ": " + hdf5scanCommand;// display of the string on a new line
 			}
-
 			// title
 			if (dataHolder.contains("/" + entries[i].toString() + "/title")) {
-				hdf5Title = data.findNodeLink("/" + entries[i].toString() + "/title").toString();
-				String[] tmp2 = hdf5Title.split("\n");
-				if (tmp2.length > 1)
-					hdf5Title = tmp2[1].trim();
+				System.out.println(dataHolder.getDataset("/" + entries[i].toString() + "/title").toString());
+				//hdf5Title = data.findNodeLink("/" + entries[i].toString() + "/title").toString();
+				hdf5Title = dataHolder.getDataset("/" + entries[i].toString() + "/title").toString();
 				titles[i] = "\nTitle" + (i+1) + ": " + hdf5Title;// display of the string on a new line
 			}
-
 			if (titles[i].length() > 100) // restrict to 100 characters
 				titles[i] = titles[i].substring(0, 100) + "...";
 			if (scanCmd[i].length() > 100) // restrict to 100 characters
