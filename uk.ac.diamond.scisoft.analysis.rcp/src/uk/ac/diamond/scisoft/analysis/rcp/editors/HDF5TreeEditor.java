@@ -83,7 +83,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 		final String fileName = file.getAbsolutePath();
 		try {
 			if (hdfxp != null) {
-				hdfxp.loadFile(fileName, null);
+				hdfxp.loadFileAndDisplay(fileName, null);
 			}
 		} catch (Exception e) {
 			if (e.getCause() != null)
@@ -108,7 +108,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 	public void createPartControl(Composite parent) {
 		registerSelectionListener();
 		IWorkbenchPartSite site = getSite();
-		hdfxp = new HDF5TreeExplorer(parent, site, SWT.NONE);
+		hdfxp = new HDF5TreeExplorer(parent, site, null);
 		site.setSelectionProvider(hdfxp);
 
 		setPartName(file.getName());
@@ -168,7 +168,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 		return HDF5TreeExplorer.class;
 	}
 
-	/* Setting up of the SRSEditor as a Selection listener on the navigator selectionProvider */
+	/* Setting up of the editor as a Selection listener on the navigator selectionProvider */
 	private void registerSelectionListener() {
 
 		final ISelectionService selectionService = getSite().getWorkbenchWindow().getSelectionService();

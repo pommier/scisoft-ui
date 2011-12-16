@@ -408,4 +408,17 @@ public class AxisSelection extends InspectorProperty {
 				hash = hash * 17 + d.hashCode();
 		return hash;
 	}
+
+	/**
+	 * Clone everything but axis choice values
+	 */
+	@Override
+	public AxisSelection clone() throws CloneNotSupportedException {
+		AxisSelection selection = new AxisSelection(length);
+		for (int i = 0, imax = asData.size(); i < imax; i++) {
+			AxisSelData data = asData.getValue(i);
+			selection.addSelection(data.getData().clone(), data.getOrder());
+		}
+		return selection;
+	}
 }

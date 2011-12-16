@@ -22,22 +22,25 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILazyTreeContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
+import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 
@@ -56,19 +59,26 @@ import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 public class HDF5TableTree extends Composite {
 
 	private TreeViewer tViewer = null;
-	private Listener slistener,dlistener;
+	private Listener clistener, slistener, dlistener;
 	private TreeFilter treeFilter;
+	private Menu headerMenu;
+	private Menu treeMenu;
+
+	private static final String MSG_ENABLED  = "Use this item as comparison value";
+	private static final String MSG_DISABLED = "Cannot use the item";
 
 	/**
 	 * @param parent
 	 * @param slistener for single clicks
 	 * @param dlistener for double clicks
+	 * @param clistener for context click
 	 */
-	public HDF5TableTree(Composite parent, Listener slistener, Listener dlistener) {
+	public HDF5TableTree(Composite parent, Listener slistener, Listener dlistener, Listener clistener) {
 		super(parent, SWT.NONE);
 		setLayout(new FillLayout());
 		this.slistener = slistener;
 		this.dlistener = dlistener;
+		this.clistener = clistener;
 
 		// set up tree filter to omit following node names
 		treeFilter = new TreeFilter(new String[] { "target", HDF5File.NXCLASS });
@@ -77,26 +87,83 @@ public class HDF5TableTree extends Composite {
 		tViewer = new TreeViewer(this, SWT.BORDER|SWT.VIRTUAL);
 		tViewer.setUseHashlookup(true);
 
-		Tree tree = tViewer.getTree();
+		final Tree tree = tViewer.getTree();
 		tree.setHeaderVisible(true);
 
 		String[] titles = { "Name", "Class", "Dims", "Type", "Data" };
 		int[] widths = { 250, 120, 80, 60, 300 };
 
 		TreeViewerColumn tVCol;
+		headerMenu = new Menu(parent.getShell(), SWT.POP_UP);
+
 		for (int i = 0; i < titles.length; i++) {
 			tVCol = new TreeViewerColumn(tViewer, SWT.NONE);
-			TreeColumn tCol = tVCol.getColumn();
+			final TreeColumn tCol = tVCol.getColumn();
 			tCol.setText(titles[i]);
 			tCol.setWidth(widths[i]);
 			tCol.setMoveable(true);
+			final MenuItem item = new MenuItem(headerMenu, SWT.CHECK);
+			item.setText(titles[i]);
+			item.setSelection(true);
+			item.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					if (!item.getSelection()) {
+						int width = tCol.getWidth();
+						tCol.setData("restoredWidth", new Integer(width));
+						tCol.setWidth(0);
+					} else {
+						int width = (Integer) tCol.getData("restoredWidth");
+						tCol.setWidth(width);
+					}
+				}
+			});
 		}
+
+		treeMenu = new Menu(parent.getShell(), SWT.POP_UP);
+
+		// TODO make context menu dependent on node (use a SWT.Show listener on menu)
+		if (clistener != null) {
+			treeMenu.addListener(SWT.Show, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					// get selection and decide
+					ITreeSelection sel = (ITreeSelection) tViewer.getSelection();
+					Object obj = sel.getFirstElement();
+					boolean enable = false;
+					if (obj instanceof HDF5NodeLink) {
+						HDF5NodeLink link = (HDF5NodeLink) obj;
+						enable = link.isDestinationADataset() && !((HDF5Dataset) link.getDestination()).isString();
+					} else if (obj instanceof HDF5Attribute) {
+						enable = !((HDF5Attribute) obj).isString();
+					}
+
+					for (MenuItem m : treeMenu.getItems()) {
+						m.setEnabled(enable);
+						m.setText(enable ? MSG_ENABLED : MSG_DISABLED);
+					}
+				}
+			});
+			MenuItem item = new MenuItem(treeMenu, SWT.PUSH);
+			item.addListener(SWT.Selection, clistener);
+		}
+
+		tree.addListener(SWT.MenuDetect, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				Point pt = getDisplay().map(null, tree, new Point(event.x, event.y));
+				Rectangle clientArea = tree.getClientArea();
+				boolean header = clientArea.y <= pt.y && pt.y < (clientArea.y + tree.getHeaderHeight());
+				tree.setMenu(header ? headerMenu : treeMenu);
+			}
+		});
 
 		tViewer.setContentProvider(new HDF5LazyContentProvider(tViewer, treeFilter));
 		tViewer.setLabelProvider(new HDF5LabelProvider());
-		if (slistener != null) tree.addListener(SWT.MouseUp, slistener);
-		if (dlistener != null) tree.addListener(SWT.MouseDoubleClick, dlistener);
-		addMenu(tViewer);
+		if (slistener != null)
+			tree.addListener(SWT.MouseUp, slistener);
+		if (dlistener != null)
+			tree.addListener(SWT.MouseDoubleClick, dlistener);
 	}
 	
 	public Viewer getViewer() {
@@ -105,37 +172,25 @@ public class HDF5TableTree extends Composite {
 
 	@Override
 	public void dispose() {
-		if (slistener != null) tViewer.getTree().removeListener(SWT.MouseUp,          slistener);
-		if (dlistener != null) tViewer.getTree().removeListener(SWT.MouseDoubleClick, dlistener);
-		tViewer.getTree().dispose();
-		super.dispose();
-	}
+		if (slistener != null)
+			tViewer.getTree().removeListener(SWT.MouseUp, slistener);
+		if (dlistener != null)
+			tViewer.getTree().removeListener(SWT.MouseDoubleClick, dlistener);
 
-	private void addMenu(TreeViewer v) {
-		final MenuManager mgr = new MenuManager();
-		Action action;
-		
-		for( int i = 0; i < v.getTree().getColumnCount(); i++ ) {
-			final TreeColumn column = v.getTree().getColumn(i);
-			
-			action = new Action(v.getTree().getColumn(i).getText(),SWT.CHECK) {
-				@Override
-				public void runWithEvent(Event event) {
-					if (!isChecked()) {
-						int width = column.getWidth();
-						column.setData("restoredWidth", new Integer(width));
-						column.setWidth(0);
-					} else {
-						int width = (Integer) column.getData("restoredWidth");
-						column.setWidth(width);
-					}
-				}
-			};
-			action.setChecked(true);
-			mgr.add(action);
+		if (clistener != null) {
+			for (MenuItem m : treeMenu.getItems())
+				m.removeListener(SWT.Selection, clistener);
 		}
-		
-		v.getControl().setMenu(mgr.createContextMenu(v.getControl()));
+
+		tViewer.getTree().dispose();
+
+		if (headerMenu != null && !headerMenu.isDisposed())
+			headerMenu.dispose();
+
+		if (treeMenu != null && !treeMenu.isDisposed())
+			treeMenu.dispose();
+
+		super.dispose();
 	}
 
 	public static int countChildren(Object element, TreeFilter filter) {
@@ -196,6 +251,7 @@ public class HDF5TableTree extends Composite {
 	public void expandAll() {
 		tViewer.expandAll();
 	}
+
 	public void expandToLevel(int level) {
 		tViewer.expandToLevel(level);
 	}

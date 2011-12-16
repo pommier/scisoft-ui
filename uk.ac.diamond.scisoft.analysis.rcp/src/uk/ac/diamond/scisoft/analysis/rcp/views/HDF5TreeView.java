@@ -98,7 +98,7 @@ public class HDF5TreeView extends ViewPart implements IObserver {
 	public void createPartControl(Composite parent) {
 		display = parent.getDisplay();
 		IWorkbenchPartSite site = getSite();
-		hdfxp = new HDF5TreeExplorer(parent, site, SWT.NONE);
+		hdfxp = new HDF5TreeExplorer(parent, site, null);
 		site.setSelectionProvider(hdfxp);
 
 		// set up the help context
@@ -162,7 +162,7 @@ public class HDF5TreeView extends ViewPart implements IObserver {
 		if (monitor.isCanceled()) return;
 
 		long start = System.nanoTime();
-		hdfxp.loadFile(path, new ProgressMonitorWrapper(monitor));
+		hdfxp.loadFileAndDisplay(path, new ProgressMonitorWrapper(monitor));
 		if (hdfxp.getHDF5Tree() != null) {
 			display.syncExec(new Runnable() {
 				@Override

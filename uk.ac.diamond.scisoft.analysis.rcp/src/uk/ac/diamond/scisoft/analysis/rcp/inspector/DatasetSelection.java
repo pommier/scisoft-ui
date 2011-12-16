@@ -66,7 +66,7 @@ public class DatasetSelection implements IStructuredSelection {
 	 */
 	public DatasetSelection() {
 		axes = new ArrayList<AxisSelection>();
-		datasets = new ILazyDataset[] {};
+		datasets = new ILazyDataset[0];
 		view = InspectorType.EMPTY;
 	}
 
@@ -120,7 +120,7 @@ public class DatasetSelection implements IStructuredSelection {
 	}
 
 	@Override
-	public Object[] toArray() {
+	public ILazyDataset[] toArray() {
 		return datasets;
 	}
 

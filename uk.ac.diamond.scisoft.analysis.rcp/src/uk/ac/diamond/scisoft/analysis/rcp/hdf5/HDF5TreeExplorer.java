@@ -19,9 +19,11 @@
 package uk.ac.diamond.scisoft.analysis.rcp.hdf5;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -45,14 +47,17 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Attribute;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Dataset;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Group;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
+import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
+import uk.ac.diamond.scisoft.analysis.rcp.explorers.MetadataSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
@@ -76,7 +81,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	 */
 	public static final String HDF5FILENAME_NODEPATH_SEPARATOR = "#";
 
-	public class HDF5Selection extends DatasetSelection {
+	public static class HDF5Selection extends DatasetSelection {
 		private String fileName;
 		private String node;
 
@@ -122,19 +127,33 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	private HDF5Selection hdf5Selection;
 	private Set<ISelectionChangedListener> cListeners;
 
-	public HDF5TreeExplorer(Composite parent, IWorkbenchPartSite partSite, int style) {
-		super(parent, partSite, style);
+	private Listener contextListener = null;
+
+	private DataHolder holder;
+
+	public HDF5TreeExplorer(Composite parent, IWorkbenchPartSite partSite, ISelectionChangedListener valueSelect) {
+		super(parent, partSite, valueSelect);
 
 		display = parent.getDisplay();
 
 		setLayout(new FillLayout());
 
+		if (metaValueListener != null) {
+			contextListener = new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					handleContextClick();
+				}
+			};
+		}
+
 		tableTree = new HDF5TableTree(this, null, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				handleDoubleClick();
+				if (event.button == 1)
+					handleDoubleClick();
 			}
-		});
+		}, contextListener);
 
 		cListeners = new HashSet<ISelectionChangedListener>();
 		axes = new ArrayList<AxisSelection>();
@@ -185,6 +204,29 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 			logger.debug("Could not handle selected node: {}", link.getName());
 		}
 		logger.debug("Could not find selected node: {}", path);
+	}
+
+	private void handleContextClick() {
+		IStructuredSelection selection = tableTree.getSelection();
+
+		try {
+			// check if selection is valid for plotting
+			if (selection != null) {
+				Object obj = selection.getFirstElement();
+				String metaName = null;
+				if (obj instanceof HDF5NodeLink) {
+					metaName = ((HDF5NodeLink) obj).getFullName();
+				} else if (obj instanceof HDF5Attribute) {
+					metaName = ((HDF5Attribute) obj).getFullName();
+				}
+				if (metaName != null) {
+					SelectionChangedEvent ce = new SelectionChangedEvent(this, new MetadataSelection(metaName));
+					metaValueListener.selectionChanged(ce);
+				}
+			}
+		} catch (Exception e) {
+			logger.error("Error processing selection: {}", e.getMessage());
+		}
 	}
 
 	private void handleDoubleClick() {
@@ -309,24 +351,47 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 					HDF5Attribute attr = d.getAttribute(NXAXIS);
 					HDF5Attribute attr_label = d.getAttribute(NXLABEL);
 					if (attr != null) {
-						String[] str = attr.getFirstElement().split(","); // TODO: handle integer arrays
-						int[] intAxis = new int[str.length];
-						for (int i = 0; i < str.length; i++)
-							intAxis[i] = Integer.parseInt(str[i]) - 1;
-						if (attr_label != null)
-							choice.setDimension(intAxis, Integer.parseInt(attr_label.getFirstElement()) - 1);
-						else
+						int[] intAxis = null;
+						if (attr.isString()) {
+							String[] str = attr.getFirstElement().split(",");
+							intAxis = new int[str.length];
+							for (int i = 0; i < str.length; i++)
+								intAxis[i] = Integer.parseInt(str[i]) - 1;
+						} else {
+							AbstractDataset attrd = attr.getValue();
+							intAxis = new int[attrd.getSize()];
+							IndexIterator it = attrd.getIterator();
+							int i = 0;
+							while (it.hasNext()) {
+								intAxis[i++] = (int) attrd.getElementLongAbs(it.index);
+							}
+						}
+						if (attr_label != null) {
+							if (attr_label.isString()) {
+								choice.setDimension(intAxis, Integer.parseInt(attr_label.getFirstElement()) - 1);
+							} else {
+								choice.setDimension(intAxis, attr_label.getValue().getInt(0) - 1);
+							}
+						} else
 							choice.setDimension(intAxis);
 					} else {
 						if (attr_label != null) {
-							int int_label = Integer.parseInt(attr_label.getFirstElement()) - 1;
-							choice.setDimension(new int[] { int_label });
+							if (attr_label.isString()) {
+								choice.setDimension(new int[] { Integer.parseInt(attr_label.getFirstElement()) - 1 });
+							} else {
+								choice.setDimension(new int[] {attr_label.getValue().getInt(0) - 1 });
+							}
 						}
 					}
 					attr = d.getAttribute(NXPRIMARY);
 					if (attr != null) {
-						Integer intPrimary = Integer.parseInt(attr.getFirstElement());
-						choice.setPrimary(intPrimary);
+						if (attr.isString()) {
+							Integer intPrimary = Integer.parseInt(attr.getFirstElement());
+							choice.setPrimary(intPrimary);
+						} else {
+							AbstractDataset attrd = attr.getValue();
+							choice.setPrimary(attrd.getInt(0));
+						}
 					}
 					choices.add(choice);
 				} catch (Exception e) {
@@ -381,6 +446,9 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 
 			for (AxisChoice c : choices) {
 				// add in others if axis length matches
+				if (aSel.containsAxis(c.getName())) {
+					continue;
+				}
 				int[] cAxis = c.getAxes();
 				if ((c.getDimension() != i) && ArrayUtils.contains(cAxis, i)) {
 					if (checkAxisDimensions(c))
@@ -390,6 +458,9 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 
 			if (i < aNames.size()) {
 				for (AxisChoice c : choices) {
+					if (aSel.containsAxis(c.getName())) {
+						continue;
+					}
 					if (c.getName().equals(aNames.get(i))) {
 						if (checkAxisDimensions(c))
 							aSel.addSelection(c, 1);
@@ -398,15 +469,20 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 			}
 
 			for (AxisChoice c : choices) {
+				if (aSel.containsAxis(c.getName())) {
+					continue;
+				}
 				if (!checkAxisDimensions(c)) {
 					int[] choiceDims = c.getValues().getShape();
+					AbstractDataset axis = c.getValues();
 					for (int j = 0; j < choiceDims.length; j++) {
 						if (choiceDims[j] == dim) {
-							int[] start = (int[]) AbstractDataset.zeros(new int[] {choiceDims.length}, AbstractDataset.INT).getBuffer();
-							int[] stop = (int[]) AbstractDataset.ones(new int[] {choiceDims.length}, AbstractDataset.INT).getBuffer();
-							int[] step = (int[]) AbstractDataset.ones(new int[] {choiceDims.length}, AbstractDataset.INT).getBuffer();
+							int[] start = new int[choiceDims.length];
+							int[] stop = new int[choiceDims.length];
+							Arrays.fill(stop, 1);
+							int[] step = stop.clone();
 							stop[j] = dim;
-							AbstractDataset sliceAxis = c.getValues().getSlice(start, stop, step).flatten();
+							AbstractDataset sliceAxis = axis.getSlice(start, stop, step).flatten();
 							// Add dimension label to prevent axis name clashes for different dimensions 
 							sliceAxis.setName(c.getName() + "_" + "dim:" + (i + 1));
 							AxisChoice tmpChoice = new AxisChoice(sliceAxis);
@@ -438,27 +514,29 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	 */
 	private boolean checkAxisDimensions(AxisChoice c) {
 		int[] cAxis = c.getAxes();
-		int len = cData.getShape().length;
 		if (cAxis == null) {
 			logger.warn("Ignoring node {} as it doesn't have axis attribute",
 					new Object[] { c.getName() });
 			return false;
 		}
-		
-		if (cAxis.length != c.getValues().getShape().length) {
+		AbstractDataset axis = c.getValues();
+		if (cAxis.length != axis.getRank()) {
 			logger.warn("Ignoring axis {} as its axis attribute rank does not match axis data rank",
 					new Object[] { c.getName() });
 			return false;
 		}
 		
+		int len = cData.getRank();
+		int[] aShape = axis.getShape();
+		int[] dShape = cData.getShape();
 		for (int a = 0; a < cAxis.length; a++) {
 			if (cAxis[a] >= len) {
 				logger.warn("Ignoring axis {} as its attribute points to non-existing dimension",
 						new Object[] { c.getName() });
 				return false;
 			}
-			int axisShape = c.getValues().getShape()[a];
-			int dataShape = cData.getShape()[cAxis[a]]; 
+			int axisShape = aShape[a];
+			int dataShape = dShape[cAxis[a]]; 
 			if (axisShape != dataShape) {
 				logger.warn("Ignoring axis {} as its length ({}) does not match data size ({}) for dimension ({})",
 						new Object[] { c.getName(), axisShape, dataShape, cAxis[a] });
@@ -487,9 +565,25 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	}
 
 	@Override
-	public void loadFile(String fileName, IMonitor mon) throws Exception {
+	public DataHolder loadFile(String fileName, IMonitor mon) throws Exception {
+		if (fileName == filename)
+			return holder;
+
+		return new HDF5Loader(fileName).loadFile(mon);
+	}
+
+	@Override
+	public void loadFileAndDisplay(String fileName, IMonitor mon) throws Exception {
+		
 		tree = new HDF5Loader(fileName).loadTree(mon);
 		if (tree != null) {
+			holder = new DataHolder();
+			Map<String, ILazyDataset> map = HDF5Loader.createDatasetsMap(tree.getGroup());
+			for (String n : map.keySet()) {
+				holder.addDataset(n, map.get(n));
+			}
+			holder.setMetadata(HDF5Loader.createMetaData(tree));
+
 			setFilename(fileName);
 			if (display != null)
 				display.asyncExec(new Runnable() {

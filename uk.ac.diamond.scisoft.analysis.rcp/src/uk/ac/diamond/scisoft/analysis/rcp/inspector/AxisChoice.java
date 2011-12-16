@@ -179,4 +179,16 @@ public class AxisChoice {
 		hash = hash * 17 + values.hashCode();
 		return hash;
 	}
+
+	/**
+	 * Clone everything but values
+	 */
+	@Override
+	protected AxisChoice clone() throws CloneNotSupportedException {
+		AxisChoice choice = new AxisChoice(values, primary);
+		if (axes != null)
+			choice.setDimension(axes.clone(), dimension);
+		choice.setPrimary(primary);
+		return choice;
+	}
 }

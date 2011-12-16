@@ -214,7 +214,7 @@ public class AxisSlicer {
 				resetable = true;
 			}
 		}
-		value.setText(String.format("%-20s",initValue));
+		value.setText(String.format("%-20s", initValue));
 		int l = s != null ? s.getNumSteps() : length;
 
 		if (mode) {

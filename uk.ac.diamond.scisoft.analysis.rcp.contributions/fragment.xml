@@ -266,6 +266,11 @@
       </command>
 -->
       <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.handlers.CompareFilesHandler"
+            id="uk.ac.diamond.scisoft.analysis.rcp.CompareFilesHandler"
+            name="Dataset Compare">
+      </command>
+      <command
       		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotRegionZoomAction"
       		id="uk.ac.diamond.scisoft.analysis.rcp.PlotRegionZoomAction"
       		name="Region Zoom Action">
@@ -1377,6 +1382,36 @@
               </command>
            </menu>
         </menuContribution-->
+        <menuContribution
+            locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions">
+           <menu
+                 id="uk.ac.diamond.scisoft.explorer.group"
+                 label="SDA">
+           </menu>
+        </menuContribution>
+        <menuContribution
+            locationURI="popup:uk.ac.diamond.scisoft.explorer.group">
+           <command
+                 commandId="uk.ac.diamond.scisoft.analysis.rcp.CompareFilesHandler"
+                 label="Compare datasets"
+                 style="push">
+              <visibleWhen
+                    checkEnabled="false">
+                    <and>
+                        <iterate ifEmpty="false" operator="and">
+                            <instanceof value="org.eclipse.core.resources.IFile" />
+                        </iterate>
+                        <count value="(1-" />
+                    </and>
+<!--                 <with
+                       variable="selection">
+                    <count
+                          value="(1-">
+                    </count>
+                 </with> -->
+              </visibleWhen>
+           </command>
+        </menuContribution>
    </extension>
    <extension
          id="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.GDADataNature"
@@ -1559,6 +1594,12 @@
          <contentTypeBinding
                contentTypeId="uk.ac.diamond.scisoft.analysis.rcp.editors.describers.XasAsciiDescriber">
          </contentTypeBinding>
+      </editor>
+      <editor
+            default="false"
+            class="uk.ac.diamond.scisoft.analysis.rcp.editors.CompareFilesEditor"
+            id="uk.ac.diamond.scisoft.analysis.rcp.editors.CompareFilesEditor"
+            name="Compare">
       </editor>      
    </extension>
    <extension

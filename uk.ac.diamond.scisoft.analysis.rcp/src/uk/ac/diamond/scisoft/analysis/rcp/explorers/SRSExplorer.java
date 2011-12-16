@@ -18,8 +18,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.explorers;
 
-import gda.analysis.io.IFileLoader;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,10 +32,14 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchPartSite;
@@ -48,6 +50,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
+import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
@@ -58,11 +61,11 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 	private TableViewer viewer;
 	private DataHolder data = null;
 	private ISelectionChangedListener listener;
-	protected boolean isXAS = false;
 	private Display display = null;
+	private SelectionAdapter contextListener = null;
 
-	public SRSExplorer(Composite parent, IWorkbenchPartSite partSite, int style) {
-		super(parent, partSite, style);
+	public SRSExplorer(Composite parent, IWorkbenchPartSite partSite, ISelectionChangedListener valueSelect) {
+		super(parent, partSite, valueSelect);
 
 		display = parent.getDisplay();
 		setLayout(new FillLayout());
@@ -98,8 +101,17 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 
 		viewer.addSelectionChangedListener(listener);
 
-		// Register selection listener
-		// registerSelectionListener();
+		if (metaValueListener != null) {
+			final SRSExplorer provider = this;
+			contextListener = new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					int i = viewer.getTable().getMenu().indexOf((MenuItem) e.widget);
+					SelectionChangedEvent ce = new SelectionChangedEvent(provider, new MetadataSelection(metaNames.get(i)));
+					metaValueListener.selectionChanged(ce);
+				}
+			};
+		}
 	}
 
 	public TableViewer getViewer() {
@@ -202,6 +214,8 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 
 	private List<ISelectionChangedListener> listeners = new ArrayList<ISelectionChangedListener>();
 	private DatasetSelection dSelection = null;
+	private ArrayList<String> metaNames;
+	private String fileName;
 
 	@Override
 	public void addSelectionChangedListener(ISelectionChangedListener listener) {
@@ -224,6 +238,7 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 	public void setSelection(ISelection selection) {
 		if (selection instanceof DatasetSelection)
 			dSelection = (DatasetSelection) selection;
+		else return;
 
 		SelectionChangedEvent e = new SelectionChangedEvent(this, dSelection);
 		for (ISelectionChangedListener listener : listeners)
@@ -235,26 +250,32 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 		viewer.removeSelectionChangedListener(listener);
 	}
 
-	/**
-	 * Set to use Xas loader if true 
-	 * @param isXas
-	 */
-	public void setIsXas(boolean isXas) {
-		isXAS = isXas;
+	@Override
+	public DataHolder loadFile(String fileName, IMonitor mon) throws Exception {
+		if (fileName == this.fileName)
+			return data;
+
+		return LoaderFactory.getData(fileName, mon);
 	}
 
 	@Override
-	public void loadFile(String fileName, IMonitor mon) throws Exception {
+	public void loadFileAndDisplay(String fileName, IMonitor mon) throws Exception {
+		this.fileName = fileName;
 
 		data = LoaderFactory.getData(fileName, mon);
 		if (data != null) {
 			if (display != null) {
+				final IMetaData meta = data.getMetadata();
+
 				display.asyncExec(new Runnable() {
 					
 					@Override
 					public void run() {
 						viewer.setInput(data);
 						display.update();
+						if (metaValueListener != null) {
+							addMenu(meta);
+						}
 					}
 				});
 			}
@@ -262,9 +283,34 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 			setSelection(datasetSelection);
 		}
 	}
-	
-	public void selectItemSelection(){
+
+	public void selectItemSelection() {
 		DatasetSelection datasetSelection = new DatasetSelection(getAxes(), getActiveData());
 		setSelection(datasetSelection);
+	}
+
+	private void addMenu(IMetaData meta) {
+		// create context menu and handling
+		if (meta != null) {
+			try {
+				Menu context = new Menu(viewer.getControl());
+				metaNames = new ArrayList<String>();
+				for (String n : meta.getMetaNames()) {
+					try {
+						String v = meta.getMetaValue(n).toString();
+						Double.parseDouble(v);
+						metaNames.add(n);
+						MenuItem item = new MenuItem(context, SWT.PUSH);
+						item.addSelectionListener(contextListener);
+						item.setText(n + " = " + v);
+					} catch (NumberFormatException e) {
+						
+					}
+				}
+
+				viewer.getTable().setMenu(context);
+			} catch (Exception e) {
+			}
+		}
 	}
 }

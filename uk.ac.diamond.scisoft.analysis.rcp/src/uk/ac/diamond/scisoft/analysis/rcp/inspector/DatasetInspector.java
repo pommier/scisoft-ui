@@ -301,6 +301,10 @@ public class DatasetInspector extends Composite {
 
 	private InteractiveQueue sliceQueue;
 
+	private Group axesSelGroup;
+
+	private Composite iComp;
+
 	/**
 	 * 
 	 * @param parent
@@ -325,7 +329,7 @@ public class DatasetInspector extends Composite {
 
 		GridData gd;
 
-		final Group axesSelGroup = new Group(comp, SWT.NONE);
+		axesSelGroup = new Group(comp, SWT.NONE);
 		axesSelGroup.setText("Data axes selection");
 		axesSelGroup.setToolTipText("Select which axis dataset to use in each dimension of the dataset array");
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
@@ -439,7 +443,7 @@ public class DatasetInspector extends Composite {
 		gd.horizontalSpan = 2;
 		slicersGroup.setLayoutData(gd);
 		ScrolledComposite slComp = new ScrolledComposite(slicersGroup, SWT.HORIZONTAL | SWT.VERTICAL);
-		final Composite iComp = new Composite(slComp, SWT.NONE);
+		iComp = new Composite(slComp, SWT.NONE);
 		iComp.setLayout(new GridLayout(AxisSlicer.COLUMNS, false));
 		Label l;
 		l = new Label(iComp, SWT.NONE);
@@ -502,121 +506,126 @@ public class DatasetInspector extends Composite {
 			@Override
 			public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 				if (selection instanceof DatasetSelection) {
-					DatasetSelection dSelection = (DatasetSelection) selection;
-					if (dSelection.equals(oldSelection))
-						return;
-
-					cData = dSelection.getFirstElement();
-					if (cData == null) {
-						try {
-							SDAPlotter.clearPlot(PLOTNAME);
-						} catch (Exception e) {}
-
-						oldSelection = dSelection;
-						return;
-					}
-
-					final boolean useClonedInspection;
-					if (storedInspections.containsKey(dSelection)) {
-						inspection = storedInspections.get(dSelection);
-						useClonedInspection = false;
-					} else if (dSelection.almostEquals(oldSelection)) {
-						inspection = inspection.clone(oldSelection);
-						storedInspections.put(dSelection, inspection);
-						useClonedInspection = true;
-					} else {
-						inspection = null;
-						boolean found = false;
-						for (Entry<DatasetSelection, Inspection> e: storedInspections.entrySet()) {
-							DatasetSelection stored = e.getKey();
-							if (dSelection.almostEquals(stored)) {
-								inspection = e.getValue().clone(stored);
-								storedInspections.put(dSelection, inspection);
-								found = true;
-								break;
-							}
-						}
-						useClonedInspection = found;
-					}
-
-					oldSelection = dSelection;
-					if (inspection == null) {
-						inspection = new Inspection(dSelection);
-						storedInspections.put(dSelection, inspection);
-						int[] shape = cData.getShape();
-						int rank = shape.length;
-
-						int aNum = inspection.getNumAxes();
-						if (aNum < rank) { // add auto-axes if necessary
-							for (int i = aNum; i < rank; i++) {
-								AxisSelection aSel = new AxisSelection(shape[i]);
-								AbstractDataset axis = AbstractDataset.arange(shape[i], AbstractDataset.INT32);
-								axis.setName("dim:" + (i+1));
-								AxisChoice newChoice = new AxisChoice(axis);
-								newChoice.setDimension(new int[] {i});
-								aSel.addSelection(newChoice, aSel.getMaxOrder() + 1);
-								aSel.selectAxis(0);
-								inspection.addDatasetAxis(aSel);
-							}
-						}
-
-						inspection.initSlice(inspection.itype);
-						inspection.setSliceListener(slicerListener);
-						inspection.setDatasetAxisListener(datasetAxesListener);
-					}
-
-					if (display != null) {
-						display.asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								StringBuilder msg = new StringBuilder(String.format("Name: %s, Rank: %d, Dims: ",
-										cData.getName(), cData.getRank()));
-								for (int i : cData.getShape()) {
-									msg.append(i);
-									msg.append(", ");
-								}
-								if (msg.length() > 2) {
-									msg.deleteCharAt(msg.length() - 1);
-									msg.deleteCharAt(msg.length() - 1);
-								}
-								dsDetails.setText(msg.toString());
-								axisSelector.setInput(inspection.datasetAxes);
-								axisSelector.redrawASTable();
-								axesSelGroup.redraw();
-								createSlicers(iComp);
-								if (inspection.itype == InspectorType.EMPTY)
-									return;
-
-								if (!useClonedInspection) {
-									cInspectionTab = inspectionTabs.get(inspection.itype);
-									inspection.initPlotAxes(cInspectionTab);
-									inspection.setPlotAxisListener(plotTabListener);
-									int t = inspection.itype.getValue();
-									plotTabFolder.setSelection(t);
-									CTabItem item = plotTabFolder.getItem(t);
-									if (item.getControl() == null) {
-										createPlotTab(item);
-										updateSlicers();
-										sliceDataAndView();
-									} else {
-										cInspectionTab.setParameters(cData, inspection.datasetAxes, inspection.getPlotAxes());
-										cInspectionTab.drawTab(); // implicitly views data
-									}
-								} else {
-									cInspectionTab = inspectionTabs.get(inspection.itype);
-									cInspectionTab.setParameters(cData, inspection.datasetAxes, inspection.getPlotAxes());
-									cInspectionTab.drawTab();
-								}
-
-							}
-						});
-					}
+					DatasetSelection newSelection = processSelection(oldSelection, (DatasetSelection) selection);
+					if (newSelection != null)
+						oldSelection = newSelection;
 				}
 			}
 		};
 		site.getWorkbenchWindow().getSelectionService().addSelectionListener(selListener);
 
 		storedInspections = new HashMap<DatasetSelection, Inspection>();
+	}
+
+	private DatasetSelection processSelection(DatasetSelection oldSelection, DatasetSelection dSelection) {
+		if (dSelection.equals(oldSelection))
+			return null;
+
+		cData = dSelection.getFirstElement();
+		if (cData == null) {
+			try {
+				SDAPlotter.clearPlot(PLOTNAME);
+			} catch (Exception e) {}
+
+			oldSelection = dSelection;
+			return null;
+		}
+
+		final boolean useClonedInspection;
+		if (storedInspections.containsKey(dSelection)) {
+			inspection = storedInspections.get(dSelection);
+			useClonedInspection = false;
+		} else if (dSelection.almostEquals(oldSelection)) {
+			inspection = inspection.clone(oldSelection);
+			storedInspections.put(dSelection, inspection);
+			useClonedInspection = true;
+		} else {
+			inspection = null;
+			boolean found = false;
+			for (Entry<DatasetSelection, Inspection> e: storedInspections.entrySet()) {
+				DatasetSelection stored = e.getKey();
+				if (dSelection.almostEquals(stored)) {
+					inspection = e.getValue().clone(stored);
+					storedInspections.put(dSelection, inspection);
+					found = true;
+					break;
+				}
+			}
+			useClonedInspection = found;
+		}
+
+		if (inspection == null) {
+			inspection = new Inspection(dSelection);
+			storedInspections.put(dSelection, inspection);
+			int[] shape = cData.getShape();
+			int rank = shape.length;
+
+			int aNum = inspection.getNumAxes();
+			if (aNum < rank) { // add auto-axes if necessary
+				for (int i = aNum; i < rank; i++) {
+					AxisSelection aSel = new AxisSelection(shape[i]);
+					AbstractDataset axis = AbstractDataset.arange(shape[i], AbstractDataset.INT32);
+					axis.setName("dim:" + (i+1));
+					AxisChoice newChoice = new AxisChoice(axis);
+					newChoice.setDimension(new int[] {i});
+					aSel.addSelection(newChoice, aSel.getMaxOrder() + 1);
+					aSel.selectAxis(0);
+					inspection.addDatasetAxis(aSel);
+				}
+			}
+
+			inspection.initSlice(inspection.itype);
+			inspection.setSliceListener(slicerListener);
+			inspection.setDatasetAxisListener(datasetAxesListener);
+		}
+
+		if (display != null) {
+			display.asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					StringBuilder msg = new StringBuilder(String.format("Name: %s, Rank: %d, Dims: ",
+							cData.getName(), cData.getRank()));
+					for (int i : cData.getShape()) {
+						msg.append(i);
+						msg.append(", ");
+					}
+					if (msg.length() > 2) {
+						msg.deleteCharAt(msg.length() - 1);
+						msg.deleteCharAt(msg.length() - 1);
+					}
+					dsDetails.setText(msg.toString());
+					axisSelector.setInput(inspection.datasetAxes);
+					axisSelector.redrawASTable();
+					axesSelGroup.redraw();
+					createSlicers(iComp);
+					if (inspection.itype == InspectorType.EMPTY)
+						return;
+
+					if (!useClonedInspection) {
+						cInspectionTab = inspectionTabs.get(inspection.itype);
+						inspection.initPlotAxes(cInspectionTab);
+						inspection.setPlotAxisListener(plotTabListener);
+						int t = inspection.itype.getValue();
+						plotTabFolder.setSelection(t);
+						CTabItem item = plotTabFolder.getItem(t);
+						if (item.getControl() == null) {
+							createPlotTab(item);
+							updateSlicers();
+							sliceDataAndView();
+						} else {
+							cInspectionTab.setParameters(cData, inspection.datasetAxes, inspection.getPlotAxes());
+							cInspectionTab.drawTab(); // implicitly views data
+						}
+					} else {
+						cInspectionTab = inspectionTabs.get(inspection.itype);
+						cInspectionTab.setParameters(cData, inspection.datasetAxes, inspection.getPlotAxes());
+						cInspectionTab.drawTab();
+					}
+
+				}
+			});
+		}
+		return dSelection;
 	}
 
 	@Override

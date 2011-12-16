@@ -19,11 +19,9 @@
 package uk.ac.diamond.scisoft.analysis.rcp.editors;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
@@ -43,7 +41,6 @@ public class SRSEditor extends EditorPart {
 
 	private SRSExplorer srsxp;
 	private String fileName;
-	private Action selectItemAction;
 
 	public SRSEditor() {
 	}
@@ -81,12 +78,12 @@ public class SRSEditor extends EditorPart {
 	@Override
 	public void createPartControl(Composite parent) {
 		IWorkbenchPartSite site = getSite();
-		srsxp = new SRSExplorer(parent, site, SWT.NONE);
+		srsxp = new SRSExplorer(parent, site, null);
 		site.setSelectionProvider(srsxp);
 
 		setPartName(fileName);
 		try {
-			srsxp.loadFile(fileName, null);
+			srsxp.loadFileAndDisplay(fileName, null);
 		} catch (Exception e) {
 		}
 
@@ -96,12 +93,6 @@ public class SRSEditor extends EditorPart {
 
 	@Override
 	public void setFocus() {
-	}
-
-	protected void setXas() {
-		if (srsxp != null) {
-			srsxp.setIsXas(true);
-		}
 	}
 
 	private ISelectionListener selectionListener;
