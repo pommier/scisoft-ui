@@ -22,16 +22,15 @@ import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.console.IConsoleConstants;
+import org.python.pydev.ui.perspective.PythonPerspectiveFactory;
 
 public class JythonPerspective implements IPerspectiveFactory {
-
-	private static final String PLOT1_VIEW_ID = "uk.ac.diamond.scisoft.analysis.rcp.plotView1";
 	
 	public static final String ID = "uk.ac.diamond.scisoft.jythonperspective";
 	
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
-		
+			
 		// get the editor area
 		String editorArea = layout.getEditorArea();
 		
@@ -47,6 +46,9 @@ public class JythonPerspective implements IPerspectiveFactory {
 		
 		// finaly add the outline view to the right of the editor area
 		layout.addView(IPageLayout.ID_OUTLINE, IPageLayout.RIGHT, 0.75f, editorArea);
+		
+		// Finaly add all the Pydev actions as are required for running stuff etc.
+		(new PythonPerspectiveFactory()).defineActions(layout);
 
 	}
 
