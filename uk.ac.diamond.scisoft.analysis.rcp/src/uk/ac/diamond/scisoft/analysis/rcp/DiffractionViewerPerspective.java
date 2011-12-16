@@ -28,9 +28,7 @@ public class DiffractionViewerPerspective implements IPerspectiveFactory {
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
 			
-		IFolderLayout toolsLayout = layout.createFolder("toolsFolder", IPageLayout.RIGHT, 0.2f, layout.getEditorArea());
-		toolsLayout.addView("uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView:Dataset Plot");
-		toolsLayout.addView("uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView:Dataset Plot");
+		IFolderLayout toolsLayout = layout.createFolder("toolsFolder", IPageLayout.RIGHT, 0.3f, layout.getEditorArea());
 		toolsLayout.addView("uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView");
 
 		IFolderLayout plotsLayout = layout.createFolder("plotFolder", IPageLayout.RIGHT, 0.4f, "toolsFolder");
@@ -39,10 +37,18 @@ public class DiffractionViewerPerspective implements IPerspectiveFactory {
 		plotsLayout.addView("uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView");
 		
 		IFolderLayout explorerLayout = layout.createFolder("explorerFolder", IPageLayout.TOP, 0.5f, "toolsFolder");
-		explorerLayout.addView("org.dawb.workbench.views.imageMonitorView");
 		explorerLayout.addView("uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView");
+		explorerLayout.addPlaceholder("org.dawb.workbench.views.imageMonitorView");
 		
-		layout.addView("uk.ac.diamond.sda.navigator.views.FileView", IPageLayout.TOP, 0.8f, layout.getEditorArea());
+		layout.addView("fable.imageviewer.views.HeaderView", IPageLayout.TOP, 0.8f, layout.getEditorArea());
+		
+		IFolderLayout navigatorLayout = layout.createFolder("navigators", IPageLayout.TOP, 0.6f, "fable.imageviewer.views.HeaderView");
+		navigatorLayout.addView("uk.ac.diamond.sda.navigator.views.FileView");
+		navigatorLayout.addView("org.eclipse.ui.navigator.ProjectExplorer");
+		
+		
+		if (layout.getViewLayout("uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView") != null)
+			layout.getViewLayout("uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView").setCloseable(false);
 		
 	}
 
