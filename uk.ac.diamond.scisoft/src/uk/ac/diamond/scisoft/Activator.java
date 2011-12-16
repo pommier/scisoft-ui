@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
@@ -43,6 +44,7 @@ import org.osgi.framework.BundleContext;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
+import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
@@ -113,6 +115,8 @@ public class Activator extends AbstractUIPlugin {
 	public Activator() {
 	}
 
+	private Bundle libBundle = null;
+	
 	/**
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
@@ -120,6 +124,18 @@ public class Activator extends AbstractUIPlugin {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+		
+		// Get the libraries bundle
+		Bundle[] bundles = context.getBundles();
+		
+		for (Bundle bundle : bundles) {
+			if(bundle.toString().contains("uk.ac.gda.libs")) {
+				libBundle = bundle;
+			}
+		}
+		
+		logger.debug("Librabry Bundle is {}", libBundle.toString());
+		
 		plugin = this;
 
 		// need to set some preferences to get the Pydev features working.
@@ -172,8 +188,6 @@ public class Activator extends AbstractUIPlugin {
 		// Horrible Hack warning: This code is copied from parts of Pydev to set up the interpreter and save it.
 		{
 
-
-
 			String defaultPluginsDir = System.getenv("SDA_HOME");
 			File pluginsDir = null;
 			if (defaultPluginsDir != null) {
@@ -191,11 +205,13 @@ public class Activator extends AbstractUIPlugin {
 				return;
 			}
 
-			// Code copies from Pydev when the user chooses a Jython interpreter - these are the defaults		
-			final File interpreterDir = getInterpreterDirectory(pluginsDir);
-			final String executable = new File(interpreterDir, "jython.jar").getAbsolutePath();
+			
+			String bundleLoc = libBundle.getLocation().replace("reference:file:", "");
+			File jarPath = new File(bundleLoc,"jython2.5.1/jython.jar");
+			
+			
+			final String executable = jarPath.getAbsolutePath();
 
-			logger.debug("interpreter path = {}", interpreterDir.getAbsolutePath());
 			logger.debug("executable path = {}", executable);
 
 			// check for the existence of this standard pydev script
@@ -206,12 +222,22 @@ public class Activator extends AbstractUIPlugin {
 			}
 
 			logger.debug("Script path = {}", script.getAbsolutePath());
-
-			// gets the info for the python side
-			Tuple<String, String> outTup = new SimpleJythonRunner().runAndGetOutputWithJar(
-					REF.getFileAbsolutePath(script), executable, null, null, null, monitor);
-
-			logger.debug("outTup = {}", outTup);
+			
+			
+			String[] cmdarray = {"java","-Xmx64m","-jar",executable, REF.getFileAbsolutePath(script)};
+			File workingDir = new File("/tmp/");
+			IPythonNature nature = null;//new PythonNature();
+			Tuple<Process, String> outTup2 = new SimpleJythonRunner().run(cmdarray, workingDir, nature, monitor);
+		
+			String outputString = "";
+			try {
+				outputString = IOUtils.toString(outTup2.o1.getInputStream());
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				logger.error("TODO put description of error here", e1);
+			}
+			  
+			logger.debug("Output String is {}", outputString);
 
 			// this is the main info object which contains the environment data
 			InterpreterInfo info = null;
@@ -219,7 +245,8 @@ public class Activator extends AbstractUIPlugin {
 			try {
 				// HACK Otherwise Pydev shows a dialog to the user.
 				ModulesManagerWithBuild.IN_TESTS = true;
-				info = InterpreterInfo.fromString(outTup.o1, false);
+				//info = InterpreterInfo.fromString(outTup.o1, false);
+				info = InterpreterInfo.fromString(outputString, false);
 			} catch (Exception e) {
 				logger.error("InterpreterInfo.fromString(outTup.o1) has failed in pydev setup with exception");
 				logger.error("{}",e);
