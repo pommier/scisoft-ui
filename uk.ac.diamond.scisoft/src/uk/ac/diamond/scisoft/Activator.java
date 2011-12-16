@@ -206,12 +206,22 @@ public class Activator extends AbstractUIPlugin {
 			}
 
 			
-			String bundleLoc = libBundle.getLocation().replace("reference:file:", "");
-			File jarPath = new File(bundleLoc,"jython2.5.1/jython.jar");
+			// Code copies from Pydev when the user chooses a Jython interpreter - these are the defaults		
+			String executable = new File(getInterpreterDirectory(pluginsDir), "jython.jar").getAbsolutePath();
 			
 			
-			final String executable = jarPath.getAbsolutePath();
+			if(!(new File(executable)).exists()) { 
+			
+				logger.warn("Could not find jython jar, looking again");
+				// try to find the jar another way
+				String bundleLoc = libBundle.getLocation().replace("reference:file:", "");
+				File jarPath = new File(bundleLoc,"jython2.5.1/jython.jar");
+				
+				executable = jarPath.getAbsolutePath();
 
+			}
+			
+			
 			logger.debug("executable path = {}", executable);
 
 			// check for the existence of this standard pydev script
