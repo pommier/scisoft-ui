@@ -613,6 +613,25 @@ class PlotTab extends ATab {
 		}
 	}
 
+	private AbstractDataset make1DAxisSlice(List<AbstractDataset> slicedAxes, int dim) {
+		AbstractDataset axisSlice = slicedAxes.get(dim);
+		
+		// 2D plots can only handle 1D axis.
+		if (axisSlice.getRank() > 1) {
+			int rank = axisSlice.getRank();
+			Slice[] sl = new Slice[rank];
+			for (int idx = 0; idx < rank; idx++)
+				if (idx != dim)
+					sl[idx] = new Slice(0,1,1);
+				else 
+					sl[idx] = new Slice();
+			
+			logger.warn("2D plots can only handle 1D axis. Taking first slice from {} dataset", axisSlice.getName());
+			return axisSlice.getSlice(sl).squeeze();
+		}
+		
+		return axisSlice;
+	}
 	@Override
 	public void pushToView(IMonitor monitor, Slice[] slices) {
 		if (dataset == null)
@@ -734,35 +753,8 @@ class PlotTab extends ATab {
 			}
 
 			try {
-				AbstractDataset xAxisSlice = slicedAxes.get(0);
-				AbstractDataset yAxisSlice = slicedAxes.get(1);
-				
-				// 2D plots can only handle 1D axis.
-				if (xAxisSlice.getRank() > 1) {
-					int rank = xAxisSlice.getRank();
-					Slice[] sl = new Slice[rank];
-					for (int idx = 0; idx < rank; idx++)
-						if (idx != 0)
-							sl[idx] = new Slice(0,1,1);
-						else 
-							sl[idx] = new Slice();
-					
-					logger.warn("2D plots can only handle 1D axis. Taking first slice from {} dataset", xAxisSlice.getName());
-					xAxisSlice = xAxisSlice.getSlice(sl).squeeze();
-				}
-				
-				if (yAxisSlice.getRank() > 1) {
-					int rank = yAxisSlice.getRank();
-					Slice[] sl = new Slice[rank];
-					for (int idx = 0; idx < rank; idx++)
-						if (idx != 1)
-							sl[idx] = new Slice(0,1,1);
-						else 
-							sl[idx] = new Slice();
-					
-					logger.warn("2D plots can only handle 1D axis. Taking first slice from {} dataset", yAxisSlice.getName());
-					yAxisSlice = yAxisSlice.getSlice(sl).squeeze();
-				}
+				AbstractDataset xAxisSlice = make1DAxisSlice(slicedAxes, 0);
+				AbstractDataset yAxisSlice = make1DAxisSlice(slicedAxes, 1);
 				
 				if (itype == InspectorType.IMAGE)
 					SDAPlotter.imagePlot(PLOTNAME, xAxisSlice, yAxisSlice, reorderedData);
