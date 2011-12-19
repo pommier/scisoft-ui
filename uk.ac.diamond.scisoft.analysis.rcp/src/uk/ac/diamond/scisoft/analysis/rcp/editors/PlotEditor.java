@@ -44,6 +44,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IReusableEditor;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.PartInitException;
@@ -67,7 +68,7 @@ import uk.ac.gda.monitor.ProgressMonitorWrapper;
 /**
  *
  */
-public class PlotEditor extends EditorPart implements ISelectionProvider {
+public class PlotEditor extends EditorPart implements ISelectionProvider, IReusableEditor {
 
 	private static final Logger logger = LoggerFactory.getLogger(PlotEditor.class);
 	private TableViewer viewer;
@@ -90,11 +91,9 @@ public class PlotEditor extends EditorPart implements ISelectionProvider {
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		setSite(site);
+		getSite().setSelectionProvider(this);
 		setInput(input);
 		setPartName(input.getName());
-		getSite().setSelectionProvider(this);
-		DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, null, image);
-		setSelection(datasetSelection);
 	}
 
 	@Override
@@ -174,6 +173,10 @@ public class PlotEditor extends EditorPart implements ISelectionProvider {
 		} catch (Exception e) {
 			logger.error("Cannot load "+input.getName(), e);
 		}
+		
+		DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, null, image);
+		setSelection(datasetSelection);
+
 	}
 
 	/**
