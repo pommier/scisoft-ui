@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet
+      title="Introduction To Diffraction Viewer">
+   <intro>
+      <description>
+         <b>Starting the Diffraction Viewer.</b> The diffraction viewer is part of the sideplots which are associated with each plot within the SDA.
+      </description>
+   </intro>
+   <item
+         skip="true"
+         title="Starting the Diffraction Viewer">
+      <description>
+         The diffraction viewer is started by pressing the red ruby crystal in the toolbar of a plot which is showing a 2D image. When this button is pressed the sideplot corresponding to the plot will show the diffraction viewer. Once you have pressed the correct button then bring the sideplot to the top to access the functionality of the diffraction viewer. There are 6 tabs each of which contains different functionality
+      </description>
+   </item>
+   <item
+         skip="true"
+         title="Basic Plot Manipulation">
+      <description>
+         When in the diffraction viewer is active the controls to manipulate the zoom and pan of the plot remain the same. That is, scrolling the central wheel controls the zoom level and clicking and dragging with the middle wheel will pan the plot.
+      </description>
+   </item>
+   <item
+         skip="true"
+         title="Metadata">
+      <description>
+         This view shows the metadata associated with the diffraction image. Specific parts of this information can be edited if they are in error. The wavelength, distance from the sample to the detector and the beam centre to be manipulated. These settings can be saved between images by pressing the &apos;Lock Settings&apos; button. Reverting to the original metadata can pressing &apos;reset&apos;
+      </description>
+   </item>
+   <item
+         skip="true"
+         title="Line Drawing">
+      <description>
+         d space calculations. This tab will display the results from left click drags across the plot. The line drawn across the image is plotted in the 1D plot. A peak finding routine then looks for the peaks and calculated the d spacing between the reflections. 
+      </description>
+   </item>
+   <item
+         skip="true"
+         title="Resolution Rings">
+      <description>
+         This tab allows various resolution rings to be plotted. There are buttons that will plot evenly spaced resolution rings, ice rings, the rings from a calibrant, as well as rings with a specified resolution. There is also the possibility to drag a mask over the image and show the beam centre. 
+      </description>
+   </item>
+   <item
+         skip="true"
+         title="Area Viewing">
+      <description>
+         Right clicking on the image will display a box and the content of the box is displayed as a 3D relief in Peak Profile&apos; tab, a zoomed in region in &apos;Image View&apos; and as a numerical representation in &apos;Numerical View&apos;. Clicking and dragging will move the box around and releasing the pointer will update the plots. Holding down &apos;Ctrl&apos; and dragging will allow a custom box to be drawn. 
+      </description>
+   </item>
+</cheatsheet> 
