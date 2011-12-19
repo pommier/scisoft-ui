@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet
+      title="Using the Calibrant Functionality">
+   <intro>
+      <description>
+         Using the tools in the diffraction viewer it is possible to calibrate the detector distance using the tools avaliable in the diffraction viewer.
+      </description>
+   </intro>
+   <item
+         title="Calibrant">
+      <description>
+         <b>Choosing the calibrant</b> There are a number of pre-entered calibrants entered in the preferences associated with the diffraction viewer. These are Cr2O3, silicon and bee&apos;s wax. These can be found by opening the preferences window by &apos;Window&apos; -&gt; &apos;Preferences&apos; from the menu. Searching for &apos;Diffraction Viewer&apos; to bring up the correct window.
+      </description>
+      <subitem
+            label="To add a custom calibrant enter the name and the d spacing speterated by commas and press add. Once the new calibrant is added select it from the list and click OK.">
+      </subitem>
+   </item>
+   <item
+         title="Showing the Calibrant">
+      <description>
+         The Calibrant can be seen by toggling the button marked &apos;Calibrant&apos; after checking the toggle ring box. It is also useful to show the beam centre as well.
+      </description>
+   </item>
+   <item
+         skip="false"
+         title="Manipulating the detector position">
+      <description>
+         To manipulate the detector position return to the &apos;Image Metadata&apos; tab where the cross of buttons allows the beam centre to be moved around. It is also possible to enter the information into the relavant fields.<br/> There detector distance can also be manipulated along with the wavelength.
+      </description>
+      <subitem
+            label="It is also possible to manipulate the beam position by holding down shift and clicking on the correct position on the image. This only works when the beam centre is visible.
+It is also possible to manipulate the beam position by holding down shift and clicking on the correct position on the image. This only works when the beam centre is visible."
+            skip="true">
+      </subitem>
+   </item>
+</cheatsheet>
