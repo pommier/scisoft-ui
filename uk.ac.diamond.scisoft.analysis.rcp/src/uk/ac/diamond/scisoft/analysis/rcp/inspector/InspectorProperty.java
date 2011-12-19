@@ -27,16 +27,19 @@ public abstract class InspectorProperty {
 	protected Set<PropertyChangeListener> pcl = new HashSet<PropertyChangeListener>();
 
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		pcl.add(listener);
+		if( listener != null)
+			pcl.add(listener);
 	}
 
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		pcl.remove(listener);
+		if( listener != null)
+			pcl.remove(listener);
 	}
 
 	protected void fire(PropertyChangeEvent event) {
 		for (PropertyChangeListener l : pcl) {
-			l.propertyChange(event);
+			if( l != null)
+				l.propertyChange(event);
 		}
 	}
 }

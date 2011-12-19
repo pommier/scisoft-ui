@@ -399,7 +399,9 @@ public class DatasetInspector extends Composite {
 				if (cData == null)
 					return;
 
-				cInspectionTab.stopInspection();
+				if( cInspectionTab != null){
+					cInspectionTab.stopInspection();
+				}
 				CTabItem item = plotTabFolder.getSelection();
 				int t = plotTabFolder.getSelectionIndex();
 				InspectorType type = InspectorType.getType(t);
