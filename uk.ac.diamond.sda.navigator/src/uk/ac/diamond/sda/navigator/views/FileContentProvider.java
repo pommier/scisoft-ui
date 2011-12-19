@@ -102,6 +102,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	                    		treeViewer.getControl().getDisplay().syncExec(new Runnable() {
 									@Override
 									public void run() {
+										if (treeViewer.getControl().isDisposed()) return;
 										treeViewer.getControl().setCursor(busy);
 									}
 	                			});
@@ -114,7 +115,8 @@ public class FileContentProvider implements ILazyTreeContentProvider {
                			    treeViewer.getControl().getDisplay().asyncExec(new Runnable() {
 								@Override
 								public void run() {
-									updateElementInternal(node, req.getIndex(), fa);
+									if (treeViewer.getControl().isDisposed()) return;
+								    updateElementInternal(node, req.getIndex(), fa);
 								}
                 			});
 
