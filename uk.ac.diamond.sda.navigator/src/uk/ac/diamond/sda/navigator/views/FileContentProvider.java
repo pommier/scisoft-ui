@@ -72,7 +72,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		}
 	}
 	
-	private Job updateElementJob;
+	private Thread updateElementJob;
 	
 	/**
 	 * Somewhat long method name, but you get the idea.
@@ -80,13 +80,13 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	private void createUpdateElementJobIfNotAlreadyGoing() {
 		
 		if (updateElementJob==null) {
-			updateElementJob = new Job("Update directory contents") {
+			updateElementJob = new Thread("Update directory contents") {
 				
 				private Cursor  busy   = treeViewer.getControl().getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
 				private boolean isBusy = false;
 				
 				@Override
-				protected IStatus run(IProgressMonitor monitor) {
+				public void run() {
 					
 					while(!treeViewer.getControl().isDisposed() && queue!=null) {
                         try {
@@ -94,7 +94,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
                     		final UpdateRequest req = queue.take();
                     		
                     		// Blank object added to break the queue
-                    		if (req.getElement()==null && req.getIndex()==-1) return Status.CANCEL_STATUS;
+                    		if (req.getElement()==null && req.getIndex()==-1) return;
                     		
                     		if (!isBusy) {
                     			isBusy = true;
@@ -145,13 +145,11 @@ public class FileContentProvider implements ILazyTreeContentProvider {
                         	}
                         }
 					}
-					return Status.CANCEL_STATUS;
 				}	
 			};
-			updateElementJob.setPriority(Job.SHORT);
-			updateElementJob.setSystem(true);
-			updateElementJob.setUser(false);
-			updateElementJob.schedule();
+			updateElementJob.setPriority(9);
+			updateElementJob.setDaemon(true);
+			updateElementJob.start();
 
 		}
 	}
