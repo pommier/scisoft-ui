@@ -596,8 +596,6 @@ public class DatasetInspector extends Composite {
 					}
 					dsDetails.setText(msg.toString());
 					axisSelector.setInput(inspection.datasetAxes);
-					axisSelector.redrawASTable();
-					axesSelGroup.redraw();
 					createSlicers(iComp);
 					if (inspection.itype == InspectorType.EMPTY)
 						return;
