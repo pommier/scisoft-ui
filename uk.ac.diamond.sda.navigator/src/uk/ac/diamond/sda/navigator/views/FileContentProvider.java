@@ -122,14 +122,17 @@ public class FileContentProvider implements ILazyTreeContentProvider {
                         	break;
 
                         } catch (org.eclipse.swt.SWTException swtE) {
-                        	queue.clear();
+                        	if (queue==null) break;
+                         	queue.clear();
                         	break;
                         	
                         } catch (Exception ne) {
+                        	if (queue==null) break;
                         	queue.clear();
                         	continue;
                         } finally {
                         	
+                        	if (queue==null) break;
                         	if (queue.isEmpty()) {
                         		isBusy = false;
                        			if (treeViewer.getControl().isDisposed()) break;
