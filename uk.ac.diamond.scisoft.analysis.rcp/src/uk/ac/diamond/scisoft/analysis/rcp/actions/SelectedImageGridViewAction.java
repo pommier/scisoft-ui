@@ -20,11 +20,13 @@ package uk.ac.diamond.scisoft.analysis.rcp.actions;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -40,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
+import uk.ac.gda.util.io.SortingUtils;
 
 public class SelectedImageGridViewAction extends AbstractHandler implements IObjectActionDelegate {
 
@@ -80,16 +83,48 @@ public class SelectedImageGridViewAction extends AbstractHandler implements IObj
 				if (sel != null) {
 					
 					Object[] selObjects = sel.toArray();
+					if (selObjects==null) return Status.CANCEL_STATUS;
+					
 					ArrayList<String> files = new ArrayList<String>();
-					for (Object obj : selObjects) {
-						if(obj instanceof IFile) {
-							IFile file = (IFile)obj;
-							String path = file.getLocation().toString();
-							files.add(path);
-						} else if (obj instanceof File) {
-							File file = (File)obj;
-							String path = file.getAbsolutePath();
-							files.add(path);
+					try {
+						if (selObjects.length==1) {
+							
+							File dir = null;
+							if (selObjects[0] instanceof IFolder) {
+								dir = new File(((IFolder)selObjects[0]).getLocation().toOSString());
+							   
+							} else if (selObjects[0] instanceof File) {
+								final File file = (File)selObjects[0];
+								if (file.isDirectory()) {
+									dir = file;
+								}
+							}
+							
+							if (dir!=null) {
+								final List<File> fa = SortingUtils.getSortedFileList(dir);
+								if (fa!=null && fa.size()>0) {
+									for (File file : fa) {
+										if (!file.isDirectory()) files.add(file.getAbsolutePath());
+									}
+								}
+							}
+						}
+					} catch (Exception ne) {
+						logger.error("Cannot open selected objects as folder!", ne);
+						return Status.CANCEL_STATUS;
+					}
+					
+					if (files.isEmpty()) {
+						for (Object obj : selObjects) {
+							if(obj instanceof IFile) {
+								IFile file = (IFile)obj;
+								String path = file.getLocation().toString();
+								files.add(path);
+							} else if (obj instanceof File) {
+								File file = (File)obj;
+								String path = file.getAbsolutePath();
+								files.add(path);
+							}
 						}
 					}
 					
