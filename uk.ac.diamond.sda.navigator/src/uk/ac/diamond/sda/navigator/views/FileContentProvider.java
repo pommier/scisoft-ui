@@ -40,7 +40,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 
 	public FileContentProvider() {
 		this.cachedSorting = new WeakHashMap<File, List<File>>(89);
-		this.queue         = new LinkedBlockingDeque<UpdateRequest>(89);
+		this.queue         = new LinkedBlockingDeque<UpdateRequest>(Integer.MAX_VALUE);
 	}
 
 	
