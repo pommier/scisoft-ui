@@ -56,6 +56,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.plot.AbstractPlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotBean;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.StaticScanPlotView;
+import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.ui.actions.CheckableActionGroup;
 
 import com.swtdesigner.SWTResourceManager;
@@ -278,6 +279,7 @@ public class DerivativeViewer extends SidePlot implements Overlay1DConsumer, Plo
 			@Override
 			public void run() {
 				try {
+					EclipseUtils.getActivePage().showView("uk.ac.diamond.scisoft.analysis.rcp.plotView2");
 					SDAPlotter.plot("Plot 2", viewer.getXValues(), viewer.getYValues().toArray(new AbstractDataset[0]));
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
