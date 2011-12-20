@@ -47,6 +47,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionComplexEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.SelectedWindow;
+import uk.ac.gda.common.rcp.util.DialogUtils;
 
 /**
  *
@@ -117,7 +118,7 @@ public class PlotDataTableDialog extends Dialog {
 	 */
 	public boolean open() {
 		Shell parent = getParent();
-		shell = new Shell(parent,SWT.RESIZE);
+		shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MODELESS);
 		shell.setSize(418, 280);
 		shell.setText("Data table");
 		shell.setImage(AnalysisRCPActivator.getImageDescriptor("icons/information.png").createImage());
@@ -165,6 +166,7 @@ public class PlotDataTableDialog extends Dialog {
 			column.pack();
 			column.setWidth(180);
 		}
+		DialogUtils.centerDialog(parent, shell);
 		shell.open();
 		IDataset data = eventObj.getDataSet();
 		AxisValues axis = eventObj.getAxisValue();
