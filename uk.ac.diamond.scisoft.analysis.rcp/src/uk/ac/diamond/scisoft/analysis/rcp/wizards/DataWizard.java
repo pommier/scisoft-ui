@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.diamond.scisoft.analysis.rcp.results.navigator.GDADataNature;
+import uk.ac.diamond.scisoft.analysis.rcp.GDADataNature;
 import uk.ac.gda.ui.utils.ProjectUtils;
 
 /**

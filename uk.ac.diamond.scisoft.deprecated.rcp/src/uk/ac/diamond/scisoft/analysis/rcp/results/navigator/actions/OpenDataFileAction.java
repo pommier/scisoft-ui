@@ -34,7 +34,7 @@ import org.eclipse.ui.progress.IProgressService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.rcp.results.navigator.AsciiTextView;
+import uk.ac.diamond.scisoft.analysis.rcp.views.AsciiTextView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.NexusTreeView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DataSetPlotView;
 

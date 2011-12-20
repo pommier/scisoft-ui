@@ -19,13 +19,12 @@ package uk.ac.diamond.scisoft.analysis.rcp.views.nexus;
 
 import org.eclipse.ui.IEditorPart;
 
-import uk.ac.diamond.scisoft.analysis.rcp.results.navigator.DataSetComparisionDialog;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 public class DataSetPlotUtils {
 
 	/**
-	 * Trys to find an active DataSetPlotView 
+	 * Tries to find an active DataSetPlotView 
 	 * @return DataSetPlotView
 	 */
 	public static DataSetPlotView getActiveView() {

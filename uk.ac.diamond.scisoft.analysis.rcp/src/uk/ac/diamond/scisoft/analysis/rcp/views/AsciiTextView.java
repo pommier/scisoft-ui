@@ -15,7 +15,7 @@
  * with this software. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.results.navigator;
+package uk.ac.diamond.scisoft.analysis.rcp.views;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,7 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.AsciiMonitorAction;
+import uk.ac.diamond.scisoft.analysis.rcp.handlers.AsciiMonitorAction;
 
 import com.swtdesigner.SWTResourceManager;
 

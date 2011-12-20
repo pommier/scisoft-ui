@@ -41,10 +41,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
-import uk.ac.diamond.scisoft.analysis.rcp.results.navigator.DataSetComparisionDialog;
 import uk.ac.diamond.scisoft.analysis.rcp.util.PlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.util.PlotUtils;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
+import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DataSetComparisionDialog;
 import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DataSetPlotView;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 

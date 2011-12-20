@@ -15,14 +15,14 @@
  * with this software. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions;
+package uk.ac.diamond.scisoft.analysis.rcp.handlers;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.PlatformUI;
 
-import uk.ac.diamond.scisoft.analysis.rcp.results.navigator.AsciiTextView;
+import uk.ac.diamond.scisoft.analysis.rcp.views.AsciiTextView;
 
 /**
  *

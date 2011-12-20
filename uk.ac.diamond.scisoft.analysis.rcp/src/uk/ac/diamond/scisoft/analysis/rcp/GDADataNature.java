@@ -15,7 +15,7 @@
  * with this software. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.results.navigator;
+package uk.ac.diamond.scisoft.analysis.rcp;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectNature;

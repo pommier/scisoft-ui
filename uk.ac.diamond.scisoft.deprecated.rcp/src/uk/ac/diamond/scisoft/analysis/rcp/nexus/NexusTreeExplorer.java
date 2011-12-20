@@ -61,11 +61,12 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiUpdate;
+import uk.ac.diamond.scisoft.analysis.plotserver.NexusDataBean;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
-import uk.ac.diamond.scisoft.analysis.rcp.results.navigator.AsciiTextView;
+import uk.ac.diamond.scisoft.analysis.rcp.views.AsciiTextView;
 
 /**
  * View NeXus tree and plot items within it
@@ -272,8 +273,11 @@ public class NexusTreeExplorer extends Composite implements IObserver, ISelectio
 			return;
 		}
 
+		if (!(bean instanceof NexusDataBean))
+			return;
+
 		// grab first metadata tree
-		List<INexusTree> ntList = bean.getNexusTrees();
+		List<INexusTree> ntList = ((NexusDataBean) bean).getNexusTrees();
 		if (ntList == null) {
 			logger.warn("Plot server did not push a list of trees");
 			return;

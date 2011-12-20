@@ -15,7 +15,7 @@
  * with this software. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.results.navigator;
+package uk.ac.diamond.scisoft.analysis.rcp.views.nexus;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -49,7 +49,6 @@ import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.MetaDataAdapter;
-import uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DataSetPlotView;
 import uk.ac.gda.monitor.ProgressMonitorWrapper;
 import uk.ac.gda.util.io.SortingUtils;
 import uk.ac.gda.util.list.SortNatural;

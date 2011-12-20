@@ -49,6 +49,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
+import uk.ac.diamond.scisoft.analysis.plotserver.NexusDataBean;
 
 /**
  * Panel that observes a PlotView to show additional information
@@ -153,7 +154,6 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 	public PlotViewStatsAndMaths() {
 	}
 
-	@SuppressWarnings("unused")
 	@Override
 	public void createPartControl(Composite parent) {
 
@@ -348,8 +348,8 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 		return ds.getName() + " ("+ formatIntArray(ds.getShape()) + ")";
 	}
 	
-	protected DataBean dataBeanSubtract(DataBean dataBean1, DataBean dataBean2) {
-		DataBean result = new DataBean();
+	public static DataBean dataBeanSubtract(DataBean dataBean1, DataBean dataBean2) {
+		DataBean result = (dataBean1 instanceof NexusDataBean) ? new NexusDataBean() : new DataBean();
 
 		AbstractDataset dataSet1 = dataBean1.getData().get(0).getData();
 		AbstractDataset dataSet2 = dataBean2.getData().get(0).getData();
@@ -364,13 +364,14 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 		coll.add(dswai);
 
 		result.setData(coll);
-		result.setNexusTrees(dataBean1.getNexusTrees());
+		if (dataBean1 instanceof NexusDataBean)
+			((NexusDataBean) result).setNexusTrees(((NexusDataBean) dataBean1).getNexusTrees());
 		result.setAxisData(dataBean1.getAxisData());
 		return result;
 	}
 
-	protected DataBean dataBeanAdd(DataBean dataBean1, DataBean dataBean2) {
-		DataBean result = new DataBean();
+	public static DataBean dataBeanAdd(DataBean dataBean1, DataBean dataBean2) {
+		DataBean result = (dataBean1 instanceof NexusDataBean) ? new NexusDataBean() : new DataBean();
 
 		AbstractDataset dataSet1 = dataBean1.getData().get(0).getData();
 		AbstractDataset dataSet2 = dataBean2.getData().get(0).getData();
@@ -384,7 +385,8 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 		coll.add(dswai);
 
 		result.setData(coll);
-		result.setNexusTrees(dataBean1.getNexusTrees());
+		if (dataBean1 instanceof NexusDataBean)
+			((NexusDataBean) result).setNexusTrees(((NexusDataBean) dataBean1).getNexusTrees());
 		result.setAxisData(dataBean1.getAxisData());
 		return result;
 	}
@@ -419,8 +421,8 @@ public class PlotViewStatsAndMaths extends ViewPart implements IObserver {
 			return;
 		}
 
-		if (changeCode instanceof DataBean) {
-			currentBean = (DataBean) changeCode;
+		if (changeCode instanceof NexusDataBean) {
+			currentBean = (NexusDataBean) changeCode;
 			processData(currentBean);
 		}
 	}
