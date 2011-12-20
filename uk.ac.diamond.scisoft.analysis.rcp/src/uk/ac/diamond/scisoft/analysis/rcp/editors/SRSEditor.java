@@ -62,6 +62,8 @@ public class SRSEditor extends EditorPart {
 			throw new PartInitException("Input is not a file or file does not exist");
 		}
         setInput(input);
+		setPartName(input.getName());
+
 	}
 
 	@Override
@@ -80,7 +82,6 @@ public class SRSEditor extends EditorPart {
 		srsxp = new SRSExplorer(parent, site, null);
 		site.setSelectionProvider(srsxp);
 
-		setPartName(fileName);
 		try {
 			srsxp.loadFileAndDisplay(fileName, null);
 		} catch (Exception e) {
