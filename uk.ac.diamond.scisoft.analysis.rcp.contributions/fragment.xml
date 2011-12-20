@@ -1935,4 +1935,25 @@
          </activeWhen>
       </handler>
    </extension>
+   <extension
+         point="org.eclipse.ui.cheatsheets.cheatSheetContent">
+      <category
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.divatutorial"
+            name="DIVA Tutorials">
+      </category>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.divatutorial"
+            composite="false"
+            contentFile="cheat/DiffractionViewerIntroduction.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.diffractionViewer"
+            name="Diffraction Viewer Introduction">
+      </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.divatutorial"
+            composite="false"
+            contentFile="cheat/Calibrant.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.divabeamCalibration"
+            name="Beam Centre Calibration">
+      </cheatsheet>
+   </extension>
 </fragment>

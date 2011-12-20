@@ -9,10 +9,10 @@
    <item
          title="Calibrant">
       <description>
-         <b>Choosing the calibrant</b> There are a number of pre-entered calibrants entered in the preferences associated with the diffraction viewer. These are Cr2O3, silicon and bee&apos;s wax.
+         <b>Choosing the calibrant</b> There are a number of pre-entered calibrants entered in the preferences associated with the diffraction viewer. These are Cr2O3, Silicon and Bee&apos;s wax.
       </description>
       <subitem
-            label="These can be found by opening the preferences window by &apos;Window&apos; -&gt; &apos;Preferences&apos; from the menu. Searching for &apos;Diffraction Viewer&apos; to bring up the correct window.">
+            label="These can be found by opening the preferences window by &apos;Window&apos; -&gt; &apos;Preferences&apos; from the menu. Searching for &apos;Diffraction Viewer&apos; to bring up the correct preferences window.">
       </subitem>
       <subitem
             label="To add a custom calibrant enter the name and the d spacing speterated by commas and press add. Once the new calibrant is added select it from the list and click OK.">

@@ -6,3 +6,4 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Diamond
 Fragment-Host: uk.ac.diamond.scisoft.analysis.rcp
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.eclipse.ui.cheatsheets
