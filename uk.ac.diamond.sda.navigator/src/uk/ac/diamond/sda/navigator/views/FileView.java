@@ -236,6 +236,10 @@ public class FileView extends ViewPart {
 		
 
 	}
+	
+	public void collapseAll() {
+		this.tree.collapseAll();
+	}
 
 	protected void setSelectedFile(String path) {
 		final File file = new File(path);
