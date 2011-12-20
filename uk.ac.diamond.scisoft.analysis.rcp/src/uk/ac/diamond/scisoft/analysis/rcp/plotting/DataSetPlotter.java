@@ -275,13 +275,11 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 	public void setUseLegend(final boolean useLeg) {
 		this.useLegend = useLeg;
 		if (useLegend) {
-			if (legendTable == null)
-				buildLegendTable();
-			GridUtils.setVisibleAndLayout(legendTable, true);
+			if (legendTable == null) buildLegendTable();
+			legendTable.setVisible(true);
 			legendTable.updateTable(graphColourTable);
 		} else {
-			if (legendTable != null)
-				GridUtils.setVisibleAndLayout(legendTable, false);
+			if (legendTable != null) legendTable.setVisible(false);
 		}
 		legendTable.getParent().layout();
 	}
