@@ -362,7 +362,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 							IndexIterator it = attrd.getIterator();
 							int i = 0;
 							while (it.hasNext()) {
-								intAxis[i++] = (int) attrd.getElementLongAbs(it.index);
+								intAxis[i++] = (int) attrd.getElementLongAbs(it.index) - 1;
 							}
 						}
 						if (attr_label != null) {
