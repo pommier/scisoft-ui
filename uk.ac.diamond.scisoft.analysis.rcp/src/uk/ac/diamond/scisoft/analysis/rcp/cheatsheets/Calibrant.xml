@@ -9,8 +9,11 @@
    <item
          title="Calibrant">
       <description>
-         <b>Choosing the calibrant</b> There are a number of pre-entered calibrants entered in the preferences associated with the diffraction viewer. These are Cr2O3, silicon and bee&apos;s wax. These can be found by opening the preferences window by &apos;Window&apos; -&gt; &apos;Preferences&apos; from the menu. Searching for &apos;Diffraction Viewer&apos; to bring up the correct window.
+         <b>Choosing the calibrant</b> There are a number of pre-entered calibrants entered in the preferences associated with the diffraction viewer. These are Cr2O3, silicon and bee&apos;s wax.
       </description>
+      <subitem
+            label="These can be found by opening the preferences window by &apos;Window&apos; -&gt; &apos;Preferences&apos; from the menu. Searching for &apos;Diffraction Viewer&apos; to bring up the correct window.">
+      </subitem>
       <subitem
             label="To add a custom calibrant enter the name and the d spacing speterated by commas and press add. Once the new calibrant is added select it from the list and click OK.">
       </subitem>
@@ -30,6 +33,9 @@
       <subitem
             label="There detector distance can also be manipulated along with the wavelength."
             skip="true">
+      </subitem>
+      <subitem
+            label="It is also possible to edit the beam position by clicking on the detector. To do this first make the beam centre visible and then, with the plot view selected, hold &apos;Shift&apos; and left click on the image where the beam centre should be. The beam centre will move to the position of the click.">
       </subitem>
    </item>
 </cheatsheet>
