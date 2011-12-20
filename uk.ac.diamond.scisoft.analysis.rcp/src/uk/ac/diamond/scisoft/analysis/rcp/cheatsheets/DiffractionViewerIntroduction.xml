@@ -13,10 +13,12 @@
          The diffraction viewer is started by pressing the red ruby crystal in the toolbar of a plot which is showing a 2D image. 
       </description>
       <subitem
-            label="There are 6 tabs each of which contains different functionality">
+            label="When this button is pressed the sideplot corresponding to the plot will show the diffraction viewer. Once you have pressed the correct button then bring the sideplot to the top to access the functionality of the diffraction viewer."
+            skip="true">
       </subitem>
       <subitem
-            label="When this button is pressed the sideplot corresponding to the plot will show the diffraction viewer. Once you have pressed the correct button then bring the sideplot to the top to access the functionality of the diffraction viewer.">
+            label="There are 6 tabs each of which contains different functionality"
+            skip="true">
       </subitem>
    </item>
    <item
@@ -26,7 +28,8 @@
      When in the diffraction viewer is active the controls to manipulate the zoom and pan of the plot remain the same.
       </description>
       <subitem
-            label="That is, scrolling the central wheel controls the zoom level and clicking and dragging with the middle wheel will pan the plot.wheel will pan the plot.">
+            label="That is, scrolling the central wheel controls the zoom level and clicking and dragging with the middle wheel will pan the plot.wheel will pan the plot."
+            skip="true">
       </subitem>
    </item>
    <item
@@ -36,43 +39,52 @@
          This view shows the metadata associated with the diffraction image. Specific parts of this information can be edited if they are in error.
       </description>
       <subitem
-            label="The wavelength, distance from the sample to the detector and the beam centre to be manipulated.These settings can be saved between images by pressing the &apos;Lock Settings&apos; button. Reverting to the original metadata can pressing &apos;reset&apos;">
+            label="The wavelength, distance from the sample to the detector and the beam centre to be manipulated."
+            skip="true">
       </subitem>
       <subitem
-            label="These settings can be saved between images by pressing the &apos;Lock Settings&apos; button. Reverting to the original metadata can pressing &apos;reset&apos;">
+            label="These settings can be saved between images by pressing the &apos;Lock Settings&apos; button. Reverting to the original metadata can pressing &apos;Reset&apos;"
+            skip="true">
       </subitem>
    </item>
    <item
          skip="false"
-         title="Line Drawing">
+         title="Line Profile">
       <description>
  d space calculations. This tab will display the results from left click drags across the plot. The line drawn across the image is plotted in the 1D plot. 
       </description>
       <subitem
-            label="A peak finding routine then looks for the peaks and calculates the d spacing between the reflections.">
+            label="A peak finding routine then looks for the peaks and calculates the d spacing between the reflections."
+            skip="true">
       </subitem>
    </item>
    <item
          skip="false"
          title="Resolution Rings">
       <description>
-         This tab allows various resolution rings to be plotted. There are buttons that will plot evenly spaced resolution rings, ice rings, the rings from a calibrant, as well as rings with a specified resolution. There is also the possibility to drag a mask over the image and show the beam centre. 
+         This tab allows various resolution rings to be plotted. There are buttons that will plot evenly spaced resolution rings, ice rings, the rings from a calibrant, as well as rings with a specified resolution. 
       </description>
       <subitem
-            label="There is also the possibility to drag a mask over the image and show the beam centre.">
+            label="There is also the possibility to drag a mask over the image and show the beam centre. When the mask is selected it will apear in red on the image. The size of the mask can be dragged by holding down &apos;Ctrl&apos; and left click dragging on the mask."
+            skip="true">
+      </subitem>
+      <subitem
+            label="Individual rings can be removed from the table by right clicking and selecting delete.">
       </subitem>
    </item>
    <item
          skip="false"
          title="Area Viewing">
       <description>
-      Right clicking on the image will display a box and the content of the box is displayed as a 3D relief in Peak Profile&apos; tab, a zoomed in region in &apos;Image View&apos; and as a numerical representation in &apos;Numerical View&apos;.<br/>Clicking and dragging will move the box around and releasing the pointer will update the plots. <br/>Holding down &apos;Ctrl&apos; and dragging will allow a custom box to be drawn.to be drawn. 
+      Right clicking on the image will display a box and the content of the box is displayed as a 3D relief in Peak Profile&apos; tab, a zoomed in region in &apos;Image View&apos; and as a numerical representation in &apos;Numerical View&apos;. 
       </description>
       <subitem
-            label="Clicking and dragging will move the box around and releasing the pointer will update the plots. &lt;br/&gt;Holding down &apos;Ctrl&apos; and dragging will allow a custom box to be drawn.to be drawn.">
+            label="Clicking and dragging will move the box around and releasing the pointer will update the plots."
+            skip="true">
       </subitem>
       <subitem
-            label="Holding down &apos;Ctrl&apos; and dragging will allow a custom box to be drawn.to be drawn.">
+            label="Holding down &apos;Ctrl&apos; and dragging will allow a custom box to be drawn.to be drawn."
+            skip="true">
       </subitem>
    </item>
 </cheatsheet> 

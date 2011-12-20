@@ -25,11 +25,10 @@
          skip="false"
          title="Manipulating the detector position">
       <description>
-         To manipulate the detector position return to the &apos;Image Metadata&apos; tab where the cross of buttons allows the beam centre to be moved around. It is also possible to enter the information into the relavant fields.<br/> There detector distance can also be manipulated along with the wavelength.
+         To manipulate the detector position return to the &apos;Image Metadata&apos; tab where the cross of buttons allows the beam centre to be moved around. It is also possible to enter the information into the relavant fields.
       </description>
       <subitem
-            label="It is also possible to manipulate the beam position by holding down shift and clicking on the correct position on the image. This only works when the beam centre is visible.
-It is also possible to manipulate the beam position by holding down shift and clicking on the correct position on the image. This only works when the beam centre is visible."
+            label="There detector distance can also be manipulated along with the wavelength."
             skip="true">
       </subitem>
    </item>
