@@ -21,31 +21,24 @@ package uk.ac.diamond.sda.navigator.decorator;
 import gda.analysis.io.ScanFileHolderException;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.viewers.LabelProvider;
 
-import org.eclipse.jface.viewers.IColorDecorator;
-import org.eclipse.jface.viewers.ILabelDecorator;
+import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProviderListener;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.jface.viewers.ILightweightLabelDecorator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.scisoft.analysis.io.IExtendedMetadata;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
-public class ScanCommandDecorator extends LabelProvider implements ILabelDecorator, IColorDecorator {
+public class LightweightScanCommandDecorator extends LabelProvider implements ILightweightLabelDecorator {
 
 	private static final Object SRS_EXT = "dat"; //$NON-NLS-1$
 	private static final Object H5_EXT = "h5"; //$NON-NLS-1$
@@ -53,64 +46,11 @@ public class ScanCommandDecorator extends LabelProvider implements ILabelDecorat
 	private static final Object NXS_EXT = "nxs"; //$NON-NLS-1$
 	private IExtendedMetadata metaData;
 	private String decorator = "";
-	private IMetadataProvider metaDataProvider;
-	// private String hdf5scanCommand;
 	private String fileName;
-	private static final Logger logger = LoggerFactory.getLogger(ScanCommandDecorator.class);
+	private static final Logger logger = LoggerFactory.getLogger(LightweightScanCommandDecorator.class);
 
-	public ScanCommandDecorator() {
+	public LightweightScanCommandDecorator() {
 		super();
-	}
-
-	@Override
-	public Image decorateImage(Image image, Object element) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String decorateText(String label, Object element) {
-		decorator = "";
-		if (element instanceof IFile) {
-			IFile modelFile = (IFile) element;
-			if (SRS_EXT.equals(modelFile.getFileExtension())) {
-				IFile ifile = (IFile) element;
-				// IPath path = ifile.getLocation();
-				// File file = path.toFile();
-				srsMetaDataLoader(ifile);
-
-				try {
-					//Collection<String> list = metaData.getMetaNames();
-					decorator = metaData.getScanCommand();
-					if(decorator==null){
-						decorator="Scan Command: N/A";
-					}else{
-						if (decorator.length() > 100) // restrict to 100 characters
-							decorator = decorator.substring(0, 100) + "...";
-						decorator = "* " + decorator;
-					}
-				}catch (Exception e) {
-					logger.error("Could not read metadata: ", e);
-				}
-
-			}
-			if (NXS_EXT.equals(modelFile.getFileExtension())) {
-				IFile ifile = (IFile) element;
-
-				try {
-					System.out.println("");
-					String[][] listTitlesAndScanCmd = getHDF5TitleAndScanCmd(ifile);
-					for (int i = 0; i < listTitlesAndScanCmd[0].length; i++) {
-						decorator = listTitlesAndScanCmd[0][i] + listTitlesAndScanCmd[1][i];
-					}
-				} catch (ScanFileHolderException e) {
-					logger.error("Could not read hdf5 file: ", e);
-				}catch (Exception e){
-					logger.error("Could not read hdf5metadata: ", e);
-				}
-			}
-		}
-		return label + " " + decorator;
 	}
 
 	@Override
@@ -134,6 +74,56 @@ public class ScanCommandDecorator extends LabelProvider implements ILabelDecorat
 		// TODO Auto-generated method stub
 	}
 
+	@Override
+	public void decorate(Object element, IDecoration decoration) {
+		decorator = "";
+		if (element instanceof IFile) {
+			IFile modelFile = (IFile) element;
+			if (SRS_EXT.equals(modelFile.getFileExtension())) {
+				IFile ifile = (IFile) element;
+				// IPath path = ifile.getLocation();
+				// File file = path.toFile();
+				srsMetaDataLoader(ifile);
+
+				try {
+					//Collection<String> list = metaData.getMetaNames();
+					decorator = metaData.getScanCommand();
+					if(decorator==null){
+						decorator="Scan Command: N/A";
+						decoration.addSuffix(decorator);
+						//decoration.setForegroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
+					}else{
+						if (decorator.length() > 100) // restrict to 100 characters
+							decorator = decorator.substring(0, 100) + "...";
+						decorator = "* " + decorator;
+						decoration.addSuffix(decorator);
+						//decoration.setForegroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
+					}
+				}catch (Exception e) {
+					logger.error("Could not read metadata: ", e);
+				}
+
+			}
+			if (NXS_EXT.equals(modelFile.getFileExtension())) {
+				IFile ifile = (IFile) element;
+
+				try {
+					System.out.println("");
+					String[][] listTitlesAndScanCmd = getHDF5TitleAndScanCmd(ifile);
+					for (int i = 0; i < listTitlesAndScanCmd[0].length; i++) {
+						decorator = listTitlesAndScanCmd[0][i] + listTitlesAndScanCmd[1][i];
+						decoration.addSuffix(decorator);
+						//decoration.setForegroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
+					}
+				} catch (ScanFileHolderException e) {
+					logger.error("Could not read hdf5 file: ", e);
+				}catch (Exception e){
+					logger.error("Could not read hdf5metadata: ", e);
+				}
+			}
+		}		
+	}
+	
 	private void srsMetaDataLoader(IFile file) {
 		fileName = file.getLocation().toString();
 		
@@ -142,7 +132,7 @@ public class ScanCommandDecorator extends LabelProvider implements ILabelDecorat
 			if(metaDataTest instanceof IExtendedMetadata)
 				metaData = (IExtendedMetadata)LoaderFactory.getMetaData(fileName, null);
 			else{
-				decorator="Scan Command: N/A";
+				decorator=" Scan Command: N/A";
 				logger.warn("Cannot decorate SRS decorator");
 			}
 		} catch (Exception ne) {
@@ -208,16 +198,4 @@ public class ScanCommandDecorator extends LabelProvider implements ILabelDecorat
 		}
 		return list;
 	}
-
-	//TODO color not working yet 
-	@Override
-	public Color decorateForeground(Object element) {
-		return PlatformUI.getWorkbench().getDisplay().getSystemColor(SWT.COLOR_BLUE);
-	}
-
-	@Override
-	public Color decorateBackground(Object element) {
-		return PlatformUI.getWorkbench().getDisplay().getSystemColor(SWT.COLOR_BLUE);
-	}
-
 }

@@ -565,6 +565,7 @@ class PlotTab extends ATab {
 						
 				AbstractDataset axesData = axes.get(o).getValues();
 				AbstractDataset reorderdAxesData = DatasetUtils.transpose(axesData, reorderAxesDims);
+				reorderdAxesData.setName(axesData.getName());
 				
 				Slice[] s = new Slice[idxAxes.length];
 				for (int i = 0; i < s.length; i++)
@@ -612,6 +613,25 @@ class PlotTab extends ATab {
 		}
 	}
 
+	private AbstractDataset make1DAxisSlice(List<AbstractDataset> slicedAxes, int dim) {
+		AbstractDataset axisSlice = slicedAxes.get(dim);
+		
+		// 2D plots can only handle 1D axis.
+		if (axisSlice.getRank() > 1) {
+			int rank = axisSlice.getRank();
+			Slice[] sl = new Slice[rank];
+			for (int idx = 0; idx < rank; idx++)
+				if (idx != dim)
+					sl[idx] = new Slice(0,1,1);
+				else 
+					sl[idx] = new Slice();
+			
+			logger.warn("2D plots can only handle 1D axis. Taking first slice from {} dataset", axisSlice.getName());
+			return axisSlice.getSlice(sl).squeeze();
+		}
+		
+		return axisSlice;
+	}
 	@Override
 	public void pushToView(IMonitor monitor, Slice[] slices) {
 		if (dataset == null)
@@ -733,10 +753,13 @@ class PlotTab extends ATab {
 			}
 
 			try {
+				AbstractDataset xAxisSlice = make1DAxisSlice(slicedAxes, 0);
+				AbstractDataset yAxisSlice = make1DAxisSlice(slicedAxes, 1);
+				
 				if (itype == InspectorType.IMAGE)
-					SDAPlotter.imagePlot(PLOTNAME, slicedAxes.get(0), slicedAxes.get(1), reorderedData);
+					SDAPlotter.imagePlot(PLOTNAME, xAxisSlice, yAxisSlice, reorderedData);
 				else
-					SDAPlotter.surfacePlot(PLOTNAME, slicedAxes.get(0), slicedAxes.get(1), reorderedData);
+					SDAPlotter.surfacePlot(PLOTNAME, xAxisSlice, yAxisSlice, reorderedData);
 			} catch (Exception e) {
 				logger.error("Could not plot image or surface");
 			}

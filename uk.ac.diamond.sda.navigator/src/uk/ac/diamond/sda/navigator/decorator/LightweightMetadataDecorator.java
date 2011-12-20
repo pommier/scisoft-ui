@@ -28,50 +28,16 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.LabelProvider;
 
-import org.eclipse.jface.viewers.ILabelDecorator;
+import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProviderListener;
-import org.eclipse.swt.graphics.Image;
+import org.eclipse.jface.viewers.ILightweightLabelDecorator;
 
-public class MetadataDecorator extends LabelProvider implements ILabelDecorator {
 
-	public MetadataDecorator() {
+public class LightweightMetadataDecorator extends LabelProvider implements ILightweightLabelDecorator {
+
+	public LightweightMetadataDecorator() {
 		super();
 	}
-	
-	@Override
-	public Image decorateImage(Image image, Object element) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String decorateText(String label, Object element) {
-		IResource objectResource = (IResource) element;
-		if (objectResource.getType() != IResource.FILE) {
-			return null;
-		}
-
-		// Decorate the label of the resource with the admin name
-		IFile ifile = (IFile) element;
-		IPath path = ifile.getLocation();
-		File file = path.toFile();
-		objectResource.getResourceAttributes().toString();
-
-		String lastModified = new SimpleDateFormat("dd/MM/yy hh:mm aaa").format(new Date(file.lastModified()));
-
-		//String ownerName = System.getProperties().getProperty("user.name");
-		
-		return label + "  " + readableFileSize(file.length()) + "  " + lastModified;
-	}
-
-	public static String readableFileSize(long size) {
-		if (size <= 0)
-			return "0";
-		final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
-		int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
-		return new DecimalFormat("#,##0.#").format(size / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
-	}
-
 
 	@Override
 	public void addListener(ILabelProviderListener listener) {
@@ -95,5 +61,30 @@ public class MetadataDecorator extends LabelProvider implements ILabelDecorator 
 	public void removeListener(ILabelProviderListener listener) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void decorate(Object element, IDecoration decoration) {
+		IResource objectResource = (IResource) element;
+		if (element instanceof IFile) {
+			// Decorate the label of the resource with the admin name
+			IFile ifile = (IFile) element;
+			IPath path = ifile.getLocation();
+			File file = path.toFile();
+			objectResource.getResourceAttributes().toString();
+
+			String lastModified = new SimpleDateFormat("dd/MM/yy hh:mm aaa").format(new Date(file.lastModified()));
+			
+			decoration.addSuffix("  " + readableFileSize(file.length()) + "  " + lastModified);
+			//decoration.setForegroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_CYAN));
+		}
+	}
+	
+	public static String readableFileSize(long size) {
+		if (size <= 0)
+			return "0";
+		final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
+		int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
+		return new DecimalFormat("#,##0.#").format(size / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
 	}
 }

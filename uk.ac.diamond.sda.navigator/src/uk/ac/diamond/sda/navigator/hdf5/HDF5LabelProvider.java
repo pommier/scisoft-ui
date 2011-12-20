@@ -96,7 +96,7 @@ public class HDF5LabelProvider extends LabelProvider implements ILabelProvider, 
 			if (str[0].contains("@NX_class")) {
 				String[] temp = str[0].split("=");
 				strClass = temp[1].trim();
-
+				break; //no need to stay in the for loop
 			} else {
 
 				if (str[i].contains("shape")) {

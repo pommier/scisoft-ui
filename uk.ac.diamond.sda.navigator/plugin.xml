@@ -293,9 +293,10 @@
          point="org.eclipse.ui.decorators">
       <decorator
             adaptable="true"
-            class="uk.ac.diamond.sda.navigator.decorator.MetadataDecorator"
+            class="uk.ac.diamond.sda.navigator.decorator.LightweightMetadataDecorator"
             id="uk.ac.diamond.sda.navigator.metaData"
             label="File Meta Data"
+            lightweight="true"
             state="true">
             <enablement>
                <objectClass name="org.eclipse.core.resources.IResource"/>
@@ -334,9 +335,11 @@
       </decorator>
       <decorator
             adaptable="true"
-            class="uk.ac.diamond.sda.navigator.decorator.ScanCommandDecorator"
-            id="uk.ac.diamond.sda.navigator.srsFileDecorator"
-            label="SRS/Nexus Scan Command and Title Decorator">
+            class="uk.ac.diamond.sda.navigator.decorator.LightweightScanCommandDecorator"
+            id="uk.ac.diamond.sda.navigator.scanCmdFileDecorator"
+            label="SRS/Nexus Scan Command and Title Decorator"
+            lightweight="true"
+            state="true">
          <enablement>
             <objectClass
                   name="org.eclipse.core.resources.IResource">
