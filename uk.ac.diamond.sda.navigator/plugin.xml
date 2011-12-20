@@ -293,9 +293,10 @@
          point="org.eclipse.ui.decorators">
       <decorator
             adaptable="true"
-            class="uk.ac.diamond.sda.navigator.decorator.MetadataDecorator"
+            class="uk.ac.diamond.sda.navigator.decorator.LightweightMetadataDecorator"
             id="uk.ac.diamond.sda.navigator.metaData"
             label="File Meta Data"
+            lightweight="true"
             state="true">
             <enablement>
                <objectClass name="org.eclipse.core.resources.IResource"/>
@@ -334,9 +335,11 @@
       </decorator>
       <decorator
             adaptable="true"
-            class="uk.ac.diamond.sda.navigator.decorator.ScanCommandDecorator"
-            id="uk.ac.diamond.sda.navigator.srsFileDecorator"
-            label="SRS/Nexus Scan Command and Title Decorator">
+            class="uk.ac.diamond.sda.navigator.decorator.LightweightScanCommandDecorator"
+            id="uk.ac.diamond.sda.navigator.scanCmdFileDecorator"
+            label="SRS/Nexus Scan Command and Title Decorator"
+            lightweight="true"
+            state="true">
          <enablement>
             <objectClass
                   name="org.eclipse.core.resources.IResource">
@@ -353,11 +356,57 @@
             allPopups="false"
             locationURI="popup:uk.ac.diamond.sda.navigator.views.FileView">
          <command
+               commandId="uk.ac.diamond.sda.navigator.openCommand"
+               label="Open"
+               style="push">
+         </command>
+         <separator
+               name="uk.ac.diamond.sda.navigator.separator1"
+               visible="true">
+         </separator>
+         <command
                commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.openImageGridView"
                label="Open in Image Grid"
                style="push">
          </command>
+         <separator
+               name="uk.ac.diamond.sda.navigator.separator2"
+               visible="true">
+         </separator>
+         <command
+               commandId="uk.ac.diamond.sda.navigator.collapseAll"
+               icon="icons/CollapseAll.png"
+               label="Collapse All"
+               style="push">
+         </command>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:uk.ac.diamond.sda.navigator.views.FileView">
+         <separator
+               name="uk.ac.diamond.sda.navigator.separator3"
+               visible="true">
+         </separator>
+         <command
+               commandId="uk.ac.diamond.sda.navigator.collapseAll"
+               icon="icons/CollapseAll.png"
+               label="Collapse All"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="uk.ac.diamond.sda.navigator.views.OpenHandler"
+            id="uk.ac.diamond.sda.navigator.openCommand"
+            name="Open">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.sda.navigator.views.CollapseAllHandler"
+            id="uk.ac.diamond.sda.navigator.collapseAll"
+            name="Collapse All">
+      </command>
    </extension>
    <!-- Bind the Action Provider independently 
    <extension

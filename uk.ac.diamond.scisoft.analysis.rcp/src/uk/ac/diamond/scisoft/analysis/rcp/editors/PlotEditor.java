@@ -1,19 +1,18 @@
-/*-
- * Copyright © 2010 Diamond Light Source Ltd.
- *
- * This file is part of GDA.
- *
- * GDA is free software: you can redistribute it and/or modify it under the
+/*
+ * Copyright © 2011 Diamond Light Source Ltd.
+ * Contact :  ScientificSoftware@diamond.ac.uk
+ * 
+ * This is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License version 3 as published by the Free
  * Software Foundation.
- *
- * GDA is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- *
+ * 
+ * This software is distributed in the hope that it will be useful, but 
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
+ * 
  * You should have received a copy of the GNU General Public License along
- * with GDA. If not, see <http://www.gnu.org/licenses/>.
+ * with this software. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package uk.ac.diamond.scisoft.analysis.rcp.editors;
@@ -44,6 +43,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IReusableEditor;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.PartInitException;
@@ -67,7 +67,7 @@ import uk.ac.gda.monitor.ProgressMonitorWrapper;
 /**
  *
  */
-public class PlotEditor extends EditorPart implements ISelectionProvider {
+public class PlotEditor extends EditorPart implements ISelectionProvider, IReusableEditor {
 
 	private static final Logger logger = LoggerFactory.getLogger(PlotEditor.class);
 	private TableViewer viewer;
@@ -90,11 +90,9 @@ public class PlotEditor extends EditorPart implements ISelectionProvider {
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		setSite(site);
+		getSite().setSelectionProvider(this);
 		setInput(input);
 		setPartName(input.getName());
-		getSite().setSelectionProvider(this);
-		DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, null, image);
-		setSelection(datasetSelection);
 	}
 
 	@Override
@@ -174,6 +172,10 @@ public class PlotEditor extends EditorPart implements ISelectionProvider {
 		} catch (Exception e) {
 			logger.error("Cannot load "+input.getName(), e);
 		}
+		
+		DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, null, image);
+		setSelection(datasetSelection);
+
 	}
 
 	/**

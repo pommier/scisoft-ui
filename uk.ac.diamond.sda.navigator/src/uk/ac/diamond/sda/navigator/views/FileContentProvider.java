@@ -1,3 +1,20 @@
+/*
+ * Copyright © 2011 Diamond Light Source Ltd.
+ * Contact :  ScientificSoftware@diamond.ac.uk
+ * 
+ * This is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License version 3 as published by the Free
+ * Software Foundation.
+ * 
+ * This software is distributed in the hope that it will be useful, but 
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along
+ * with this software. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package uk.ac.diamond.sda.navigator.views;
 
 import java.io.File;
@@ -10,6 +27,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.ILazyTreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -18,7 +36,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.ui.PlatformUI;
 
-import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.util.io.SortingUtils;
 
 public class FileContentProvider implements ILazyTreeContentProvider {
@@ -40,13 +57,16 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 
 	public FileContentProvider() {
 		this.cachedSorting = new WeakHashMap<File, List<File>>(89);
-		this.queue         = new LinkedBlockingDeque<UpdateRequest>(89);
+		this.queue         = new LinkedBlockingDeque<UpdateRequest>(Integer.MAX_VALUE);
 	}
 
 	
 	@Override
 	public void dispose() {
 		cachedSorting.clear();
+		cachedSorting = null;
+		queue.add(new UpdateRequest()); // break the queue
+		queue = null;
 	}
 
 	@Override
@@ -58,6 +78,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	@Override
 	public void updateElement(Object parent, int index) {
 
+		if (queue==null) return;
 		if (PlatformUI.isWorkbenchRunning()) {
 			createUpdateElementJobIfNotAlreadyGoing();
 			queue.add(new UpdateRequest(parent, index));
@@ -68,7 +89,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		}
 	}
 	
-	private Job updateElementJob;
+	private Thread updateElementJob;
 	
 	/**
 	 * Somewhat long method name, but you get the idea.
@@ -76,49 +97,78 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	private void createUpdateElementJobIfNotAlreadyGoing() {
 		
 		if (updateElementJob==null) {
-			updateElementJob = new Job("Update directory contents") {
+			updateElementJob = new Thread("Update directory contents") {
 				
-				private Cursor busy = treeViewer.getControl().getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
+				private Cursor  busy   = treeViewer.getControl().getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
+				private boolean isBusy = false;
+				
 				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					while(true) {
+				public void run() {
+					
+					while(!treeViewer.getControl().isDisposed() && queue!=null) {
                         try {
 
                     		final UpdateRequest req = queue.take();
-                    		treeViewer.getControl().getDisplay().syncExec(new Runnable() {
-								@Override
-								public void run() {
-									treeViewer.getControl().setCursor(busy);
-								}
-                			});
+                    		
+                    		// Blank object added to break the queue
+                    		if (req.getElement()==null && req.getIndex()==-1) return;
+                    		
+                    		if (!isBusy) {
+                    			isBusy = true;
+                    			if (treeViewer.getControl().isDisposed()) break;
+	                    		treeViewer.getControl().getDisplay().syncExec(new Runnable() {
+									@Override
+									public void run() {
+										if (treeViewer.getControl().isDisposed()) return;
+										treeViewer.getControl().setCursor(busy);
+									}
+	                			});
+                    		}
 
                 			final File node = (File) req.getElement();
                 			final List<File> fa = getFileList(node);
                 			
-                			treeViewer.getControl().getDisplay().asyncExec(new Runnable() {
+                   			if (treeViewer.getControl().isDisposed()) break;
+               			    treeViewer.getControl().getDisplay().asyncExec(new Runnable() {
 								@Override
 								public void run() {
-									updateElementInternal(node, req.getIndex(), fa);
+									if (treeViewer.getControl().isDisposed()) return;
+								    updateElementInternal(node, req.getIndex(), fa);
 								}
                 			});
 
+                        } catch (InterruptedException ne) {
+                        	break;
+
+                        } catch (org.eclipse.swt.SWTException swtE) {
+                        	if (queue==null) break;
+                         	queue.clear();
+                        	break;
+                        	
                         } catch (Exception ne) {
+                        	if (queue==null) break;
                         	queue.clear();
                         	continue;
                         } finally {
-                        	treeViewer.getControl().getDisplay().syncExec(new Runnable() {
-								@Override
-								public void run() {
-									treeViewer.getControl().setCursor(null);
-								}
-                			});
+                        	
+                        	if (queue==null) break;
+                        	if (queue.isEmpty()) {
+                        		isBusy = false;
+                       			if (treeViewer.getControl().isDisposed()) break;
+                                treeViewer.getControl().getDisplay().syncExec(new Runnable() {
+									@Override
+									public void run() {
+										treeViewer.getControl().setCursor(null);
+									}
+	                			});
+                        	}
                         }
 					}
 				}	
 			};
-			updateElementJob.setSystem(true);
-			updateElementJob.setUser(false);
-			updateElementJob.schedule(100);
+			updateElementJob.setPriority(9);
+			updateElementJob.setDaemon(true);
+			updateElementJob.start();
 
 		}
 	}
@@ -154,6 +204,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	private List<File> getFileList(File node) {
 		
 		if (!node.isDirectory()) return null;
+		if (cachedSorting==null) return null;
 		
 		if (sort==FileSortType.ALPHA_NUMERIC) {
 			final File[] fa = node.listFiles();
@@ -204,29 +255,28 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	}
 	
 	private class UpdateRequest {
+		
 		private Object element;
 		private int index;
 
-		public Object getElement() {
-			return element;
-		}
-
-		public void setElement(Object element) {
-			this.element = element;
-		}
-
-		public int getIndex() {
-			return index;
-		}
-
-		public void setIndex(int index) {
-			this.index = index;
+		UpdateRequest() {
+			element=null;
+			index  =-1;
 		}
 
 		UpdateRequest(final Object element, final int index) {
 			this.element = element;
 			this.index   = index;
 		}
+
+		public Object getElement() {
+			return element;
+		}
+
+		public int getIndex() {
+			return index;
+		}
+
 	}
 
 }
