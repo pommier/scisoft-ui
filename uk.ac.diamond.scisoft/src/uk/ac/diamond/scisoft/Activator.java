@@ -68,12 +68,13 @@ public class Activator extends AbstractUIPlugin {
 	// The plug-in ID
 	public static final String PLUGIN_ID = "uk.ac.diamond.scisoft";
 
-	public static final String INTERPRETER_NAME = "Jython2.5.1";
+	public static final String JYTHON_VERSION = "2.5.1";
+	public static final String INTERPRETER_NAME = "Jython" + JYTHON_VERSION;
 
 	// The shared instance
 	private static Activator plugin;
 
-	private static String[] requiredKeys = {"org.python.pydev",
+	private static final String[] requiredKeys = {"org.python.pydev",
 		"uk.ac.gda.libs",
 		"cbflib",
 		"org.apache.commons.codec",
@@ -83,8 +84,6 @@ public class Activator extends AbstractUIPlugin {
 		"uk.ac.diamond.scisoft",
 		"uk.ac.diamond.scisoft.ncd",
 		"uk.ac.diamond.scisoft.ncd.rcp",
-		"jnexus",
-		"uk.ac.gda.nexus",
 		"uk.ac.gda.common",
 		"jhdf",
 		"com.springsource.slf4j",
@@ -105,7 +104,7 @@ public class Activator extends AbstractUIPlugin {
 		"uk.ac.diamond.org.apache.xmlrpc.server",
 	};
 
-	private static String[] pluginKeys = { "uk.ac.diamond", "uk.ac.gda", "ncsa.hdf" };
+	private final static String[] pluginKeys = { "uk.ac.diamond", "uk.ac.gda", "ncsa.hdf" };
 
 	/**
 	 * The constructor
@@ -361,7 +360,7 @@ public class Activator extends AbstractUIPlugin {
 
 				}
 			} else {
-				// and add all unjared folders
+				// and add all unjarred folders
 				for (File file: gdaDirs) {
 					if (pyPaths.contains(file.getAbsolutePath())) {
 						logger.warn("File already there!");
@@ -421,18 +420,18 @@ public class Activator extends AbstractUIPlugin {
 		}
 	}
 
-
+	private static String JYTHON_DIR = "jython" + JYTHON_VERSION;
 	private File getInterpreterDirectory(File pluginsDir) {
 
 		for (File file : pluginsDir.listFiles()) {
 			if(file.getName().startsWith("uk.ac.gda.libs_")) {
-				File d = new File(file, "jython2.5.1");
+				File d = new File(file, JYTHON_DIR);
 				return d;
 			}
 
 		}
 		logger.error("Could not find a folder for 'uk.ac.gda.libs' defaulting to standard");
-		return new File(pluginsDir, "uk.ac.gda.libs/jython2.5.1/");
+		return new File(pluginsDir, "uk.ac.gda.libs/" + JYTHON_DIR);
 	}
 
 	/**
@@ -478,7 +477,7 @@ public class Activator extends AbstractUIPlugin {
 			for (File f : directoryName.listFiles()) {
 				if (f.isDirectory()) {
 					if (isRequired(f, pluginKeys))
-						logger.debug("Adding library direcotyr {}", f);
+						logger.debug("Adding library directory {}", f);
 					libs.add(f);
 				}
 			}
@@ -515,7 +514,7 @@ public class Activator extends AbstractUIPlugin {
 		String filename = file.getName();
 		logger.debug("Jar/dir found: {}", filename);
 		for (String key : keys) {
-			if(filename.startsWith(key)) return true;
+			if (filename.startsWith(key)) return true;
 		}
 		return false;
 	}
@@ -610,7 +609,7 @@ public class Activator extends AbstractUIPlugin {
 		public void run() {
 			// Might never return...
 			try {
-				info = PydevPlugin.getJythonInterpreterManager().getInterpreterInfo("Jython2.5.1",
+				info = PydevPlugin.getJythonInterpreterManager().getInterpreterInfo(INTERPRETER_NAME,
 						monitor);
 			} catch (MisconfigurationException e) {
 				logger.error("Jython is not configured properly", e);
