@@ -56,7 +56,11 @@ public class FileLabelProvider extends ColumnLabelProvider {
 	
 		switch(columnIndex) {
 		case 0:
-  			return service.getIconForFile(node);
+			try {
+  			    return service.getIconForFile(node);
+			} catch (Throwable ne) {
+				return null;
+			}
 
         default:
         	return null;
