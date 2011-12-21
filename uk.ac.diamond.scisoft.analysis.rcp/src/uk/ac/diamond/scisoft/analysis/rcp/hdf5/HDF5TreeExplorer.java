@@ -60,7 +60,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
-import uk.ac.diamond.scisoft.analysis.rcp.results.navigator.AsciiTextView;
+import uk.ac.diamond.scisoft.analysis.rcp.views.AsciiTextView;
 import uk.ac.gda.monitor.IMonitor;
 
 public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProvider {
