@@ -100,35 +100,11 @@
             restorable="true">
       </view>
       <view
-            allowMultiple="false"
-            category="uk.ac.diamond.scisoft.analysis.rcp"
-            class="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.DataNavigator"
-            icon="icons/application_view_list.png"
-            id="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.ResultsNavigator"
-            name="Data Navigator"
-            restorable="true">
-      </view>
-      <view
-            allowMultiple="false"
-            category="uk.ac.diamond.scisoft.analysis.rcp"
-            class="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.AsciiTextView"
-            icon="icons/page_white_database.png"
-            id="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.AsciiTextView"
-            name="Text">
-      </view>
-      <view
             name="Remote Volume Viewer"
             icon="icons/box.png"
             category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.scisoft.analysis.rcp.views.RemoteVolVizView"
             id="uk.ac.diamond.scisoft.analysis.rcp.views.RemoteVolVizView">
-      </view>
-      <view
-            category="uk.ac.diamond.scisoft.analysis.rcp"
-            class="uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DataSetPlotView"
-            icon="icons/chart_curve.png"
-            id="uk.ac.gda.views.nexus.NexusPlotView"
-            name="Data Sets">
       </view>
       <view
             name="ImageExplorer View"
@@ -155,14 +131,6 @@
             restorable="true">
       </view>
       <view
-            name="Stats and Maths"
-            icon="icons/calculator_link.png"
-            category="uk.ac.diamond.scisoft.analysis.rcp"
-            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotViewStatsAndMaths"
-            id="uk.ac.diamond.scisoft.analysis.rcp.views.PlotViewStatsAndMaths"
-            allowMultiple="true">
-      </view>
-      <view
            allowMultiple="true"
            category="uk.ac.diamond.scisoft.analysis.rcp"
            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
@@ -171,6 +139,14 @@
            name="Plot"
            restorable="true">
       </view>     
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.AsciiTextView"
+            icon="icons/page_white_database.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.views.AsciiTextView"
+            name="Text">
+      </view>
    </extension>
    <extension
          point="org.eclipse.help.contexts">
@@ -228,31 +204,6 @@
    </extension>
    <extension
          point="org.eclipse.ui.commands">
-      <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.RefreshNavigatorAction"
-            id="uk.ac.diamond.scisoft.analysis.rcp.refreshNavigator"
-            name="Refresh All">
-      </command>
-      <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.OpenXmlAction"
-            id="uk.ac.diamond.scisoft.analysis.rcp.openXml"
-            name="Open XML">
-      </command>
-      <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.OpenDataFileAction"
-            id="uk.ac.diamond.scisoft.analysis.rcp.results.openResultsFile"
-            name="Open Data">
-      </command>
-      <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.SwitchDataSourceAction"
-            id="uk.ac.diamond.scisoft.analysis.rcp.results.switchSource"
-            name="Switch Source">
-      </command>
-      <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.nexus.LoadNexusTreeAction"
-            id="uk.ac.diamond.scisoft.analysis.rcp.LoadNexusTreeAction"
-            name="LoadNXTree">
-      </command>
       <command
             defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.hdf5.LoadHDF5TreeAction"
             id="uk.ac.diamond.scisoft.analysis.rcp.LoadHDF5TreeAction"
@@ -583,36 +534,6 @@
       			name="Source View"
       			optional="false">
       		</commandParameter>
-      </command>                                                                                                                           		
-      <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.DefaultDataSourceAction"
-            id="uk.ac.diamond.scisoft.analysis.rcp.results.defaultSource"
-            name="Default Source">
-      </command>
-      <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.RefreshFolderAction"
-            id="uk.ac.diamond.scisoft.analysis.rcp.refreshFile"
-            name="Refresh Folder">
-      </command>
-      <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.AsciiMonitorAction"
-            id="uk.ac.diamond.scisoft.analysis.rcp.monitorAscii"
-            name="Monitor">
-      </command>
-      <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.views.nexus.AddExpressionHandler"
-            id="uk.ac.diamond.scisoft.analysis.rcp.addExpression"
-            name="Add Expression">
-      </command>
-      <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DeleteExpressionHandler"
-            id="uk.ac.diamond.scisoft.analysis.rcp.deleteExpression"
-            name="Delete Expression">
-      </command>
-      <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.CompareDataSetsHandler"
-            id="uk.ac.diamond.scisoft.analysis.rcp.compareDataSets"
-            name="Compare">
       </command>
       <command
       		defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DemoGridViewSelectionAction"
@@ -679,14 +600,9 @@
       		</state>
       </command>
       <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.NexusFilterHandler"
-            id="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.NexusFilter"
-            name="Nexus Filter">
-      </command>
-      <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.DatFilterHandler"
-            id="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.DatFilter"
-            name="Dat Filter">
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.handlers.AsciiMonitorAction"
+            id="uk.ac.diamond.scisoft.analysis.rcp.monitorAscii"
+            name="Monitor">
       </command>
       <command
             defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.preference.PreferencesHandler"
@@ -760,149 +676,6 @@
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
-            locationURI="menu:uk.ac.diamond.scisoft.analysis.rcp.results.navigator.ResultsNavigator">
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.refreshNavigator"
-               icon="icons/page_refresh.png"
-               label="Refresh All"
-               style="push">
-         </command>
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.openXml"
-               icon="icons/page_code.png"
-               label="Open XML"
-               style="push">
-         </command>
-         <separator
-               name="uk.ac.diamond.scisoft.analysis.rcp.separator1"
-               visible="true">
-         </separator>
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.results.switchSource"
-               label="Change data folder..."
-               style="push">
-         </command>
-         <separator
-               name="uk.ac.diamond.scisoft.analysis.rcp.separator2"
-               visible="true">
-         </separator>
-         <menu
-               label="Filter">
-            <command
-                  commandId="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.NexusFilter"
-                  label=".nxs files"
-                  style="toggle">
-            </command>
-            <command
-                  commandId="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.DatFilter"
-                  label=".dat files"
-                  style="toggle">
-            </command>
-         </menu>
-      </menuContribution>
-      <menuContribution
-            locationURI="toolbar:uk.ac.diamond.scisoft.analysis.rcp.results.navigator.ResultsNavigator">
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.compareDataSets"
-               icon="icons/chart_curve_go.png"
-               label="Compare..."
-               style="push">
-         </command>
- 
-         <separator
-               name="uk.ac.diamond.scisoft.analysis.rcp.separator2"
-               visible="true">
-         </separator>
-         <command
-               commandId="org.eclipse.search.ui.openSearchDialog"
-               icon="icons/folder_explore.png"
-               label="Find..."
-               style="push"
-               tooltip="Find a file using a wildcard search.">
-         </command>
-         <separator
-               name="uk.ac.diamond.scisoft.analysis.rcp.separator3"
-               visible="true">
-         </separator>
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.refreshFile"
-               icon="icons/folder_page_white.png"
-               label="Refresh Folder"
-               style="push"
-               tooltip="Refreshes the current folder or parent if a file is selected.">
-         </command>
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.results.defaultSource"
-               icon="icons/folder_brick.png"
-               label="Default Data"
-               style="push"
-               tooltip="Set data folder to be the one for this visit.">
-         </command>
-      </menuContribution>
-      <menuContribution
-            locationURI="popup:uk.ac.diamond.scisoft.analysis.rcp.results.navigator.ResultsNavigator">
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.refreshFile"
-               icon="icons/folder_page_white.png"
-               label="Refresh Folder"
-               style="push"
-               tooltip="Refreshes the current folder or parent if a file is selected.">
-         </command>
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.refreshNavigator"
-               icon="icons/page_refresh.png"
-               label="Refresh All"
-               style="push">
-         </command>
-         <separator
-               name="uk.ac.diamond.scisoft.analysis.rcp.separator1"
-               visible="true">
-         </separator>
-         <command
-               commandId="org.eclipse.search.ui.openSearchDialog"
-               icon="icons/folder_explore.png"
-               label="Find..."
-               style="push"
-               tooltip="Find a file using a wildcard search.">
-         </command>
-         <separator
-               name="uk.ac.diamond.scisoft.analysis.rcp.separator3"
-               visible="true">
-         </separator>
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.compareDataSets"
-               icon="icons/chart_curve_go.png"
-               label="Compare..."
-               style="push">
-         </command>
-         <separator
-               name="uk.ac.diamond.scisoft.analysis.rcp.separator2"
-               visible="true">
-         </separator>
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.results.switchSource"
-               label="Change data folder..."
-               style="push">
-         </command>
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.openXml"
-               icon="icons/page_code.png"
-               label="Open XML"
-               style="push"
-               tooltip="If there is an xml node in the nexus file.">
-         </command>
-      </menuContribution>
-      <menuContribution
-            locationURI="toolbar:uk.ac.diamond.scisoft.analysis.rcp.views.NexusTreeView">
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.LoadNexusTreeAction"
-               icon="icons/folder_page.png"
-               label="Load tree"
-               style="push"
-               tooltip="Load a NeXus tree from the filesystem">
-         </command>
-      </menuContribution>
-      <menuContribution
             locationURI="toolbar:uk.ac.diamond.scisoft.analysis.rcp.views.HDF5TreeView">
          <command
                commandId="uk.ac.diamond.scisoft.analysis.rcp.LoadHDF5TreeAction"
@@ -913,66 +686,13 @@
          </command>
       </menuContribution>
       <menuContribution
-            locationURI="toolbar:uk.ac.diamond.scisoft.analysis.rcp.results.navigator.AsciiTextView">
+            locationURI="toolbar:uk.ac.diamond.scisoft.analysis.rcp.views.AsciiTextView">
          <command
                commandId="uk.ac.diamond.scisoft.analysis.rcp.monitorAscii"
                icon="icons/page_white_get.png"
                label="Monitor"
                style="toggle"
                tooltip="Switches on/off monitoring of the file. The file is refreshed every five seconds.">
-         </command>
-      </menuContribution>
-      <menuContribution
-            locationURI="toolbar:uk.ac.gda.views.nexus.NexusPlotView">
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.addExpression"
-               icon="icons/calculator_add.png"
-               label="Add Expression"
-               style="push"
-               tooltip="Adds an expression which can be plotted. Must be function of other data sets.">
-         </command>
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.deleteExpression"
-               icon="icons/calculator_delete.png"
-               label="Delete Expression"
-               style="push"
-               tooltip="Deletes an expression.">
-         </command>
-         <separator
-               name="uk.ac.diamond.scisoft.analysis.rcp.separator1"
-               visible="true">
-         </separator>
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.preference.preferenceDialog"
-               icon="icons/application_view_list.png"
-               label="Preferences..."
-               style="push">
-         </command>
-      </menuContribution>
-      <menuContribution
-            locationURI="popup:uk.ac.gda.views.nexus.NexusPlotView">
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.addExpression"
-               icon="icons/calculator_add.png"
-               label="Add Expression"
-               style="push"
-               tooltip="Adds an expression which can be plotted. Must be function of other data sets.">
-         </command>
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.deleteExpression"
-               icon="icons/calculator_delete.png"
-               label="Delete Expression"
-               style="push"
-               tooltip="Deletes an expression.">
-         </command>
-         <separator
-               name="uk.ac.diamond.scisoft.analysis.rcp.separator2"
-               visible="true">
-         </separator>
-         <command
-               commandId="uk.ac.diamond.scisoft.analysis.rcp.preference.preferenceDialog"
-               label="Preferences..."
-               style="push">
          </command>
       </menuContribution>
       <menuContribution
@@ -1095,24 +815,6 @@
             </parameter>
          </command>
       </menuContribution>
-     <menuContribution
-           locationURI="toolbar:org.eclipse.search.ui.views.SearchView">
-        <command
-              commandId="uk.ac.diamond.scisoft.analysis.rcp.compareDataSets"
-              icon="icons/chart_curve_go.png"
-              label="Compare..."
-              style="push">
-        </command>
-     </menuContribution>
-     <menuContribution
-           locationURI="popup:org.eclipse.search.ui.views.SearchView">
-        <command
-              commandId="uk.ac.diamond.scisoft.analysis.rcp.compareDataSets"
-              icon="icons/chart_curve_go.png"
-              label="Compare..."
-              style="push">
-        </command>
-     </menuContribution>
          <menuContribution
             locationURI="toolbar:uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView">
          <command
@@ -1414,33 +1116,14 @@
         </menuContribution>
    </extension>
    <extension
-         id="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.GDADataNature"
+         id="uk.ac.diamond.scisoft.analysis.rcp.GDADataNature"
          name="Data"
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
-               class="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.GDADataNature">
+               class="uk.ac.diamond.scisoft.analysis.rcp.GDADataNature">
          </run>
       </runtime>
-   </extension>
-   <extension
-         point="org.eclipse.search.searchPages">
-      <page
-            class="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.search.DataSearch"
-            icon="icons/folder_explore.png"
-            id="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.search.dataSearch"
-            label="Data"
-            tabPosition="0">
-      </page>
-   </extension>
-   <extension
-         point="org.eclipse.search.searchResultViewPages">
-      <viewPage
-            class="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.search.DataSearchResultPage"
-            icon="icons/folder_explore.png"
-            id="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.search.dataSearchPage"
-            searchResultClass="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.search.DataSearchResult">
-      </viewPage>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">
@@ -1558,14 +1241,6 @@
             name="Plot Data Editor">
       </editor>
       <editor
-            class="uk.ac.diamond.scisoft.analysis.rcp.editors.AsciiEditor"
-            default="false"
-            extensions="srs"
-            icon="icons/page_white_paint.png"
-            id="uk.ac.diamond.scisoft.analysis.rcp.editors.AsciiEditor"
-            name="Ascii Data Editor">
-      </editor>
-      <editor
             class="uk.ac.diamond.scisoft.analysis.rcp.editors.SRSEditor"
             default="false"
             extensions="dat"
@@ -1600,81 +1275,12 @@
             class="uk.ac.diamond.scisoft.analysis.rcp.editors.CompareFilesEditor"
             id="uk.ac.diamond.scisoft.analysis.rcp.editors.CompareFilesEditor"
             name="Compare">
-      </editor>      
+      </editor>
    </extension>
-   <extension
-         point="org.eclipse.ui.editorActions">
-<!--      <editorContribution
-            id="uk.ac.diamond.scisoft.analysis.rcp.nexusEditorContribution"
-            targetID="uk.ac.diamond.scisoft.analysis.rcp.editors.NexusTreeEditor">
-         <action
-               class="uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DeleteExpressionHandler"
-               definitionId="uk.ac.diamond.scisoft.analysis.rcp.deleteExpression"
-               icon="icons/calculator_delete.png"
-               id="uk.ac.diamond.scisoft.analysis.rcp.deleteExpressionEditorAction"
-               label="Delete Expression"
-               style="push"
-               toolbarPath="Normal/additions"
-               tooltip="Delete an expression">
-         </action>
-         <action
-               class="uk.ac.diamond.scisoft.analysis.rcp.views.nexus.AddExpressionHandler"
-               definitionId="uk.ac.diamond.scisoft.analysis.rcp.addExpression"
-               icon="icons/calculator_add.png"
-               id="uk.ac.diamond.scisoft.analysis.rcp.addExpressionEditorAction"
-               label="Add Expression"
-               style="radio"
-               toolbarPath="Normal/additions"
-               tooltip="Add an expression of the other data sets">
-         </action>
-      </editorContribution>
--->
-      <editorContribution
-            id="uk.ac.diamond.scisoft.analysis.rcp.nexusEditorContribution"
-            targetID="uk.ac.diamond.scisoft.analysis.rcp.editors.AsciiEditor">
-         <action
-               class="uk.ac.diamond.scisoft.analysis.rcp.views.nexus.DeleteExpressionHandler"
-               definitionId="uk.ac.diamond.scisoft.analysis.rcp.deleteExpression"
-               icon="icons/calculator_delete.png"
-               id="uk.ac.diamond.scisoft.analysis.rcp.deleteExpressionEditorAction"
-               label="Delete Expression"
-               style="push"
-               toolbarPath="Normal/additions"
-               tooltip="Delete an expression">
-         </action>
-         <action
-               class="uk.ac.diamond.scisoft.analysis.rcp.views.nexus.AddExpressionHandler"
-               definitionId="uk.ac.diamond.scisoft.analysis.rcp.addExpression"
-               icon="icons/calculator_add.png"
-               id="uk.ac.diamond.scisoft.analysis.rcp.addExpressionEditorAction"
-               label="Add Expression"
-               style="radio"
-               toolbarPath="Normal/additions"
-               tooltip="Add an expression of the other data sets">
-         </action>
-      </editorContribution>
-   </extension>
-<!--   
    <extension
          point="org.eclipse.ui.popupMenus">
+<!--
       <objectContribution
-            adaptable="true"
-            id="uk.ac.diamond.scisoft.analysis.rcp.compareObjectContribution"
-            objectClass="org.eclipse.core.resources.IFile">
-         <action
-               class="uk.ac.diamond.scisoft.analysis.rcp.results.navigator.actions.CompareDataSetsHandler"
-               enablesFor="+"
-               icon="icons/chart_curve_go.png"
-               id="uk.ac.diamond.scisoft.analysis.rcp.compareDataSetsDelegate"
-               label="Compare..."
-               tooltip="Compare files">
-         </action>
-      </objectContribution>
-   </extension>
- -->
-   <extension
-         point="org.eclipse.ui.popupMenus">
-<!--      <objectContribution
             adaptable="true"
             id="uk.ac.diamond.scisoft.analysis.rcp.NavigatorDemoContribution"
             objectClass="org.eclipse.core.resources.IFile">

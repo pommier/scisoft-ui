@@ -1,18 +1,17 @@
 /*
- * Copyright © 2011 Diamond Light Source Ltd.
- * Contact :  ScientificSoftware@diamond.ac.uk
+ * Copyright 2012 Diamond Light Source Ltd.
  * 
- * This is free software: you can redistribute it and/or modify it under the
- * terms of the GNU General Public License version 3 as published by the Free
- * Software Foundation.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * 
- * This software is distributed in the hope that it will be useful, but 
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
- * Public License for more details.
+ *   http://www.apache.org/licenses/LICENSE-2.0
  * 
- * You should have received a copy of the GNU General Public License along
- * with this software. If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package uk.ac.diamond.scisoft.analysis.rcp.inspector;
@@ -20,11 +19,9 @@ package uk.ac.diamond.scisoft.analysis.rcp.inspector;
 import java.util.ArrayList;
 import java.util.List;
 
-//import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.CellEditor;
 import org.eclipse.jface.viewers.CheckboxCellEditor;
 import org.eclipse.jface.viewers.ColumnViewer;
-//import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.ICellEditorListener;
 import org.eclipse.jface.viewers.ILabelProviderListener;
@@ -52,7 +49,6 @@ public class AxisSelectionTable extends Composite {
 	private ICellEditorListener cListener;
 	private static final int asWidth = 60;
 	private AxisSelectionLabelProvider lProvider = null;
-//	private TableColumnLayout tcLayout;
 
 	/**
 	 * @param parent
@@ -70,8 +66,6 @@ public class AxisSelectionTable extends Composite {
 
 		cListener = listener;
 		axesSelector = new TableViewer(this, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL | SWT.FULL_SELECTION | SWT.HIDE_SELECTION);
-//		tcLayout = new TableColumnLayout();
-//		setLayout(tcLayout);
 		setLayout(new FillLayout());
 
 		asColumns = new ArrayList<TableColumn>();
@@ -82,7 +76,6 @@ public class AxisSelectionTable extends Composite {
 		tCol.setToolTipText("Dimension of dataset array");
 		tCol.setWidth(40);
 		tCol.setResizable(false);
-//		tcLayout.setColumnData(tCol, new ColumnWeightData(0, 40, false));
 
 		int columns = 5;
 		for (int i = 1; i < columns; i++) {
@@ -92,7 +85,6 @@ public class AxisSelectionTable extends Composite {
 			tCol.setText(String.valueOf(i));
 			tCol.setWidth(asWidth);
 			tCol.setMoveable(false);
-//			tcLayout.setColumnData(tCol, new ColumnWeightData(10, asWidth));
 			tVCol.setEditingSupport(new AxisSelectionEditing(axesSelector, i, cListener));
 		}
 
@@ -111,12 +103,7 @@ public class AxisSelectionTable extends Composite {
 		this.axes = axes;
 		lProvider.setAxes(axes);
 		axesSelector.setInput(axes);
-	}
 
-	/**
-	 * 
-	 */
-	public void redrawASTable() {
 		int maxColumns = 0;
 		for (AxisSelection a: axes) {
 			if (maxColumns < a.size())
@@ -127,10 +114,11 @@ public class AxisSelectionTable extends Composite {
 		int curColumns = asColumns.size();
 		int diff = maxColumns - curColumns;
 
-		for (int i = 0; i < curColumns; i++) { // make all columns visible
-			if (asColumns.get(i).getWidth() == 0) {
-				asColumns.get(i).setWidth(asWidth);
-//				asColumns.get(i).setResizable(true);
+		for (int i = 1; i < curColumns; i++) { // make all columns visible
+			TableColumn tCol = asColumns.get(i);
+			tCol.setText(String.valueOf(i));
+			if (tCol.getWidth() == 0) {
+				tCol.setWidth(asWidth);
 			}
 		}
 		if (diff > 0) {
@@ -140,22 +128,23 @@ public class AxisSelectionTable extends Composite {
 				asColumns.add(tCol);
 				tCol.setText(String.valueOf(i));
 				tCol.setWidth(asWidth);
-//				tCol.setResizable(true);
 				tCol.setMoveable(false);
-//				tcLayout.setColumnData(tCol, new ColumnWeightData(10, asWidth));
 				tVCol.setEditingSupport(new AxisSelectionEditing(axesSelector, i, cListener));
 				tVCol.setLabelProvider(axesSelector.getLabelProvider(0)); // fix for NPE as new column doesn't seem to inherit label provider!
 			}
 		} else {
 			for (int i = curColumns-1; i >= maxColumns; i--) {
-				asColumns.get(i).setWidth(0);
-//				asColumns.get(i).setResizable(false);
-				// above code does not hide columns when using a TableColumnLayout
-//				asColumns.get(i).dispose(); 
-//				asColumns.remove(i);
+				TableColumn tCol = asColumns.get(i);
+				tCol.setText("");
+				tCol.setWidth(0);
 			}
 		}
 		axesSelector.refresh();
+		for (TableColumn tCol : asColumns) {
+			if (tCol.getWidth() > 0) {
+				tCol.pack();
+			}
+		}
 	}
 
 	/**

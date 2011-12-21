@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Editors
 Bundle-SymbolicName: uk.ac.diamond.scisoft.analysis.rcp.contributions;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: Diamond
+Bundle-Vendor: Diamond Light Source Ltd.
 Fragment-Host: uk.ac.diamond.scisoft.analysis.rcp
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.eclipse.ui.cheatsheets

@@ -1,18 +1,17 @@
 /*
- * Copyright © 2011 Diamond Light Source Ltd.
- * Contact :  ScientificSoftware@diamond.ac.uk
+ * Copyright 2012 Diamond Light Source Ltd.
  * 
- * This is free software: you can redistribute it and/or modify it under the
- * terms of the GNU General Public License version 3 as published by the Free
- * Software Foundation.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  * 
- * This software is distributed in the hope that it will be useful, but 
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
- * Public License for more details.
+ *   http://www.apache.org/licenses/LICENSE-2.0
  * 
- * You should have received a copy of the GNU General Public License along
- * with this software. If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package uk.ac.diamond.scisoft.analysis.rcp.hdf5;
@@ -21,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,7 +61,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
-import uk.ac.diamond.scisoft.analysis.rcp.results.navigator.AsciiTextView;
+import uk.ac.diamond.scisoft.analysis.rcp.views.AsciiTextView;
 import uk.ac.gda.monitor.IMonitor;
 
 public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProvider {
@@ -325,7 +325,8 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		cData.squeeze(true);
 
 		// set up slices
-		int rank = cData.getRank();
+		int[] shape = cData.getShape();
+		int rank = shape.length;
 
 		// scan children for SDS as possible axes (could be referenced by axes)
 		@SuppressWarnings("null")
@@ -346,42 +347,79 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 					if (s.length != 0) // don't make a 0D dataset
 						a.squeeze(true);
 
+					int[] ashape = a.getShape();
+
 					AxisChoice choice = new AxisChoice(a);
 					HDF5Attribute attr = d.getAttribute(NXAXIS);
 					HDF5Attribute attr_label = d.getAttribute(NXLABEL);
+					int[] intAxis = null;
 					if (attr != null) {
-						int[] intAxis = null;
 						if (attr.isString()) {
 							String[] str = attr.getFirstElement().split(",");
-							intAxis = new int[str.length];
-							for (int i = 0; i < str.length; i++)
-								intAxis[i] = Integer.parseInt(str[i]) - 1;
+							if (str.length == ashape.length) {
+								intAxis = new int[str.length];
+								for (int i = 0; i < str.length; i++)
+									intAxis[i] = Integer.parseInt(str[i]) - 1;
+							}
 						} else {
 							AbstractDataset attrd = attr.getValue();
-							intAxis = new int[attrd.getSize()];
-							IndexIterator it = attrd.getIterator();
-							int i = 0;
-							while (it.hasNext()) {
-								intAxis[i++] = (int) attrd.getElementLongAbs(it.index) - 1;
+							if (attrd.getSize() == ashape.length) {
+								intAxis = new int[attrd.getSize()];
+								IndexIterator it = attrd.getIterator();
+								int i = 0;
+								while (it.hasNext()) {
+									intAxis[i++] = (int) attrd.getElementLongAbs(it.index) - 1;
+								}
 							}
 						}
-						if (attr_label != null) {
-							if (attr_label.isString()) {
-								choice.setDimension(intAxis, Integer.parseInt(attr_label.getFirstElement()) - 1);
-							} else {
-								choice.setDimension(intAxis, attr_label.getValue().getInt(0) - 1);
-							}
-						} else
-							choice.setDimension(intAxis);
-					} else {
-						if (attr_label != null) {
-							if (attr_label.isString()) {
-								choice.setDimension(new int[] { Integer.parseInt(attr_label.getFirstElement()) - 1 });
-							} else {
-								choice.setDimension(new int[] {attr_label.getValue().getInt(0) - 1 });
+
+						if (intAxis == null) {
+							logger.warn("Axis attribute {} does not rank", a.getName());
+						} else {
+							// check that axis attribute matches data dimensions
+							for (int i = 0; i < intAxis.length; i++) {
+								int al = ashape[i];
+								if (al != shape[intAxis[i]]) {
+									intAxis = null;
+									logger.warn("Axis attribute {} does not match shape", a.getName());
+									break;
+								}
 							}
 						}
 					}
+
+					if (intAxis == null) {
+						// remedy bogus or missing axis attribute
+						intAxis = new int[ashape.length];
+						Arrays.fill(intAxis, -1);
+						Map<Integer, Integer> dims = new LinkedHashMap<Integer, Integer>();
+						for (int i = 0; i < rank; i++) {
+							dims.put(i, shape[i]);
+						}
+						for (int i = 0; i < intAxis.length; i++) {
+							int al = ashape[i];
+							for (int k : dims.keySet()) {
+								if (al == dims.get(k)) {
+									intAxis[i] = k;
+									dims.remove(k);
+									break;
+								}
+							}
+							if (intAxis[i] == -1)
+								throw new IllegalArgumentException(
+										"Axis dimension does not match any data dimension");
+						}
+					}
+
+					if (attr_label != null) {
+						if (attr_label.isString()) {
+							choice.setDimension(intAxis, Integer.parseInt(attr_label.getFirstElement()) - 1);
+						} else {
+							choice.setDimension(intAxis, attr_label.getValue().getInt(0) - 1);
+						}
+					} else
+						choice.setDimension(intAxis);
+
 					attr = d.getAttribute(NXPRIMARY);
 					if (attr != null) {
 						if (attr.isString()) {
@@ -407,21 +445,24 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 				axesStr = axesStr.substring(1, axesStr.length() - 1);
 			}
 
-			// check if axes referenced by data exists
+			// check if axes referenced by data's @axes tag exists
 			String[] names = null;
 			names = axesStr.split("[:,]");
 			for (String s : names) {
 				boolean flg = false;
 				for (AxisChoice c : choices) {
 					if (c.equals(s)) {
-						flg = true;
-						break;
+						if (c.getAxes().length == 1) {
+							flg = true;
+							break;
+						}
+						logger.warn("Referenced axis {} in tree node {} is not 1D", s, node);
 					}
 				}
 				if (flg) {
 					aNames.add(s);
 				} else {
-					logger.warn("Referenced axis {} does not exist in NeXus tree node {}", new Object[] { s, node });
+					logger.warn("Referenced axis {} does not exist in tree node {}", s, node);
 					aNames.add(null);
 				}
 			}
@@ -432,67 +473,46 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		axes.clear();
 
 		for (int i = 0; i < rank; i++) {
-			int dim = cData.getShape()[i];
+			int dim = shape[i];
 			AxisSelection aSel = new AxisSelection(dim);
 			axes.add(i, null); // expand list
 			for (AxisChoice c : choices) {
-				// check if dimension number and axis length matches
 				if (c.getDimension() == i) {
-					if (checkAxisDimensions(c))
-						aSel.addSelection(c, c.getPrimary());
+					aSel.addSelection(c, c.getPrimary());
 				}
-			}
 
-			for (AxisChoice c : choices) {
 				// add in others if axis length matches
-				if (aSel.containsAxis(c.getName())) {
-					continue;
-				}
 				int[] cAxis = c.getAxes();
 				if ((c.getDimension() != i) && ArrayUtils.contains(cAxis, i)) {
-					if (checkAxisDimensions(c))
-						aSel.addSelection(c, 0);
+					aSel.addSelection(c, 0);
 				}
-			}
 
-			if (i < aNames.size()) {
-				for (AxisChoice c : choices) {
-					if (aSel.containsAxis(c.getName())) {
-						continue;
-					}
+				if (i < aNames.size()) {
 					if (c.getName().equals(aNames.get(i))) {
-						if (checkAxisDimensions(c))
-							aSel.addSelection(c, 1);
+						aSel.addSelection(c, 1);
 					}
 				}
+//				{
+//					int[] choiceDims = c.getValues().getShape();
+//					AbstractDataset axis = c.getValues();
+//					for (int j = 0; j < choiceDims.length; j++) {
+//						if (choiceDims[j] == dim) {
+//							int[] start = new int[choiceDims.length];
+//							int[] stop = new int[choiceDims.length];
+//							Arrays.fill(stop, 1);
+//							int[] step = stop.clone();
+//							stop[j] = dim;
+//							AbstractDataset sliceAxis = axis.getSlice(start, stop, step).flatten();
+//							// Add dimension label to prevent axis name clashes for different dimensions 
+//							sliceAxis.setName(c.getName() + "_" + "dim:" + (i + 1));
+//							AxisChoice tmpChoice = new AxisChoice(sliceAxis);
+//							tmpChoice.setDimension(new int[] {i});
+//							aSel.addSelection(tmpChoice, 0);
+//						}
+//					}
+//				}
 			}
 
-			for (AxisChoice c : choices) {
-				if (aSel.containsAxis(c.getName())) {
-					continue;
-				}
-				if (!checkAxisDimensions(c)) {
-					int[] choiceDims = c.getValues().getShape();
-					AbstractDataset axis = c.getValues();
-					for (int j = 0; j < choiceDims.length; j++) {
-						if (choiceDims[j] == dim) {
-							int[] start = new int[choiceDims.length];
-							int[] stop = new int[choiceDims.length];
-							Arrays.fill(stop, 1);
-							int[] step = stop.clone();
-							stop[j] = dim;
-							AbstractDataset sliceAxis = axis.getSlice(start, stop, step).flatten();
-							// Add dimension label to prevent axis name clashes for different dimensions 
-							sliceAxis.setName(c.getName() + "_" + "dim:" + (i + 1));
-							AxisChoice tmpChoice = new AxisChoice(sliceAxis);
-							tmpChoice.setDimension(new int[] {i});
-							aSel.addSelection(tmpChoice, 0);
-						}
-					}
-					
-				}
-			}
-			
 			// add in an automatically generated axis with top order so it appears after primary axes
 			AbstractDataset axis = AbstractDataset.arange(dim, AbstractDataset.INT32);
 			axis.setName("dim:" + (i + 1));
@@ -508,43 +528,6 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		return foundData;
 	}
 
-	/**
-	 * Check that all the dimensions in the axis align with the dimensions of the data
-	 */
-	private boolean checkAxisDimensions(AxisChoice c) {
-		int[] cAxis = c.getAxes();
-		if (cAxis == null) {
-			logger.warn("Ignoring node {} as it doesn't have axis attribute",
-					new Object[] { c.getName() });
-			return false;
-		}
-		AbstractDataset axis = c.getValues();
-		if (cAxis.length != axis.getRank()) {
-			logger.warn("Ignoring axis {} as its axis attribute rank does not match axis data rank",
-					new Object[] { c.getName() });
-			return false;
-		}
-		
-		int len = cData.getRank();
-		int[] aShape = axis.getShape();
-		int[] dShape = cData.getShape();
-		for (int a = 0; a < cAxis.length; a++) {
-			if (cAxis[a] >= len) {
-				logger.warn("Ignoring axis {} as its attribute points to non-existing dimension",
-						new Object[] { c.getName() });
-				return false;
-			}
-			int axisShape = aShape[a];
-			int dataShape = dShape[cAxis[a]]; 
-			if (axisShape != dataShape) {
-				logger.warn("Ignoring axis {} as its length ({}) does not match data size ({}) for dimension ({})",
-						new Object[] { c.getName(), axisShape, dataShape, cAxis[a] });
-				return false;
-			}
-		}
-		return true;
-	}
-	
 	@Override
 	public void dispose() {
 		cListeners.clear();
