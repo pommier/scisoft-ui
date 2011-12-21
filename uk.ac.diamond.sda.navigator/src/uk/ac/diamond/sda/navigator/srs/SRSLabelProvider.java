@@ -43,9 +43,7 @@ public class SRSLabelProvider extends LabelProvider implements ILabelProvider, I
 	public String getText(Object element) {
 		if (element instanceof SRSTreeData) {
 			SRSTreeData data = (SRSTreeData) element;
-			return data.getName(); //+ ": min=" + data.getMinValue() //$NON-NLS-1$
-					//+ ", max=" + data.getMaxValue(); //$NON-NLS-1$
-			// + ", Class=" + data.getClassValue();
+			return data.getName();
 		}
 		return null;
 	}

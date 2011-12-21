@@ -76,19 +76,17 @@ public class HDF5LabelProvider extends LabelProvider implements ILabelProvider, 
 
 	@Override
 	public Image decorateImage(Image image, Object element) {
-		// TODO Auto-generated method stub
 		return image;
 	}
 
 	@Override
 	public String decorateText(String label, Object element) {
-		// TODO Auto-generated method stub
 		TreeNode data = (TreeNode) element;
 		HDF5Node node = ((HDF5NodeLink) data.getData()).getDestination();
 		return label + " " + getNodeLinkData(node);
 	}
 
-	public String getNodeLinkData(HDF5Node to) {
+	public static String getNodeLinkData(HDF5Node to) {
 		String strClass = "";
 		String strData = "";
 		String[] str = to.toString().split("\n");

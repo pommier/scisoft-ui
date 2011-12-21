@@ -99,23 +99,11 @@ public class SRSContentProvider implements ITreeContentProvider, IResourceChange
 	public void srsFileLoader(IFile file) {
 
 		fileName = file.getLocation().toString();
-//		try {
-//			SRSLoader dataLoader = new ExtendedSRSLoader(fileName);
-//			data = dataLoader.loadFile();
-//			metaData = dataLoader.getMetaData();
-//		} catch (ScanFileHolderException e) {
-//			data = new DataHolder();
-//			data.addDataset("Failed to load File", new DoubleDataset(1));
-//			logger.warn("Failed to load srs file");
-//		}
 		try {
 			metaData = LoaderFactory.getMetaData(fileName, null);
-			//dataSetPlotView.setMetaData(meta);
-			//dataSetPlotView.refresh();
 		} catch (Exception ne) {
 			logger.error("Cannot open dat file", ne);
 		}
-
 	}
 
 	/**
@@ -131,18 +119,7 @@ public class SRSContentProvider implements ITreeContentProvider, IResourceChange
 		if (SRS_EXT.equals(modelFile.getFileExtension())) {
 			if (modelFile.exists()) {
 				List properties = new ArrayList();
-				
-//				String[] names = getData().getNames();
-//				
-//				for (int i = 0; i < getData().size(); i++) {
-//					ILazyDataset lazyData = data.getLazyDataset(i);
-//					if(lazyData instanceof AbstractDataset)
-//						properties.add(new SRSTreeData(names[i], getData().getDataset(i).min().toString(), getData().getDataset(i)
-//							.max().toString(), getClass(getData().getDataset(i).elementClass().toString()), modelFile));
-//					else if (lazyData instanceof ILazyDataset)
-//						properties.add(new SRSTreeData(names[i], "Not available", "Not available", "Not available", modelFile));
-//				}
-//				SRSTreeData[] srsTreeData = (SRSTreeData[]) properties.toArray(new SRSTreeData[properties.size()]);
+
 				Collection<String> metaDataCollec = metaData.getDataNames();
 				String[] names = new String[metaDataCollec.size()];int i=0;
 				for (Iterator iterator = metaDataCollec.iterator(); iterator.hasNext();) {
@@ -156,7 +133,6 @@ public class SRSContentProvider implements ITreeContentProvider, IResourceChange
 				SRSTreeData[] srsTreeData = (SRSTreeData[]) properties.toArray(new SRSTreeData[properties.size()]);
 
 				cachedModelMap.put(modelFile, srsTreeData);
-//				return getData();
 				return metaData;
 			} else {
 				cachedModelMap.remove(modelFile);

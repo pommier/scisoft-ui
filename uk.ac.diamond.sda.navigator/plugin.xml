@@ -305,20 +305,23 @@
                Displays the file size and the date of last modification.
             </description>
       </decorator>
-      <decorator
+      <!-- Not correctly working yet -->
+      <!--decorator
             adaptable="true"
-            class="uk.ac.diamond.sda.navigator.srs.SRSLabelProvider"
+            class="uk.ac.diamond.sda.navigator.decorator.LightweightSRSDecorator"
             id="uk.ac.diamond.sda.navigator.srsDecorator"
             label="SRS element"
+            lightweight="true"
             state="true">
          <enablement>
             <objectClass
                   name="uk.ac.diamond.scisoft.analysis.rcp.navigator.srs.SRSTreeData">
-            </objectClass></enablement>
+            </objectClass>
+         </enablement>
          <description>
             Displays the SRS tree elements caracteristics.
          </description>
-      </decorator>
+      </decorator-->
       <decorator
             adaptable="true"
             class="uk.ac.diamond.sda.navigator.hdf5.HDF5LabelProvider"

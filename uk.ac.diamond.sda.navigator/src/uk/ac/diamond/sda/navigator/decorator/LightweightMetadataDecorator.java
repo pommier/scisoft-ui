@@ -33,7 +33,7 @@ import org.eclipse.jface.viewers.ILightweightLabelDecorator;
 
 
 public class LightweightMetadataDecorator extends LabelProvider implements ILightweightLabelDecorator {
-
+	
 	public LightweightMetadataDecorator() {
 		super();
 	}

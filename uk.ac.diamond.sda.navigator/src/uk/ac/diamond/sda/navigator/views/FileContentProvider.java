@@ -133,6 +133,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 								@Override
 								public void run() {
 									if (treeViewer.getControl().isDisposed()) return;
+
 								    updateElementInternal(node, req.getIndex(), fa);
 								}
                 			});
@@ -180,23 +181,37 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		if (fa!=null && index < fa.size()) {
 			File element = fa.get(index);
 			treeViewer.replace(parent, index, element);
-			updateChildCount(element, -1);
+			
+			// We correct when they expand, listFiles() could be slow.
+			if (element.isDirectory()) {
+				treeViewer.setChildCount(element, 1);
+			} else {
+				treeViewer.setChildCount(element, 0);
+			}
 		}
 	}
 
 	@Override
 	public void updateChildCount(Object element, int currentChildCount) {
 		
+		if (currentChildCount>-1) {
+			treeViewer.setChildCount(element, currentChildCount);
+		}
+		
 		final File node = (File) element;
 		if (node==null) return;
 		
-		final File[] fa = node.listFiles();
-		if (fa!=null) {
-			int size = fa.length;
-			treeViewer.setChildCount(element, size);
+		if (node.isDirectory()) {
+			final File[] fa = node.listFiles(); // Can be slow to return
+			if (fa!=null) {
+				int size = fa.length;
+				treeViewer.setChildCount(element, size);
+			} else {
+			
+			    treeViewer.setChildCount(element, 0);
+			}
 		} else {
-		
-		    treeViewer.setChildCount(element, 0);
+			treeViewer.setChildCount(element, 0);
 		}
 		
 	}

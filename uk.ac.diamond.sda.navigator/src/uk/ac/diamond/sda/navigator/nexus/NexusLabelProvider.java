@@ -35,8 +35,6 @@ public class NexusLabelProvider extends LabelProvider implements ILabelProvider,
 
 	@Override
 	public Image getImage(Object element) {
-		// if (element instanceof TreeNode)
-		// return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_INFO_TSK);
 		return null;
 	}
 
@@ -45,17 +43,10 @@ public class NexusLabelProvider extends LabelProvider implements ILabelProvider,
 	public String getText(Object element) {
 		if (element instanceof IFile) {
 			IFile file = (IFile) element;
-
 			return file.getName() + "	" + file.getFullPath();
 		}
-
 		if (element instanceof TreeNode) {
 			TreeNode data = (TreeNode) element;
-//			if (((HDF5NodeLink) data.getData()).isDestinationADataset()) {
-//				//TODO send the data and metadata with the name
-//				return ((HDF5NodeLink) data.getData()).getName();
-//			}
-
 			return ((HDF5NodeLink) data.getData()).getName();
 		}
 		return null;
@@ -73,13 +64,11 @@ public class NexusLabelProvider extends LabelProvider implements ILabelProvider,
 
 	@Override
 	public Image decorateImage(Image image, Object element) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String decorateText(String label, Object element) {
-		// TODO Auto-generated method stub
 		return label+"";
 	}
 }

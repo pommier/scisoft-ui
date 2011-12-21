@@ -337,27 +337,6 @@ public class HDF5ContentProvider implements ITreeContentProvider, IResourceChang
 		return false;
 	}
 
-//	public List<String> getNodeListByTreeLevel(int treeLevel) {
-//		List<String> list = new ArrayList<String>();
-//		String[] pathnames = data.getNames();
-//
-//		for (int i = 0; i < pathnames.length; i++) {
-//			String[] temp = pathnames[i].split(DELIMITER);
-//			String str = null;
-//			for (int j = 0; j < treeLevel; j++) {
-//				if (treeLevel < temp.length) {
-//					str = DELIMITER + temp[j].concat(DELIMITER + temp[j + 1]);
-//				}
-//			}
-//			if (!list.contains(str) && str != null) {
-//				list.add(str);
-//			}
-//
-//		}
-//
-//		return list;
-//	}
-
 	/**
 	 * Method that returns the list of all paths possibles out of a String[] of paths <br>
 	 * Example: <br>

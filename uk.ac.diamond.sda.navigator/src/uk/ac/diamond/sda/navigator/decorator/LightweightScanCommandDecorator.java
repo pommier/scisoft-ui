@@ -51,7 +51,7 @@ public class LightweightScanCommandDecorator extends LabelProvider implements IL
 	public LightweightScanCommandDecorator() {
 		super();
 	}
-
+	
 	@Override
 	public void addListener(ILabelProviderListener listener) {
 		// TODO Auto-generated method stub
@@ -82,19 +82,19 @@ public class LightweightScanCommandDecorator extends LabelProvider implements IL
 				IFile ifile = (IFile) element;
 				// IPath path = ifile.getLocation();
 				// File file = path.toFile();
-				srsMetaDataLoader(ifile);
+				srsMetaDataLoader(ifile.getLocation().toString());
 
 				try {
 					//Collection<String> list = metaData.getMetaNames();
 					decorator = metaData.getScanCommand();
 					if(decorator==null){
-						decorator="Scan Command: N/A";
+						decorator=" * Scan Command: N/A";
 						decoration.addSuffix(decorator);
 						//decoration.setForegroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
 					}else{
 						if (decorator.length() > 100) // restrict to 100 characters
 							decorator = decorator.substring(0, 100) + "...";
-						decorator = "* " + decorator;
+						decorator = " * " + decorator;
 						decoration.addSuffix(decorator);
 						//decoration.setForegroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
 					}
@@ -108,7 +108,7 @@ public class LightweightScanCommandDecorator extends LabelProvider implements IL
 
 				try {
 					System.out.println("");
-					String[][] listTitlesAndScanCmd = getHDF5TitleAndScanCmd(ifile);
+					String[][] listTitlesAndScanCmd = getHDF5TitleAndScanCmd(ifile.getLocation().toString());
 					for (int i = 0; i < listTitlesAndScanCmd[0].length; i++) {
 						decorator = listTitlesAndScanCmd[0][i] + listTitlesAndScanCmd[1][i];
 						decoration.addSuffix(decorator);
@@ -123,15 +123,19 @@ public class LightweightScanCommandDecorator extends LabelProvider implements IL
 		}		
 	}
 	
-	private void srsMetaDataLoader(IFile file) {
-		fileName = file.getLocation().toString();
+	public IExtendedMetadata srsMyMetaDataLoader(String fullpath){
+		srsMetaDataLoader(fullpath);
+		return metaData;
+	}
+	
+	private void srsMetaDataLoader(String fullpath) {
 		
 		try {
-			IMetaData metaDataTest=LoaderFactory.getMetaData(fileName, null);
+			IMetaData metaDataTest=LoaderFactory.getMetaData(fullpath, null);
 			if(metaDataTest instanceof IExtendedMetadata)
-				metaData = (IExtendedMetadata)LoaderFactory.getMetaData(fileName, null);
+				metaData = (IExtendedMetadata)LoaderFactory.getMetaData(fullpath, null);
 			else{
-				decorator=" Scan Command: N/A";
+				decorator=" * Scan Command: N/A";
 				logger.warn("Cannot decorate SRS decorator");
 			}
 		} catch (Exception ne) {
@@ -139,13 +143,16 @@ public class LightweightScanCommandDecorator extends LabelProvider implements IL
 		}
 	}
 
-	private String[][] getHDF5TitleAndScanCmd(IFile file) throws Exception {
-		fileName = file.getLocation().toString();
+	public String[][] getMyHDF5TitleAndScanCmd(String fullpath) throws Exception{
+		return getHDF5TitleAndScanCmd(fullpath);
+	}
+	
+	private String[][] getHDF5TitleAndScanCmd(String fullpath) throws Exception {
 		String hdf5scanCommand = "";
 		String hdf5Title = "";
 
 		//HDF5File data = new HDF5Loader(fileName).loadTree();
-		DataHolder dataHolder= new HDF5Loader(fileName).loadFile();
+		DataHolder dataHolder= new HDF5Loader(fullpath).loadFile();
 
 		List<String> list = getAllRootEntries(dataHolder.getNames());
 		Object[] entries = list.toArray();

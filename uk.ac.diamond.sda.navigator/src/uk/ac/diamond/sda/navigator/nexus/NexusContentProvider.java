@@ -207,11 +207,7 @@ public class NexusContentProvider implements ITreeContentProvider, IResourceChan
 
 		if (NEXUS_EXT.equals(modelFile.getFileExtension())) {
 			if (modelFile.exists()) {
-				//List<String> allPaths = getAllPathnames(data.getNames());
-				//Collections.sort(allPaths, String.CASE_INSENSITIVE_ORDER);
-				//cachedModelMap.put(modelFile, populate(allPaths));
 				List<HDF5NodeLink> nodes = getAllPathnames(data.getNames());
-
 				cachedModelMap.put(modelFile, populate(nodes, modelFile));
 				return data;
 			} else {
@@ -452,47 +448,4 @@ public class NexusContentProvider implements ITreeContentProvider, IResourceChan
 		
 		return nodeList;
 	}
-
-//	public List<HDF5NodeLink> getAllPathnames(String[] oldFullPaths) {
-//		List<String> list = new ArrayList<String>();
-//
-//		
-//		
-//		int metaDataSize = getMetadata().size();
-//		String[] newFullPaths = new String[metaDataSize + oldFullPaths.length + 1];
-//
-//		for (int i = 0; i < newFullPaths.length; i++) {
-//			if (i == 0)
-//				newFullPaths[i] = "/";
-//			else if ((i > 0) && (i <= metaDataSize))
-//				newFullPaths[i] = (DELIMITER).concat(getMetadata().get(i - 1).concat(
-//						": "+getMetadataValues().get(i - 1)));
-//			else if (i > metaDataSize)
-//				newFullPaths[i] = oldFullPaths[i - (metaDataSize + 1)];
-//
-//			String[] tmp = newFullPaths[i].split(DELIMITER);
-//			String str = "";
-//			for (int j = 1; j < tmp.length; j++) {
-//				str = str.concat(DELIMITER + tmp[j]);
-//				if (!list.contains(str) && str != "") {
-//					list.add(str);
-//				}
-//			}
-//			if (!list.contains(str) && str != "") {
-//				list.add(str);
-//			}
-//		}
-//		//we add a root
-//		list.add("/");
-//		//we sort the list of string paths
-//		Collections.sort(list, String.CASE_INSENSITIVE_ORDER);
-//		
-//		// we create a new list of HDF5NodeLinks from the previous string list of paths
-//		List<HDF5NodeLink> nodeList=new ArrayList<HDF5NodeLink>();
-//		for (int i = 0; i < list.size(); i++) {
-//			
-//			nodeList.add(hdf5File.findNodeLink(list.get(i)));
-//		}
-//		return nodeList;
-//	}
 }
