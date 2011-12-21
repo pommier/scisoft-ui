@@ -24,7 +24,7 @@ public class GDADataNature implements IProjectNature {
 	
 	protected IProject project;
 	
-	public final static String ID = "uk.ac.diamond.scisoft.analysis.rcp.results.navigator.GDADataNature";
+	public final static String ID = "uk.ac.diamond.scisoft.analysis.rcp.GDADataNature";
 
 	@Override
 	public void configure() throws CoreException {
