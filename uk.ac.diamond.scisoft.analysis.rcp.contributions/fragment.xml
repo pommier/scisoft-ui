@@ -1561,5 +1561,16 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.contributions.divabeamCalibration"
             name="Beam Centre Calibration">
       </cheatsheet>
+      <category
+            id="uk.ac.diamond.scisoft.analysis.rcp.pythoncategory"
+            name="Python/Jython Scripting">
+      </category>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.pythoncategory"
+            composite="false"
+            contentFile="cheat/JythonConsoleTutorial.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.JythonCheatsheet"
+            name="Jython Console Tutorial">
+      </cheatsheet>/category>
    </extension>
 </fragment>
