@@ -113,6 +113,8 @@ public class SRSEditor extends EditorPart {
 						if (element instanceof SRSTreeData) {
 							SRSTreeData srsData = (SRSTreeData) element;
 							String filename = srsData.getFile().getLocation().toString();
+							String[] temp = filename.split("/");
+							filename = temp[temp.length-1];
 							//update only the relevant srseditor
 							String editorName= getSite().getPart().getTitle();
 							if(filename.equals(editorName))
