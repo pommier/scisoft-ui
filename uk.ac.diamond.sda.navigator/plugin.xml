@@ -377,6 +377,13 @@
                visible="true">
          </separator>
          <command
+               commandId="uk.ac.diamond.sda.navigator.refresh"
+               icon="icons/refresh.gif"
+               label="Refresh"
+               style="push"
+               tooltip="Refresh file tree">
+         </command>
+         <command
                commandId="uk.ac.diamond.sda.navigator.collapseAll"
                icon="icons/CollapseAll.png"
                label="Collapse All"
@@ -396,6 +403,13 @@
                label="Collapse All"
                style="push">
          </command>
+         <command
+               commandId="uk.ac.diamond.sda.navigator.refresh"
+               icon="icons/refresh.gif"
+               label="Refresh"
+               style="push"
+               tooltip="Refresh file tree">
+         </command>
       </menuContribution>
    </extension>
    <extension
@@ -409,6 +423,11 @@
             defaultHandler="uk.ac.diamond.sda.navigator.views.CollapseAllHandler"
             id="uk.ac.diamond.sda.navigator.collapseAll"
             name="Collapse All">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.sda.navigator.views.RefreshHandler"
+            id="uk.ac.diamond.sda.navigator.refresh"
+            name="Refresh">
       </command>
    </extension>
    <!-- Bind the Action Provider independently 

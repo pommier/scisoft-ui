@@ -256,6 +256,32 @@ public class FileView extends ViewPart {
 	public void collapseAll() {
 		this.tree.collapseAll();
 	}
+	
+	public void refresh() {
+		
+		final File     file     = getSelectedFile();
+		final Object[] elements = file==null?this.tree.getExpandedElements():null;
+		final FileContentProvider fileCont = (FileContentProvider)tree.getContentProvider();
+		fileCont.clearAndStop();
+
+		tree.refresh(file!=null?file.getParentFile():tree.getInput());
+		
+		if (elements!=null) this.tree.setExpandedElements(elements);
+		if (file!=null)     {
+			this.tree.setExpandedState(file.getParentFile(), true);
+			this.tree.setExpandedState(file, true);
+			tree.setSelection(new StructuredSelection(file));
+		}
+	}
+
+	private void createContent() {
+		
+		final File root = uk.ac.gda.util.OSUtils.isWindowsOS() ? new File("C:/") : new File("/");
+		tree.getTree().setItemCount(root.listFiles().length);
+		tree.setContentProvider(new FileContentProvider());
+		tree.setInput(root);
+		tree.expandToLevel(1);
+	}
 
 	protected void setSelectedFile(String path) {
 		final File file = new File(path);
@@ -354,16 +380,6 @@ public class FileView extends ViewPart {
 	@Override
 	public void setFocus() {
 		tree.getControl().setFocus();
-	}
-
-	private void createContent() {
-		
-		final File root = uk.ac.gda.util.OSUtils.isWindowsOS() ? new File("C:/") : new File("/");
-		tree.getTree().setItemCount(root.listFiles().length);
-		tree.setUseHashlookup(true);
-		tree.setContentProvider(new FileContentProvider());
-		tree.setInput(root);
-		tree.expandToLevel(1);
 	}
 
 	
