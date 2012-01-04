@@ -1570,7 +1570,14 @@
             composite="false"
             contentFile="cheat/JythonConsoleTutorial.xml"
             id="uk.ac.diamond.scisoft.analysis.rcp.JythonCheatsheet"
-            name="Jython Console Tutorial">
-      </cheatsheet>/category>
+            name="a) Jython Console Tutorial">
+      </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.pythoncategory"
+            composite="false"
+            contentFile="cheat/JythonBasicProjectTutoral.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.jythonbasicprojecttutorial"
+            name="b) Jython Basic Project Tutorial">
+      </cheatsheet>
    </extension>
 </fragment>
