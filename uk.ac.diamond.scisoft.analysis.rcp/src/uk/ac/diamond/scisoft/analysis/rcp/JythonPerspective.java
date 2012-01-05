@@ -39,11 +39,10 @@ public class JythonPerspective implements IPerspectiveFactory {
 		// add plot 1 to the left
 		layout.addView("uk.ac.diamond.scisoft.analysis.rcp.plotView1", IPageLayout.RIGHT, 0.6f, editorArea);
 		
-		// add the console to the bottom
-		layout.addView(IConsoleConstants.ID_CONSOLE_VIEW, IPageLayout.BOTTOM, 0.6f, editorArea);
-		
-		// finaly add the outline view to the right of the editor area
-		layout.addView(IPageLayout.ID_OUTLINE, IPageLayout.RIGHT, 0.75f, editorArea);
+		// add the console and the outline to the bottom
+		IFolderLayout bottomLayout = layout.createFolder("bottom", IPageLayout.BOTTOM, 0.6f, editorArea);
+		bottomLayout.addView(IConsoleConstants.ID_CONSOLE_VIEW);
+		bottomLayout.addView(IPageLayout.ID_OUTLINE);
 		
 		// Finaly add all the Pydev actions as are required for running stuff etc.
 		(new PythonPerspectiveFactory()).defineActions(layout);
