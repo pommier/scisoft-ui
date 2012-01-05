@@ -1,7 +1,16 @@
 <project name="plugin-uk.ac.diamond.sda.navigator.test" basedir=".">
 
     <dirname property="GDA-plugin.basedir" file="${ant.file.${ant.project.name}}" />
-    <import file="../../builder/build-common.xml" />
+    <pathconvert property="workspace.loc" setonempty="false">
+        <regexpmapper from="(.*)/plugins/.+" to="\1"/>
+        <path><pathelement location="${GDA-plugin.basedir}" /></path>
+    </pathconvert>
+    <pathconvert property="workspace.loc" setonempty="false">
+        <regexpmapper from="(.*)_git/.+" to="\1"/>
+        <path><pathelement location="${GDA-plugin.basedir}" /></path>
+    </pathconvert>
+    <property name="workspace.git.loc" value="${workspace.loc}_git" />
+    <import file="${workspace.loc}/builder/build-common.xml" />
 
     <!-- ====================================================================
            Invoke the tests
@@ -13,9 +22,9 @@
             <classpath>
                 <pathelement location="${junitjar.loc}" />
                 <pathelement location="${GDA-plugin.basedir}/bin" />
-                <pathelement location="${plugins.dir}/uk.ac.diamond.sda.navigator/bin" />
-                <pathelement location="${plugins.dir}/uk.ac.diamond.scisoft.analysis/bin" />
-                <pathelement location="${plugins.dir}/uk.ac.diamond.scisoft.analysis.rcp/bin" />
+                <pathelement location="${workspace.git.loc}/scisoft/scisoft-ui.git/uk.ac.diamond.sda.navigator/bin" />
+                <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
+                <pathelement location="${workspace.git.loc}/scisoft/scisoft-ui.git/uk.ac.diamond.scisoft.analysis.rcp/bin" />
                 <path refid="thirdparty.bundles.path" />
                 <path>
                     <fileset dir="${target_eclipse.dir}">
