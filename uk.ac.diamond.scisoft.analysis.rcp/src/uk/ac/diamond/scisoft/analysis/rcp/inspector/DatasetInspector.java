@@ -110,7 +110,7 @@ public class DatasetInspector extends Composite {
 			if (n.datasetAxes.size() > 0) { 
 				for (int i = 0, imax = datasetAxes.size(); i < imax; i++) {
 					AxisSelection a = n.datasetAxes.get(i);
-					a.selectAxis(datasetAxes.get(i).getSelectedName(), false);
+					a.selectAxis(datasetAxes.get(i).getSelectedIndex(), false);
 				}
 			}
 
@@ -470,8 +470,6 @@ public class DatasetInspector extends Composite {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				cInspectionTab.stopInspection();
-				//FIXME: Need to update slicer ranges when scrolling through a miltidimensional axis.
-				//       Calling updateSlicers() here doesn't work because it breaks slicing functionality.
 				sliceDataAndView();
 			}
 		};
@@ -567,8 +565,8 @@ public class DatasetInspector extends Composite {
 					AbstractDataset axis = AbstractDataset.arange(shape[i], AbstractDataset.INT32);
 					axis.setName("dim:" + (i+1));
 					AxisChoice newChoice = new AxisChoice(axis);
-					newChoice.setDimension(new int[] {i});
-					aSel.addSelection(newChoice, aSel.getMaxOrder() + 1);
+					newChoice.setAxisNumber(i);
+					aSel.addChoice(newChoice, aSel.getMaxOrder() + 1);
 					aSel.selectAxis(0);
 					inspection.addDatasetAxis(aSel);
 				}
@@ -670,10 +668,19 @@ public class DatasetInspector extends Composite {
 		}
 		List<SliceProperty> slices = inspection.getSlices();
 
+		/*
+		 * need to create list/array of slice objects that pertain to each axis
+		 */
 		for (int i = 0; i < rank; i++) {
 			SliceProperty p = slices.get(i);
-			AbstractDataset axis = inspection.datasetAxes.get(i).getSelectedAxis().getValues();
-			slicers.get(i).createAxisSlicer(p, axis);
+			AxisChoice c = inspection.datasetAxes.get(i).getSelectedAxis();
+			int[] imap = c.getIndexMapping();
+			AbstractDataset axis = c.getValues();
+			SliceProperty[] props = new SliceProperty[imap.length];
+			for (int j = 0; j < imap.length; j++) {
+				props[j] = slices.get(imap[j]);
+			}
+			slicers.get(i).createAxisSlicer(p, axis, props);
 		}
 		parent.pack();
 		parent.setSize(parent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
@@ -698,30 +705,21 @@ public class DatasetInspector extends Composite {
 					s.setStop(b+1);
 //				System.err.println("Slice " + i + " is " + s);
 			}
-		}
-		
-		for (int i = 0; i < rank; i++) {
-			SliceProperty p = properties.get(i);
-			AbstractDataset axis = inspection.datasetAxes.get(i).getSelectedAxis().getValues();
-			int[] dimensions = inspection.datasetAxes.get(i).getSelectedDimensions();
-			Slice[] axisSlice = new Slice[dimensions.length];
-			for (int j = 0; j < axisSlice.length; j++) {
-				Slice tmpSlice = properties.get(dimensions[j]).getValue();
-				// Only slice of current dimension can be complete because we use 1D sliders
-				if (dimensions[j] != i) {
-					if (tmpSlice.getNumSteps() > 1)	{
-						Integer sliceStart = tmpSlice.getStart();
-						axisSlice[j] = (sliceStart == null ? new Slice(0, 1) : new Slice(sliceStart, sliceStart + 1));
-					}
-					else 
-						axisSlice[j] = tmpSlice;
-				}
-				else {
-					axisSlice[j] = new Slice();
-				}
+
+			AxisSelection sel = inspection.datasetAxes.get(i);
+			AxisChoice choice = sel.getSelectedAxis();
+			AbstractDataset axis = choice.getValues();
+			int[] imap = choice.getIndexMapping();
+			SliceProperty[] props = new SliceProperty[imap.length];
+			for (int j = 0; j < imap.length; j++) {
+				props[j] = properties.get(imap[j]);
 			}
-			slicers.get(i).setParameters(p, axis.getSlice(axisSlice).flatten(), used[i]);
+
+			slicers.get(i).setParameters(p, axis, props, used[i]);
 		}
+		Composite parent = slicers.get(0).getParent();
+		parent.pack();
+		parent.setSize(parent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
 	/**

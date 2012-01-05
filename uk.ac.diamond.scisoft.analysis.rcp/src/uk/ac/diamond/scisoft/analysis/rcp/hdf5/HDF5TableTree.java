@@ -108,7 +108,7 @@ public class HDF5TableTree extends Composite {
 				public void handleEvent(Event event) {
 					if (!item.getSelection()) {
 						int width = tCol.getWidth();
-						tCol.setData("restoredWidth", new Integer(width));
+						tCol.setData("restoredWidth", Integer.valueOf(width));
 						tCol.setWidth(0);
 					} else {
 						int width = (Integer) tCol.getData("restoredWidth");

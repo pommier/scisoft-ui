@@ -48,7 +48,7 @@ public class Plot1DGraphTable {
 	
 	public synchronized Plot1DAppearance getLegendEntry(int nr)
 	{
-		assert nr < legendEntries.size()-1;
+		assert nr < legendEntries.size();
 		return legendEntries.get(nr);
 	}
 	
