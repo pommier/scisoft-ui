@@ -21,6 +21,7 @@ import java.io.File;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.PageChangedEvent;
+import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreePath;
@@ -107,7 +108,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 		registerSelectionListener();
 		IWorkbenchPartSite site = getSite();
 		hdfxp = new HDF5TreeExplorer(parent, site, null);
-		site.setSelectionProvider(hdfxp);
+		site.setSelectionProvider(hdfxp.getTableTree().getViewer());
 
 		setPartName(file.getName());
 		loadHDF5Tree();
@@ -264,4 +265,20 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 		EclipseUtils.getActivePage().activate(original);
 
 	}
+	
+	/**
+	 * The Value view uses adapters to get an IContentProvider for its content.
+	 * 
+	 * This is used on the workflow perspective to show selected value in the tree.
+	 */
+	@Override
+    public Object getAdapter(final Class clazz) {
+		
+		if (clazz == IContentProvider.class) {
+			return new HDF5ValuePage();
+		}
+		
+		return super.getAdapter(clazz);
+	}
+
 }

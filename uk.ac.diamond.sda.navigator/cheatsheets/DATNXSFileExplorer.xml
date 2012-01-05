@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<compositeCheatsheet name="DAT and NXS File Browsing">
+   <taskGroup kind="set" name="DAT and NXS file browsing in Package Explorer" skip="false">
+      <intro>
+         <b>Introduction</b>
+      </intro>
+      <onCompletion>
+         <b>Conclusion</b>
+      </onCompletion>
+      <task kind="cheatsheet" name="Data Project creation" skip="false">
+         <intro>
+            <b>Create a Data Project with DAT and Nexus files</b>
+         </intro>
+         <onCompletion>
+            <b>Conclusion</b>
+         </onCompletion>
+         <param name="path" value="NewProjectCreator.xml">
+         </param>
+      </task>
+      <task kind="cheatsheet" name="DAT file browsing" skip="false">
+         <intro>
+            <b>Introduction</b>
+         </intro>
+         <onCompletion>
+            <b>Conclusion</b>
+         </onCompletion>
+         <param name="path" value="DATFileExplorer.xml">
+         </param>
+      </task>
+      <task kind="cheatsheet" name="NXS file browsing" skip="false">
+         <intro>
+            <b>Introduction</b>
+         </intro>
+         <onCompletion>
+            <b>Conclusion</b>
+         </onCompletion>
+         <param name="path" value="NexusFileExplorer.xml">
+         </param>
+      </task>
+   </taskGroup>
+</compositeCheatsheet>

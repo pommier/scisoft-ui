@@ -38,13 +38,10 @@ import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
 public class LightweightScanCommandDecorator extends LabelProvider implements ILightweightLabelDecorator {
 
-	private static final Object SRS_EXT = "dat"; //$NON-NLS-1$
-	private static final Object H5_EXT = "h5"; //$NON-NLS-1$
-	private static final Object HDF5_EXT = "hdf5"; //$NON-NLS-1$
-	private static final Object NXS_EXT = "nxs"; //$NON-NLS-1$
+	private static final String SRS_EXT = "dat"; //$NON-NLS-1$
+	private static final String NXS_EXT = "nxs"; //$NON-NLS-1$
 	private IExtendedMetadata metaData;
 	private String decorator = "";
-	private String fileName;
 	private static final Logger logger = LoggerFactory.getLogger(LightweightScanCommandDecorator.class);
 
 	public LightweightScanCommandDecorator() {
@@ -79,23 +76,18 @@ public class LightweightScanCommandDecorator extends LabelProvider implements IL
 			IFile modelFile = (IFile) element;
 			if (SRS_EXT.equals(modelFile.getFileExtension())) {
 				IFile ifile = (IFile) element;
-				// IPath path = ifile.getLocation();
-				// File file = path.toFile();
 				srsMetaDataLoader(ifile.getLocation().toString());
 
 				try {
-					//Collection<String> list = metaData.getMetaNames();
 					decorator = metaData.getScanCommand();
 					if(decorator==null){
 						decorator=" * Scan Command: N/A";
 						decoration.addSuffix(decorator);
-						//decoration.setForegroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
 					}else{
 						if (decorator.length() > 100) // restrict to 100 characters
 							decorator = decorator.substring(0, 100) + "...";
 						decorator = " * " + decorator;
 						decoration.addSuffix(decorator);
-						//decoration.setForegroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
 					}
 				}catch (Exception e) {
 					logger.error("Could not read metadata: ", e);
@@ -106,12 +98,10 @@ public class LightweightScanCommandDecorator extends LabelProvider implements IL
 				IFile ifile = (IFile) element;
 
 				try {
-					System.out.println("");
 					String[][] listTitlesAndScanCmd = getHDF5TitleAndScanCmd(ifile.getLocation().toString());
 					for (int i = 0; i < listTitlesAndScanCmd[0].length; i++) {
 						decorator = listTitlesAndScanCmd[0][i] + listTitlesAndScanCmd[1][i];
 						decoration.addSuffix(decorator);
-						//decoration.setForegroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
 					}
 				} catch (ScanFileHolderException e) {
 					logger.error("Could not read hdf5 file: ", e);
@@ -150,7 +140,6 @@ public class LightweightScanCommandDecorator extends LabelProvider implements IL
 		String hdf5scanCommand = "";
 		String hdf5Title = "";
 
-		//HDF5File data = new HDF5Loader(fileName).loadTree();
 		DataHolder dataHolder= new HDF5Loader(fullpath).loadFile();
 
 		List<String> list = getAllRootEntries(dataHolder.getNames());
@@ -164,14 +153,11 @@ public class LightweightScanCommandDecorator extends LabelProvider implements IL
 		for (int i = 0; i < entries.length; i++) {
 			// scan command
 			if (dataHolder.contains("/" + entries[i].toString() + "/scan_command")) {
-				//hdf5scanCommand = data.findNodeLink("/" + entries[i].toString() + "/scan_command").toString();
 				hdf5scanCommand = dataHolder.getDataset("/" + entries[i].toString() + "/scan_command").toString();
 				scanCmd[i] = "\nScanCmd" + (i+1) + ": " + hdf5scanCommand;// display of the string on a new line
 			}
 			// title
 			if (dataHolder.contains("/" + entries[i].toString() + "/title")) {
-				System.out.println(dataHolder.getDataset("/" + entries[i].toString() + "/title").toString());
-				//hdf5Title = data.findNodeLink("/" + entries[i].toString() + "/title").toString();
 				hdf5Title = dataHolder.getDataset("/" + entries[i].toString() + "/title").toString();
 				titles[i] = "\nTitle" + (i+1) + ": " + hdf5Title;// display of the string on a new line
 			}
@@ -187,14 +173,14 @@ public class LightweightScanCommandDecorator extends LabelProvider implements IL
 
 	}
 	
-	public String[] initStringArray(String[] array){
+	private String[] initStringArray(String[] array){
 		for (int i = 0; i < array.length; i++) {
 			array[i]="";
 		}
 		return array;
 	}
 
-	public List<String> getAllRootEntries(String[] oldFullPaths) {
+	private List<String> getAllRootEntries(String[] oldFullPaths) {
 		List<String> list = new ArrayList<String>();
 		for (int i = 0; i < oldFullPaths.length; i++) {
 			String[] tmp = oldFullPaths[i].split("/");

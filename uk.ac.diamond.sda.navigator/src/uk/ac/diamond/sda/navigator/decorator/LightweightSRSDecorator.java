@@ -35,13 +35,15 @@ import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.ExtendedSRSLoader;
-import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.SRSLoader;
 import uk.ac.diamond.scisoft.analysis.rcp.navigator.srs.SRSTreeData;
 
+/**
+ * Class used to decorate each of the sub-element of a DAT file with the corresponding data value (max, min, class...)
+ * Not yet implemented
+ */
 public class LightweightSRSDecorator extends LabelProvider implements ILightweightLabelDecorator {
 
-	private static final Object SRS_EXT = "dat"; //$NON-NLS-1$
 	private String decorator = "";
 	private String fileName;
 	private static final Logger logger = LoggerFactory.getLogger(LightweightSRSDecorator.class);
@@ -50,7 +52,6 @@ public class LightweightSRSDecorator extends LabelProvider implements ILightweig
 
 	@Override
 	public void decorate(Object element, IDecoration decoration) {
-		// TODO Auto-generated method stub
 		decorator = "";
 		if (element instanceof SRSTreeData) {
 			srsData = (SRSTreeData) element;
@@ -65,9 +66,9 @@ public class LightweightSRSDecorator extends LabelProvider implements ILightweig
 					properties.add(new SRSTreeData(names[i], data.getDataset(i).min().toString(), 
 							data.getDataset(i).max().toString(),
 							data.getDataset(i).elementClass().toString(), ifile));
-				else if (lazyData instanceof ILazyDataset)
-					properties.add(new SRSTreeData(names[i], 
-							"Not available", "Not available", "Not available", ifile));
+				else {
+					properties.add(new SRSTreeData(names[i], "Not available", "Not available", "Not available", ifile));
+				}
 			}
 			SRSTreeData[] srsTreeData = (SRSTreeData[]) properties.toArray(new SRSTreeData[properties.size()]);
 
