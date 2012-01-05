@@ -108,7 +108,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 		registerSelectionListener();
 		IWorkbenchPartSite site = getSite();
 		hdfxp = new HDF5TreeExplorer(parent, site, null);
-		site.setSelectionProvider(hdfxp.getTableTree().getViewer());
+		site.setSelectionProvider(hdfxp);
 
 		setPartName(file.getName());
 		loadHDF5Tree();
