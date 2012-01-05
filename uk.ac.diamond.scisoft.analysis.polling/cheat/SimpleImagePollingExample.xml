@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet title="Simple Image Polling Example">
+	<intro>
+		<description>
+			This example will take you through the process of
+			monitoring a specific
+			file for an image filename, and if that filename
+			changes displaying
+			the new file in a plot window
+		</description>
+	</intro>
+	<item title="Go to the Polling Perspective">
+		<description>
+			To Start with go to the Polling Perspective, the polling
+			functionality
+			can be used anywhere but this is a basic setup to get
+			you going
+		</description>
+		<command required="true"
+			serialization="org.eclipse.ui.perspectives.showPerspective(org.eclipse.ui.perspectives.showPerspective.perspectiveId=uk.ac.diamond.scisoft.analysis.polling.perspective)" />
+	</item>
+	<item title="Add a new polling job">
+		<description>
+			In the Polling view drop down menu(the small white down arrow in the top right corner) choose:
+			<br/><br/>Add New Job -> Image Plot Update
+			<br/><br/>This will open a new editor window and an <b>ImagePlotUpdateJob</b> should appear in the Polling View.  The table shows various pieces of information about the job, including the status which at this time will read something like '/tmp/test3.txt (No such file or Directory)'
+			<br/><br/>To get rid of this message you will need to understand a little more about what the Polling Job is doing, and all this information can be found in the text file which has been opened in the editor, this file corresponds to the item in the Polling view table, and can be reopened by double clicking on the item.	
+		</description>
+	</item>
+	<item title="How do I modify a polling job">
+		<description>
+			The File is made up of the following pieces:
+			<br/><br/><b>Class</b>
+			<br/>This is the type of polling job which will be done, in this case its an ImagePlotUpdateJob, this entry should not generaly be altered.
+			<br/><br/><b>PollTime</b>
+			<br/>This is the regularity with which the job should run, and is measured in seconds.  This should not be made too small otherwise it could add significant load to network file systems and other shared resuources.
+			<br/><br/><b>FileName</b>
+			<br/>This is the name of the file which is to be checked every 'PollTime' seconds.  This file should contain a single line of text which is the filename of the image which should be displayed.  This file must be changed by an external process which is being monitored, such as a data collection script or other automated process.
+			<br/><br/><b>PlotViewName</b>
+			<br/>This is the name of the <b>Plot View</b> into which the image will be displayed.
+			<br/><br/>To make this work there are several things we need to do, the first is to set the PlotViewName to <b>Plot 1</b> as this is the plot we have open at the moment. Once this change has been made you will need to save the change using: File->Save or Ctrl-S.
+			<br/><br/>Second you will need to change the filename to a file which it is possible for you to create and modify, this file would normaly be created by the external process you wish to monitor but for this example you will be that process.  If you are on a Linux machine /tmp/test3.txt will probably be ok, but on windows you may need to include the full path to another file.
+		</description>
+	</item>
+	<item title="Create Some input which the polling view can use">
+		<description>
+			To simulate a external process in a system editor like gedit or notepad create the file which you specified as the Filename in your ImagePlotUpdateJob.txt file.  Into this put the name of an image file you have access too, at Diamond you can use:
+			<br/><br/>/dls/sci-scratch/ExampleData/ADSC-Q315/adsc/F6_1_001.img
+			<br/><br/>Once you save this file, the filename of the image you have names should appear in <b>Plot 1</b>
+			<br/><br/>If you now change the filename to any other image filename, such as 'F6_1_002.img' (or any other number up to 100) you should see the image update, remember thought that the file is only checked every 3 seconds at tme moment, so if you change the file too quickly it wont necessarily keep up.  Also remember to save the file after changing the filename inside it otherwise the Polling can't pick it up. 
+			<br/><br/>Try changing the PollTime in the 'ImagePlotUpdateJob.txt' to make the updates less or more responsive to change, remember to save the file after every change. 
+		</description>
+	</item>
+
+</cheatsheet>
