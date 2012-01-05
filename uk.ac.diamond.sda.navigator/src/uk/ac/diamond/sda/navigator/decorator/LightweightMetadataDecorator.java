@@ -74,7 +74,6 @@ public class LightweightMetadataDecorator extends LabelProvider implements ILigh
 			String lastModified = new SimpleDateFormat("dd/MM/yy hh:mm aaa").format(new Date(file.lastModified()));
 			
 			decoration.addSuffix("  " + readableFileSize(file.length()) + "  " + lastModified);
-			//decoration.setForegroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_CYAN));
 		}
 	}
 	

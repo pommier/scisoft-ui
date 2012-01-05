@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<cheatsheet title="Nexus File Navigator in Package Explorer">
+  <intro>
+    <description>
+      This cheat sheet describes how to use the Nexus file navigation feature of the package explorer.
+    </description>
+  </intro>
+  <item
+        title="Open the folder containing the .nxs/.hdf5/.h5 files">
+     <description>
+        Once the Data Project is loaded, open the folder containing the Nexus files within the Project Explorer.
+     </description>
+  </item>
+
+   <item
+        title="Browsing the data through the Nexus Data Editor and the Package Explorer">
+     <description>
+        All Nexus/HDF5 files appearing in the project explorer can be opened as folders and once opened will display the list of their content.<br/><br/>
+        Furthermore, by default, all resource files in the Project Explorer have decorators displaying the size, date of creation and title/scan command if present.
+     </description>
+  </item>
+  <item
+        title="Activate / deactivate the scan command and/or Nexus element decorator">
+     <description>
+        The scan command and Nexus sub element decorator (active by default) can be activated/deactivated through &apos;Window -> Preferences -> General -> Appearance -> Label Decorations&apos; or through the link below.<br/><br/>
+        The label decorator that manages the scan command decoration is called &apos;SRS/Nexus Scan Command and Title Decorator&apos; for the Nexus/HDF5 file and &apos;HF5 Element&apos; for the sub element of that file.<br/><br/>
+     </description>
+     <command
+           required="false"
+           serialization="org.eclipse.ui.window.preferences(preferencePageId=org.eclipse.ui.preferencePages.Decorators)"/>
+  </item>
+  <item
+        title="Open the Nexus file in Nexus Data Editor">
+     <description>
+        In order to be able to display the Nexus file data in the DExplore plotting, we need to open the Nexus file with the Nexus Data Editor.<br/><br/>
+        This can be done with &apos;Right Click on the Nexus file -> Open With -> Nexus Data Editor&apos;.<br/><br/>
+        <b>Note</b>: the Nexus files can also be opened by double clicking on one of the Nexus file sub element, however the editor used to open the file will be the last one in the workspace history used to open the file.<br/><br/>
+     </description>
+  </item>
+  <item
+        title="Navigate through the Nexus file data and have the plotting refreshed accordingly">
+     <description>
+        With the Nexus file opened in a Nexus Data Editor, select one of the Nexus file sub element.<br/><br/>
+        Check that the plotting is updated accordingly.<br/><br/>
+     </description>
+  </item>
+</cheatsheet>
+
