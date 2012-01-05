@@ -145,8 +145,16 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 				}
 			};
 		}
+		
+		Listener singleListener = new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				if (event.button == 1)
+					handleSingleClick();
+			}
+		};
 
-		tableTree = new HDF5TableTree(this, null, new Listener() {
+		tableTree = new HDF5TableTree(this, singleListener, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
 				if (event.button == 1)
@@ -228,11 +236,17 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		}
 	}
 
+	private void handleSingleClick() {
+		// Single click passes the standard tree selection on.
+		IStructuredSelection selection = tableTree.getSelection();
+		SelectionChangedEvent e = new SelectionChangedEvent(this, selection);
+		for (ISelectionChangedListener s : cListeners) s.selectionChanged(e);
+	}
+	
 	private void handleDoubleClick() {
 		final Cursor cursor = getCursor();
 		Cursor tempCursor = getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
-		if (tempCursor != null)
-			setCursor(tempCursor);
+		if (tempCursor != null) setCursor(tempCursor);
 
 		IStructuredSelection selection = tableTree.getSelection();
 
