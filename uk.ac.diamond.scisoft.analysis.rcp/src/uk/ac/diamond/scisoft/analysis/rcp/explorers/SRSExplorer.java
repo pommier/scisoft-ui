@@ -119,25 +119,29 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 	private List<AxisSelection> getAxes() {
 		List<AxisSelection> axes = new ArrayList<AxisSelection>();
 
-		AxisSelection axisSelection = new AxisSelection(data.getDataset(0).getShape()[0]);
+		int[] shape = data.getDataset(0).getShape();
 
-		AbstractDataset autoAxis = AbstractDataset.arange(data.getDataset(0).getShape()[0], AbstractDataset.INT32);
-		autoAxis.setName("Index");
-		AxisChoice newChoice = new AxisChoice(autoAxis);
-		newChoice.setDimension(new int[] { 0 });
-		axisSelection.addSelection(newChoice, 0);
+		for (int j = 0; j < shape.length; j++) {
+			AxisSelection axisSelection = new AxisSelection(shape[j]);
 
-		for (int i = 0; i < data.size(); i++) {
-			ILazyDataset ldataset = data.getLazyDataset(i);
-			if (ldataset instanceof AbstractDataset) {
-				newChoice = new AxisChoice(ldataset);
-				newChoice.setDimension(new int[] { 0 });
-				axisSelection.addSelection(newChoice, i + 1);
+			AbstractDataset autoAxis = AbstractDataset.arange(shape[j], AbstractDataset.INT32);
+			autoAxis.setName("Index");
+			AxisChoice newChoice = new AxisChoice(autoAxis);
+			newChoice.setAxisNumber(j);
+			axisSelection.addChoice(newChoice, 0);
+
+			for (int i = 0, imax = data.size(); i < imax; i++) {
+				ILazyDataset ldataset = data.getLazyDataset(i);
+				if (ldataset instanceof AbstractDataset) {
+					newChoice = new AxisChoice(ldataset);
+					newChoice.setAxisNumber(j);
+					axisSelection.addChoice(newChoice, i + 1);
+				}
 			}
-		}
 
-		axisSelection.selectAxis(0);
-		axes.add(axisSelection);
+			axisSelection.selectAxis(0);
+			axes.add(axisSelection);
+		}
 
 		return axes;
 	}

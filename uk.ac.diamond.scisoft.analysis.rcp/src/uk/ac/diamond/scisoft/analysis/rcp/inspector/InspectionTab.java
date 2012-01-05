@@ -18,7 +18,6 @@ package uk.ac.diamond.scisoft.analysis.rcp.inspector;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -237,6 +236,8 @@ class PlotTab extends ATab {
 		if (daxes != null)
 			populateCombos();
 
+		// TODO line stack button
+
 		holder.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		sComposite.setContent(holder);
 		holder.setSize(holder.computeSize(SWT.DEFAULT, SWT.DEFAULT));
@@ -286,7 +287,7 @@ class PlotTab extends ATab {
 				axesListener = new PropertyChangeListener() {
 					@Override
 					public void propertyChange(PropertyChangeEvent evt) {
-						repopulateCombos((String) evt.getOldValue(), (String) evt.getNewValue());
+						repopulateCombos(evt.getOldValue().toString(), evt.getNewValue().toString());
 					}
 				};
 			}
@@ -361,12 +362,12 @@ class PlotTab extends ATab {
 	final protected HashMap<Integer, String> getSelectedComboAxisNames() { // get selected axes to be added into combos
 		HashMap<Integer, String> sAxes = new HashMap<Integer, String>();
 		if (daxes != null) {
-			for (int i = 0; i < daxes.size(); i++) {
+			for (int i = 0, imax = daxes.size(); i < imax; i++) {
 				AxisSelection s = daxes.get(i);
 				String n = s.getSelectedName();
 				//TODO: We need more elaborate selection criteria to disable unsupported multidimensional axis
 				//      selection in image, surface and volume plots
-				if (n != null && s.getSelectedAxis().getLength() > 1) {
+				if (n != null && s.getSelectedAxis().getSize() > 1) {
 					sAxes.put(i, n);
 				} else {
 					logger.warn("No axis selection available in {}", s);
@@ -506,11 +507,7 @@ class PlotTab extends ATab {
 				p.setName(a, false);
 				p.setInSet(true);
 			}
-			if (a != null && p != null) {
-				if (p.isInSet()) {
-					p.setName(a);
-				}
-			}
+			// do not need to notify plot axes listeners
 			return;
 		}
 
@@ -550,27 +547,31 @@ class PlotTab extends ATab {
 		boolean[] used = getUsedDims();
 		for (int o : order) {
 			if (used[o]) {
-				int[] idxAxes = axes.get(o).getAxes();
-				
+				AxisChoice c = axes.get(o);
+				int[] imap = c.getIndexMapping();
+
 				// We need to reorder multidimensional axis values to match reorder data  
-				ArrayList<Integer> reorderAxesList = new ArrayList<Integer>(idxAxes.length);
+				int[] reorderAxesDims = new int[imap.length];
+				int j = 0;
 				for (int i = 0; i < order.length; i++) {
-					int idx = ArrayUtils.indexOf(idxAxes, order[i]);
-					if (idx != -1)
-						reorderAxesList.add(idx);
+					int idx = ArrayUtils.indexOf(imap, order[i]);
+					if (idx != ArrayUtils.INDEX_NOT_FOUND)
+						reorderAxesDims[j++] = idx;
 				}
-				int[] reorderAxesDims = ArrayUtils.toPrimitive(reorderAxesList.toArray(new Integer[idxAxes.length])); 
-						
-				AbstractDataset axesData = axes.get(o).getValues();
-				AbstractDataset reorderdAxesData = DatasetUtils.transpose(axesData, reorderAxesDims);
-				reorderdAxesData.setName(axesData.getName());
-				
-				Slice[] s = new Slice[idxAxes.length];
+				assert j == imap.length : j;
+
+				AbstractDataset axesData = c.getValues();
+				Slice[] s = new Slice[imap.length];
 				for (int i = 0; i < s.length; i++)
-					s[i] = slices[idxAxes[reorderAxesDims[i]]];
-				
-				AbstractDataset slicedAxis = reorderdAxesData.getSlice(s);
-				slicedAxes.add(slicedAxis.squeeze());
+					s[i] = slices[imap[i]];
+
+				AbstractDataset slicedAxis = axesData.getSlice(s);
+
+				AbstractDataset reorderdAxesData = DatasetUtils.transpose(slicedAxis, reorderAxesDims);
+				reorderdAxesData.setName(axesData.getName());
+
+				reorderdAxesData.setName(c.getLongName());
+				slicedAxes.add(reorderdAxesData.squeeze());
 			}
 		}
 
@@ -630,6 +631,7 @@ class PlotTab extends ATab {
 		
 		return axisSlice;
 	}
+
 	@Override
 	public void pushToView(IMonitor monitor, Slice[] slices) {
 		if (dataset == null)
@@ -646,11 +648,7 @@ class PlotTab extends ATab {
 		}
 
 		AbstractDataset reorderedData;
-		Map<String, ? extends Serializable> metadata = null;
-		if (dataset instanceof AbstractDataset) {
-			metadata = ((AbstractDataset) dataset).getMetadataMap();
-		}
-		IMetaData metaDataObject=null;
+		IMetaData metaDataObject = null;
 		try {
 			metaDataObject = dataset.getMetadata();
 		} catch (Exception e1) {
@@ -745,7 +743,6 @@ class PlotTab extends ATab {
 			}
 
 			reorderedData.setName(dataset.getName()); // TODO add slice string
-			reorderedData.setMetadataMap(metadata);
 			if (metaDataObject != null) {
 				reorderedData.setMetadata(metaDataObject);
 			}
