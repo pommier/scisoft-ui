@@ -28,6 +28,7 @@ import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.ISelectionListener;
@@ -207,18 +208,19 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 
 	public void update(final IWorkbenchPart original, final TreeNode treeData, IStructuredSelection structuredSelection) {
 
-		/**
-		 * TODO Instead of selecting the editor, firing the selection and then selecting the navigator again, better to
-		 * have one object type selected by both the editor and navigator which the plot view listens to using eclipse
-		 * selection events.
-		 */
-		if(!EclipseUtils.getActivePage().getActivePart().getTitle().equals(this.getPartName()))
-			EclipseUtils.getActivePage().activate(this);
+		// Make Display to wait until current focus event is finish, and then execute new focus event
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				while (Display.getDefault().readAndDispatch()) {
+					//wait for events to finish before continue
+				}
+				hdfxp.forceFocus();
+			}
+		});
+		//EclipseUtils.getActivePage().activate(this);
 
-		//System.out.println(treeData.getData().toString());
 		//selection of hedf5 tree element no working
-		
-		
 		final Cursor cursor = hdfxp.getCursor();
 		Cursor tempCursor = hdfxp.getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
 		if (tempCursor != null)
@@ -229,7 +231,6 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 			
 			
 			TreePath navTreePath1 = new TreePath(structuredSelection.toArray());
-			//System.out.println(navTreePath1.getFirstSegment().toString());			
 			hdfxp.expandToLevel(navTreePath1,2);
 			hdfxp.setSelection(structuredSelection);
 			//TreePath[] editorTreePaths=hdfxp.getExpandedTreePaths();
@@ -261,7 +262,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 				hdfxp.setCursor(cursor);
 		}
 
-		//if(!original.getTitle().equals(this.getPartName()))
+		// new focus event
 		EclipseUtils.getActivePage().activate(original);
 
 	}
