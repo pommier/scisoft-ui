@@ -44,15 +44,15 @@
 	</item>
 	<item title="Running the Script">
    	   	<description>	
-			Now we have the script written we want to run it, and this is done using the stanard eclipse methods described here.
-			<br/><br/>Right click on the python script file in the PyDev Package Explorer and click on
+			Now we have the script written we want to run it, and this is done using the standard method described below.
+			<br/><br/>Right click on the python script 'plottest.py' in the PyDev Package Explorer and click on:
 			<br/><br/>Run As -> Jython Run
 			<br/><br/>Various test will appear in the console as things are set up, but you should see a sine plot appear in the <b>Plot 1</b> view as well as the 'done' statement at the bottom of the console which we asked to be printed in the script.
         </description>
 	</item>
 	<item title="Running the script in debug mode">
    	   	<description>	
-			One of the really powerful features of the eclipse enviroment is the ability to Debug code.  To do this you will need to say where you want the code to stop with a breakpoint.  This can be added by right clicking just to the left of a line of code and choosing <b>Add Breakpoint</b> 
+			One of the really powerful features of this environment is the ability to Debug code.  To do this you will need to say where you want the code to stop with a breakpoint.  This can be added by right clicking just to the left of a line of code and choosing <b>Add Breakpoint</b> 
 			<br/><br/>Add a breakpoint next to the <b>x = ...</b> line of code.
 			<br/><br/>Now right click on the file again in the pyDev Package Explorer and this time choose 
 			<br/><br/>Debug As -> Jython Run
@@ -70,7 +70,7 @@
 	<item title="Using the Debugging Perspective">
    	   	<description>	
 			There is a special perspective which helps when Debugging, debug the script again, but this time when prompted change to the Debugging perspective.
-			<br/><br/>One of the main features of this Perspective is the <b>Variables</b> view.  This shows all the things which are in the namespace at the point where the debugger has stopped. Step through using the <b>step over</b> button or the <b>F6</b> key until the fist plot command.
+			<br/><br/>One of the main features of this Perspective is the <b>Variables</b> view.  This shows all the things which are in the namespace at the point where the debugger has stopped. Step through using the <b>step over</b> button or the <b>F6</b> key until the first plot command.
 			<br/><br/>Now look in the <b>Variables</b> view and you should see both the x and y variables, if you click on them some basic information about them will be displayed.  Now step forward a few more times, and you will see the y variable change, and this is highlighted in the view.
         	<br/><br/>Run through the rest of the script using the <b>resume</b> button on the Debug view or <b>F8</b> in the editor window, and then return to the Python perspective through the button at the top of the main window, or 
         	<br/><br/>Window -> Open Perspective -> Other -> Python
