@@ -17,8 +17,11 @@
   </item>
   <item title="Create a New Data Project">
 	<description>
-		Click below to start the new data project wizard. This creates a project capable of containing new data files and importing large data links. You can also start this wizard by right clicking and selecting 'New...'.<br/><br/>
-		Enter <b>/dls/sci-scratch/ExampleData</b> in the directory text field.
+		Click below to start the new data project wizard. This creates a project capable of containing new data files and importing large data links. You can also start this wizard by right clicking and selecting "New --> Other --> Data --> Data Project".<br/><br/>
+		Fill the Data Wizard text fields with the necessary information:<br/><br/>
+		1. Enter a name in the project and folder text fields<br/>
+		2. Enter "/dls/sci-scratch/ExampleData" in the directory text field<br/>
+		3. Press the 'finish' button.
 	</description>
 	<command 
 		required="false"
