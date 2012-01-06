@@ -438,53 +438,10 @@
       </category>
       <cheatsheet
             category="uk.ac.diamond.sda.navigator.basic.data.viewing.category"
-            composite="false"
-            contentFile="cheatsheets/DATFileExplorer.xml"
-            id="uk.ac.diamond.sda.navigator.dat.file.browsing.cheatsheet"
-            name="DAT files browsing in Package Explorer">
-      </cheatsheet>
-      <cheatsheet
-            category="uk.ac.diamond.sda.navigator.basic.data.viewing.category"
-            composite="false"
-            contentFile="cheatsheets/NewProjectCreator.xml"
-            id="uk.ac.diamond.sda.navigator.data.project.creator.cheatsheet"
-            name="Data Project creation">
-      </cheatsheet>
-      <cheatsheet
-            category="uk.ac.diamond.sda.navigator.basic.data.viewing.category"
             composite="true"
             contentFile="cheatsheets/DATNXSFileExplorer.xml"
             id="uk.ac.diamond.sda.navigator.dat.nxs.file.explorer.cheatsheet"
             name="DAT and NXS file explorer">
       </cheatsheet>
-      <cheatsheet
-            category="uk.ac.diamond.sda.navigator.basic.data.viewing.category"
-            composite="false"
-            contentFile="cheatsheets/NexusFileExplorer.xml"
-            id="uk.ac.diamond.sda.navigator.nexus.file.browsing.cheatsheet"
-            name="Nexus files browsing in Package Explorer">
-      </cheatsheet>
    </extension>
-   <!-- Bind the Action Provider independently 
-   <extension
-         point="org.eclipse.ui.navigator.navigatorContent">         
-      <actionProvider
-           class="uk.ac.diamond.sda.navigator.properties.actions.PropertyActionProvider"
-           id="uk.ac.diamond.sda.navigator.properties.actions.OpenProvider"/>
-      <actionProvider
-           class="uk.ac.diamond.sda.navigator.srs.actions.SRSActionProvider"
-           id="uk.ac.diamond.sda.navigator.srs.actions.OpenProvider"/>
-   </extension>
-   <extension
-         point="org.eclipse.ui.navigator.viewer">
-      <viewerActionBinding viewerId="uk.ac.diamond.sda.navigator.view">
-         <includes>
-            <actionExtension 
-                  pattern="uk.ac.diamond.sda.navigator.properties.actions.*"/>
-            <actionExtension 
-                  pattern="uk.ac.diamond.sda.navigator.srs.actions.*"/>
-         </includes>
-      </viewerActionBinding>
-   </extension>
-   -->
 </plugin>
