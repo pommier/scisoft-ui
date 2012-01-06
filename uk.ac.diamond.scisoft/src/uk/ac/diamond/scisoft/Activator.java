@@ -18,6 +18,9 @@ package uk.ac.diamond.scisoft;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -54,6 +57,9 @@ import org.python.pydev.ui.interpreters.JythonInterpreterManager;
 import org.python.pydev.ui.pythonpathconf.InterpreterInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -121,6 +127,35 @@ public class Activator extends AbstractUIPlugin {
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
+		
+		// First thing to do here is to try to set up the logging properly
+		try {
+			LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+			loggerContext.reset();
+			
+			// now find the configuration file
+			ProtectionDomain pd = Activator.class.getProtectionDomain();
+			CodeSource cs = pd.getCodeSource();
+			URL url = cs.getLocation();
+			File file = new File(url.getFile(), "logging/log_configuration.xml");
+			url = new URL("File://"+file.getAbsolutePath());
+			
+			String logloc = System.getProperty("log.folder");
+			if (logloc == null) {
+				String tmpDir = System.getProperty("java.io.tmpdir");
+				System.setProperty("log.folder", tmpDir);
+			}
+			
+			
+			JoranConfigurator configurator = new JoranConfigurator();
+			configurator.setContext(loggerContext);
+			configurator.doConfigure(url);
+		} catch (Exception e) {
+			logger.warn("Could not set up logging properly, loggin to stdout for now", e);
+			LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+			loggerContext.reset();
+		} 
+		
 		
 		// Get the libraries bundle
 		Bundle[] bundles = context.getBundles();
