@@ -783,6 +783,11 @@ public class HistogramView extends ViewPart implements SelectionListener,
 			}
 		}
 	}
+	
+	public void setData(HistogramDataUpdate histogramDataUpdate){
+		data = histogramDataUpdate.getDataset();
+		createInitialHistogram();
+	}
 
 	/**
 	 * @return Returns the id.
