@@ -16,6 +16,9 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.inspector;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -45,13 +48,25 @@ public class AxisSlicer {
 	private Button reset;
 	private int length;
 	private SliceProperty slice;
-	private AbstractDataset adata;
+	private SliceProperty[] axisSlices;
 	private boolean mode;
+	private AbstractDataset adata;
+	private AbstractDataset axisData;
+	private PropertyChangeListener listener;
+
 	public static final int COLUMNS = 6;
 	private static final Image undo = AnalysisRCPActivator.getImageDescriptor("icons/arrow_undo.png").createImage();
 
 	public AxisSlicer(Composite parent) {
 		composite = parent;
+		listener = new PropertyChangeListener() {
+			
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				createAxisDataset();
+				init(false);
+			}
+		};
 	}
 
 	public Composite getParent() {
@@ -71,10 +86,11 @@ public class AxisSlicer {
 	 * Create the GUI components for a slicer
 	 * @param property slice
 	 * @param axis dataset for axis values
+	 * @param properties slices that dataset depends on
 	 */
-	public void createAxisSlicer(SliceProperty property, AbstractDataset axis) {
+	public void createAxisSlicer(SliceProperty property, AbstractDataset axis, SliceProperty[] properties) {
 		if (label != null) {
-			setParameters(property, axis, true);
+			setParameters(property, axis, properties, true);
 			return;
 		}
 		label  = new Label(composite, SWT.NONE);
@@ -157,20 +173,50 @@ public class AxisSlicer {
 			}
 		});
 		reset.setToolTipText("Reset slice");
-		setParameters(property, axis, true);
+		setParameters(property, axis, properties, true);
 	}
 
 	/**
 	 * Set parameters for slicer
 	 * @param property slice
 	 * @param axis dataset for axis values
+	 * @param properties slices that axis dataset depends on
 	 * @param used true if axis is used in plot
 	 */
-	public void setParameters(final SliceProperty property, final AbstractDataset axis, boolean used) {
+	public void setParameters(final SliceProperty property, final AbstractDataset axis, final SliceProperty[] properties, boolean used) {
 		slice = property;
-		adata = axis;
+		if (axisSlices != null)
+			for (int i = 0; i < axisSlices.length; i++)
+				axisSlices[i].removePropertyChangeListener(listener);
+
+		axisSlices = properties;
 		mode = used;
+		axisData = axis;
+		createAxisDataset();
 		init(false);
+	}
+
+	private void createAxisDataset() {
+		for (int i = 0; i < axisSlices.length; i++)
+			axisSlices[i].removePropertyChangeListener(listener);
+
+		if (axisData.getRank() > 1) {
+			Slice[] s = new Slice[axisSlices.length];
+			for (int i = 0; i < s.length; i++) {
+				SliceProperty p = axisSlices[i];
+				if (p != slice) {
+					s[i] = p.getValue();
+					if (s[i].getNumSteps() > 1) {
+						s[i] = new Slice(0, 1);
+					}
+					p.addPropertyChangeListener(listener);
+				}
+			}
+			adata = axisData.getSlice(s).squeeze();
+		} else
+			adata = axisData;
+
+		assert adata.getRank() == 1 : adata.getShape();
 	}
 
 	private void init(boolean reset) {

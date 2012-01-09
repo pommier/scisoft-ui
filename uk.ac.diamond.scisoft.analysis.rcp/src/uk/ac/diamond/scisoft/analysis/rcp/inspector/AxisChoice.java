@@ -25,15 +25,17 @@ import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 
 /**
- * Class to hold an axis name, order (or primacy) and dataset
- * for a specified dimension of a dataset
+ * Class to hold a possible choice of axis for a dataset, the signal dataset, that is to be
+ * plotted. It contains an axis name, order (or primacy) and dataset for a specified set of
+ * dimensions (or index mapping) of a signal dataset. It also holds the dimension (or axis number)
+ * of the signal dataset that this choice can represent
  */
 public class AxisChoice {
 	private ILazyDataset values = null;
-	private int primary;   // possible order in a list of choices (0 signifies leave to end of list) 
-	private int dimension; // which dimension does this axis represent for chosen dataset
-	private int[] axes;    // list of dimensions needed to retrieve axis value
-	private int length;    // length of axis
+	private int primary; // possible order in a list of choices (0 signifies leave to end of list)
+	private int number;  // which dimension does this axis represent for signal dataset
+	private int[] indexMapping = null; // array of dimensions of chosen dataset which map to the values dataset
+	private String name; // long name if available  
 
 	/**
 	 * @param values
@@ -52,21 +54,42 @@ public class AxisChoice {
 	}
 
 	/**
-	 * @return Returns the name.
+	 * @return Returns the name
 	 */
 	public String getName() {
 		return values != null ? values.getName(): null;
 	}
 
 	/**
-	 * @param values The values to set.
+	 * Set long name
+	 * @param longName
+	 */
+	public void setLongName(String longName) {
+		name = longName;
+	}
+
+	/**
+	 * Get long name if it is defined or else get name
+	 * @return name
+	 */
+	public String getLongName() {
+		if (name != null)
+			return name;
+		return getName();
+	}
+
+	/**
+	 * @param values The values to set
 	 */
 	public void setValues(ILazyDataset values) {
+		if (this.values != null && this.values.getRank() != values.getRank()) {
+			throw new IllegalArgumentException("Replacement axis values dataset must have the same rank");
+		}
 		this.values = values;
 	}
 
 	/**
-	 * @return Returns the values.
+	 * @return Returns the values
 	 */
 	public AbstractDataset getValues() {
 		try {
@@ -77,56 +100,78 @@ public class AxisChoice {
 	}
 
 	/**
-	 * @param primary The order to set.
+	 * @param primary The order to set
 	 */
 	public void setPrimary(int primary) {
 		this.primary = primary;
 	}
 
 	/**
-	 * @return Returns the order.
+	 * @return Returns the order
 	 */
 	public int getPrimary() {
 		return primary;
 	}
 
 	/**
-	 * @param axes list of referenced axis.
+	 * @param mapping array that maps dimension indexes of signal dataset to values dataset
 	 */
-	public void setDimension(int[] axes) {
-		setDimension(axes, axes[axes.length - 1]);
-	}
-	
-	/**
-	 * @param axes list of referenced data dimensions.
-	 * @param dimension The dimension to set.
-	 */
-	public void setDimension(int[] axes, int dimension) {
-		int idx = ArrayUtils.indexOf(axes, dimension);
-		if (idx == -1) {
-			throw new IllegalArgumentException("Invalid dimension: Specified dimension is not in axis list.");
+	public void setIndexMapping(int... mapping) {
+		if (mapping.length != values.getRank()) {
+			throw new IllegalArgumentException("Index mapping array must have a length that matches axis rank");
 		}
-		this.axes = axes;
-		this.dimension = dimension;
-		if (values != null) {
-//			if (values.getRank() != axes.length)
-//				throw new IllegalArgumentException("Invalid axes: Axes attribute does not match axis data shape.");
-			length = values.getShape()[idx];
-		}
+		indexMapping = mapping;
 	}
 
 	/**
-	 * @return Returns the dimension.
+	 * @return Returns the mapping from axis dataset to signal dataset
 	 */
-	public int getDimension() {
-		return dimension;
+	public int[] getIndexMapping() {
+		return indexMapping;
 	}
 
 	/**
-	 * @return Returns the axes.
+	 * @param dimension
+	 * @return true if dimension used in mapping
 	 */
-	public int[] getAxes() {
-		return axes;
+	public boolean isDimensionUsed(int dimension) {
+		return ArrayUtils.contains(indexMapping, dimension);
+	}
+
+	/**
+	 * Set which axis number this choice represents (sets index mapping too, if it is null, to
+	 * a single-element array containing that number)
+	 */
+	public void setAxisNumber(int axisNumber) {
+		number = axisNumber;
+		if (indexMapping == null)
+			indexMapping = new int[] { number };
+	}
+
+	/**
+	 * @return Returns the axis number represented by this choice
+	 */
+	public int getAxisNumber() {
+		return number;
+	}
+
+	/**
+	 * @return rank of values dataset
+	 */
+	public int getRank() {
+		return values.getRank();
+	}
+
+	/**
+	 * @return size of values dataset
+	 */
+	public int getSize() {
+		return values.getSize();
+	}
+
+	@Override
+	public String toString() {
+		return String.format("Choice %s: %s #%d = %s", getName(), Arrays.toString(values.getShape()), number, Arrays.toString(indexMapping));
 	}
 
 	/**
@@ -144,7 +189,7 @@ public class AxisChoice {
 		if (obj instanceof AxisChoice) {
 			if (!values.getName().equals(((AxisChoice) obj).getValues().getName()))
 				return false;
-			if (!Arrays.equals(getAxes(), ((AxisChoice) obj).getAxes()))
+			if (!Arrays.equals(getIndexMapping(), ((AxisChoice) obj).getIndexMapping()))
 				return false;
 			if (!values.equals(((AxisChoice) obj).getValues()))
 				return false;
@@ -155,19 +200,12 @@ public class AxisChoice {
 		return false;
 	}
 
-	/**
-	 * @return Returns the length.
-	 */
-	public int getLength() {
-		return length;
-	}
-
 	@Override
 	public int hashCode() {
-		int hash = length;
-		for (int d : axes)
+		int hash = values.getSize();
+		for (int d : indexMapping)
 			hash = hash * 17 + d;
-				
+
 		String name = values.getName();
 		if (name != null)
 			hash = hash * 17 + name.hashCode();
@@ -184,9 +222,8 @@ public class AxisChoice {
 	@Override
 	protected AxisChoice clone() throws CloneNotSupportedException {
 		AxisChoice choice = new AxisChoice(values, primary);
-		if (axes != null)
-			choice.setDimension(axes.clone(), dimension);
-		choice.setPrimary(primary);
+		choice.setIndexMapping(indexMapping);
+		choice.setAxisNumber(number);
 		return choice;
 	}
 }

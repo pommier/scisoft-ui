@@ -34,14 +34,15 @@
      <description>
         In order to be able to display the Nexus file data in the DExplore plotting, we need to open the Nexus file with the Nexus Data Editor.<br/><br/>
         This can be done with &apos;Right Click on the Nexus file -> Open With -> Nexus Data Editor&apos;.<br/><br/>
-        <b>Note</b>: the Nexus files can also be opened by double clicking on one of the Nexus file sub element, however the editor used to open the file will be the last one in the workspace history used to open the file.<br/><br/>
+        <b>Note</b>: the Nexus files can also be opened by double clicking on one of the Nexus file sub element, however the editor used to open the file will be the last one in the workspace history used to open the file.
      </description>
   </item>
   <item
         title="Navigate through the Nexus file data and have the plotting refreshed accordingly">
      <description>
-        With the Nexus file opened in a Nexus Data Editor, select one of the Nexus file sub element.<br/><br/>
+        With the Nexus file opened in a Nexus Data Editor, select one of the Nexus file sub element in the Package Explorer.<br/><br/>
         Check that the plotting is updated accordingly.<br/><br/>
+        <b>Note</b>: The HDF5 Editor will not be updated (no selection change) when a Nexus file sub-element is selected in the Package Explorer. Unlike for the DAT files discussed previously where the update works for both the editor and the plotting.
      </description>
   </item>
 </cheatsheet>

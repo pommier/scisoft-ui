@@ -28,14 +28,9 @@ import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorTy
 public class MultipleDatasetsSelection implements IStructuredSelection {
 
 	private List<ILazyDataset> datasets;
-	final private InspectorType view;
+	private List<ILazyDataset> values;
 
-	/**
-	 * Enclosing class for list of axis selection
-	 */
-	public class AxesSelection extends ArrayList<AxisSelection> implements List<AxisSelection> {
-		
-	}
+	final private InspectorType view;
 
 	final private List<AxesSelection> axesList;
 
@@ -44,8 +39,9 @@ public class MultipleDatasetsSelection implements IStructuredSelection {
 	}
 
 	public MultipleDatasetsSelection(InspectorType type) {
-		axesList = new ArrayList<MultipleDatasetsSelection.AxesSelection>();
+		axesList = new ArrayList<AxesSelection>();
 		datasets = new ArrayList<ILazyDataset>();
+		values = new ArrayList<ILazyDataset>();
 		view = type;
 	}
 
@@ -88,12 +84,31 @@ public class MultipleDatasetsSelection implements IStructuredSelection {
 		return axesList.get(index);
 	}
 
+	/**
+	 * Get value associated with dataset at given index
+	 * @param index
+	 * @return value
+	 */
+	public ILazyDataset getValue(int index) {
+		return values.get(index);
+	}
+
+	/**
+	 * Get dataset at given index
+	 * @param index
+	 * @return dataset
+	 */
+	public ILazyDataset getDataset(int index) {
+		return datasets.get(index);
+	}
+
 	public InspectorType getType() {
 		return view;
 	}
 
-	public void addDatasetSelection(ILazyDataset dataset, List<AxisSelection> axes) {
+	public void addDatasetSelection(ILazyDataset dataset, ILazyDataset value, List<AxisSelection> axes) {
 		datasets.add(dataset);
+		values.add(value);
 		AxesSelection sel = new AxesSelection();
 		sel.addAll(axes);
 		axesList.add(sel);

@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -69,6 +70,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
@@ -223,11 +225,10 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				cell.setImage(null);
 			}
 			Color colour = null;
-			if (!useRowIndex.isTrue() && !(sf.hasMetaValue() && sf.hasData())) {
-				if (!sf.hasMetaValue())
-					colour = display.getSystemColor(SWT.COLOR_RED);
-				else
-					colour = display.getSystemColor(SWT.COLOR_YELLOW);
+			if (!sf.hasMetaValue() && !useRowIndex.isTrue()) {
+				colour = display.getSystemColor(SWT.COLOR_RED);
+			} else if (sf.getData() == null) {
+				colour = display.getSystemColor(SWT.COLOR_YELLOW);
 			}
 			cell.setForeground(colour);
 		}
@@ -471,20 +472,30 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 		if (sel instanceof DatasetSelection) {
 			currentDatasetSelection = (DatasetSelection) sel;
-
-			processDatasets(currentDatasetSelection);
 		} else if (sel instanceof MetadataSelection) {
-			processMetaValues(((MetadataSelection) sel).getPathname());
-			if (currentDatasetSelection != null)
-				processDatasets(currentDatasetSelection);
+			loadMetaValues(((MetadataSelection) sel).getPathname());
 			useRowIndexAsValue.reset();
 		}
 
-		if (selections != null)
-			setSelection(selections);
+		if (currentDatasetSelection != null) {
+			String name = currentDatasetSelection.getFirstElement().getName();
+			String node = null;
+			if (currentDatasetSelection instanceof HDF5Selection) {
+				node = ((HDF5Selection) currentDatasetSelection).getNode() + HDF5Node.SEPARATOR;
+			}
+			System.out.println("Selected data = " + (node != null ? node + name : name));
+			loadDatasets(name);
+
+			makeSelection(currentDatasetSelection.getAxes(), node);
+			if (selections != null && checkShapesSame())
+				setSelection(selections);
+		}
+		
+		// TODO sync in GUI thread
+		viewer.refresh();
 	}
 
-	private void processMetaValues(String key) {
+	private void loadMetaValues(String key) {
 		System.out.println("Selected metadata = " + key);
 		// TODO change column title
 		/*
@@ -492,7 +503,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		 */
 		// TODO async outside GUI thread
 		for (SelectedFile f : fileList) {
-			if (!f.hasMetadata() && !f.hasData()) {
+			if (!f.hasMetadata() && !f.hasDataHolder()) {
 				try {
 					DataHolder holder = explorer.loadFile(f.getAbsolutePath(), null);
 					f.setDataHolder(holder);
@@ -502,30 +513,14 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			}
 			f.setMetaValue(key);
 		}
-
-		useRowIndexAsValue.reset();
-		// TODO sync in GUI thread
-		viewer.refresh();
 	}
 
-	private void processDatasets(DatasetSelection selection) {
+	private void loadDatasets(String key) {
 		/*
 		 * iterate through selected files and find datasets 
 		 */
-		String name = selection.getFirstElement().getName();
-		String node = null;
-		if (selection instanceof HDF5Selection) {
-			node = ((HDF5Selection) selection).getNode() + HDF5Node.SEPARATOR;
-		}
-		System.out.println("Selected data = " + (node != null ? node + name : name));
-
-		boolean isFirst = true;
-		selections = new MultipleDatasetsSelection();
-
-		List<AxisSelection> axes = selection.getAxes();
-
 		for (SelectedFile f : fileList) {
-			if (!f.hasData()) {
+			if (!f.hasDataHolder()) {
 				try {
 					DataHolder holder = explorer.loadFile(f.getAbsolutePath(), null);
 					f.setDataHolder(holder);
@@ -533,21 +528,124 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 					continue;
 				}
 			}
-			f.setData(name);
-			if (isFirst) {
-				isFirst = false;
-				if (f.doUse())
-					selections.addDatasetSelection(f.getData(), axes);
-			} else if (f.doUse()) {
-				selections.addDatasetSelection(f.getData(), makeAxes(axes, f, node));
+			f.setData(key);
+		}
+	}
+
+	/**
+	 * 
+	 * @return true if shapes are all the same
+	 */
+	private boolean checkShapesSame() {
+		int rank = 0;
+		int[] shape = null;
+		for (SelectedFile f : fileList) {
+			if (!f.doUse())
+				continue;
+			ILazyDataset d = f.getData();
+			if (d == null)
+				continue;
+
+			if (shape == null) {
+				rank = d.getRank();
+				shape = d.getShape();
+			} else {
+				int[] nshape = d.getShape();
+				if (rank != nshape.length) {
+					return false;
+				}
+				for (int i = 0; i < rank; i++) {
+					if (shape[i] != nshape[i])
+						return false;
+				}
 			}
 		}
 
-		viewer.refresh();
+		return true;
+	}
+
+	/*
+	 * TODO
+	 *  . add in values (check with dataset shape)
+	 *  . 
+	 */
+	/**
+	 * Check shapes and extend if necessary
+	 * @return true if shapes have been made uniform
+	 */
+	private boolean checkShapes() {
+		int lrank = Integer.MAX_VALUE;
+		int hrank = Integer.MIN_VALUE;
+
+		// find upper and lower ranks
+		for (SelectedFile f : fileList) {
+			ILazyDataset d = f.getData();
+			if (d == null)
+				continue;
+
+			int r = d.getRank();
+			if (r < lrank)
+				lrank = r;
+			if (r > hrank)
+				hrank = r;
+		}
+
+		if (lrank != hrank || lrank + 1 != hrank)
+			return false; // can only have difference in rank of one 
+
+		boolean isFirst = true;
+
+		// check if lower dimensions match
+		int[] nshape = new int[hrank];
+		for (SelectedFile f : fileList) {
+			ILazyDataset d = f.getData();
+			if (d == null)
+				continue;
+
+			int[] shape = d.getShape();
+			int offset = shape.length == lrank ? 1 : 0;
+			if (isFirst) {
+				isFirst = false;
+				for (int i = 0; i < shape.length; i++) {
+					nshape[i+offset] = shape[i];
+				}
+				if (offset == 1)
+					nshape[0] = 1;
+			} else {
+				for (int i = 0; i < shape.length; i++) {
+					if (nshape[i+offset] != shape[i]) {
+						f.resetData();
+						break;
+					}
+				}
+			}
+			if (offset == 1)
+				d.setShape(nshape);
+		}
+		return true;
+	}
+
+	private MultipleDatasetsSelection makeSelection(List<AxisSelection> axes, String node) {
+		/*
+		 * iterate through selected files and find datasets 
+		 */
+		boolean isFirst = true;
+		selections = new MultipleDatasetsSelection();
+
+		for (SelectedFile f : fileList) {
+			if (isFirst) {
+				isFirst = false;
+				if (f.doUse())
+					selections.addDatasetSelection(f.getData(), f.getMetaValue(), axes);
+			} else if (f.doUse()) {
+				selections.addDatasetSelection(f.getData(), f.getMetaValue(), makeAxes(axes, f, node));
+			}
+		}
+		return selections;
 	}
 
 	private List<AxisSelection> makeAxes(List<AxisSelection> oldAxes, SelectedFile file, String node) {
-		ArrayList<AxisSelection> newAxes = new ArrayList<AxisSelection>();
+		List<AxisSelection> newAxes = new ArrayList<AxisSelection>();
 		for (AxisSelection a : oldAxes) {
 			AxisSelection n;
 			try {
@@ -555,7 +653,9 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				for (int i = 0, imax = n.size(); i < imax; i++) {
 					AxisChoice c = n.getAxis(i);
 					String name = c.getName();
-					c.setValues(file.getAxis(node != null ? node + name : name));
+					ILazyDataset d = file.getAxis(node != null ? node + name : name);
+					if (Arrays.equals(d.getShape(), a.getAxis(i).getValues().getShape()))
+							c.setValues(d); // FIXME only for same axis shape
 				}
 				newAxes.add(n);
 			} catch (CloneNotSupportedException e) {
@@ -701,7 +801,7 @@ class SelectedFile {
 		return m != null;
 	}
 
-	public boolean hasData() {
+	public boolean hasDataHolder() {
 		return h != null;
 	}
 
@@ -715,8 +815,13 @@ class SelectedFile {
 			m = h.getMetadata();
 	}
 
-	public void setData(String key) {
+	public boolean setData(String key) {
 		d = h.getLazyDataset(key);
+		return d != null;
+	}
+
+	public void resetData() {
+		d = null;
 	}
 
 	public ILazyDataset getData() {
@@ -725,6 +830,14 @@ class SelectedFile {
 
 	public ILazyDataset getAxis(String key) {
 		return h.getLazyDataset(key);
+	}
+
+	public ILazyDataset getMetaValue() {
+		if (mv == null)
+			return null;
+		if (mv instanceof ILazyDataset)
+			return (ILazyDataset) mv;
+		return AbstractDataset.array(mv);
 	}
 
 	public boolean setMetaValue(String key) {
