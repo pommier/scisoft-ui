@@ -16,6 +16,11 @@
 
 package uk.ac.diamond.scisoft.views;
 
+import java.io.File;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -42,8 +47,15 @@ import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.progress.UIJob;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMailMessage;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 
 import uk.ac.diamond.scisoft.system.info.SystemInformation;
 
@@ -144,22 +156,29 @@ public class FeedbackView extends ViewPart {
 			@Override
 			public void run() {
 				
-				final String mailserver = "localhost";
-				String fromvalue = emailAddress.getText();
-				if (fromvalue.length() == 0) {
-					fromvalue = "user";
-				}
-				final String from = fromvalue;
-				final String subject = SDA_FEEDBACK;
-				final String messageBody = messageText.getText() + "\n\n\n" + SystemInformation.getSystemString();
-				
-				Job feedbackJob = new Job("Sending feedback to SDA developers") {
+				UIJob feedbackJob = new UIJob("Sending feedback to SDA developers") {
 					
 					@Override
-					protected IStatus run(IProgressMonitor monitor) {
+					public IStatus runInUIThread(IProgressMonitor monitor) {
 						
 						try {
-							sendMail(mailserver, from, MAIL_TO, subject, messageBody, monitor);
+							String mailserver = "localhost";
+							String fromvalue = emailAddress.getText();
+							if (fromvalue.length() == 0) {
+								fromvalue = "user";
+							}
+							String from = fromvalue;
+							String subject = SDA_FEEDBACK;
+							String messageBody = messageText.getText() + "\n\n\n" + SystemInformation.getSystemString();
+
+							File logpath = new File(System.getProperty("user.home"), "sdalog.html");
+							
+							FileSystemResource logAttachment = null;
+							if(logpath.exists()) {
+								logAttachment = new FileSystemResource(logpath);
+							} 
+							
+							sendMail(mailserver, from, MAIL_TO, subject, messageBody, "log.html", logAttachment, monitor);
 						} catch (Exception e) {
 							return Status.CANCEL_STATUS;
 						}
@@ -175,6 +194,7 @@ public class FeedbackView extends ViewPart {
 						
 						return Status.OK_STATUS;
 					}
+
 				};
 				feedbackJob.setUser(true);
 				feedbackJob.schedule();				
@@ -195,29 +215,34 @@ public class FeedbackView extends ViewPart {
 		messageText.setFocus();
 	}
 
-	public void sendMail(String mailServer, String from, String[] to,
-			String subject, String messageBody, IProgressMonitor monitor) {
+	public void sendMail(String mailServer, final String from, final String[] to,
+			final String subject, final String messageBody, final String attachmentName,
+			final InputStreamSource attachmentContent, IProgressMonitor monitor) {
 
 		
 		// monitoring
-		monitor.beginTask("Sending feedback", 3);
+		monitor.beginTask("Sending feedback", 2);
 		monitor.worked(1);
 		
 		JavaMailSenderImpl sender = new JavaMailSenderImpl();
 		sender.setHost(mailServer);
-		
-		SimpleMailMessage msg = new SimpleMailMessage();
-		for (String string : to) {
-			msg.setTo(string);
-		}
-		msg.setFrom(from);
-		msg.setText(messageBody);
-		msg.setSubject(subject);
-		
+			
 		// monitoring
 		monitor.worked(1);
-		
-		sender.send(msg);
+
+		sender.send(new MimeMessagePreparator() {
+			@Override
+			public void prepare(MimeMessage mimeMessage) throws MessagingException {
+			     MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+			     message.setFrom(from);
+			     message.setTo(to);
+			     message.setSubject(subject);
+			     message.setText(messageBody);
+			     if (attachmentContent != null) {
+			    	 message.addAttachment(attachmentName, attachmentContent);
+			     }
+			   }
+			 });
 		
 		// monitoring
 		monitor.worked(1);
