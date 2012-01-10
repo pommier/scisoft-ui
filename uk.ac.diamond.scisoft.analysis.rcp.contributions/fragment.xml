@@ -1552,4 +1552,18 @@
             name="b) Jython Basic Project Tutorial">
       </cheatsheet>
    </extension>
+   <extension
+         point="org.eclipse.ui.cheatsheets.cheatSheetContent">
+      <category
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.uitesting"
+            name="Basic UI Features Testing">
+      </category>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.uitesting"
+            composite="true"
+            contentFile="cheat/PrintPlottingMain.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.plotprintingtest"
+            name="Plot Printing Testing">
+      </cheatsheet>
+   </extension>
 </fragment>
