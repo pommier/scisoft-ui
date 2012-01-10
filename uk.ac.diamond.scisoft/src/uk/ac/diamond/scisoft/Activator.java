@@ -128,10 +128,14 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		
-		// First thing to do here is to try to set up the logging properly
+		// First thing to do here is to try to set up the logging properly.
+		// during this, System.out will be used for logging
 		try {
+			System.out.println("Starting to Configure Logger");
 			LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 			loggerContext.reset();
+			
+			System.out.println("Logger Context Reset");
 			
 			// now find the configuration file
 			ProtectionDomain pd = Activator.class.getProtectionDomain();
@@ -140,18 +144,31 @@ public class Activator extends AbstractUIPlugin {
 			File file = new File(url.getFile(), "logging/log_configuration.xml");
 			url = new URL("File://"+file.getAbsolutePath());
 			
+			if (file.exists()) {
+				System.out.println("Logging Configuration File found at '"+url+"'");
+			} else {
+				System.out.println("Logging Configuration File Not found at '"+url+"'");
+			}
+			
 			String logloc = System.getProperty("log.folder");
 			if (logloc == null) {
+				System.out.println("Log folder property not set, setting this manualy to the temp directory");
 				String tmpDir = System.getProperty("java.io.tmpdir");
 				System.setProperty("log.folder", tmpDir);
 			}
+			
+			System.out.println("log.folder java property set to '"+System.getProperty("log.folder")+"'");
 			
 			
 			JoranConfigurator configurator = new JoranConfigurator();
 			configurator.setContext(loggerContext);
 			configurator.doConfigure(url);
+			
+			System.out.println("Logging Configuration complete");
+			
 		} catch (Exception e) {
-			logger.warn("Could not set up logging properly, loggin to stdout for now", e);
+			System.out.println("Could not set up logging properly, loggin to stdout for now, error follows");
+			e.printStackTrace();
 			LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 			loggerContext.reset();
 		} 
