@@ -142,8 +142,8 @@ public class AllPyPlotMethodsPluginTest extends RcpPlottingTestBase {
 	}
 
 	@Test
-	public void testPlotStringIDatasetArrayIDataset() throws Exception {
-		redirectPlotter.plot(plotName, xAxes, yAxis);
+	public void testPlotStringIDatasetIDatasetIDataset() throws Exception {
+		redirectPlotter.plot(plotName, xAxes[0], xAxes[1], yAxis);
 	}
 
 	@Test
@@ -167,8 +167,18 @@ public class AllPyPlotMethodsPluginTest extends RcpPlottingTestBase {
 	}
 
 	@Test
+	public void testUpdatePlotStringIDatasetIDatasetIDataset() throws Exception {
+		redirectPlotter.updatePlot(plotName, xAxes[0], xAxes[1], yAxis);
+	}
+
+	@Test
 	public void testUpdatePlotStringIDatasetIDatasetArray() throws Exception {
 		redirectPlotter.updatePlot(plotName, xAxis, yAxes);
+	}
+
+	@Test
+	public void testUpdatePlotStringIDatasetArrayIDatasetArray() throws Exception {
+		redirectPlotter.updatePlot(plotName, xAxes, yAxes);
 	}
 
 	@Test
