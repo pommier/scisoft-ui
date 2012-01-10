@@ -621,16 +621,18 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 				HDF5Group g = (HDF5Group) link.getDestination();
 				HDF5Attribute stringAttr = g.getAttribute(HDF5File.NXCLASS);
 				if (stringAttr != null && stringAttr.isString() && NXENTRY.equals(stringAttr.getFirstElement())) {
-					HDF5Dataset d = g.getDataset(NXPROGRAM);
-					if (d.isString()) {
-						String s = d.getString().trim();
-						int i = s.indexOf(GDAVERSIONSTRING);
-						if (i >= 0) {
-							String v = s.substring(i+4, s.lastIndexOf("."));
-							int j = v.indexOf(".");
-							int maj = Integer.parseInt(v.substring(0, j));
-							int min = Integer.parseInt(v.substring(j+1, v.length()));
-							return maj < GDAMAJOR || (maj == GDAMAJOR && min < GDAMINOR);
+					if (g.containsDataset(NXPROGRAM)) {
+						HDF5Dataset d = g.getDataset(NXPROGRAM);
+						if (d.isString()) {
+							String s = d.getString().trim();
+							int i = s.indexOf(GDAVERSIONSTRING);
+							if (i >= 0) {
+								String v = s.substring(i+4, s.lastIndexOf("."));
+								int j = v.indexOf(".");
+								int maj = Integer.parseInt(v.substring(0, j));
+								int min = Integer.parseInt(v.substring(j+1, v.length()));
+								return maj < GDAMAJOR || (maj == GDAMAJOR && min < GDAMINOR);
+							}
 						}
 					}
 				}
