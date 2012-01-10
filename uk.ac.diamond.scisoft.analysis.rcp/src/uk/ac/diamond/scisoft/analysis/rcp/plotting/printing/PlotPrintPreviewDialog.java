@@ -76,7 +76,6 @@ public class PlotPrintPreviewDialog extends Dialog {
 	public static String portraitText = ResourceProperties.getResourceString("PORTRAIT_ORIENTATION");
 	protected static String landscapeText = ResourceProperties.getResourceString("LANDSCAPE_ORIENTATION");
 	protected String defaultPrinterText = ResourceProperties.getResourceString("DEFAULT_PRINTER");
-	private PrinterData currentPrinterData;
 	private AbstractViewerApp viewerApp = null;
 	private Plot1DGraphTable legendTable;
 	
@@ -150,10 +149,10 @@ public class PlotPrintPreviewDialog extends Dialog {
 			public void handleEvent(Event event) {
 				PrintDialog dialog = new PrintDialog(shell);
 				// Prompts the printer dialog to let the user select a printer.
-				currentPrinterData = dialog.open();
-				if (currentPrinterData == null) // the user cancels the dialog
+				PrinterData printerData = dialog.open();
+				if (printerData == null) // the user cancels the dialog
 					return;
-				settings.setPrinterData(currentPrinterData);
+				settings.setPrinterData(printerData);
 				// Loads the printer.
 				setPrinter(printer, settings.getScale().getValue());//Double.parseDouble(comboScale.getItem(comboScale.getSelectionIndex())));
 				// print the plot
