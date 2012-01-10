@@ -106,7 +106,7 @@ public class LightweightScanCommandDecorator extends LabelProvider implements IL
 				IFile ifile = (IFile) element;
 
 				try {
-					System.out.println("");
+					//System.out.println("");
 					String[][] listTitlesAndScanCmd = getHDF5TitleAndScanCmd(ifile.getLocation().toString());
 					for (int i = 0; i < listTitlesAndScanCmd[0].length; i++) {
 						decorator = listTitlesAndScanCmd[0][i] + listTitlesAndScanCmd[1][i];
@@ -170,7 +170,7 @@ public class LightweightScanCommandDecorator extends LabelProvider implements IL
 			}
 			// title
 			if (dataHolder.contains("/" + entries[i].toString() + "/title")) {
-				System.out.println(dataHolder.getDataset("/" + entries[i].toString() + "/title").toString());
+				//System.out.println(dataHolder.getDataset("/" + entries[i].toString() + "/title").toString());
 				//hdf5Title = data.findNodeLink("/" + entries[i].toString() + "/title").toString();
 				hdf5Title = dataHolder.getDataset("/" + entries[i].toString() + "/title").toString();
 				titles[i] = "\nTitle" + (i+1) + ": " + hdf5Title;// display of the string on a new line
