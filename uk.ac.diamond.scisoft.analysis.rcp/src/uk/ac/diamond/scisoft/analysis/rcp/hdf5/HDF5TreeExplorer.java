@@ -406,7 +406,8 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 							// check that axis attribute matches data dimensions
 							for (int i = 0; i < intAxis.length; i++) {
 								int al = ashape[i];
-								if (al != shape[intAxis[i]]) {
+								int il = intAxis[i];
+								if (il < 0 || il >= rank || al != shape[il]) {
 									intAxis = null;
 									logger.warn("Axis attribute {} does not match shape", a.getName());
 									break;
