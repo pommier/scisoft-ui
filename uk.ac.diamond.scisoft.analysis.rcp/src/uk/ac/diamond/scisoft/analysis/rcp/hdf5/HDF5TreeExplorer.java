@@ -384,7 +384,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 								intAxis = new int[str.length];
 								for (int i = 0; i < str.length; i++) {
 									int j = Integer.parseInt(str[i]) - 1;
-									intAxis[i] = isOldGDA ? j : rank - j; // fix Fortran (column-major) dimension
+									intAxis[i] = isOldGDA ? j : rank - 1 - j; // fix Fortran (column-major) dimension
 								}
 							}
 						} else {
@@ -395,7 +395,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 								int i = 0;
 								while (it.hasNext()) {
 									int j = (int) attrd.getElementLongAbs(it.index) - 1;
-									intAxis[i++] = isOldGDA ? j : rank - j; // fix Fortran (column-major) dimension
+									intAxis[i++] = isOldGDA ? j : rank - 1 - j; // fix Fortran (column-major) dimension
 								}
 							}
 						}
@@ -446,10 +446,10 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 					if (attr_label != null) {
 						if (attr_label.isString()) {
 							int j = Integer.parseInt(attr_label.getFirstElement()) - 1;
-							choice.setAxisNumber(isOldGDA ? j : rank - j); // fix Fortran (column-major) dimension
+							choice.setAxisNumber(isOldGDA ? j : rank - 1 - j); // fix Fortran (column-major) dimension
 						} else {
 							int j = attr_label.getValue().getInt(0) - 1;
-							choice.setAxisNumber(isOldGDA ? j : rank - j); // fix Fortran (column-major) dimension
+							choice.setAxisNumber(isOldGDA ? j : rank - 1 - j); // fix Fortran (column-major) dimension
 						}
 					} else
 						choice.setAxisNumber(intAxis[intAxis.length-1]);
