@@ -18,13 +18,11 @@ package uk.ac.diamond.scisoft.analysis.rcp.hdf5;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -311,6 +309,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 			dNode = (HDF5Dataset) node;
 			if (!dNode.isSupported())
 				return false;
+
 			cData = dNode.getDataset();
 			axesAttr = dNode.getAttribute(NXAXES);
 			gNode = (HDF5Group) link.getSource(); // before hunting for axes
@@ -318,9 +317,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 			assert node instanceof HDF5Group;
 			gNode = (HDF5Group) node;
 			// find data (signal=1) and check for axes attribute
-			Iterator<HDF5NodeLink> iter = gNode.getNodeLinkIterator();
-			while (iter.hasNext()) {
-				HDF5NodeLink l = iter.next();
+			for (HDF5NodeLink l : (HDF5Group) node) {
 				if (l.isDestinationADataset()) {
 					dNode = (HDF5Dataset) l.getDestination();
 					if (dNode.containsAttribute(NXSIGNAL) && dNode.isSupported()) {
@@ -333,7 +330,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 			}
 		}
 
-		if (dNode == null)
+		if (dNode == null || gNode == null)
 			return false;
 
 		// find possible long name
@@ -349,10 +346,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		int rank = shape.length;
 
 		// scan children for SDS as possible axes (could be referenced by axes)
-		@SuppressWarnings("null")
-		Iterator<HDF5NodeLink> iter = gNode.getNodeLinkIterator();
-		while (iter.hasNext()) {
-			HDF5NodeLink l = iter.next();
+		for (HDF5NodeLink l : gNode) {
 			if (l.isDestinationADataset()) {
 				HDF5Dataset d = (HDF5Dataset) l.getDestination();
 				if (!d.isSupported() || d.isString() || dNode == d || d.containsAttribute(NXSIGNAL))
@@ -614,10 +608,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	private static final int GDAMINOR = 20;
 
 	private boolean checkForOldGDAFile() {
-		Iterator<HDF5NodeLink> iter = tree.getGroup().getNodeLinkIterator();
-		
-		while (iter.hasNext()) {
-			HDF5NodeLink link = iter.next();
+		for (HDF5NodeLink link : tree.getGroup()) {
 			if (link.isDestinationAGroup()) {
 				HDF5Group g = (HDF5Group) link.getDestination();
 				HDF5Attribute stringAttr = g.getAttribute(HDF5File.NXCLASS);
