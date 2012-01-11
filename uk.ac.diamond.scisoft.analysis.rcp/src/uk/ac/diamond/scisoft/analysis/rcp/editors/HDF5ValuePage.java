@@ -1,16 +1,6 @@
 package uk.ac.diamond.scisoft.analysis.rcp.editors;
 
-import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
-
-import javax.swing.tree.DefaultMutableTreeNode;
-
-import ncsa.hdf.object.Attribute;
-import ncsa.hdf.object.Dataset;
-import ncsa.hdf.object.Datatype;
-import ncsa.hdf.object.Group;
-import ncsa.hdf.object.HObject;
 
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.viewers.ISelection;
@@ -21,7 +11,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbench;
@@ -33,7 +22,6 @@ import org.eclipse.ui.part.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Attribute;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Dataset;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Group;
@@ -99,6 +87,7 @@ public class HDF5ValuePage extends Page  implements ISelectionListener, IPartLis
 		sourceViewer.getTextWidget().setFocus();
 	}
 
+	@Override
 	public void dispose() {
 		super.dispose();
 		getSite().getPage().getWorkbenchWindow().getSelectionService().removeSelectionListener(this);
@@ -115,7 +104,7 @@ public class HDF5ValuePage extends Page  implements ISelectionListener, IPartLis
 		}
 	}
 
-	protected void updateSelection(ISelection selection) throws Exception {
+	protected void updateSelection(ISelection selection) {
 		
 		if (selection instanceof StructuredSelection) {
 			this.lastSelection = (StructuredSelection)selection;
@@ -171,7 +160,7 @@ public class HDF5ValuePage extends Page  implements ISelectionListener, IPartLis
 		
 	}
 
-	public void updateObjectSelection(Object sel)  throws Exception{
+	public void updateObjectSelection(Object sel) {
 		
 		if (sel instanceof HDF5NodeLink) {
 			final HDF5NodeLink node = (HDF5NodeLink)sel;
@@ -197,7 +186,7 @@ public class HDF5ValuePage extends Page  implements ISelectionListener, IPartLis
 //		}
 	}
 	
-	private void createH5Value(HDF5NodeLink ob) throws Exception {
+	private void createH5Value(HDF5NodeLink ob) {
 		
 		if (ob.isDestinationADataset()) {
 			final HDF5Dataset  set   = (HDF5Dataset)ob.getDestination();
@@ -231,20 +220,14 @@ public class HDF5ValuePage extends Page  implements ISelectionListener, IPartLis
 		}
 	}
 	
-	private void appendAttributes(HDF5Node set, StringBuilder buf) throws Exception {
-		
-	
-		
+	private void appendAttributes(HDF5Node set, StringBuilder buf) {
 		buf.append("\n\nAttributes:\n");
-		for (Iterator<String> it = set.attributeNameIterator(); it.hasNext() ; ) {
-			
-			final String name = it.next();
-			final HDF5Attribute attribute = set.getAttribute(name);
+		for (Iterator<HDF5Attribute> it = set.getAttributeIterator(); it.hasNext(); ) {
+			final HDF5Attribute attribute = it.next();
 			buf.append(attribute.getName());
 			buf.append(" = ");
 			buf.append(attribute.getValue().toString());
 			buf.append("\n");
-			
 		}
 	}
 

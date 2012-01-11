@@ -200,7 +200,7 @@ public class HDF5TableTree extends Composite {
 		if (element instanceof HDF5NodeLink) {
 			HDF5Node node = ((HDF5NodeLink) element).getDestination();
 
-			Iterator<String> iter = node.attributeNameIterator();
+			Iterator<String> iter = node.getAttributeNameIterator();
 			while (iter.hasNext()) {
 				if (filter.select(iter.next()))
 					count++;
@@ -304,7 +304,7 @@ class HDF5LazyContentProvider implements ILazyTreeContentProvider {
 		HDF5Node pNode = ((HDF5NodeLink) parent).getDestination();
 
 		int count = 0;
-		Iterator<String> iter = pNode.attributeNameIterator();
+		Iterator<String> iter = pNode.getAttributeNameIterator();
 		while (iter.hasNext()) {
 			String name = iter.next();
 			if (filter.select(name)) {
@@ -319,12 +319,7 @@ class HDF5LazyContentProvider implements ILazyTreeContentProvider {
 		}
 
 		if (pNode instanceof HDF5Group) {
-			HDF5Group group = (HDF5Group) pNode;
-			Iterator<HDF5NodeLink> lIter;
-
-			lIter = group.getNodeLinkIterator();
-			while (lIter.hasNext()) {
-				HDF5NodeLink link = lIter.next();
+			for (HDF5NodeLink link : (HDF5Group) pNode) {
 				if (link.isDestinationAGroup()) {
 					String name = link.getName();
 					if (filter.select(name)) {
@@ -338,9 +333,7 @@ class HDF5LazyContentProvider implements ILazyTreeContentProvider {
 				}
 			}
 
-			lIter = group.getNodeLinkIterator();
-			while (lIter.hasNext()) {
-				HDF5NodeLink link = lIter.next();
+			for (HDF5NodeLink link : (HDF5Group) pNode) {
 				if (link.isDestinationADataset()) {
 					String name = link.getName();
 					if (filter.select(name)) {
