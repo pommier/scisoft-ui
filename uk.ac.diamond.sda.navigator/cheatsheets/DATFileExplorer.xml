@@ -24,7 +24,7 @@
         title="Activate / deactivate the scan command decorator">
      <description>
         The scan command decorator (active by default) can be activated/deactivated through &apos;Window -> Preferences -> General -> Appearance -> Label Decorations&apos; or through the link below.<br/><br/>
-        The label decorator that manages the scan command decoration is called &apos;SRS/Nexus Scan Command and Title Decorator&apos;.
+        The label decorator that manages the scan command decoration is called &apos;DAT File Scan Command Decorator&apos;.
      </description>
      <command
            required="false"

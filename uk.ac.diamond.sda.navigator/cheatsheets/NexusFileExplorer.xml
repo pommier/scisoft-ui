@@ -23,7 +23,7 @@
         title="Activate / deactivate the scan command and/or Nexus element decorator">
      <description>
         The scan command and Nexus sub element decorator (active by default) can be activated/deactivated through &apos;Window -> Preferences -> General -> Appearance -> Label Decorations&apos; or through the link below.<br/><br/>
-        The label decorator that manages the scan command decoration is called &apos;SRS/Nexus Scan Command and Title Decorator&apos; for the Nexus/HDF5 file and &apos;HF5 Element&apos; for the sub element of that file.<br/><br/>
+        The label decorator that manages the scan command decoration is called &apos;Nexus Scan Command and Title Decorator&apos; for Nexus/HDF5 files and &apos;HF5 Tree Elements Decorator&apos; for the sub element of these files.<br/><br/>
      </description>
      <command
            required="false"
