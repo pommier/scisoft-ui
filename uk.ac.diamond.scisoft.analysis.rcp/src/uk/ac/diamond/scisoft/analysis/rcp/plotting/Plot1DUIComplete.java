@@ -246,6 +246,8 @@ public class Plot1DUIComplete extends Plot1DUIAdapter {
 			AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
 			AbstractDataset xAxisValues2 = dbPlot.getAxis(AxisMapBean.XAXIS2);
 			AxisValues xAxes2 = null;
+			AxisMode xAxisMode = AxisMode.LINEAR;
+			LinkedList<AxisValues> xAxisValuesList = null;
 			if (xAxisValues != null) {
 				String xName = xAxisValues.getName();
 				if (xName != null && xName.length() > 0)
@@ -253,18 +255,23 @@ public class Plot1DUIComplete extends Plot1DUIAdapter {
 				else
 					plotter.setXAxisLabel("X-Axis");
 				xAxis.setValues(xAxisValues);
-			} else
+				xAxisMode = AxisMode.CUSTOM;
+			} else {
+				AbstractDataset testValues = dbPlot.getAxis(AxisMapBean.XAXIS+"0");
 				plotter.setXAxisLabel("X-Axis");
-			
-			
+				if (testValues != null) {
+					xAxisMode = AxisMode.CUSTOM;
+					xAxisValuesList = new LinkedList<AxisValues>();
+				}
+				plotter.setXAxisLabel("X-Axis");
+			}
+
 			Plot1DGraphTable colourTable = plotter.getColourTable();
 			colourTable.clearLegend();
+			plotter.setAxisModes(xAxisMode, AxisMode.LINEAR, AxisMode.LINEAR);
 			if (xAxisValues != null)
 			{
-				plotter.setAxisModes(AxisMode.CUSTOM, AxisMode.LINEAR, AxisMode.LINEAR);
 				plotter.setXAxisValues(xAxis, plotData.size());
-			} else {
-				plotter.setAxisModes(AxisMode.LINEAR, AxisMode.LINEAR, AxisMode.LINEAR);
 			}
 
 			if (xAxisValues2 != null) {
@@ -276,11 +283,21 @@ public class Plot1DUIComplete extends Plot1DUIAdapter {
 				plotter.setSecondaryXAxisValues(xAxes2,secondXAxisName);
 			} else
 				plotter.setSecondaryXAxisValues(null,"");
-			
+
+			int axisCounter = 0;
 			while (iter.hasNext()) {
 				DataSetWithAxisInformation dataSetAxis = iter.next();
 				AbstractDataset data = dataSetAxis.getData();
-				
+				if (xAxisValuesList != null) {
+					String axisStr = AxisMapBean.XAXIS + axisCounter;
+					AbstractDataset testValues = dbPlot.getAxis(axisStr);
+					if (testValues != null) {
+						AxisValues xaxis = new AxisValues(testValues);
+						xAxisValuesList.add(xaxis);
+					}
+					axisCounter++;
+				}
+
 				Plot1DAppearance newApp = 
 					new Plot1DAppearance(PlotColorUtility.getDefaultColour(colourTable.getLegendSize()),
 							             PlotColorUtility.getDefaultStyle(colourTable.getLegendSize()),
@@ -299,15 +316,20 @@ public class Plot1DUIComplete extends Plot1DUIAdapter {
 					AxisNames.add(name);
 				}
 			}
-			String yLabel = "Y-Axis";
+			StringBuilder yLabel = new StringBuilder("Y-Axis");
 			if (AxisNames.size() > 0) {
-				yLabel = AxisNames.get(0);
+				yLabel.delete(0, yLabel.length());
+				yLabel.append(AxisNames.get(0));
 				for (int i = 1; i < AxisNames.size(); i++) {
-					yLabel = yLabel + ", " + AxisNames.get(i);
+					yLabel.append(", ");
+					yLabel.append(AxisNames.get(i));
 				}
 			}
-			
-			plotter.setYAxisLabel(yLabel);			
+			if (yLabel.length() > 50) {
+				yLabel.delete(47, yLabel.length());
+				yLabel.append("...");
+			}
+			plotter.setYAxisLabel(yLabel.toString());
 			
 			int numHistory = plotter.getNumHistory();
 			for (int i = 0; i < numHistory; i++) {
@@ -320,7 +342,10 @@ public class Plot1DUIComplete extends Plot1DUIAdapter {
 			}
 			plotter.setPlotUpdateOperation(isUpdate);
 			try {
-				plotter.replaceAllPlots(datasets);
+				if (xAxisValuesList != null)
+					plotter.replaceAllPlots(datasets, xAxisValuesList);
+				else
+					plotter.replaceAllPlots(datasets);
 			} catch (PlotException e) {
 				e.printStackTrace();
 			}
