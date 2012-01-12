@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -513,8 +514,10 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 					// add if axis index mapping refers to this dimension
 					aSel.addChoice(c, 0);
 				} else if (aNames.contains(c.getName())) {
+					// assume order of axes names FIXME
 					// add if name is in list of axis names
-					aSel.addChoice(c, 1);
+					if (aNames.indexOf(c.getName()) == i && ArrayUtils.contains(c.getValues().getShape(), dim))
+						aSel.addChoice(c, 1);
 				}
 			}
 
