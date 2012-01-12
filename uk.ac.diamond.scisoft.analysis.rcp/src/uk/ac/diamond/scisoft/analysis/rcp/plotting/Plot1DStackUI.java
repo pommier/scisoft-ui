@@ -162,19 +162,18 @@ public class Plot1DStackUI extends AbstractPlotUI {
 					if (testValues != null) {
 						AxisValues xaxis = new AxisValues(testValues);
 						xAxisValuesList.add(xaxis);
-					}				
+					}
+					axisCounter++;
 				}
 				
 				Plot1DAppearance newApp = 
 					new Plot1DAppearance((colourLegend.isChecked() ? 
-										  PlotColorUtility.getDefaultColour(colourTable.getLegendSize()) : 
-										  java.awt.Color.BLACK),
-							             Plot1DStyles.SOLID,
-							             data.getName());
+							PlotColorUtility.getDefaultColour(colourTable.getLegendSize())
+								: java.awt.Color.BLACK), Plot1DStyles.SOLID, data.getName());
 				colourTable.addEntryOnLegend(newApp);
 				datasets.add(data);
 			}
-			mainPlotter.setPlotUpdateOperation(isUpdate);			
+			mainPlotter.setPlotUpdateOperation(isUpdate);
 			if (individualXAxis) {
 				try {
 					mainPlotter.replaceAllPlots(datasets, xAxisValuesList);

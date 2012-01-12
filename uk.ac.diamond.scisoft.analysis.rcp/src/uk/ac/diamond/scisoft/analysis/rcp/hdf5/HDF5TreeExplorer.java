@@ -18,7 +18,6 @@ package uk.ac.diamond.scisoft.analysis.rcp.hdf5;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -311,6 +310,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 			dNode = (HDF5Dataset) node;
 			if (!dNode.isSupported())
 				return false;
+
 			cData = dNode.getDataset();
 			axesAttr = dNode.getAttribute(NXAXES);
 			gNode = (HDF5Group) link.getSource(); // before hunting for axes
@@ -318,9 +318,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 			assert node instanceof HDF5Group;
 			gNode = (HDF5Group) node;
 			// find data (signal=1) and check for axes attribute
-			Iterator<HDF5NodeLink> iter = gNode.getNodeLinkIterator();
-			while (iter.hasNext()) {
-				HDF5NodeLink l = iter.next();
+			for (HDF5NodeLink l : (HDF5Group) node) {
 				if (l.isDestinationADataset()) {
 					dNode = (HDF5Dataset) l.getDestination();
 					if (dNode.containsAttribute(NXSIGNAL) && dNode.isSupported()) {
@@ -333,7 +331,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 			}
 		}
 
-		if (dNode == null)
+		if (dNode == null || gNode == null)
 			return false;
 
 		// find possible long name
@@ -349,10 +347,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		int rank = shape.length;
 
 		// scan children for SDS as possible axes (could be referenced by axes)
-		@SuppressWarnings("null")
-		Iterator<HDF5NodeLink> iter = gNode.getNodeLinkIterator();
-		while (iter.hasNext()) {
-			HDF5NodeLink l = iter.next();
+		for (HDF5NodeLink l : gNode) {
 			if (l.isDestinationADataset()) {
 				HDF5Dataset d = (HDF5Dataset) l.getDestination();
 				if (!d.isSupported() || d.isString() || dNode == d || d.containsAttribute(NXSIGNAL))
@@ -384,7 +379,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 								intAxis = new int[str.length];
 								for (int i = 0; i < str.length; i++) {
 									int j = Integer.parseInt(str[i]) - 1;
-									intAxis[i] = isOldGDA ? j : rank - j; // fix Fortran (column-major) dimension
+									intAxis[i] = isOldGDA ? j : rank - 1 - j; // fix Fortran (column-major) dimension
 								}
 							}
 						} else {
@@ -395,7 +390,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 								int i = 0;
 								while (it.hasNext()) {
 									int j = (int) attrd.getElementLongAbs(it.index) - 1;
-									intAxis[i++] = isOldGDA ? j : rank - j; // fix Fortran (column-major) dimension
+									intAxis[i++] = isOldGDA ? j : rank - 1 - j; // fix Fortran (column-major) dimension
 								}
 							}
 						}
@@ -406,7 +401,8 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 							// check that axis attribute matches data dimensions
 							for (int i = 0; i < intAxis.length; i++) {
 								int al = ashape[i];
-								if (al != shape[intAxis[i]]) {
+								int il = intAxis[i];
+								if (il < 0 || il >= rank || al != shape[il]) {
 									intAxis = null;
 									logger.warn("Axis attribute {} does not match shape", a.getName());
 									break;
@@ -445,10 +441,10 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 					if (attr_label != null) {
 						if (attr_label.isString()) {
 							int j = Integer.parseInt(attr_label.getFirstElement()) - 1;
-							choice.setAxisNumber(isOldGDA ? j : rank - j); // fix Fortran (column-major) dimension
+							choice.setAxisNumber(isOldGDA ? j : rank - 1 - j); // fix Fortran (column-major) dimension
 						} else {
 							int j = attr_label.getValue().getInt(0) - 1;
-							choice.setAxisNumber(isOldGDA ? j : rank - j); // fix Fortran (column-major) dimension
+							choice.setAxisNumber(isOldGDA ? j : rank - 1 - j); // fix Fortran (column-major) dimension
 						}
 					} else
 						choice.setAxisNumber(intAxis[intAxis.length-1]);
@@ -518,8 +514,10 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 					// add if axis index mapping refers to this dimension
 					aSel.addChoice(c, 0);
 				} else if (aNames.contains(c.getName())) {
+					// assume order of axes names FIXME
 					// add if name is in list of axis names
-					aSel.addChoice(c, 1);
+					if (aNames.indexOf(c.getName()) == i && ArrayUtils.contains(c.getValues().getShape(), dim))
+						aSel.addChoice(c, 1);
 				}
 			}
 
@@ -613,24 +611,23 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	private static final int GDAMINOR = 20;
 
 	private boolean checkForOldGDAFile() {
-		Iterator<HDF5NodeLink> iter = tree.getGroup().getNodeLinkIterator();
-		
-		while (iter.hasNext()) {
-			HDF5NodeLink link = iter.next();
+		for (HDF5NodeLink link : tree.getGroup()) {
 			if (link.isDestinationAGroup()) {
 				HDF5Group g = (HDF5Group) link.getDestination();
 				HDF5Attribute stringAttr = g.getAttribute(HDF5File.NXCLASS);
 				if (stringAttr != null && stringAttr.isString() && NXENTRY.equals(stringAttr.getFirstElement())) {
-					HDF5Dataset d = g.getDataset(NXPROGRAM);
-					if (d.isString()) {
-						String s = d.getString().trim();
-						int i = s.indexOf(GDAVERSIONSTRING);
-						if (i >= 0) {
-							String v = s.substring(i+4, s.lastIndexOf("."));
-							int j = v.indexOf(".");
-							int maj = Integer.parseInt(v.substring(0, j));
-							int min = Integer.parseInt(v.substring(j+1, v.length()));
-							return maj < GDAMAJOR || (maj == GDAMAJOR && min < GDAMINOR);
+					if (g.containsDataset(NXPROGRAM)) {
+						HDF5Dataset d = g.getDataset(NXPROGRAM);
+						if (d.isString()) {
+							String s = d.getString().trim();
+							int i = s.indexOf(GDAVERSIONSTRING);
+							if (i >= 0) {
+								String v = s.substring(i+4, s.lastIndexOf("."));
+								int j = v.indexOf(".");
+								int maj = Integer.parseInt(v.substring(0, j));
+								int min = Integer.parseInt(v.substring(j+1, v.length()));
+								return maj < GDAMAJOR || (maj == GDAMAJOR && min < GDAMINOR);
+							}
 						}
 					}
 				}

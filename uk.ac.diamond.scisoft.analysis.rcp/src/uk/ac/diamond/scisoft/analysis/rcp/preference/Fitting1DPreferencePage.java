@@ -89,7 +89,7 @@ public class Fitting1DPreferencePage extends PreferencePage implements IWorkbenc
 		labPeakName.setText("Peak type");
 		labPeakName.setToolTipText("Choose the probability density function to be fitted");
 
-		peakType = new Combo(peakControlGroup, SWT.NONE);
+		peakType = new Combo(peakControlGroup, SWT.NONE|SWT.READ_ONLY);
 
 		Label labNumPeaks = new Label(peakControlGroup, SWT.NONE);
 		labNumPeaks.setText("Number of peaks to be fitted");
@@ -106,7 +106,7 @@ public class Fitting1DPreferencePage extends PreferencePage implements IWorkbenc
 		Label algLabel = new Label(algGroup, SWT.NONE);
 		algLabel.setText("Fitting algorithm");
 
-		algType = new Combo(algGroup, SWT.NONE);
+		algType = new Combo(algGroup, SWT.NONE|SWT.READ_ONLY);
 
 		Label accuractlab = new Label(algGroup, SWT.NONE);
 		accuractlab.setText("Accuracy");
@@ -170,7 +170,7 @@ public class Fitting1DPreferencePage extends PreferencePage implements IWorkbenc
 		Label thresholdingMeasureLabel = new Label(stopping, SWT.NONE);
 		thresholdingMeasureLabel.setText("Thresholding Measure");
 
-		thresholdingMeasure = new Combo(stopping, SWT.NONE);
+		thresholdingMeasure = new Combo(stopping, SWT.NONE|SWT.READ_ONLY);
 		
 		Group sF = new Group(comp, SWT.NONE);
 		sF.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, false));

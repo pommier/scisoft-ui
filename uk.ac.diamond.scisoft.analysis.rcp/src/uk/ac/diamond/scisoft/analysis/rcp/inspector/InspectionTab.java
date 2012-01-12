@@ -36,6 +36,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -203,6 +204,7 @@ class PlotTab extends ATab {
 	private PropertyChangeListener axesListener = null;
 	private ImageExplorerView explorer = null;
 	protected boolean runLongJob = false;
+	private boolean plotStackIn3D = false;
 
 	public PlotTab(IWorkbenchPartSite partSite, InspectorType type, String title, String[] axisNames) {
 		super(partSite, type, title, axisNames);
@@ -237,6 +239,24 @@ class PlotTab extends ATab {
 			populateCombos();
 
 		// TODO line stack button
+		if (itype == InspectorType.LINESTACK) {
+//			new Label(holder, SWT.NONE).setText("In 3D");
+			final Button b = new Button(holder, SWT.CHECK);
+			b.setText("In 3D");
+			b.setToolTipText("Check to plot stack of lines in 3D");
+			b.setSelection(plotStackIn3D);
+			b.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					plotStackIn3D = b.getSelection();
+
+					if (paxes != null) {
+						PlotAxisProperty p = paxes.get(0);
+						p.setName(p.getName());
+					}
+				}
+			});
+		}
 
 		holder.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		sComposite.setContent(holder);
@@ -367,7 +387,7 @@ class PlotTab extends ATab {
 				String n = s.getSelectedName();
 				//TODO: We need more elaborate selection criteria to disable unsupported multidimensional axis
 				//      selection in image, surface and volume plots
-				if (n != null && s.getSelectedAxis().getSize() > 1) {
+				if (n != null) {// && s.getSelectedAxis().getSize() > 1) {
 					sAxes.put(i, n);
 				} else {
 					logger.warn("No axis selection available in {}", s);
@@ -703,12 +723,12 @@ class PlotTab extends ATab {
 			
 			AbstractDataset xaxisarray = slicedAxes.get(0);
 			
-			AbstractDataset[] xaxis = new AbstractDataset[lines];
+			AbstractDataset[] xaxes = new AbstractDataset[lines];
 			for (int i = 0; i < lines; i++) {
 				if (xaxisarray.getRank() == 1)
-					xaxis[i] = xaxisarray;
+					xaxes[i] = xaxisarray;
 				else
-					xaxis[i] = xaxisarray.getSlice(new int[] {0, i}, new int[] {dims[0], i+1}, null).squeeze();
+					xaxes[i] = xaxisarray.getSlice(new int[] {0, i}, new int[] {dims[0], i+1}, null).squeeze();
 			}
 						
 			AbstractDataset[] yaxes = new AbstractDataset[lines];
@@ -725,7 +745,11 @@ class PlotTab extends ATab {
 				yaxes[i] = slice;
 			}
 			try {
-				SDAPlotter.updateStackPlot(PLOTNAME, xaxis, yaxes, zaxis);
+				if (plotStackIn3D)
+					SDAPlotter.updateStackPlot(PLOTNAME, xaxes, yaxes, zaxis);
+				else {
+					SDAPlotter.updatePlot(PLOTNAME, xaxes, yaxes);
+				}
 			} catch (Exception e) {
 				logger.error("Could not plot 1d stack");
 			}

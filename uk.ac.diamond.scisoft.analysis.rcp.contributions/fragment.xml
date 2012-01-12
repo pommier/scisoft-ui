@@ -1387,6 +1387,12 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.analysisRpcAndRmiPreferencePage"
             name="Analysis RPC and RMI">
       </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.PrintSettingsPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.printSettingsPreferencePage"
+            name="Plot Printing Settings">
+      </page>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
@@ -1475,34 +1481,6 @@
             class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotPrintGraphAction"
             commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphAction">
       </handler>
-      <handler
-            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotPrintGraphWithScale10Action"
-            commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale10Action">
-      </handler>
-      <handler
-            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotPrintGraphWithScale25Action"
-            commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale25Action">
-      </handler>
-      <handler
-            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotPrintGraphWithScale33Action"
-            commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale33Action">
-      </handler>
-      <handler
-            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotPrintGraphWithScale50Action"
-            commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale50Action">
-      </handler>
-      <handler
-            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotPrintGraphWithScale66Action"
-            commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale66Action">
-      </handler>
-      <handler
-            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotPrintGraphWithScale75Action"
-            commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale75Action">
-      </handler>
-      <handler
-            class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotPrintGraphAction"
-            commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale100Action">
-      </handler>
       <!-- default commands in main menu and main toolbar (save as, print and copy) active when the plot view is active -->
       <handler
             class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotCopyGraphAction"
@@ -1578,6 +1556,20 @@
             contentFile="cheat/JythonBasicProjectTutoral.xml"
             id="uk.ac.diamond.scisoft.analysis.rcp.jythonbasicprojecttutorial"
             name="b) Jython Basic Project Tutorial">
+      </cheatsheet>
+   </extension>
+   <extension
+         point="org.eclipse.ui.cheatsheets.cheatSheetContent">
+      <category
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.uitesting"
+            name="Basic UI Features Testing">
+      </category>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.uitesting"
+            composite="true"
+            contentFile="cheat/PrintPlottingMain.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.plotprintingtest"
+            name="Plot Printing Testing">
       </cheatsheet>
    </extension>
 </fragment>
