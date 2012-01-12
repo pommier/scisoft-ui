@@ -17,9 +17,11 @@
 package uk.ac.diamond.sda.navigator.decorator;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Scanner;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -30,9 +32,8 @@ import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
 
-
 public class LightweightMetadataDecorator extends LabelProvider implements ILightweightLabelDecorator {
-	
+
 	public LightweightMetadataDecorator() {
 		super();
 	}
@@ -72,16 +73,33 @@ public class LightweightMetadataDecorator extends LabelProvider implements ILigh
 			objectResource.getResourceAttributes().toString();
 
 			String lastModified = new SimpleDateFormat("dd/MM/yy hh:mm aaa").format(new Date(file.lastModified()));
-			
-			decoration.addSuffix("  " + readableFileSize(file.length()) + "  " + lastModified);
+
+			decoration.addSuffix("  " + readableFileSize(file.length()) + "  " + lastModified+"  "+ getFilePermission(file));
 		}
 	}
-	
+
 	public static String readableFileSize(long size) {
 		if (size <= 0)
 			return "0";
 		final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
 		int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
 		return new DecimalFormat("#,##0.#").format(size / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
+	}
+
+	public static String getFilePermission(File file) { 
+		// File Permissions:
+		// r = read permission
+		// w = write permission
+		// x = execute permission
+		// - = no permission
+		String read = "-", write = "-", execute = "-";
+		if (file.canRead())
+			read = "r";
+		if (file.canWrite())
+			write = "w";
+		if (file.canExecute())
+			execute = "x";
+
+		return read + " " + write + " " + execute;
 	}
 }

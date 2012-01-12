@@ -37,7 +37,7 @@ public class LightweightScanCommandDecoratorTest {
 	
 	@Test
 	public void testSRSMetaDataLoader(){
-		LightweightScanCommandDecorator scd = new LightweightScanCommandDecorator();
+		LightweightNXSScanCmdDecorator scd = new LightweightNXSScanCmdDecorator();
 		IExtendedMetadata metaData = scd.srsMyMetaDataLoader(srsFileName);
 		
 		assertEquals(metaData.getScanCommand(),"scan chi 90 -90 -1 Waittime 0.5");
@@ -45,7 +45,7 @@ public class LightweightScanCommandDecoratorTest {
 	
 	@Test
 	public void testGetHDF5TitleAndScanCmd(){
-		LightweightScanCommandDecorator scd = new LightweightScanCommandDecorator();
+		LightweightNXSScanCmdDecorator scd = new LightweightNXSScanCmdDecorator();
 		
 		try {
 			String[][] listTitlesAndScanCmd = scd.getMyHDF5TitleAndScanCmd(nxsFileName);
