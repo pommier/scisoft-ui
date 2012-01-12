@@ -24,13 +24,16 @@
          label="4. If the Dataset Plot View is active you can also use the main menu/tool bar Print Button or the short key CTRL+P.">
       </subitem>
       <subitem
-         label="5. On the new Preview dialog displayed, you can select the scale (10% to 100%), the resolution/quality multiplier of the plot (1 to 4) and the printer to use.">
+         label="5. On the new Preview dialog displayed, you can select the scale (10% to 100%), the resolution/quality of the plot and the printer to use.">
       </subitem>
       <subitem
          label="6. Once the characteristics of the printing are chosen click on Select Printer/Print or Print button if your preferred printer is already the one by default.">
       </subitem>
       <subitem
-         label="7. Try the previous steps with another plot/image and other printing characteristics (the previous characteristics should be kept in memory).">
+         label="7. Try the previous steps with another plot/image and other printing characteristics.">
+      </subitem>
+      <subitem
+         label="8. The chosen print settings are kept in memory and the last settings used will be chosen once a new instance of the preview dialog is open. You can also change those settings from the general preference page by going to 'Window/Preferences/SDA/Plot Printing Settings'.">
       </subitem>
    </item>
 </cheatsheet>

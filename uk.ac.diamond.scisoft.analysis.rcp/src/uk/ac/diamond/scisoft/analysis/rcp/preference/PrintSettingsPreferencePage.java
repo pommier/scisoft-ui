@@ -76,7 +76,7 @@ public class PrintSettingsPreferencePage extends PreferencePage implements IWork
 
 		Label printerNameLabel = new Label(printSettingsGroup, SWT.LEFT);
 		printerNameLabel.setText("Printer Name: ");
-		printerListCombo = new Combo(printSettingsGroup, SWT.RIGHT);
+		printerListCombo = new Combo(printSettingsGroup, SWT.RIGHT|SWT.READ_ONLY);
 		printerListCombo.setToolTipText("List of all available printers");
 		if(settings == null){
 			settings = new PrintSettings();
@@ -89,7 +89,7 @@ public class PrintSettingsPreferencePage extends PreferencePage implements IWork
 
 		Label scaleLabel = new Label(printSettingsGroup, SWT.LEFT);
 		scaleLabel.setText("Scale: ");
-		scaleCombo = new Combo(printSettingsGroup, SWT.RIGHT);
+		scaleCombo = new Combo(printSettingsGroup, SWT.RIGHT|SWT.READ_ONLY);
 		scaleCombo.setToolTipText("Change the scale of the plot to be printed");
 		Scale[] scaleList = Scale.values();
 		for (int i = 0; i < scaleList.length; i++) {
@@ -98,8 +98,8 @@ public class PrintSettingsPreferencePage extends PreferencePage implements IWork
 
 		Label resolutionLabel = new Label(printSettingsGroup, SWT.LEFT);
 		resolutionLabel.setText("Resolution: ");
-		resolutionCombo = new Combo(printSettingsGroup, SWT.RIGHT);
-		resolutionCombo.setToolTipText("Change the definition of the plot to be printed");
+		resolutionCombo = new Combo(printSettingsGroup, SWT.RIGHT|SWT.READ_ONLY);
+		resolutionCombo.setToolTipText("Change the resolution of the plot to be printed");
 		Resolution[] resolutionList = Resolution.values();
 		for (int i = 0; i < resolutionList.length; i++) {
 			resolutionCombo.add(resolutionList[i].getName().toString());
@@ -107,7 +107,7 @@ public class PrintSettingsPreferencePage extends PreferencePage implements IWork
 
 		Label orientationLabel = new Label(printSettingsGroup, SWT.LEFT);
 		orientationLabel.setText("Orientation: ");
-		orientationCombo = new Combo(printSettingsGroup, SWT.RIGHT);
+		orientationCombo = new Combo(printSettingsGroup, SWT.RIGHT|SWT.READ_ONLY);
 		orientationCombo.setEnabled(false); //not yet fully functional
 		orientationCombo.setToolTipText("Not yet fully functional");
 		Orientation[] orientationList = Orientation.values();
