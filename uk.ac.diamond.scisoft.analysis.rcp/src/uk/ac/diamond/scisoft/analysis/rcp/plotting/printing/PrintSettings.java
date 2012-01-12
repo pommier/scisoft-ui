@@ -46,7 +46,7 @@ public class PrintSettings {
 	private Orientation orientation = Orientation.PORTRAIT;
 	private PrinterData printerData = null;
 	private Scale scale = Scale.DEFAULT;
-	private int resolution = 2;
+	private Resolution resolution = Resolution.MEDIUM;
 
 	// If new fields are added be sure to adjust clone()
 
@@ -57,7 +57,7 @@ public class PrintSettings {
 	 * @author Kenneth Evans, Jr.
 	 */
 	public static enum Orientation {
-		DEFAULT("Default"), PORTRAIT("Portrait"), LANDSCAPE("Landscape");
+		PORTRAIT("Portrait"), LANDSCAPE("Landscape");
 		private final String name;
 
 		/**
@@ -114,6 +114,44 @@ public class PrintSettings {
 		 * @return value
 		 */
 		public Double getValue() {
+			return value;
+		}
+	}
+	
+	/**
+	 * Resolution is a complex enum that represents possible image resolution and that also includes String names
+	 * and Double values for the items.
+	 */
+	public static enum Resolution {
+		LOW("Low", 1), MEDIUM("Medium", 2), MEDIUMHIGH("Medium High", 3), HIGH("High", 4);
+		private final String name;
+		private final int value;
+
+		/**
+		 * Scale constructor.
+		 * 
+		 * @param name
+		 */
+		Resolution(String name, int value) {
+			this.name = name;
+			this.value = value;
+		}
+
+		/**
+		 * Get the name.
+		 * 
+		 * @return name
+		 */
+		public String getName() {
+			return name;
+		}
+		
+		/**
+		 * Get the value.
+		 * 
+		 * @return value
+		 */
+		public int getValue() {
 			return value;
 		}
 	}
@@ -548,7 +586,7 @@ public class PrintSettings {
 				return;
 			}
 		}
-		this.orientation = Orientation.DEFAULT;
+		//this.orientation = Orientation.DEFAULT;
 	}
 
 	/**
@@ -558,7 +596,7 @@ public class PrintSettings {
 		if (printerData == null)
 			printerData = Printer.getDefaultPrinterData();
 		if (printerData == null)
-			printerData = Printer.getPrinterList() != null ? Printer.getPrinterList()[0] : null;
+			printerData = Printer.getPrinterList() != null ? Printer.getPrinterList()[0] : Printer.getDefaultPrinterData();
 		return printerData;
 	}
 
@@ -567,7 +605,6 @@ public class PrintSettings {
 	 *            the printerData to set
 	 */
 	public void setPrinterData(PrinterData printerData) {
-		System.out.println("");
 		this.printerData = printerData;
 	}
 
@@ -589,7 +626,7 @@ public class PrintSettings {
 	/**
 	 * @return the resolution
 	 */
-	public int getResolution() {
+	public Resolution getResolution() {
 		return resolution;
 	}
 
@@ -597,7 +634,7 @@ public class PrintSettings {
 	 * @param resolution
 	 *            the scale of the image
 	 */
-	public void setResolution(int resolution) {
+	public void setResolution(Resolution resolution) {
 		this.resolution = resolution;
 	}
 

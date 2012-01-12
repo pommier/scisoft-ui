@@ -1387,6 +1387,12 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.analysisRpcAndRmiPreferencePage"
             name="Analysis RPC and RMI">
       </page>
+      <page
+            category="org.eclipse.ui.preferencePages.Workbench"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.PrintSettingsPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.printSettingsPreferencePage"
+            name="Plot Printing Settings">
+      </page>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">

@@ -16,8 +16,13 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.printing;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.BusyIndicator;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -39,16 +44,18 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DGraphTable;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.printing.PrintSettings.Orientation;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.printing.PrintMargin;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.printing.CreateImage;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.printing.PrintSettings.Resolution;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.printing.PrintSettings.Scale;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 
 import de.jreality.ui.viewerapp.AbstractViewerApp;
 
@@ -62,6 +69,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 	private Canvas canvas;
 	private Printer printer;
 	private PrintMargin margin;
+	private Combo comboPrinterName;
 	private Combo comboScale;
 	private Combo comboOrientation;
 	private Combo comboResolution;
@@ -80,9 +88,12 @@ public class PlotPrintPreviewDialog extends Dialog {
 	private Plot1DGraphTable legendTable;
 	
 	private PrintSettings settings;
-
+	private PrinterData[] printerNames;
+	
 	private Image image;
 	private String fileName = "SDA plot";
+	
+	
 
 	private static final Logger logger = LoggerFactory.getLogger(PlotPrintPreviewDialog.class);
 	
@@ -113,7 +124,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 		this.printer = new Printer(settings.getPrinterData());
 		// We put the image creation into a thread and display a busy kind of indicator while the thread is
 		// running
-		Runnable createImage = new CreateImage(viewerApp, device, legendTable, this.settings.getPrinterData(), this.settings.getResolution());
+		Runnable createImage = new CreateImage(viewerApp, device, legendTable, this.settings.getPrinterData(), this.settings.getResolution().getValue());
 		@SuppressWarnings("unused")
 		Thread thread = new Thread(createImage);
 		BusyIndicator.showWhile(this.display, createImage);
@@ -154,7 +165,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 					return;
 				settings.setPrinterData(printerData);
 				// Loads the printer.
-				setPrinter(printer, settings.getScale().getValue());//Double.parseDouble(comboScale.getItem(comboScale.getSelectionIndex())));
+				setPrinter(printer, settings.getScale().getValue());
 				// print the plot
 				print(printer, margin, settings);
 				shell.dispose();
@@ -167,23 +178,29 @@ public class PlotPrintPreviewDialog extends Dialog {
 		buttonPrint.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				if (printer == null)
-					print();
-				else {
-					print(printer, margin, settings);
-				}
+				Printer printer = new Printer(settings.getPrinterData());
+				print(printer, margin, settings);
 				shell.dispose();
 			}
 		});
 
-		Composite printerNameComposite = new Composite(previewComposite,SWT.TOP);
-		printerNameComposite.setLayout(new RowLayout());
-		new Label(printerNameComposite, SWT.RIGHT).setText(defaultPrinterText + ":");
-		String[] tmp = settings.getPrinterData().toString().split("name =");
-		String currentPrinterName = "";
-		if (tmp.length > 1)
-			currentPrinterName = tmp[1].split("}")[0];
-		new Text(printerNameComposite, SWT.RIGHT|SWT.READ_ONLY).setText(currentPrinterName);
+		Composite printerNameComposite = new Composite(previewComposite, SWT.BORDER);
+		RowLayout printerNameLayout=new RowLayout();
+		printerNameLayout.center=true;
+		printerNameComposite.setLayout(printerNameLayout);
+		new Label(printerNameComposite, SWT.BOTTOM).setText(defaultPrinterText + ":");
+		comboPrinterName = new Combo(printerNameComposite, SWT.READ_ONLY);
+		PrinterData[] printerList = Printer.getPrinterList();
+		for (int i = 0; i < printerList.length; i++) {
+			comboPrinterName.add(printerList[i].name);
+		}
+		for (int i = 0; i < comboPrinterName.getItemCount(); i++) {
+			if (settings.getPrinterData().name.equals(comboPrinterName.getItem(i))) {
+				comboPrinterName.select(i);
+				break;
+			}
+		}
+		comboPrinterName.addSelectionListener(printerNameSelection);
 		
 		Composite scaleComposite = new Composite(previewComposite, SWT.BORDER);
 		RowLayout scaleLayout=new RowLayout();
@@ -191,49 +208,17 @@ public class PlotPrintPreviewDialog extends Dialog {
 		scaleComposite.setLayout(scaleLayout);
 		new Label(scaleComposite, SWT.BOTTOM).setText(printScaleText + ":");
 		comboScale = new Combo(scaleComposite, SWT.READ_ONLY);
-		comboScale.add("100%");
-		comboScale.add("75%");
-		comboScale.add("66%");
-		comboScale.add("50%");
-		comboScale.add("33%");
-		comboScale.add("25%");
-		comboScale.add("10%");
+		Scale[] scaleList = Scale.values();
+		for (int i = 0; i < scaleList.length; i++) {
+			comboScale.add(scaleList[i].getName());
+		}
 		for (int i = 0; i < comboScale.getItemCount(); i++) {
 			if (settings.getScale().getName().equals(comboScale.getItem(i))) {
 				comboScale.select(i);
 				break;
 			}
 		}
-		comboScale.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				int scaleNumber = comboScale.getSelectionIndex();
-				switch (scaleNumber){
-					case 0:
-						settings.setScale(Scale.DEFAULT);
-						break;
-					case 1:
-						settings.setScale(Scale.PERCENT75);
-						break;
-					case 2:
-						settings.setScale(Scale.PERCENT66);
-						break;
-					case 3:
-						settings.setScale(Scale.PERCENT50);
-						break;
-					case 4:
-						settings.setScale(Scale.PERCENT33);
-						break;
-					case 5:
-						settings.setScale(Scale.PERCENT25);
-						break;
-					case 6:
-						settings.setScale(Scale.PERCENT10);
-						break;
-				}	
-				setPrinter(printer, settings.getScale().getValue());
-			}
-		});
+		comboScale.addSelectionListener(scaleSelection);
 
 		Composite resolutionComposite = new Composite(previewComposite, SWT.BORDER);
 		RowLayout resolutionLayout = new RowLayout();
@@ -242,28 +227,17 @@ public class PlotPrintPreviewDialog extends Dialog {
 		Label resolutionLabel = new Label(resolutionComposite, SWT.SINGLE);
 		resolutionLabel.setText(resolutionText + ":");
 		comboResolution = new Combo(resolutionComposite, SWT.READ_ONLY);
-		comboResolution.add("1");
-		comboResolution.add("2");
-		comboResolution.add("3");
-		comboResolution.add("4");
+		Resolution[] resolutionList = Resolution.values();
+		for (int i = 0; i < resolutionList.length; i++) {
+			comboResolution.add(resolutionList[i].getName());
+		}
 		for (int i = 0; i < comboResolution.getItemCount(); i++) {
-			if (settings.getResolution() == Integer.parseInt(comboResolution.getItem(i))) {
+			if (settings.getResolution().getName() == String.valueOf(comboResolution.getItem(i))) {
 				comboResolution.select(i);
 				break;
 			}
 		}
-		comboResolution.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				settings.setResolution(Integer.parseInt(comboResolution.getItem(comboResolution.getSelectionIndex())));
-				Runnable createImage = new CreateImage(viewerApp, display, legendTable, settings.getPrinterData(), settings.getResolution());
-				@SuppressWarnings("unused")
-				Thread thread = new Thread(createImage);
-				BusyIndicator.showWhile(display, createImage);
-				image = CreateImage.getImage();
-				setPrinter(printer, settings.getScale().getValue());
-			}
-		});
+		comboResolution.addSelectionListener(resolutionSelection);
 
 		// TODO orientation button disabled: works for preview not for data sent to printer
 //		Composite orientationComposite = new Composite(previewComposite, SWT.BORDER);
@@ -275,20 +249,12 @@ public class PlotPrintPreviewDialog extends Dialog {
 //		comboOrientation.add(portraitText);
 //		comboOrientation.add(landscapeText);
 //		for (int i = 0; i < comboOrientation.getItemCount(); i++) {
-//			if (settings.getOrientation().equals(comboOrientation.getItem(i))) {
+//			if (settings.getOrientation().getName().equals(comboOrientation.getItem(i))) {
 //				comboOrientation.select(i);
 //				break;
 //			}
 //		}
-//		comboOrientation.addListener(SWT.Selection, new Listener() {
-//			@Override
-//			public void handleEvent(Event e) {
-//				settings.setOrientation(comboOrientation.getItem(comboOrientation.getSelectionIndex()));
-//				//orientation = comboOrientation.getItem(comboOrientation.getSelectionIndex());
-//				// setPrinter(printer, value);
-//				canvas.redraw();
-//			}
-//		});
+//		comboOrientation.addSelectionListener(orientationSelection);
 
 		canvas = new Canvas(shell, SWT.BORDER);
 
@@ -297,18 +263,10 @@ public class PlotPrintPreviewDialog extends Dialog {
 		canvas.setLayoutData(gridData);
 
 		Listener listener = new Listener() {
-			int zoomFactor = 1;
-
 			@Override
 			public void handleEvent(Event e) {
 				Canvas canvas = null;
 				switch (e.type) {
-				case SWT.MouseWheel:
-					canvas = (Canvas) e.widget;
-					zoomFactor = (Math.max(0, zoomFactor + e.count) * 2);
-					canvas.redraw();
-
-					break;
 				case SWT.Paint:
 					canvas = (Canvas) e.widget;
 					paint(e, settings.getOrientation());
@@ -322,6 +280,8 @@ public class PlotPrintPreviewDialog extends Dialog {
 		shell.open();
 		setPrinter(printer, settings.getScale().getValue());
 
+		addPropertyListeners();
+		
 		// Set up the event loop.
 		while (!shell.isDisposed()) {
 			if (!shell.getDisplay().readAndDispatch()) {
@@ -331,7 +291,181 @@ public class PlotPrintPreviewDialog extends Dialog {
 		}
 		return settings;
 	}
+	
+	private SelectionAdapter printerNameSelection = new SelectionAdapter() {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			selectPrinter(comboPrinterName.getSelectionIndex());
+		}
+	};
 
+	private void selectPrinter(int printerNameNum) {
+		PrinterData[] printerList = Printer.getPrinterList();
+		settings.setPrinterData(printerList[printerNameNum]);
+		setPrinter(printer, settings.getScale().getValue());
+	}
+
+	private SelectionAdapter scaleSelection = new SelectionAdapter() {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			selectScale(comboScale.getSelectionIndex());
+		}
+	};
+
+	private void selectScale(int scaleNum) {
+		// ("100%", 0.5), ("75%", 2.0), ("66%", 3.0), ("50%", 4.0), ("33%", 5.0), ("25%", 6.0), ("10%", 7.0)
+		switch (scaleNum){
+		case 0:
+			settings.setScale(Scale.DEFAULT);
+			break;
+		case 1:
+			settings.setScale(Scale.PERCENT75);
+			break;
+		case 2:
+			settings.setScale(Scale.PERCENT66);
+			break;
+		case 3:
+			settings.setScale(Scale.PERCENT50);
+			break;
+		case 4:
+			settings.setScale(Scale.PERCENT33);
+			break;
+		case 5:
+			settings.setScale(Scale.PERCENT25);
+			break;
+		case 6:
+			settings.setScale(Scale.PERCENT10);
+			break;
+		}	
+		setPrinter(printer, settings.getScale().getValue());
+	}
+
+	private SelectionAdapter resolutionSelection = new SelectionAdapter() {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			selectResolution(comboResolution.getSelectionIndex());
+		}
+	};
+
+	private void selectResolution(int resolutionNum) {
+		// ("Low", 1), ("Medium", 2), ("Medium High", 3), ("High", 4) 	
+		switch (resolutionNum){
+		case 0:
+			settings.setResolution(Resolution.LOW);
+			break;
+		case 1:
+			settings.setResolution(Resolution.MEDIUM);
+			break;
+		case 2:
+			settings.setResolution(Resolution.MEDIUMHIGH);
+			break;
+		case 3:
+			settings.setResolution(Resolution.HIGH);
+			break;
+		}
+		Runnable createImage = new CreateImage(viewerApp, display, legendTable, settings.getPrinterData(), settings.getResolution().getValue());
+		@SuppressWarnings("unused")
+		Thread thread = new Thread(createImage);
+		BusyIndicator.showWhile(display, createImage);
+		image = CreateImage.getImage();
+		setPrinter(printer, settings.getScale().getValue());
+	}
+
+	private SelectionAdapter orientationSelection = new SelectionAdapter() {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			selectOrientation(comboOrientation.getSelectionIndex());
+		}
+	};
+
+	private void selectOrientation(int orientationNum) {
+		// "Portrait", "Landscape"	
+		switch (orientationNum){
+		case 0:
+			settings.setOrientation(Orientation.PORTRAIT);
+			break;
+		case 1:
+			settings.setOrientation(Orientation.LANDSCAPE);
+			break;
+		}
+		canvas.redraw();
+	}
+
+	/**
+	 * PlotPrintPreviewDialog is listening to eventual property changes done through the Preference Page
+	 */
+	private void addPropertyListeners() {
+		AnalysisRCPActivator.getDefault().getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
+
+			@Override
+			public void propertyChange(PropertyChangeEvent event) {
+				String property = event.getProperty();
+				IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+				if (property.equals(PreferenceConstants.PRINTSETTINGS_PRINTER_NAME)
+						|| property.equals(PreferenceConstants.PRINTSETTINGS_SCALE)
+						|| property.equals(PreferenceConstants.PRINTSETTINGS_RESOLUTION)
+						|| property.equals(PreferenceConstants.PRINTSETTINGS_ORIENTATION)) {
+
+					int printerName;
+					if (preferenceStore.isDefault(PreferenceConstants.PRINTSETTINGS_PRINTER_NAME)) {
+						printerName = preferenceStore.getDefaultInt(PreferenceConstants.PRINTSETTINGS_PRINTER_NAME);
+					} else {
+						printerName = preferenceStore.getInt(PreferenceConstants.PRINTSETTINGS_PRINTER_NAME);
+					}
+					printerNames = Printer.getPrinterList();
+					for (int i = 0; i < printerNames.length; i++) {
+						if(i==printerName){
+							settings.setPrinterData(printerNames[i]);
+							break;
+						}
+					}
+
+					int scale;
+					if (preferenceStore.isDefault(PreferenceConstants.PRINTSETTINGS_SCALE)) {
+						scale = preferenceStore.getDefaultInt(PreferenceConstants.PRINTSETTINGS_SCALE);
+					} else {
+						scale = preferenceStore.getInt(PreferenceConstants.PRINTSETTINGS_SCALE);
+					}
+					Scale[] scales = Scale.values();
+					for (int i = 0; i < scales.length; i++) {
+						if(i==scale){
+							settings.setScale(scales[i]);
+							break;
+						}
+					}
+
+					int resolution;
+					if (preferenceStore.isDefault(PreferenceConstants.PRINTSETTINGS_RESOLUTION)) {
+						resolution = preferenceStore.getDefaultInt(PreferenceConstants.PRINTSETTINGS_RESOLUTION);
+					} else {
+						resolution = preferenceStore.getInt(PreferenceConstants.PRINTSETTINGS_RESOLUTION);
+					}
+					Resolution[] resolutions = Resolution.values();
+					for (int i = 0; i < resolutions.length; i++) {
+						if(i==resolution){
+							settings.setResolution(resolutions[i]);
+							break;
+						}
+					}
+
+					int orientation;
+					if (preferenceStore.isDefault(PreferenceConstants.PRINTSETTINGS_ORIENTATION)) {
+						orientation = preferenceStore.getDefaultInt(PreferenceConstants.PRINTSETTINGS_ORIENTATION);
+					} else {
+						orientation = preferenceStore.getInt(PreferenceConstants.PRINTSETTINGS_ORIENTATION);
+					}
+					Orientation[] orientations = Orientation.values();
+					for (int i = 0; i < orientations.length; i++) {
+						if(i==orientation){
+							settings.setOrientation(orientations[i]);
+							break;
+						}
+					}
+				}
+			}
+		});
+	}
+	
 	private void paint(Event e, Orientation orientation) {
 		if (orientation.equals(Orientation.PORTRAIT)) {
 		
