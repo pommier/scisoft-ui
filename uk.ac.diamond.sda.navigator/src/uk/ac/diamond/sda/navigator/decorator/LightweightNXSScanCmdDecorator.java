@@ -19,6 +19,7 @@ package uk.ac.diamond.sda.navigator.decorator;
 import gda.analysis.io.ScanFileHolderException;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -98,22 +99,23 @@ public class LightweightNXSScanCmdDecorator extends LabelProvider implements ILi
 		DataHolder dataHolder= new HDF5Loader(fullpath).loadFile();
 
 		List<String> list = getAllRootEntries(dataHolder.getNames());
-		Object[] entries = list.toArray();
-		String[] scanCmd = new String[entries.length];
+		String[] scanCmd = new String[list.size()];
 		scanCmd=initStringArray(scanCmd);
-		String[] titles = new String[entries.length];
+		String[] titles = new String[list.size()];
 		titles=initStringArray(titles);
 		
-		String[][] listScanCmdAndTitles = new String[2][entries.length];
-		for (int i = 0; i < entries.length; i++) {
+		String[][] listScanCmdAndTitles = new String[2][list.size()];
+		int i=0;
+		for (Iterator<String> iterator = list.iterator(); iterator.hasNext();) {
+			String string = iterator.next();
 			// scan command
-			if (dataHolder.contains("/" + entries[i].toString() + "/scan_command")) {
-				hdf5scanCommand = dataHolder.getDataset("/" + entries[i].toString() + "/scan_command").toString();
+			if (dataHolder.contains("/" + string + "/scan_command")) {
+				hdf5scanCommand = dataHolder.getDataset("/" + string + "/scan_command").toString();
 				scanCmd[i] = "\nScanCmd" + (i+1) + ": " + hdf5scanCommand;// display of the string on a new line
 			}
 			// title
-			if (dataHolder.contains("/" + entries[i].toString() + "/title")) {
-				hdf5Title = dataHolder.getDataset("/" + entries[i].toString() + "/title").toString();
+			if (dataHolder.contains("/" + string + "/title")) {
+				hdf5Title = dataHolder.getDataset("/" + string + "/title").toString();
 				titles[i] = "\nTitle" + (i+1) + ": " + hdf5Title;// display of the string on a new line
 			}
 			if (titles[i].length() > 100) // restrict to 100 characters
@@ -123,7 +125,9 @@ public class LightweightNXSScanCmdDecorator extends LabelProvider implements ILi
 			
 			listScanCmdAndTitles[0][i] = titles[i];
 			listScanCmdAndTitles[1][i] = scanCmd[i];
+			i++;
 		}
+
 		return listScanCmdAndTitles;
 
 	}
