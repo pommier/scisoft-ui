@@ -34,11 +34,11 @@ import org.eclipse.jface.viewers.ILightweightLabelDecorator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LightweightMetadataDecorator extends LabelProvider implements ILightweightLabelDecorator {
+public class LightweightFileOwnerDecorator extends LabelProvider implements ILightweightLabelDecorator {
 
-	private static final Logger logger = LoggerFactory.getLogger(LightweightMetadataDecorator.class);
+	private static final Logger logger = LoggerFactory.getLogger(LightweightFileOwnerDecorator.class);
 	
-	public LightweightMetadataDecorator() {
+	public LightweightFileOwnerDecorator() {
 		super();
 	}
 
@@ -67,43 +67,37 @@ public class LightweightMetadataDecorator extends LabelProvider implements ILigh
 
 	@Override
 	public void decorate(Object element, IDecoration decoration) {
-		IResource objectResource = (IResource) element;
 		if (element instanceof IFile) {
 			IFile ifile = (IFile) element;
 			IPath path = ifile.getLocation();
 			File file = path.toFile();
-			objectResource.getResourceAttributes().toString();
 
-			String lastModified = new SimpleDateFormat("dd/MM/yy hh:mm aaa").format(new Date(file.lastModified()));
-
-			//file size - date of last modification - file permissions
-			decoration.addSuffix("  "+readableFileSize(file.length())+"  "+lastModified+"  "
-									+getFilePermission(file));
+			decoration.addSuffix("  "+getFileOwner(file));
 		}
 	}
 
-	public static String readableFileSize(long size) {
-		if (size <= 0)
-			return "0";
-		final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
-		int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
-		return new DecimalFormat("#,##0.#").format(size / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
-	}
-
-	public static String getFilePermission(File file) { 
-		// File Permissions:
-		// r = read permission
-		// w = write permission
-		// x = execute permission
-		// - = no permission
-		String read = "-", write = "-", execute = "-";
-		if (file.canRead())
-			read = "r";
-		if (file.canWrite())
-			write = "w";
-		if (file.canExecute())
-			execute = "x";
-
-		return read + " " + write + " " + execute;
+	public static String getFileOwner(File file){
+		String owner="";
+		// File owner only for Unix OS
+		String os = System.getProperty("os.name").toLowerCase();
+		String command = "";
+		if((os.indexOf("nix") >= 0) || (os.indexOf("nux") >= 0) || (os.indexOf("mac") >= 0)){
+			//command = "stat -c%U "+file.getAbsolutePath();
+			command = "ls -l "+file.getAbsolutePath();
+			
+			
+			try {
+				Process p = Runtime.getRuntime().exec(command);
+				Scanner sc = new Scanner(p.getInputStream());
+				if(sc.hasNext()){
+					String[] tmp = sc.nextLine().split(" ");
+					owner = tmp[2]; //-rw-rw---- 1 wqk87977 wqk87977 16224 Nov 15 11:21 226942.dat
+				}
+				
+			} catch (IOException e) {
+				logger.error("ERROR: could not get file owner:",e.getMessage());
+			}
+		}
+		return owner;
 	}
 }

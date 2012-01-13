@@ -294,7 +294,7 @@
       <decorator
             adaptable="true"
             class="uk.ac.diamond.sda.navigator.decorator.LightweightMetadataDecorator"
-            id="uk.ac.diamond.sda.navigator.metaData"
+            id="uk.ac.diamond.sda.navigator.metadataDecorator"
             label="File Meta Data Decorator"
             lightweight="true"
             state="true">
@@ -302,8 +302,24 @@
                <objectClass name="org.eclipse.core.resources.IResource"/>
             </enablement>
             <description>
-               Displays the size and the date of last modificationof a resource file.
+               Displays the size, date of last modification and file permission of a resource file.
             </description>
+      </decorator>
+      <decorator
+            adaptable="true"
+            class="uk.ac.diamond.sda.navigator.decorator.LightweightFileOwnerDecorator"
+            id="uk.ac.diamond.sda.navigator.fileOwnerDecorator"
+            label="File Owner Decorator"
+            lightweight="true"
+            state="false">
+         <enablement>
+            <objectClass
+                  name="org.eclipse.core.resources.IResource">
+            </objectClass>
+         </enablement>
+         <description>
+            Displays the file owner of a resource file.
+         </description>
       </decorator>
       <!-- Not correctly working yet -->
       <!--decorator
@@ -324,16 +340,18 @@
       </decorator-->
       <decorator
             adaptable="true"
-            class="uk.ac.diamond.sda.navigator.hdf5.HDF5LabelProvider"
-            id="uk.ac.diamond.sda.navigator.hdf5Decorator"
-            label="HDF5 tree element Decorator"
+            class="uk.ac.diamond.sda.navigator.decorator.LightweightSRSScanCmdDecorator"
+            id="uk.ac.diamond.sda.navigator.srsScancmdDecorator"
+            label="DAT file Scan Command Decorator"
+            lightweight="true"
             state="true">
          <enablement>
             <objectClass
-                  name="uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode">
-            </objectClass></enablement>
+                  name="org.eclipse.core.resources.IResource">
+            </objectClass>
+         </enablement>
          <description>
-            Displays the HDF5 tree elements data as decorator.
+            Displays the Scan Command of a .dat file as a decorator (if there are any).
          </description>
       </decorator>
       <decorator
@@ -354,17 +372,17 @@
       </decorator>
       <decorator
             adaptable="true"
-            class="uk.ac.diamond.sda.navigator.decorator.LightweightSRSScanCmdDecorator"
-            id="uk.ac.diamond.sda.navigator.srsScancmdDecorator"
-            label="DAT file Scan Command Decorator"
-            lightweight="true"
+            class="uk.ac.diamond.sda.navigator.hdf5.HDF5LabelProvider"
+            id="uk.ac.diamond.sda.navigator.hdf5Decorator"
+            label="HDF5 tree element Decorator"
             state="true">
          <enablement>
             <objectClass
-                  name="org.eclipse.core.resources.IResource">
-            </objectClass></enablement>
+                  name="uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode">
+            </objectClass>
+         </enablement>
          <description>
-            Displays the Scan Command of a .dat file as a decorator (if there are any).
+            Displays the HDF5 tree elements data as decorator.
          </description>
       </decorator>
    </extension>
