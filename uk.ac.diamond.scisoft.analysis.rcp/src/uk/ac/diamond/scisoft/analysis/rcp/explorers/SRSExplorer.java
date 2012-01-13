@@ -122,7 +122,7 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 		int[] shape = data.getDataset(0).getShape();
 
 		for (int j = 0; j < shape.length; j++) {
-			AxisSelection axisSelection = new AxisSelection(shape[j]);
+			AxisSelection axisSelection = new AxisSelection(shape[j], j);
 
 			AbstractDataset autoAxis = AbstractDataset.arange(shape[j], AbstractDataset.INT32);
 			autoAxis.setName("Index");

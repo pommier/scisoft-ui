@@ -19,14 +19,11 @@ package uk.ac.diamond.scisoft.analysis.rcp.inspector;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
-
 
 /**
  * Class to hold a list of axis names and dataset from which an axis can be selected
@@ -96,9 +93,12 @@ public class AxisSelection extends InspectorProperty {
 		
 	}
 
+	private final static String propName = "axisselection";
+	private int dim;    // dimension (or position index) of dataset
 	private int length; // length of axis
 	private List<AxisSelData> asData;
-	private Set<String> names;
+	private List<String> names;
+	private final String suffix;
 
 	Transformer orderTransformer = new Transformer() {
 		@Override
@@ -118,28 +118,33 @@ public class AxisSelection extends InspectorProperty {
 		}
 	};
 
-	class NamePredicate implements Predicate {
-		String name;
-		public void setName(String name) {
-			this.name = name;
+	class OrderPredicate implements Predicate {
+		int order;
+		public void setOrder(int order) {
+			this.order = order;
 		}
 
 		@Override
-		public boolean evaluate(Object o) {
-			return (o instanceof AxisSelData && ((AxisSelData) o).getData().getName().equals(name));
+		public boolean evaluate(Object obj) {
+			AxisSelData a = (AxisSelData) obj;
+			int o = a.getOrder();
+			return o == 0 || order < o;
 		}
 	}
 
-	NamePredicate namePredicate = new NamePredicate();
+	OrderPredicate orderPredicate = new OrderPredicate();
 
 	/**
 	 * Create an axis selection that corresponds to a dataset dimension of given length
 	 * @param length 
+	 * @param dimension
 	 */
-	public AxisSelection(int length) {
+	public AxisSelection(int length, int dimension) {
+		dim = dimension;
 		this.length = length;
 		asData = new ArrayList<AxisSelData>();
-		names = new HashSet<String>();
+		names = new ArrayList<String>();
+		suffix = ":" + (dim + 1);
 	}
 
 	/**
@@ -175,18 +180,40 @@ public class AxisSelection extends InspectorProperty {
 	 */
 	public void addChoice(AxisChoice axis, int order) {
 		String name = axis.getName();
+		if (axis.getRank() > 1)
+			name += suffix;
+
 		AxisSelData a;
-		if (names.contains(name)) {
-			namePredicate.setName(name);
-			a = (AxisSelData) CollectionUtils.find(asData, namePredicate);
+		int i = names.indexOf(name);
+		if (i >= 0) { // existing axis so replace
+			a = asData.get(i);
 			if (axis != a.getData())
 				a.setData(axis);
+			int o = a.getOrder();
+			if (o == order)
+				return;
+
+			names.remove(i);
+			asData.remove(i);
 		} else {
 			a = new AxisSelData(axis, false);
+		}
+
+		a.setOrder(order);
+		if (order == 0) {
 			names.add(name);
 			asData.add(a);
+		} else {
+			orderPredicate.setOrder(order);
+			int j = asData.indexOf(CollectionUtils.find(asData, orderPredicate));
+			if (j < 0) {
+				names.add(name);
+				asData.add(a);
+			} else {
+				names.add(j, name);
+				asData.add(j, a);
+			}
 		}
-		a.setOrder(order);
 	}
 
 	/**
@@ -203,19 +230,19 @@ public class AxisSelection extends InspectorProperty {
 	 * @param fire
 	 */
 	public void selectAxis(String name, boolean fire) {
-		if (!names.contains(name))
+		int i = names.indexOf(name);
+		if (i < 0)
 			return;
 
 		String oldName = getSelectedName();
 		for (AxisSelData d: asData)
 			d.setSelected(false);
 
-		namePredicate.setName(name);
-		AxisSelData a = (AxisSelData) CollectionUtils.find(asData, namePredicate);
+		AxisSelData a = asData.get(i);
 		a.setSelected(true);
 
 		if (fire)
-			fire(new PropertyChangeEvent(this, "axisselection", oldName, name));
+			fire(new PropertyChangeEvent(this, propName, oldName, name));
 	}
 
 	/**
@@ -241,7 +268,7 @@ public class AxisSelection extends InspectorProperty {
 		a = asData.get(index);
 		a.setSelected(true);
 		if (fire)
-			fire(new PropertyChangeEvent(this, "axisselection", oldName, a.getData().getName()));
+			fire(new PropertyChangeEvent(this, propName, oldName, a.getData().getName()));
 	}
 
 	/**
@@ -249,8 +276,7 @@ public class AxisSelection extends InspectorProperty {
 	 * @return axis name of given index
 	 */
 	public String getName(int index) {
-		AxisSelData a = asData.get(index); 
-		return a == null ? null : a.getData().getName();
+		return names.get(index);
 	}
 
 	/**
@@ -267,9 +293,8 @@ public class AxisSelection extends InspectorProperty {
 	 * @return axis choice of given name
 	 */
 	public AxisChoice getAxis(String name) {
-		namePredicate.setName(name);
-		AxisSelData a = (AxisSelData) CollectionUtils.find(asData, namePredicate);
-		return a == null ? null : a.getData();
+		int i = names.indexOf(name);
+		return i < 0 ? null : asData.get(i).getData();
 	}
 
 	/**
@@ -293,10 +318,8 @@ public class AxisSelection extends InspectorProperty {
 	 * @return name or null if nothing selected
 	 */
 	public String getSelectedName() {
-		AxisChoice choice = getSelectedAxis();
-		if (choice != null)
-			return choice.getName();	
-		return null;
+		int i = getSelectedIndex();
+		return i < 0 ? null : names.get(i);
 	}
 
 	/**
@@ -331,7 +354,7 @@ public class AxisSelection extends InspectorProperty {
 	 */
 	public void reorderChoices() {
 
-		Collections.sort(asData);
+//		Collections.sort(asData);
 
 	}
 
@@ -382,7 +405,7 @@ public class AxisSelection extends InspectorProperty {
 	 */
 	@Override
 	public AxisSelection clone() throws CloneNotSupportedException {
-		AxisSelection selection = new AxisSelection(length);
+		AxisSelection selection = new AxisSelection(length, dim);
 		for (AxisSelData a : asData) {
 			selection.addChoice(a.getData().clone(), a.getOrder());
 		}

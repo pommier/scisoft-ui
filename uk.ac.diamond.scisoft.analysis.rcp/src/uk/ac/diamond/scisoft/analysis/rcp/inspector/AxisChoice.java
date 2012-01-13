@@ -35,7 +35,7 @@ public class AxisChoice {
 	private int primary; // possible order in a list of choices (0 signifies leave to end of list)
 	private int number;  // which dimension does this axis represent for signal dataset
 	private int[] indexMapping = null; // array of dimensions of chosen dataset which map to the values dataset
-	private String name; // long name if available  
+	private String name; // long name if available
 
 	/**
 	 * @param values
