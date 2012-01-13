@@ -18,6 +18,8 @@ package uk.ac.diamond.sda.navigator.decorator;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,11 +28,17 @@ import java.util.Scanner;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.viewers.LabelProvider;
 
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,10 +83,22 @@ public class LightweightMetadataDecorator extends LabelProvider implements ILigh
 			objectResource.getResourceAttributes().toString();
 
 			String lastModified = new SimpleDateFormat("dd/MM/yy hh:mm aaa").format(new Date(file.lastModified()));
-
+			String filePermission = getFilePermission(file);
 			//file size - date of last modification - file permissions
-			decoration.addSuffix("  "+readableFileSize(file.length())+"  "+lastModified+"  "
-									+getFilePermission(file));
+			decoration.addSuffix("  "+readableFileSize(file.length())+"  "+lastModified+"  "+filePermission);
+			//Image overlay decoration according to file permission:
+			if(filePermission.equals("- - -")){
+				ImageDescriptor lockOverlay = ImageDescriptor.createFromFile(this .getClass(),"/icons/decorators/unconfigured_co.gif");
+				decoration.addOverlay(lockOverlay);
+			}
+		}
+	}
+	
+	public static URL newURL(String urlName) {
+		try {
+			return new URL(urlName);
+		} catch(MalformedURLException e) {
+			throw new RuntimeException("Malformed url " + urlName, e);
 		}
 	}
 
