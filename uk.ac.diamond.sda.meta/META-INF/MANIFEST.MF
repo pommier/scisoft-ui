@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Meta
+Bundle-SymbolicName: uk.ac.diamond.sda.meta; singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: uk.ac.diamond.sda.meta.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ uk.ac.diamond.scisoft.analysis,
+ uk.ac.diamond.scisoft.analysis.rcp,
+ uk.ac.gda.libs,
+ uk.ac.gda.common.rcp;bundle-version="1.0.0",
+ org.dawb.common.ui;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.dawb.common.services,
+ org.eclipse.core.resources,
+ org.slf4j
