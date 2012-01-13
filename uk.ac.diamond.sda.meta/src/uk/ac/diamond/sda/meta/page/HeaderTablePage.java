@@ -1,6 +1,5 @@
 package uk.ac.diamond.sda.meta.page;
 
-import org.dawb.common.ui.views.HeaderTableView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -8,6 +7,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.part.Page;
 
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.sda.meta.views.HeaderTableView;
 
 public class HeaderTablePage extends Page implements IMetadataPage{
 
@@ -18,7 +18,7 @@ public class HeaderTablePage extends Page implements IMetadataPage{
 		
 		this.control = new Composite(parent, SWT.NONE);
 		control.setLayout(new GridLayout(1,false));
-		view = new HeaderTableView(false);
+		view = new HeaderTableView();
         view.createPartControl(control);
 	}
 
@@ -44,11 +44,4 @@ public class HeaderTablePage extends Page implements IMetadataPage{
 	public void setMetaData(IMetaData metadata){
 		view.setMeta(metadata);
 	}
-
-	public boolean isApplicableFor(IMetaData metadata) {
-		//this view will always be able to view the metadata.
-		return true;
-	}
-
-	
 }
