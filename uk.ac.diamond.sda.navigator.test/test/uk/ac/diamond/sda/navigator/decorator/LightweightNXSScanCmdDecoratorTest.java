@@ -24,24 +24,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.io.IExtendedMetadata;
-
-
-
-public class LightweightScanCommandDecoratorTest {
+public class LightweightNXSScanCmdDecoratorTest {
 	
-	private String srsFileName = System.getProperty("SRSNavigatorTestFile");
 	private String nxsFileName = System.getProperty("NXSNavigatorTestFile");
 	
-	private static final Logger logger = LoggerFactory.getLogger(LightweightScanCommandDecoratorTest.class);
-	
-	@Test
-	public void testSRSMetaDataLoader(){
-		LightweightNXSScanCmdDecorator scd = new LightweightNXSScanCmdDecorator();
-		IExtendedMetadata metaData = scd.srsMyMetaDataLoader(srsFileName);
-		
-		assertEquals(metaData.getScanCommand(),"scan chi 90 -90 -1 Waittime 0.5");
-	}
+	private static final Logger logger = LoggerFactory.getLogger(LightweightNXSScanCmdDecoratorTest.class);
 	
 	@Test
 	public void testGetHDF5TitleAndScanCmd(){
