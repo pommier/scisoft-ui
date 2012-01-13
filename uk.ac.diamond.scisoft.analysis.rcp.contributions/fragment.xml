@@ -1557,6 +1557,17 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.jythonbasicprojecttutorial"
             name="b) Jython Basic Project Tutorial">
       </cheatsheet>
+      <category
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.DataExplorerCategory"
+            name="Data Explorer Examples">
+      </category>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.DataExplorerCategory"
+            composite="false"
+            contentFile="cheat/LookingAtSRSScansWithPilatusImages.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.SRSWithPilatusCheatsheet"
+            name="SRS Data Files with Pilatus Images">
+      </cheatsheet>
    </extension>
    <extension
          point="org.eclipse.ui.cheatsheets.cheatSheetContent">
