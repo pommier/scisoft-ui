@@ -504,7 +504,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 
 		for (int i = 0; i < rank; i++) {
 			int dim = shape[i];
-			AxisSelection aSel = new AxisSelection(dim);
+			AxisSelection aSel = new AxisSelection(dim, i);
 			axes.add(i, null); // expand list
 			for (AxisChoice c : choices) {
 				if (c.getAxisNumber() == i) {

@@ -87,7 +87,7 @@ interface InspectionTab {
 	 * @param monitor
 	 * @param slices
 	 */
-	public void pushToView(IMonitor monitor, Slice[] slices);
+	public void pushToView(IMonitor monitor, List<SliceProperty> slices);
 
 	/**
 	 * @return true if tab can plot constant in place of dataset
@@ -378,7 +378,7 @@ class PlotTab extends ATab {
 
 		return sAxes;
 	}
-	
+
 	final protected HashMap<Integer, String> getSelectedComboAxisNames() { // get selected axes to be added into combos
 		HashMap<Integer, String> sAxes = new HashMap<Integer, String>();
 		if (daxes != null) {
@@ -528,6 +528,11 @@ class PlotTab extends ATab {
 				p.setInSet(true);
 			}
 			// do not need to notify plot axes listeners
+			if (a != null && p != null) {
+				if (p.isInSet()) {
+					p.setName(a);
+				}
+			}
 			return;
 		}
 
@@ -591,6 +596,7 @@ class PlotTab extends ATab {
 				reorderdAxesData.setName(axesData.getName());
 
 				reorderdAxesData.setName(c.getLongName());
+
 				slicedAxes.add(reorderdAxesData.squeeze());
 			}
 		}
@@ -653,14 +659,18 @@ class PlotTab extends ATab {
 	}
 
 	@Override
-	public void pushToView(IMonitor monitor, Slice[] slices) {
+	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) {
 		if (dataset == null)
 			return;
+
+		Slice[] slices = new Slice[sliceProperties.size()];
+		for (int i = 0; i < slices.length; i++) {
+			slices[i] = sliceProperties.get(i).getValue();
+		}
 
 		int[] order = getOrder(dataset.getRank());
 		// FIXME: Image, surface and volume plots can't work with multidimensional axis data
 		List<AbstractDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, order);  
-
 
 		if (itype == InspectorType.IMAGE || itype == InspectorType.SURFACE || itype == InspectorType.MULTIIMAGE) {
 			// note that the DataSet plotter's 2D image/surface mode is row-major
@@ -673,7 +683,6 @@ class PlotTab extends ATab {
 			metaDataObject = dataset.getMetadata();
 		} catch (Exception e1) {
 			logger.error("Meta data cannot be retreived from "+dataset.getName(), e1);
-
 		}
 
 		switch(itype) {
@@ -708,32 +717,29 @@ class PlotTab extends ATab {
 			}
 
 			final int[] dims = reorderedData.getShape();
-			
 			int lines = dims[1];
-			AbstractDataset zaxis;
-			//FIXME: Stack plots can't use multidimensional z-axis
 			if (lines > STACKPLOTLIMIT) {
 				logger.warn("Try plot too many lines in stack plot: reduced from {} lines to {}", lines, STACKPLOTLIMIT);
-				lines = STACKPLOTLIMIT;
-				zaxis = slicedAxes.get(1).getSlice(null, new int[] {lines}, null).flatten();
-				zaxis.setName(slicedAxes.get(1).getName());
-			} else {
-				zaxis = slicedAxes.get(1).flatten();
+				int d = order[1];
+				SliceProperty p = sliceProperties.get(d);
+				Slice s = p.getValue();
+				Integer st = s.getStart();
+				p.setStop((st == null ? 0 : st) + STACKPLOTLIMIT*s.getStep(), true);
+				return;
 			}
-			
-			AbstractDataset xaxisarray = slicedAxes.get(0);
-			
-			AbstractDataset[] xaxes = new AbstractDataset[lines];
-			for (int i = 0; i < lines; i++) {
-				if (xaxisarray.getRank() == 1)
-					xaxes[i] = xaxisarray;
-				else
-					xaxes[i] = xaxisarray.getSlice(new int[] {0, i}, new int[] {dims[0], i+1}, null).squeeze();
-			}
-						
-			AbstractDataset[] yaxes = new AbstractDataset[lines];
+			AbstractDataset zaxis = slicedAxes.get(1);
 
-			// TODO feedback limit to slicer
+			AbstractDataset xaxisarray = slicedAxes.get(0);
+
+			AbstractDataset[] xaxes = new AbstractDataset[lines];
+			if (xaxisarray.getRank() == 1)
+				for (int i = 0; i < lines; i++)
+					xaxes[i] = xaxisarray;
+			else
+				for (int i = 0; i < lines; i++)
+					xaxes[i] = xaxisarray.getSlice(new int[] {0, i}, new int[] {dims[0], i+1}, null).squeeze();
+
+			AbstractDataset[] yaxes = new AbstractDataset[lines];
 			boolean isDimAxis = slicedAxes.get(1).getName().startsWith("dim:");
 			for (int i = 0; i < lines; i++) {
 				AbstractDataset slice = reorderedData.getSlice(new int[] {0, i}, new int[] {dims[0], i+1}, null);
@@ -904,9 +910,14 @@ class DataTab extends PlotTab {
 	}
 
 	@Override
-	public void pushToView(IMonitor monitor, Slice[] slices) {
+	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) {
 		if (dataset == null)
 			return;
+
+		Slice[] slices = new Slice[sliceProperties.size()];
+		for (int i = 0; i < slices.length; i++) {
+			slices[i] = sliceProperties.get(i).getValue();
+		}
 
 		int[] order = getOrder(dataset.getRank());
 		final List<AbstractDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, order);
@@ -1204,9 +1215,14 @@ class ScatterTab extends PlotTab {
 	}
 
 	@Override
-	public void pushToView(IMonitor monitor, Slice[] slices) {
+	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) {
 		if (dataset == null)
 			return;
+
+		Slice[] slices = new Slice[sliceProperties.size()];
+		for (int i = 0; i < slices.length; i++) {
+			slices[i] = sliceProperties.get(i).getValue();
+		}
 
 		List<AxisChoice> axes = getChosenAxes();
 		int rank = dataset.getRank();

@@ -276,9 +276,9 @@ public class DatasetInspector extends Composite {
 
 	class IJob extends InteractiveJobAdapter {
 		private InspectionTab tab;
-		private Slice[] slices;
+		private List<SliceProperty> slices;
 
-		public IJob(final InspectionTab tab, final Slice[] slices) {
+		public IJob(final InspectionTab tab, final List<SliceProperty >slices) {
 			this.tab = tab;
 			this.slices = slices;
 		}
@@ -427,7 +427,7 @@ public class DatasetInspector extends Composite {
 					cInspectionTab.drawTab();
 				}
 				inspection.switchType(type);
-				updateSlicers();
+				updateSlicers(true);
 				sliceDataAndView();
 			}
 		});
@@ -468,9 +468,17 @@ public class DatasetInspector extends Composite {
 
 		slicerListener = new PropertyChangeListener() {
 			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				cInspectionTab.stopInspection();
-				sliceDataAndView();
+			public void propertyChange(final PropertyChangeEvent evt) {
+				if (cData != null && display != null)
+					cInspectionTab.stopInspection();
+					display.asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							if (evt.getPropertyName() == null) // from SliceProperty#setStop(int, true)
+								updateSlicers(false);
+							sliceDataAndView();
+						}
+					});
 			}
 		};
 
@@ -479,7 +487,7 @@ public class DatasetInspector extends Composite {
 			public void propertyChange(PropertyChangeEvent evt) {
 				cInspectionTab.stopInspection();
 				axisSelector.refresh();
-				updateSlicers();
+				updateSlicers(true);
 				sliceDataAndView();
 			}
 		};
@@ -492,7 +500,7 @@ public class DatasetInspector extends Composite {
 					display.asyncExec(new Runnable() {
 						@Override
 						public void run() {
-							updateSlicers();
+							updateSlicers(true);
 							sliceDataAndView();
 						}
 					});
@@ -561,7 +569,7 @@ public class DatasetInspector extends Composite {
 			int aNum = inspection.getNumAxes();
 			if (aNum < rank) { // add auto-axes if necessary
 				for (int i = aNum; i < rank; i++) {
-					AxisSelection aSel = new AxisSelection(shape[i]);
+					AxisSelection aSel = new AxisSelection(i, shape[i]);
 					AbstractDataset axis = AbstractDataset.arange(shape[i], AbstractDataset.INT32);
 					axis.setName("dim:" + (i+1));
 					AxisChoice newChoice = new AxisChoice(axis);
@@ -606,7 +614,7 @@ public class DatasetInspector extends Composite {
 						CTabItem item = plotTabFolder.getItem(t);
 						if (item.getControl() == null) {
 							createPlotTab(item);
-							updateSlicers();
+							updateSlicers(true);
 							sliceDataAndView();
 						} else {
 							cInspectionTab.setParameters(cData, inspection.datasetAxes, inspection.getPlotAxes());
@@ -686,24 +694,25 @@ public class DatasetInspector extends Composite {
 		parent.setSize(parent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
-	private void updateSlicers() {
+	private void updateSlicers(boolean resetSlices) {
 		List<SliceProperty> properties = inspection.getSlices();
 		boolean[] used = cInspectionTab.getUsedDims();
 		int rank = properties.size();
 
-		// First reset slices according to used dimensions
 		for (int i = 0; i < rank; i++) {
 			SliceProperty p = properties.get(i);
-			Slice s = p.getValue();
-			if (used[i]) {
-				s.setStop(null);
-			} else {
-				Integer b = s.getStart();
-				if (b == null)
-					s.setStop(1);
-				else
-					s.setStop(b+1);
-//				System.err.println("Slice " + i + " is " + s);
+			if (resetSlices) {
+				// reset slices according to used dimensions
+				Slice s = p.getValue();
+				if (used[i]) {
+					s.setStop(null);
+				} else {
+					Integer b = s.getStart();
+					if (b == null)
+						s.setStop(1);
+					else
+						s.setStop(b + 1);
+				}
 			}
 
 			AxisSelection sel = inspection.datasetAxes.get(i);
@@ -714,7 +723,6 @@ public class DatasetInspector extends Composite {
 			for (int j = 0; j < imap.length; j++) {
 				props[j] = properties.get(imap[j]);
 			}
-
 			slicers.get(i).setParameters(p, axis, props, used[i]);
 		}
 		Composite parent = slicers.get(0).getParent();
@@ -736,18 +744,8 @@ public class DatasetInspector extends Composite {
 			return;
 		}
 
-		List<SliceProperty> properties = inspection.getSlices();
-
-		
-		int rank = properties.size();
-		Slice[] slices = new Slice[rank];
-
-		for (int i = 0; i < rank; i++) {
-			slices[i] = properties.get(i).getValue();
-		}
-
 		try {
-			final IJob obj = new IJob(cInspectionTab, slices);
+			final IJob obj = new IJob(cInspectionTab, inspection.getSlices());
 			sliceQueue.addJob(obj);
 		} catch (Exception e) {
 			logger.error("Cannot generate slices", e);
