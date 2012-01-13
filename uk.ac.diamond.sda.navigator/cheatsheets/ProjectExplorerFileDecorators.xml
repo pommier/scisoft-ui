@@ -21,7 +21,7 @@
         There are several Label Decorators available in the decorator preference page. The main ones are the following:
       </description>
       <subitem
-         label="1. File Metadata Decorator : it decorates all files with &apos;size, date of last modification and file permission (read, write, execute)&apos;. Try disabling it (click on the checkbox next to the decorator&apos;s name) then press &apos;Apply&apos;. Make sure you have a list of resource files open in the package explorer in order to see it working. Re-enable it.">
+         label="1. File Metadata Decorator : it decorates all files with &apos;size, date of last modification and file permission (as an image decorator if not readable/not writable/not executable)&apos;. Try disabling it (click on the checkbox next to the decorator&apos;s name) then press &apos;Apply&apos;. Make sure you have a list of resource files open in the package explorer in order to see it working. Re-enable it.">
       </subitem>
       <subitem
          label="2. File Owner Decorator : it decorates all files with the &apos;file owner&apos; if on a Unix OS. It is disabled by default. Try enabling it (click on the checkbox next to the decorator&apos;s name) then press &apos;Apply&apos;. Make sure you have a list of resource files open in the package explorer in order to see it working. Re-disable it.">
