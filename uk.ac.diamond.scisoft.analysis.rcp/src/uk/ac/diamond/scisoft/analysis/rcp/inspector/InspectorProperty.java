@@ -38,7 +38,7 @@ public abstract class InspectorProperty {
 		// allow concurrent modifications by make copy
 		HashSet<PropertyChangeListener> ls = new HashSet<PropertyChangeListener>(pcl);
 		for (PropertyChangeListener l : ls) {
-			if( l != null)
+			if (l != null)
 				l.propertyChange(event);
 		}
 	}

@@ -118,7 +118,9 @@ public class FileView extends ViewPart {
 	 * @return String
 	 */
 	public File getSelectedFile() {
-		return (File)((IStructuredSelection)tree.getSelection()).getFirstElement();
+		File sel = (File)((IStructuredSelection)tree.getSelection()).getFirstElement();
+		if (sel==null) sel = savedSelection;
+		return sel;
 	}
 
 	
@@ -283,10 +285,11 @@ public class FileView extends ViewPart {
 		tree.expandToLevel(1);
 	}
 
-	protected void setSelectedFile(String path) {
+	public void setSelectedFile(String path) {
 		final File file = new File(path);
 		if (file.exists()) {
 			tree.setSelection(new StructuredSelection(file));
+			tree.setExpandedState(file, true);
 		}	
 	}
 

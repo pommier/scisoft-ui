@@ -233,13 +233,15 @@ public class AxisSelection extends InspectorProperty {
 	 */
 	public void selectAxis(int index, boolean fire) {
 		AxisSelData a = (AxisSelData) CollectionUtils.find(asData, axisSelectionPredicate);
-		if (a != null)
+		String oldName = null;
+		if (a != null) {
 			a.setSelected(false);
-
-		int old = asData.indexOf(a);
-		asData.get(index).setSelected(true);
+			oldName = a.getData().getName();
+		}
+		a = asData.get(index);
+		a.setSelected(true);
 		if (fire)
-			fire(new PropertyChangeEvent(this, "axisselection", old, index));
+			fire(new PropertyChangeEvent(this, "axisselection", oldName, a.getData().getName()));
 	}
 
 	/**
