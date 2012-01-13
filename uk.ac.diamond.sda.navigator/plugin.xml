@@ -458,5 +458,12 @@
             id="uk.ac.diamond.sda.navigator.dat.nxs.file.explorer.cheatsheet"
             name="DAT and NXS file explorer">
       </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.sda.navigator.basic.data.viewing.category"
+            composite="false"
+            contentFile="cheatsheets/ProjectExplorerFileDecorators.xml"
+            id="uk.ac.diamond.sda.navigator.project.explorer.decorators.cheatsheet"
+            name="Project Explorer File Decorators">
+      </cheatsheet>
    </extension>
 </plugin>
