@@ -21,16 +21,19 @@
         There are several Label Decorators available in the decorator preference page. The main ones are the following:
       </description>
       <subitem
-         label="1. File Metadata Decorator : it decorates all files with &apos;size, date of last modification, file permission (read, write, execute) and file owner(if on Unix)&apos;. Try disabling it (click on the checkbox next to the decorator&apos;s name) then press &apos;Apply&apos;. Make sure you have a list of resource files open in the package explorer in order to see it working. Re-enable it.">
+         label="1. File Metadata Decorator : it decorates all files with &apos;size, date of last modification and file permission (read, write, execute)&apos;. Try disabling it (click on the checkbox next to the decorator&apos;s name) then press &apos;Apply&apos;. Make sure you have a list of resource files open in the package explorer in order to see it working. Re-enable it.">
       </subitem>
       <subitem
-         label="2. DAT File Scan Command Decorator : it decorates all DAT files with their corresponding Scan Command if there is one. It is displayed after the Metadata decoration. Try disabling it. Make sure you have a list of DAT files open in the package explorer in order to see it working. Re-enable it.">
+         label="2. File Owner Decorator : it decorates all files with the &apos;file owner&apos; if on a Unix OS. It is disabled by default. Try enabling it (click on the checkbox next to the decorator&apos;s name) then press &apos;Apply&apos;. Make sure you have a list of resource files open in the package explorer in order to see it working. Re-disable it.">
       </subitem>
       <subitem
-         label="3. Nexus Scan Command and Title Decorator : it decorates all Nexus files with their corresponding Title and Scan Command if there are any. It is displayed below the Metadata decoration on a new line feed. Try disabling it. Make sure you have a list of Nexus files open in the package explorer in order to see it working. Re-enable it.">
+         label="3. DAT File Scan Command Decorator : it decorates all DAT files with their corresponding Scan Command if there is one. It is displayed after the Metadata decoration. Try disabling it. Make sure you have a list of DAT files open in the package explorer in order to see it working. Re-enable it.">
       </subitem>
       <subitem
-         label="4. HDF5 Tree Element Decorator : it decorates all Tree Elements of an unfolded Nexus/HDF5 file with their corresponding data. It is displayed near by each tree element. Try disabling it. Make sure you have a Nexus/HDF5 file structure unfold in the package explorer in order to see it working. Re-enable it.">
+         label="4. Nexus Scan Command and Title Decorator : it decorates all Nexus files with their corresponding Title and Scan Command if there are any. It is displayed below the Metadata decoration on a new line feed. Try disabling it. Make sure you have a list of Nexus files open in the package explorer in order to see it working. Re-enable it.">
+      </subitem>
+      <subitem
+         label="5. HDF5 Tree Element Decorator : it decorates all Tree Elements of an unfolded Nexus/HDF5 file with their corresponding data. It is displayed near by each tree element. Try disabling it. Make sure you have a Nexus/HDF5 file structure unfold in the package explorer in order to see it working. Re-enable it.">
       </subitem>
       <subitem
          label="Note: depending on the amount of files in a folder, the decorators might take longer to get displayed. However they all run on separate jobs and should not block the SDA.">
