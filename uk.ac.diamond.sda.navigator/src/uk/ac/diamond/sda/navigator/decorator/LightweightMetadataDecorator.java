@@ -31,9 +31,13 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LightweightMetadataDecorator extends LabelProvider implements ILightweightLabelDecorator {
 
+	private static final Logger logger = LoggerFactory.getLogger(LightweightMetadataDecorator.class);
+	
 	public LightweightMetadataDecorator() {
 		super();
 	}
@@ -59,14 +63,12 @@ public class LightweightMetadataDecorator extends LabelProvider implements ILigh
 	@Override
 	public void removeListener(ILabelProviderListener listener) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void decorate(Object element, IDecoration decoration) {
 		IResource objectResource = (IResource) element;
 		if (element instanceof IFile) {
-			// Decorate the label of the resource with the admin name
 			IFile ifile = (IFile) element;
 			IPath path = ifile.getLocation();
 			File file = path.toFile();
@@ -74,7 +76,9 @@ public class LightweightMetadataDecorator extends LabelProvider implements ILigh
 
 			String lastModified = new SimpleDateFormat("dd/MM/yy hh:mm aaa").format(new Date(file.lastModified()));
 
-			decoration.addSuffix("  " + readableFileSize(file.length()) + "  " + lastModified+"  "+ getFilePermission(file));
+			//file size - date of last modification - file permissions - file owner
+			decoration.addSuffix("  "+readableFileSize(file.length())+"  "+lastModified+"  "
+									+getFilePermission(file)+"  "+getFileOwner(file));
 		}
 	}
 
@@ -101,5 +105,25 @@ public class LightweightMetadataDecorator extends LabelProvider implements ILigh
 			execute = "x";
 
 		return read + " " + write + " " + execute;
+	}
+
+	public static String getFileOwner(File file){
+		String owner="";
+		// File owner only for Unix OS
+		String os = System.getProperty("os.name").toLowerCase();
+		String command = "";
+		if((os.indexOf("nix") >= 0) || (os.indexOf("nux") >= 0) || (os.indexOf("mac") >= 0)){
+			command = "stat -c%U "+file.getAbsolutePath();
+			//command = "ls -l "+file.getAbsolutePath();
+			try {
+				Process p = Runtime.getRuntime().exec(command);
+				Scanner sc = new Scanner(p.getInputStream());
+				if(sc.hasNext())
+					owner = sc.nextLine();
+			} catch (IOException e) {
+				logger.error("ERROR: could not get file owner:",e.getMessage());
+			}
+		}
+		return owner;
 	}
 }
