@@ -44,7 +44,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.navigator.srs.SRSTreeData;
  */
 public class LightweightSRSDecorator extends LabelProvider implements ILightweightLabelDecorator {
 
-	private String decorator = "";
+	private String decorator;
 	private String fileName;
 	private static final Logger logger = LoggerFactory.getLogger(LightweightSRSDecorator.class);
 	private SRSTreeData srsData;
