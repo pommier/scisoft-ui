@@ -26,8 +26,8 @@
                 <pathelement location="${GDA-plugin.basedir}/bin" />
                 <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
                 <pathelement location="${workspace.git.loc}/scisoft/scisoft-ui.git/uk.ac.diamond.scisoft.analysis.rcp/bin" />
-                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.common/bin" />
-                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.common.rcp/bin" />
+                <pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
+                <pathelement location="${workspace.git.loc}/gda-common-rcp.git/uk.ac.gda.common.rcp/bin" />
                 <pathelement location="${workspace.loc}/plugins/uk.ac.gda.nexus/bin" />
                 <fileset dir="${plugins.dir}">
                     <include name="uk.ac.diamond.scisoft.analysis/jars/*.jar" />
