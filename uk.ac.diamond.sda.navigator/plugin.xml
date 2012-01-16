@@ -16,6 +16,7 @@
             id="uk.ac.diamond.sda.navigator.view"
             name="SDA Navigator"/>
       <view
+            allowMultiple="true"
             category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.sda.navigator.views.FileView"
             icon="icons/folder.png"
@@ -379,6 +380,13 @@
                style="push"
                tooltip="Create data link, creates a new project if necessary">
          </command>
+         <command
+               commandId="uk.ac.diamond.sda.navigator.newFileView"
+               icon="icons/folder_go.png"
+               label="Open folder in file navigator"
+               style="push"
+               tooltip="Open another file navigator with the selected folder as root">
+         </command>
          <separator
                name="uk.ac.diamond.sda.navigator.separator2"
                visible="true">
@@ -440,6 +448,11 @@
             defaultHandler="uk.ac.diamond.sda.navigator.views.CreateProjectHandler"
             id="uk.ac.diamond.sda.navigator.createProject"
             name="Create Project">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.sda.navigator.views.OpenFileNavigatorHandler"
+            id="uk.ac.diamond.sda.navigator.newFileView"
+            name="Open file navigator">
       </command>
    </extension>
    <!-- Bind the Action Provider independently 

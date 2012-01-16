@@ -86,6 +86,14 @@ public class FileView extends ViewPart {
 	private TreeViewer tree;
 
 	private File savedSelection;
+	private File root;
+	private boolean rootOverride;
+	private Text filePath;
+	
+	public FileView() {
+		super();
+		root = OSUtils.isWindowsOS() ? new File("C:/") : new File("/");
+	}
 	
 	@Override
 	public void init(IViewSite site, IMemento memento) throws PartInitException {
@@ -100,6 +108,29 @@ public class FileView extends ViewPart {
 		if (path!=null){
 			savedSelection = new File(path);
 		}
+		
+		rootOverride = false;
+		if (memento!=null) {
+			final String rootPath = memento.getString("ROOT_DIR");
+		    if (rootPath!=null) {
+		    	root = new File(rootPath);
+		    	rootOverride = true;
+		    	if (!(savedSelection.getAbsolutePath().indexOf(rootPath)>-1)) {
+		    		savedSelection = root;
+		    	}
+		    }
+		}
+	}
+	
+	public void setRoot(File root) throws Exception {
+		if (!root.isDirectory()) throw new Exception("Must choose a directory!");
+		this.root         = root;
+		this.rootOverride = true;
+	    this.filePath.setEnabled(false);
+	    this.filePath.setEditable(false);
+		final FileContentProvider fileCont = (FileContentProvider)tree.getContentProvider();
+		fileCont.clearAndStop();
+		createContent(false);
 	}
 
 	@Override
@@ -109,6 +140,10 @@ public class FileView extends ViewPart {
 		if ( getSelectedFile() != null ) {
 		    final String path = getSelectedFile().getAbsolutePath();
 		    memento.putString("DIR", path);
+		}
+		
+		if (root !=null && rootOverride) {
+		    memento.putString("ROOT_DIR", root.getAbsolutePath());
 		}
 	}
 
@@ -135,7 +170,6 @@ public class FileView extends ViewPart {
 		
 		final Label fileLabel = new Label(top, SWT.NONE);
 		fileLabel.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false));
-		
 		try {
 			IFileIconService service = (IFileIconService)ServiceManager.getService(IFileIconService.class);
 			final Image       icon    = service.getIconForFile(OSUtils.isWindowsOS() ? new File("C:/Windows/") : new File("/"));
@@ -144,7 +178,11 @@ public class FileView extends ViewPart {
 			logger.error("Cannot get icon for system root!", e);
 		}
 		
-		final Text filePath = new Text(top, SWT.BORDER);
+		this.filePath = new Text(top, SWT.BORDER);
+		if (rootOverride) {
+		    this.filePath.setEnabled(false);
+		    this.filePath.setEditable(false);
+		}
 		if (savedSelection!=null) filePath.setText(savedSelection.getAbsolutePath());
 		filePath.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		FileContentProposalProvider prov = new FileContentProposalProvider();
@@ -203,7 +241,7 @@ public class FileView extends ViewPart {
 		}
 		getSite().setSelectionProvider(tree);
 		
-		createContent();
+		createContent(true);
 				
 		// Make drag source, it can then drag into projects
 		final DragSource dragSource = new DragSource(tree.getControl(), DND.DROP_MOVE| DND.DROP_DEFAULT| DND.DROP_COPY);
@@ -276,10 +314,9 @@ public class FileView extends ViewPart {
 		}
 	}
 
-	private void createContent() {
+	private void createContent(boolean setItemCount) {
 		
-		final File root = uk.ac.gda.util.OSUtils.isWindowsOS() ? new File("C:/") : new File("/");
-		tree.getTree().setItemCount(root.listFiles().length);
+		if (setItemCount) tree.getTree().setItemCount(root.listFiles().length);
 		tree.setContentProvider(new FileContentProvider());
 		tree.setInput(root);
 		tree.expandToLevel(1);
@@ -396,5 +433,6 @@ public class FileView extends ViewPart {
 		
 		// TODO returns an adapter part for 'IPage' which is a page summary for the file or folder?
 	}
+
 	
 }
