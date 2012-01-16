@@ -363,7 +363,7 @@
                label="Open"
                style="push">
          </command>
-         <separator
+          <separator
                name="uk.ac.diamond.sda.navigator.separator1"
                visible="true">
          </separator>
@@ -371,6 +371,13 @@
                commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.openImageGridView"
                label="Open in Image Grid"
                style="push">
+         </command>
+         <command
+               commandId="uk.ac.diamond.sda.navigator.createProject"
+               icon="icons/newprj_wiz.gif"
+               label="Create link to data"
+               style="push"
+               tooltip="Create data link, creates a new project if necessary">
          </command>
          <separator
                name="uk.ac.diamond.sda.navigator.separator2"
@@ -428,6 +435,11 @@
             defaultHandler="uk.ac.diamond.sda.navigator.views.RefreshHandler"
             id="uk.ac.diamond.sda.navigator.refresh"
             name="Refresh">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.sda.navigator.views.CreateProjectHandler"
+            id="uk.ac.diamond.sda.navigator.createProject"
+            name="Create Project">
       </command>
    </extension>
    <!-- Bind the Action Provider independently 
