@@ -74,8 +74,11 @@ public class Activator extends AbstractUIPlugin {
 	// The plug-in ID
 	public static final String PLUGIN_ID = "uk.ac.diamond.scisoft";
 
-	public static final String JYTHON_VERSION = "2.5.1";
-	public static final String INTERPRETER_NAME = "Jython" + JYTHON_VERSION;
+	private static final String RUN_IN_ECLIPSE = "run.in.eclipse";
+
+	private static final String JYTHON_VERSION = "2.5.1";
+	private static final String INTERPRETER_NAME = "Jython" + JYTHON_VERSION;
+	private static final String GIT_SUFFIX = "_git";
 
 	// The shared instance
 	private static Activator plugin;
@@ -357,7 +360,7 @@ public class Activator extends AbstractUIPlugin {
 			logger.debug("All Jars prepared");
 
 
-			String runProp = System.getProperty("run.in.eclipse");
+			String runProp = System.getProperty(RUN_IN_ECLIPSE);
 			if (runProp != null && runProp.equalsIgnoreCase("true")) {
 				File bundles = pluginsDir.getParentFile();
 				if (bundles.isDirectory()) {
@@ -538,22 +541,33 @@ public class Activator extends AbstractUIPlugin {
 		// get down to the git checkouts
 		// only do this if we are running inside Eclipse
 
-		String runProp = System.getProperty("run.in.eclipse");
+		String runProp = System.getProperty(RUN_IN_ECLIPSE);
 		if (runProp != null && runProp.equalsIgnoreCase("true")) {
 
-			String gitpathname = directoryName.getParentFile().getAbsolutePath()+"_git";
-			File git = new File(gitpathname, "scisoft");
+			String gitpathname = directoryName.getParentFile().getAbsolutePath() + GIT_SUFFIX;
 
-			if (git.exists() && git.isDirectory()) {
+			List<File> dirs = new ArrayList<File>();
 
-				for (File f : git.listFiles()) {
-					if (f.isDirectory()) {
-						for (File plugin : f.listFiles()) {
-							if (plugin.isDirectory()) {
-								if (isRequired(plugin, pluginKeys))
-									libs.add(plugin);
+			for (File d : new File(gitpathname).listFiles()) {
+				if (d.isDirectory()) {
+					String n = d.getName();
+					if (n.endsWith(".git")) {
+						dirs.add(d);
+					} else if (n.equals("scisoft")) {
+						for (File f : d.listFiles()) {
+							if (f.isDirectory()) {
+								dirs.add(f);
 							}
 						}
+					}
+				}
+			}
+
+			for (File f : dirs) {
+				for (File plugin : f.listFiles()) {
+					if (plugin.isDirectory()) {
+						if (isRequired(plugin, pluginKeys))
+							libs.add(plugin);
 					}
 				}
 			}
@@ -597,17 +611,17 @@ public class Activator extends AbstractUIPlugin {
 		logger.debug("Bundle: {}", b);
 		try {
 			File f = FileLocator.getBundleFile(b);
-			logger.debug("Bundle loc: {}", f.getParent());
+			logger.debug("Bundle location: {}", f.getParent());
 
-			String runProp = System.getProperty("run.in.eclipse");
+			String runProp = System.getProperty(RUN_IN_ECLIPSE);
 			if (runProp != null && runProp.equalsIgnoreCase("true")) {
 				File git = f.getParentFile().getParentFile().getParentFile();
 				File parent = git.getParentFile();
-				String projectName = git.getName().replace("_git", "");
-				File plugins = new File(parent, projectName+"/plugins");
+				String projectName = git.getName().replace(GIT_SUFFIX, "");
+				File plugins = new File(parent, projectName + "/plugins");
 
 				if(plugins.isDirectory()) {
-					logger.debug("Plugins Locaction: {}", plugins);
+					logger.debug("Plugins location: {}", plugins);
 					return plugins;
 				}
 			}
