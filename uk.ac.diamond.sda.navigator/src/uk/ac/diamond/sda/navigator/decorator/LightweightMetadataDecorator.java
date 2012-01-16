@@ -66,13 +66,10 @@ public class LightweightMetadataDecorator extends LabelProvider implements ILigh
 
 	@Override
 	public void decorate(Object element, IDecoration decoration) {
-		IResource objectResource = (IResource) element;
 		if (element instanceof IFile) {
 			IFile ifile = (IFile) element;
 			IPath path = ifile.getLocation();
 			File file = path.toFile();
-			objectResource.getResourceAttributes().toString();
-
 			String lastModified = new SimpleDateFormat("dd/MM/yy hh:mm aaa").format(new Date(file.lastModified()));
 			String filePermission = getFilePermission(file);
 			//file size - date of last modification - file permissions
