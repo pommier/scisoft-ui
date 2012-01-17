@@ -21,14 +21,17 @@ import java.io.File;
 import org.dawb.common.services.IFileIconService;
 import org.dawb.common.services.ServiceManager;
 import org.dawb.common.ui.views.ImageMonitorView;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.fieldassist.ContentProposalAdapter;
 import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalListener;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -61,6 +64,7 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,6 +93,7 @@ public class FileView extends ViewPart {
 	private File root;
 	private boolean rootOverride;
 	private Text filePath;
+	private Action monitorAction;
 	
 	public FileView() {
 		super();
@@ -124,7 +129,10 @@ public class FileView extends ViewPart {
 	
 	public void setRoot(File root) throws Exception {
 		if (!root.isDirectory()) throw new Exception("Must choose a directory!");
+		
 		this.root         = root;
+		setSelectedFile(root.getAbsolutePath());
+		
 		this.rootOverride = true;
 	    this.filePath.setEnabled(false);
 	    this.filePath.setEditable(false);
@@ -298,8 +306,12 @@ public class FileView extends ViewPart {
 	}
 	
 	public void refresh() {
-		
 		final File     file     = getSelectedFile();
+		refresh(file);
+	}
+		
+	protected void refresh(File file) {
+
 		final Object[] elements = file==null?this.tree.getExpandedElements():null;
 		final FileContentProvider fileCont = (FileContentProvider)tree.getContentProvider();
 		fileCont.clearAndStop();
@@ -340,7 +352,7 @@ public class FileView extends ViewPart {
      * Never really figured out how to made toggle buttons work properly with
      * contributions. Use hard coded actions
      * 
-     * TODO Move this to contributi	
+     * TODO Move this to contributions
      */
 	private void addToolbar() {
 		
@@ -375,6 +387,11 @@ public class FileView extends ViewPart {
 		alpha.setImageDescriptor(NavigatorRCPActivator.getImageDescriptor("icons/alpha_mode.gif"));
 		grp.add(alpha);
 		toolMan.add(alpha);
+
+		toolMan.add(new Separator("uk.ac.diamond.sda.navigator.views.monitorSep"));
+		
+        // NO MONITORING! There are some issues with monitoring, the Images Monitor part should
+		// be used for this.
 
 	}
 
@@ -434,5 +451,5 @@ public class FileView extends ViewPart {
 		// TODO returns an adapter part for 'IPage' which is a page summary for the file or folder?
 	}
 
-	
+
 }

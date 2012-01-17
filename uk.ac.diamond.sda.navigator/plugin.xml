@@ -364,6 +364,12 @@
                label="Open"
                style="push">
          </command>
+         <command
+               commandId="uk.ac.diamond.sda.navigator.openCommand"
+               icon="icons/folder_go.png"
+               label="Monitor"
+               style="push">
+         </command>
           <separator
                name="uk.ac.diamond.sda.navigator.separator1"
                visible="true">
@@ -379,13 +385,6 @@
                label="Create link to data"
                style="push"
                tooltip="Create data link, creates a new project if necessary">
-         </command>
-         <command
-               commandId="uk.ac.diamond.sda.navigator.newFileView"
-               icon="icons/folder_go.png"
-               label="Open folder in file navigator"
-               style="push"
-               tooltip="Open another file navigator with the selected folder as root">
          </command>
          <separator
                name="uk.ac.diamond.sda.navigator.separator2"
