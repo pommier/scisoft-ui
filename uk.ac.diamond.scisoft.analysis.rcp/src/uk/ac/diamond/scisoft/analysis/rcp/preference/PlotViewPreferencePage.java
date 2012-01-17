@@ -80,7 +80,7 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		for (int i = 0; i < GlobalColourMaps.colourMapNames.length; i++)
 			cmbColourMap.add(GlobalColourMaps.colourMapNames[i]);
 		Label lblExpertMode = new Label(plot2DGroup, SWT.LEFT);
-		lblExpertMode.setText("Auto histogram");
+		lblExpertMode.setText("Default expert mode");
 		chkExpertMode = new Button(plot2DGroup, SWT.CHECK | SWT.RIGHT);
 		Label lblAutoHisto = new Label(plot2DGroup, SWT.LEFT);
 		lblAutoHisto.setText("Auto histogram");
@@ -214,7 +214,6 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 			return getPreferenceStore().getDefaultBoolean(PreferenceConstants.PLOT_VIEWER_PLOT2D_SHOWSCROLLBAR);
 		}
 		return getPreferenceStore().getBoolean(PreferenceConstants.PLOT_VIEWER_PLOT2D_SHOWSCROLLBAR);
-
 	}
 
 	public void setColourMapChoicePreference(int value) {

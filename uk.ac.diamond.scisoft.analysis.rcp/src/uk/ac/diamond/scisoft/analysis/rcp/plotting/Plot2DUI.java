@@ -706,7 +706,8 @@ public class Plot2DUI extends AbstractPlotUI {
 		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
 		if (histogramView != null) {
 			String pName =  histogramView.getPartName();
-			return preferenceStore.getInt(pName+"."+PreferenceConstants.PLOT_VIEWER_PLOT2D_SCALING); 	
+			if (!preferenceStore.isDefault(pName+"."+PreferenceConstants.PLOT_VIEWER_PLOT2D_SCALING))
+				return preferenceStore.getInt(pName+"."+PreferenceConstants.PLOT_VIEWER_PLOT2D_SCALING); 	
 		} 
 		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEWER_PLOT2D_SCALING) ? 
 			   preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEWER_PLOT2D_SCALING)
