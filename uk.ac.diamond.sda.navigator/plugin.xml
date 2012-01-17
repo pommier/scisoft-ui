@@ -386,6 +386,13 @@
                style="push"
                tooltip="Create data link, creates a new project if necessary">
          </command>
+         <command
+               commandId="uk.ac.diamond.sda.navigator.createMonitorWorkflow"
+               icon="icons/Project-workflow.png"
+               label="Create workflow to monitor directory"
+               style="push"
+               tooltip="Create a workflow to monitor this resource">
+         </command>
          <separator
                name="uk.ac.diamond.sda.navigator.separator2"
                visible="true">
@@ -452,6 +459,11 @@
             defaultHandler="uk.ac.diamond.sda.navigator.views.OpenFileNavigatorHandler"
             id="uk.ac.diamond.sda.navigator.newFileView"
             name="Open file navigator">
+      </command>
+      <command
+            defaultHandler="uk.ac.diamond.sda.navigator.views.CreateMonitorWorkflowHandler"
+            id="uk.ac.diamond.sda.navigator.createMonitorWorkflow"
+            name="Create workflow">
       </command>
    </extension>
    <!-- Bind the Action Provider independently 
