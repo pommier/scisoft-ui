@@ -329,6 +329,7 @@ public class HistogramView extends ViewPart implements SelectionListener,
 			histogramPlotter.setAxisModes(AxisMode.CUSTOM, AxisMode.LINEAR, AxisMode.LINEAR);
 			histogramPlotter.setXTickLabelFormat(TickFormatting.plainMode);
 			histogramPlotter.setXAxisValues(xAxis, 1);
+			
 			Plot1DGraphTable colourTable = histogramPlotter.getColourTable();
 			Plot1DAppearance plotApp = new Plot1DAppearance(Color.RED, Plot1DStyles.SOLID, "");
 			colourTable.addEntryOnLegend(plotApp);
@@ -351,8 +352,6 @@ public class HistogramView extends ViewPart implements SelectionListener,
 		fillupColourMapBox();
 		buildGradientImage();
 	}
-
-	
 
 	/**
 	 * Clear out all entries in the colour map combo box
@@ -417,8 +416,7 @@ public class HistogramView extends ViewPart implements SelectionListener,
 	}
 
 	protected void fillupColourComboBoxes() {
-		for (int i = 0; i < GlobalColourMaps.mappingFunctions.size(); i++)
-		{
+		for (int i = 0; i < GlobalColourMaps.mappingFunctions.size(); i++) {
 			String function = GlobalColourMaps.mappingFunctions.get(i).getMapFunctionName();
 			cmbRedColour.add(function);
 			cmbGreenColour.add(function);
@@ -452,22 +450,18 @@ public class HistogramView extends ViewPart implements SelectionListener,
 	@Override
 	public void setFocus() {
 		// Nothing to do here
-
 	}
 
 	@Override
 	public void widgetDefaultSelected(SelectionEvent e) {
 		// Nothing to do here
-
 	}
 
-	protected boolean hasData()
-	{
+	protected boolean hasData()	{
 		return data != null;
 	}
 	
 	protected void handleChange(@SuppressWarnings("unused") int channel) {
-		
 	}
 	
 	@Override
@@ -764,7 +758,6 @@ public class HistogramView extends ViewPart implements SelectionListener,
 			}
 		});
 	}
-		
 	
 	@Override
 	public void update(Object theObserved, Object changeCode) {
@@ -789,7 +782,6 @@ public class HistogramView extends ViewPart implements SelectionListener,
 				}
 			}
 		}
-
 	}
 
 	/**
@@ -831,7 +823,6 @@ public class HistogramView extends ViewPart implements SelectionListener,
 	    	histogramUI.deactivate(false);
 	    	histogramUI.dispose();
 	    }
-	    System.gc();
 		if (!cmbAlpha.isDisposed())
 			cmbAlpha.removeSelectionListener(this);
 		if (!cmbRedColour.isDisposed())
