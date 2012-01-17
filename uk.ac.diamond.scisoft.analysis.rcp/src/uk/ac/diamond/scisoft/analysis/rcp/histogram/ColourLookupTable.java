@@ -16,7 +16,11 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.histogram;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
+import uk.ac.diamond.scisoft.analysis.dataset.RGBDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.AbstractMapFunction;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.ScalingUtility;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.ScaleType;
@@ -42,7 +46,7 @@ public class ColourLookupTable {
 	 * @param inverseAlpha invert alpha channel
 	 * @param minValue minimum value
 	 * @param maxValue maximum value
-	 * @param useLogarithmic should the colourtable be logarithmic
+	 * @param useLogarithmic should the colour table be logarithmic
 	 * @return the result ImageData 
 	 */
 	static public ColourImageData generateColourTable(IDataset data,
@@ -95,6 +99,62 @@ public class ColourLookupTable {
 			}
 		}
 		return returnImage;
+	}
+
+	/**
+	 * Returns a dataset mapped to RGB
+	 * @param data dataset that should be converted
+	 * @param redFunc red channel mapping function
+	 * @param greenFunc green channel mapping function
+	 * @param blueFunc blue channel mapping function
+	 * @param inverseRed invert red channel
+	 * @param inverseGreen invert green channel
+	 * @param inverseBlue invert blue channel
+	 * @param minValue minimum value
+	 * @param maxValue maximum value
+	 * @param useLogarithmic should the colour table be logarithmic
+	 * @return the result RGB dataset
+	 */
+	static public RGBDataset generateColourImage(IDataset data, AbstractMapFunction redFunc,
+			AbstractMapFunction greenFunc, AbstractMapFunction blueFunc,
+			boolean inverseRed, boolean inverseGreen, boolean inverseBlue, double minValue,
+			double maxValue, boolean useLogarithmic) {
+		int[] shape = data.getShape();
+		RGBDataset image = new RGBDataset(shape);
+		if (useLogarithmic) {
+			ScalingUtility.setSmallLogFlag(false);
+			minValue = ScalingUtility.valueScaler(minValue, ScaleType.LN);
+			maxValue = ScalingUtility.valueScaler(maxValue, ScaleType.LN);
+		}
+		AbstractDataset idata = DatasetUtils.convertToAbstractDataset(data);
+		IndexIterator iti = image.getIterator();
+		IndexIterator itd = idata.getIterator();
+
+		short[] rgb = new short[3];
+		while (iti.hasNext() && itd.hasNext()) {
+			double value = idata.getElementDoubleAbs(itd.index);
+
+			if (useLogarithmic)
+				value = ScalingUtility.valueScaler(value, ScaleType.LN);
+
+			value = (value - minValue) / (maxValue - minValue);
+			value = Math.min(value, 1.0);
+			value = Math.max(0.0, value);
+			short red = redFunc.mapToByte(value);
+			if (inverseRed)
+				red = (short) (255 - red);
+			rgb[0] = red;
+			short green = greenFunc.mapToByte(value);
+			if (inverseGreen)
+				green = (short) (255 - green);
+			rgb[1] = green;
+			short blue = blueFunc.mapToByte(value);
+			if (inverseBlue)
+				blue = (short) (255 - blue);
+			rgb[2] = blue;
+			image.setAbs(iti.index, rgb);
+		}
+		return image;
 	}
 
 	/**
