@@ -1392,12 +1392,12 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.printSettingsPreferencePage"
             name="Plot Printing Settings">
       </page>
-      <page
+      <!-- page
             category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
             class="uk.ac.diamond.scisoft.analysis.rcp.preference.LabelDecorationsPreferencePage"
             id="uk.ac.diamond.scisoft.analysis.rcp.preferences.labelDecorationsPreferencePage"
             name="Label Decorations">
-      </page>
+      </page-->
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
@@ -1591,5 +1591,12 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.contributions.NeXusScansCheatsheet"
             name="NeXus Data Files">
       </cheatsheet>
+   </extension>
+   <extension
+         point="org.eclipse.ui.cheatsheets.cheatSheetItemExtension">
+      <itemExtension
+            class="uk.ac.diamond.scisoft.analysis.rcp.cheatsheets.handlers.PrintSettingsAbstractItemExtensionHandler"
+            itemAttribute="myAtt">
+      </itemExtension>
    </extension>
 </fragment>
