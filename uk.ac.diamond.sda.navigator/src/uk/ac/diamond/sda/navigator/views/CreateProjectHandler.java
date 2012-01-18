@@ -26,6 +26,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import uk.ac.diamond.scisoft.analysis.rcp.wizards.DataWizard;
@@ -50,6 +51,10 @@ public class CreateProjectHandler extends AbstractHandler {
 			final WizardDialog wd = new  WizardDialog(Display.getCurrent().getActiveShell(), wizard);
 			wd.setTitle(wizard.getWindowTitle());
 			wd.open();
+			
+			// Select project explorer
+			EclipseUtils.getActivePage().showView("org.eclipse.ui.navigator.ProjectExplorer", null, IWorkbenchPage.VIEW_ACTIVATE);
+			
 
 			return Boolean.TRUE;
 			
