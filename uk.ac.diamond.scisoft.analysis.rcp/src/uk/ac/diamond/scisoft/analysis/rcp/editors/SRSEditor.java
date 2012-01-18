@@ -16,6 +16,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.editors;
 
+import java.io.File;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -38,7 +40,7 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
 public class SRSEditor extends EditorPart {
 
 	private SRSExplorer srsxp;
-	private String fileName;
+	private File file;
 
 	public SRSEditor() {
 	}
@@ -56,9 +58,11 @@ public class SRSEditor extends EditorPart {
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
         setSite(site);
-		fileName = EclipseUtils.getFilePath(input);
-		if (fileName == null) {
+		file = EclipseUtils.getFile(input);
+		if (file == null || !file.exists()) {
 			throw new PartInitException("Input is not a file or file does not exist");
+		} else if (!file.canRead()) {
+			throw new PartInitException("Cannot read file (are permissions correct?)");
 		}
         setInput(input);
 		setPartName(input.getName());
@@ -79,12 +83,13 @@ public class SRSEditor extends EditorPart {
 	public void createPartControl(Composite parent) {
 		IWorkbenchPartSite site = getSite();
 		srsxp = new SRSExplorer(parent, site, null);
-		site.setSelectionProvider(srsxp);
-
 		try {
-			srsxp.loadFileAndDisplay(fileName, null);
+			srsxp.loadFileAndDisplay(file.getPath(), null);
 		} catch (Exception e) {
+			return;
 		}
+
+		site.setSelectionProvider(srsxp);
 
 		// Register selection listener
 		registerSelectionListener();
@@ -157,7 +162,7 @@ public class SRSEditor extends EditorPart {
 	public void update(final IWorkbenchPart original, final SRSTreeData srsData) {
 
 		/**
-		 * TODO Instead of selecting the editor, firing the selection and then selecting the naigator again, better to
+		 * TODO Instead of selecting the editor, firing the selection and then selecting the navigator again, better to
 		 * have one object type selected by both the editor and navigator which the plot view listens to using eclipse
 		 * selection events.
 		 */

@@ -30,6 +30,8 @@ import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
+import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 
@@ -51,7 +53,7 @@ public class AxisSlicer {
 	private SliceProperty[] axisSlices;
 	private boolean mode;
 	private AbstractDataset adata;
-	private AbstractDataset axisData;
+	private ILazyDataset axisData;
 	private PropertyChangeListener listener;
 
 	public static final int COLUMNS = 6;
@@ -88,7 +90,7 @@ public class AxisSlicer {
 	 * @param axis dataset for axis values
 	 * @param properties slices that dataset depends on
 	 */
-	public void createAxisSlicer(SliceProperty property, AbstractDataset axis, SliceProperty[] properties) {
+	public void createAxisSlicer(SliceProperty property, ILazyDataset axis, SliceProperty[] properties) {
 		if (label != null) {
 			setParameters(property, axis, properties, true);
 			return;
@@ -183,7 +185,7 @@ public class AxisSlicer {
 	 * @param properties slices that axis dataset depends on
 	 * @param used true if axis is used in plot
 	 */
-	public void setParameters(final SliceProperty property, final AbstractDataset axis, final SliceProperty[] properties, boolean used) {
+	public void setParameters(final SliceProperty property, final ILazyDataset axis, final SliceProperty[] properties, boolean used) {
 		slice = property;
 		if (axisSlices != null)
 			for (int i = 0; i < axisSlices.length; i++)
@@ -212,9 +214,9 @@ public class AxisSlicer {
 					p.addPropertyChangeListener(listener);
 				}
 			}
-			adata = axisData.getSlice(s).squeeze();
+			adata = DatasetUtils.convertToAbstractDataset(axisData.getSlice(s).squeeze());
 		} else
-			adata = axisData;
+			adata = DatasetUtils.convertToAbstractDataset(axisData.getSlice());
 
 		assert adata.getRank() == 1 : adata.getShape();
 	}

@@ -50,6 +50,7 @@ import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
+import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
 import uk.ac.diamond.scisoft.analysis.rcp.queue.InteractiveJobAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.queue.InteractiveQueue;
@@ -474,7 +475,7 @@ public class DatasetInspector extends Composite {
 					display.asyncExec(new Runnable() {
 						@Override
 						public void run() {
-							if (evt.getPropertyName() == null) // from SliceProperty#setStop(int, true)
+							if (evt.getPropertyName() == SliceProperty.sliceUpdate)
 								updateSlicers(false);
 							sliceDataAndView();
 						}
@@ -571,7 +572,7 @@ public class DatasetInspector extends Composite {
 				for (int i = aNum; i < rank; i++) {
 					AxisSelection aSel = new AxisSelection(i, shape[i]);
 					AbstractDataset axis = AbstractDataset.arange(shape[i], AbstractDataset.INT32);
-					axis.setName("dim:" + (i+1));
+					axis.setName(AbstractExplorer.DIM_PREFIX + (i+1));
 					AxisChoice newChoice = new AxisChoice(axis);
 					newChoice.setAxisNumber(i);
 					aSel.addChoice(newChoice, aSel.getMaxOrder() + 1);
@@ -683,7 +684,7 @@ public class DatasetInspector extends Composite {
 			SliceProperty p = slices.get(i);
 			AxisChoice c = inspection.datasetAxes.get(i).getSelectedAxis();
 			int[] imap = c.getIndexMapping();
-			AbstractDataset axis = c.getValues();
+			ILazyDataset axis = c.getValues();
 			SliceProperty[] props = new SliceProperty[imap.length];
 			for (int j = 0; j < imap.length; j++) {
 				props[j] = slices.get(imap[j]);
@@ -717,7 +718,7 @@ public class DatasetInspector extends Composite {
 
 			AxisSelection sel = inspection.datasetAxes.get(i);
 			AxisChoice choice = sel.getSelectedAxis();
-			AbstractDataset axis = choice.getValues();
+			ILazyDataset axis = choice.getValues();
 			int[] imap = choice.getIndexMapping();
 			SliceProperty[] props = new SliceProperty[imap.length];
 			for (int j = 0; j < imap.length; j++) {
