@@ -125,18 +125,16 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 			AxisSelection axisSelection = new AxisSelection(shape[j], j);
 
 			AbstractDataset autoAxis = AbstractDataset.arange(shape[j], AbstractDataset.INT32);
-			autoAxis.setName("Index");
+			autoAxis.setName(AbstractExplorer.DIM_PREFIX + (j+1));
 			AxisChoice newChoice = new AxisChoice(autoAxis);
 			newChoice.setAxisNumber(j);
 			axisSelection.addChoice(newChoice, 0);
 
 			for (int i = 0, imax = data.size(); i < imax; i++) {
 				ILazyDataset ldataset = data.getLazyDataset(i);
-				if (ldataset instanceof AbstractDataset) {
-					newChoice = new AxisChoice(ldataset);
-					newChoice.setAxisNumber(j);
-					axisSelection.addChoice(newChoice, i + 1);
-				}
+				newChoice = new AxisChoice(ldataset);
+				newChoice.setAxisNumber(j);
+				axisSelection.addChoice(newChoice, i + 1);
 			}
 
 			axisSelection.selectAxis(0);

@@ -26,6 +26,8 @@ import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 public class SliceProperty extends InspectorProperty {
 	private final static String propName = "slice";
 
+	public final static String sliceUpdate = "sliceupdate";
+
 	protected Slice slice;
 	protected int max = -1; // maximum size
 
@@ -78,7 +80,7 @@ public class SliceProperty extends InspectorProperty {
 			slice.setStop(stop);
 		}
 
-		fire(new PropertyChangeEvent(this, triggerSlicerUpdate ? null : propName, oldStop, stop));
+		fire(new PropertyChangeEvent(this, triggerSlicerUpdate ? sliceUpdate : propName, oldStop, stop));
 	}
 
 	public void setLength(int length) {

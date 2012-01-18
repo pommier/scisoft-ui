@@ -19,6 +19,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.inspector;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -28,7 +29,7 @@ import org.apache.commons.collections.Transformer;
 /**
  * Class to hold a list of axis names and dataset from which an axis can be selected
  */
-public class AxisSelection extends InspectorProperty {
+public class AxisSelection extends InspectorProperty implements Iterable<String> {
 	class AxisSelData implements Comparable<AxisSelData> {
 		private boolean selected;
 		private int order; // possible order in a list of choices (0 signifies leave to end of list) 
@@ -182,7 +183,16 @@ public class AxisSelection extends InspectorProperty {
 		String name = axis.getName();
 		if (axis.getRank() > 1)
 			name += suffix;
+		addChoice(name, axis, order);
+	}
 
+	/**
+	 * Add axis choice with given name and order
+	 * @param name
+	 * @param axis
+	 * @param order (can be zero to denote last)
+	 */
+	public void addChoice(String name, AxisChoice axis, int order) {
 		AxisSelData a;
 		int i = names.indexOf(name);
 		if (i >= 0) { // existing axis so replace
@@ -280,6 +290,22 @@ public class AxisSelection extends InspectorProperty {
 	}
 
 	/**
+	 * @return axis names
+	 */
+	public List<String> getNames() {
+		return names;
+	}
+
+	/**
+	 * @param index 
+	 * @return axis order of given index
+	 */
+	public int getOrder(int index) {
+		AxisSelData a = asData.get(index); 
+		return a == null ? -1 : a.getOrder();
+	}
+
+	/**
 	 * @param index 
 	 * @return axis choice of given index
 	 */
@@ -295,6 +321,26 @@ public class AxisSelection extends InspectorProperty {
 	public AxisChoice getAxis(String name) {
 		int i = names.indexOf(name);
 		return i < 0 ? null : asData.get(i).getData();
+	}
+
+	/**
+	 * Remove axis choice of given index
+	 * @param index
+	 */
+	public void removeChoice(int index) {
+		names.remove(index);
+		asData.remove(index);
+	}
+
+	/**
+	 * Remove axis choice of given name
+	 * @param name
+	 */
+	public void removeChoice(String name) {
+		int i = names.indexOf(name);
+		if (i < 0)
+			return;
+		removeChoice(i);
 	}
 
 	/**
@@ -404,11 +450,23 @@ public class AxisSelection extends InspectorProperty {
 	 * Clone everything but axis choice values
 	 */
 	@Override
-	public AxisSelection clone() throws CloneNotSupportedException {
+	public AxisSelection clone() {
 		AxisSelection selection = new AxisSelection(length, dim);
-		for (AxisSelData a : asData) {
-			selection.addChoice(a.getData().clone(), a.getOrder());
+		for (int i = 0, imax = asData.size(); i < imax; i++) {
+			AxisSelData a = asData.get(i);
+			selection.addChoice(names.get(i), a.getData().clone(), a.getOrder());
+			if (a.isSelected())
+				selection.selectAxis(i);
 		}
+		
 		return selection;
+	}
+
+	/**
+	 * @return iterator over names
+	 */
+	@Override
+	public Iterator<String> iterator() {
+		return names.iterator();
 	}
 }
