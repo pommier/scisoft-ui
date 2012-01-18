@@ -72,18 +72,22 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 		if (file == null || !file.exists()) {
 			logger.warn("File does not exist: {}", input.getName());
 			throw new PartInitException("Input is not a file or file does not exist");
+		} else if (!file.canRead()) {
+			logger.warn("Cannot read file: {}", input.getName());
+			throw new PartInitException("Cannot read file (are permissions correct?)");
 		}
 		setInput(input);
 	}
 
-	protected void loadHDF5Tree() {
+	protected boolean loadHDF5Tree() {
 		if (getHDF5Tree() != null)
-			return;
+			return true;
 
 		final String fileName = file.getAbsolutePath();
 		try {
 			if (hdfxp != null) {
 				hdfxp.loadFileAndDisplay(fileName, null);
+				return true;
 			}
 		} catch (Exception e) {
 			if (e.getCause() != null)
@@ -91,7 +95,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 			else
 				logger.warn("Could not load NeXus file {}: {}", fileName, e.getMessage());
 		}
-		return;
+		return false;
 	}
 
 	@Override
@@ -106,13 +110,15 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		registerSelectionListener();
 		IWorkbenchPartSite site = getSite();
 		hdfxp = new HDF5TreeExplorer(parent, site, null);
+		if (!loadHDF5Tree()) {
+			
+			return;
+		}
 		site.setSelectionProvider(hdfxp);
-
 		setPartName(file.getName());
-		loadHDF5Tree();
+		registerSelectionListener();
 	}
 
 	@Override

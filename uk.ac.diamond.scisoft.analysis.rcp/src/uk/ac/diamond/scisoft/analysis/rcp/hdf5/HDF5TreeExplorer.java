@@ -523,7 +523,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 
 			// add in an automatically generated axis with top order so it appears after primary axes
 			AbstractDataset axis = AbstractDataset.arange(dim, AbstractDataset.INT32);
-			axis.setName("dim:" + (i + 1));
+			axis.setName(DIM_PREFIX + (i + 1));
 			AxisChoice newChoice = new AxisChoice(axis);
 			newChoice.setAxisNumber(i);
 			aSel.addChoice(newChoice, aSel.getMaxOrder() + 1);

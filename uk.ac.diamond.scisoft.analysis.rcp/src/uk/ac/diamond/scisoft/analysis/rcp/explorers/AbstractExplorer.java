@@ -37,6 +37,11 @@ abstract public class AbstractExplorer extends Composite implements ISelectionPr
 	protected ISelectionChangedListener metaValueListener;
 
 	/**
+	 * Prefix for a default axis dataset name
+	 */
+	public static final String DIM_PREFIX = "dim:";
+
+	/**
 	 * @param parent
 	 * @param partSite
 	 * @param valueSelect listener to be called when a value is selected (in context menu)
