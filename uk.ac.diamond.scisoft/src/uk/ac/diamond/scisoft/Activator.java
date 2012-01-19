@@ -235,7 +235,7 @@ public class Activator extends AbstractUIPlugin {
 
 		try {
 			if (!PlatformUI.isWorkbenchRunning()) throw new Exception("Cannot create interpreter unless in UI mode!");
-			while(PlatformUI.getWorkbench().isStarting()) {
+			while(PlatformUI.getWorkbench()==null || PlatformUI.getWorkbench().isStarting()) {
 				Thread.sleep(100);
 			}
 		} catch (Exception ne) {
