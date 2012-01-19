@@ -379,7 +379,7 @@ public class Plot2DUI extends AbstractPlotUI {
 			}
 		};
 		colourCastLinear.setChecked(getPreferenceColourScaleChoice() == 0);
-		colourCastLinear.setText("Linear mappig colours");
+		colourCastLinear.setText("Linear mapping colours");
 		colourCastLinear.setToolTipText("Apply linear colour mapping to image");
 
 		colourCastLog = new Action("",IAction.AS_RADIO_BUTTON) 

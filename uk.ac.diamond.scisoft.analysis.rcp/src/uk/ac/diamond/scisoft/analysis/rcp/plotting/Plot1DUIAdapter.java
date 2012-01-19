@@ -333,7 +333,7 @@ public class Plot1DUIAdapter extends AbstractPlotUI {
 		};
 		yLabelTypeSI.setText("Y-Axis labels SI units");
 		yLabelTypeSI.setToolTipText("Change the labelling on the y-axis to using SI units");
-		yAxisScaleLinear = new Action()
+		yAxisScaleLinear = new Action("",IAction.AS_RADIO_BUTTON)
 		{
 			@Override
 			public void run()
@@ -344,7 +344,7 @@ public class Plot1DUIAdapter extends AbstractPlotUI {
 		yAxisScaleLinear.setText("Y-Axis scale linear");
 		yAxisScaleLinear.setToolTipText("Change the Y-Axis scaling to be linear");
 		
-		yAxisScaleLog = new Action()
+		yAxisScaleLog = new Action("",IAction.AS_RADIO_BUTTON)
 		{
 			@Override
 			public void run()
