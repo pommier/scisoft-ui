@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
@@ -206,23 +207,17 @@ public class Activator extends AbstractUIPlugin {
 		// Doing the pydev imports properly
 		logger.debug("Starting Jython Property process");
 
-		Job job = new Job("Initialising script analyser"){
-
+		Thread job = new Thread("Initialising script analyser") {
 			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-
-				monitor.setTaskName("Initialising interpreter");
+			public void run() {
 				try {
-					initialiseInterpreter(monitor);
+					initialiseInterpreter(new NullProgressMonitor());
 				} catch (CoreException e) {
 					e.printStackTrace();
 				}
-
-				return Status.OK_STATUS;
 			}
 		};
-		job.setUser(false);
-		job.schedule();
+		job.start();
 	}
 
 	private void logPaths(String pathname, String paths) {
