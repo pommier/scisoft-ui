@@ -39,6 +39,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.osgi.framework.Bundle;
@@ -212,11 +213,13 @@ public class Activator extends AbstractUIPlugin {
 			public void run() {
 				try {
 					initialiseInterpreter(new NullProgressMonitor());
-				} catch (CoreException e) {
-					e.printStackTrace();
+				} catch (Exception e) {
+					logger.error("Cannot create jython interpreter!", e);
 				}
 			}
 		};
+		job.setPriority(Thread.MIN_PRIORITY);
+		job.setDaemon(true);
 		job.start();
 	}
 
@@ -228,8 +231,18 @@ public class Activator extends AbstractUIPlugin {
 			logger.debug("\t{}", p);
 	}
 
-	private void initialiseInterpreter(IProgressMonitor monitor) throws CoreException {
+	private void initialiseInterpreter(IProgressMonitor monitor) throws Exception {
 
+		try {
+			if (!PlatformUI.isWorkbenchRunning()) throw new Exception("Cannot create interpreter unless in UI mode!");
+			while(PlatformUI.getWorkbench().isStarting()) {
+				Thread.sleep(100);
+			}
+		} catch (Exception ne) {
+			logger.error("Cannot wait until workbench started!", ne);
+			return;	
+		}
+		
 		logger.debug("Initialising the Jython interpreter setup");
 
 		// Horrible Hack warning: This code is copied from parts of Pydev to set up the interpreter and save it.
