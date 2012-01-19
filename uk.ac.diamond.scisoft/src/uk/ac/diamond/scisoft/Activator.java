@@ -32,13 +32,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.osgi.framework.Bundle;
@@ -229,6 +227,17 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	private void initialiseInterpreter(IProgressMonitor monitor) throws CoreException {
+
+		try {
+			if (!PlatformUI.isWorkbenchRunning()) throw new Exception("Cannot create interpreter unless in UI mode!");
+			Thread.sleep(100);
+			while(PlatformUI.getWorkbench()==null || PlatformUI.getWorkbench().isStarting()) {
+				Thread.sleep(100);
+			}
+		} catch (Exception ne) {
+			logger.error("Cannot wait until workbench started!", ne);
+			return;	
+		}
 
 		logger.debug("Initialising the Jython interpreter setup");
 
