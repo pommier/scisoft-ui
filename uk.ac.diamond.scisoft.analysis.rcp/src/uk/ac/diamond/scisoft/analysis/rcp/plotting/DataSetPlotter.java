@@ -1100,7 +1100,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 						qSpace = new QSpace(diffnMetadata.getDetector2DProperties(),
 								diffnMetadata.getDiffractionCrystalEnvironment());
 						isDiffImage = true;
-					} catch (IllegalArgumentException e) {
+					} catch (Exception e) {
 						logger.debug("Could not create a detector properties object from metadata");
 					}
 				}
