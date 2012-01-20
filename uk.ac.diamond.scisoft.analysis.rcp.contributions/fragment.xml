@@ -1592,11 +1592,4 @@
             name="NeXus Data Files">
       </cheatsheet>
    </extension>
-   <extension
-         point="org.eclipse.ui.cheatsheets.cheatSheetItemExtension">
-      <itemExtension
-            class="uk.ac.diamond.scisoft.analysis.rcp.cheatsheets.handlers.PrintSettingsAbstractItemExtensionHandler"
-            itemAttribute="myAtt">
-      </itemExtension>
-   </extension>
 </fragment>
