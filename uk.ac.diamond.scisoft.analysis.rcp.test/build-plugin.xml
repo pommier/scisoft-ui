@@ -28,12 +28,12 @@
                 <pathelement location="${workspace.git.loc}/scisoft/scisoft-ui.git/uk.ac.diamond.scisoft.analysis.rcp/bin" />
                 <pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
                 <pathelement location="${workspace.git.loc}/gda-common-rcp.git/uk.ac.gda.common.rcp/bin" />
-                <pathelement location="${workspace.loc}/plugins/uk.ac.gda.nexus/bin" />
+                <pathelement location="${workspace.loc}/plugins/org.dawb.hdf5/bin" />
                 <fileset dir="${plugins.dir}">
                     <include name="uk.ac.diamond.scisoft.analysis/jars/*.jar" />
                     <include name="uk.ac.diamond.CBFlib/jars/*.jar" />
                     <include name="uk.ac.gda.nexus/jars/*.jar" />
-                    <include name="ncsa.hdf/jars/*.jar" />
+                    <include name="org.dawb.hdf5/*.jar" />
                 </fileset>
                 <path refid="thirdparty.jars.path" />
             </classpath>
