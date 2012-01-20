@@ -66,7 +66,6 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
-		setSite(site);
 		file = EclipseUtils.getFile(input);
 		if (file == null || !file.exists()) {
 			logger.warn("File does not exist: {}", input.getName());
@@ -75,6 +74,8 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 			logger.warn("Cannot read file: {}", input.getName());
 			throw new PartInitException("Cannot read file (are permissions correct?)");
 		}
+
+		setSite(site);
 		setInput(input);
 	}
 

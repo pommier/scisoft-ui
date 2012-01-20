@@ -57,16 +57,16 @@ public class SRSEditor extends EditorPart {
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
-        setSite(site);
 		file = EclipseUtils.getFile(input);
 		if (file == null || !file.exists()) {
 			throw new PartInitException("Input is not a file or file does not exist");
 		} else if (!file.canRead()) {
 			throw new PartInitException("Cannot read file (are permissions correct?)");
 		}
+
+		setSite(site);
         setInput(input);
 		setPartName(input.getName());
-
 	}
 
 	@Override
