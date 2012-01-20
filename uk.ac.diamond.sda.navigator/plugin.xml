@@ -318,7 +318,7 @@
             </objectClass>
          </enablement>
          <description>
-            Displays the file owner of a resource file.
+            Displays the file owner of a resource file. (Unix only)
          </description>
       </decorator>
       <!-- Not correctly working yet -->

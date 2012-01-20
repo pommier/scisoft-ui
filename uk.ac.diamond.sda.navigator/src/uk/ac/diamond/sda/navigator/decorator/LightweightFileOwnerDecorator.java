@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
 
 public class LightweightFileOwnerDecorator extends LabelProvider implements ILightweightLabelDecorator {
 
+	public static final String ID = "uk.ac.diamond.sda.navigator.fileOwnerDecorator";
+	
 	private static final Logger logger = LoggerFactory.getLogger(LightweightFileOwnerDecorator.class);
 	
 	public LightweightFileOwnerDecorator() {

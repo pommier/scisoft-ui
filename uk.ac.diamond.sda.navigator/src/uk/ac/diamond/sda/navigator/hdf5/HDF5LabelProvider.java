@@ -34,6 +34,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode;
  */
 public class HDF5LabelProvider extends LabelProvider implements ILabelProvider, IDescriptionProvider, ILabelDecorator {
 	
+	public static final String ID = "uk.ac.diamond.sda.navigator.hdf5Decorator";
+	
 	@Override
 	public Image getImage(Object element) {
 		TreeNode data = (TreeNode) element;

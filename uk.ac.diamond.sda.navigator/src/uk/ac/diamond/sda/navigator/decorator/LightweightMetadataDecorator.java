@@ -22,7 +22,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.LabelProvider;
@@ -35,6 +34,8 @@ import org.slf4j.LoggerFactory;
 
 public class LightweightMetadataDecorator extends LabelProvider implements ILightweightLabelDecorator {
 
+	public static final String ID = "uk.ac.diamond.sda.navigator.metadataDecorator";
+	
 	private static final Logger logger = LoggerFactory.getLogger(LightweightMetadataDecorator.class);
 	
 	public LightweightMetadataDecorator() {

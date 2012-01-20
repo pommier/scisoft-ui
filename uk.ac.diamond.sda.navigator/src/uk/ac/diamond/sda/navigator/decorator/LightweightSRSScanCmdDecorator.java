@@ -31,6 +31,8 @@ import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 
 public class LightweightSRSScanCmdDecorator extends LabelProvider implements ILightweightLabelDecorator {
 
+	public static final String ID = "uk.ac.diamond.sda.navigator.srsScancmdDecorator";
+
 	private static final String SRS_EXT = "dat"; //$NON-NLS-1$
 	private IExtendedMetadata metaData;
 	private String decorator = "";

@@ -36,6 +36,8 @@ import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 
 public class LightweightNXSScanCmdDecorator extends LabelProvider implements ILightweightLabelDecorator {
 
+	public static final String ID = "uk.ac.diamond.sda.navigator.nxsScancmdDecorator";
+	
 	private static final String NXS_EXT = "nxs"; //$NON-NLS-1$
 	private String decorator = "";
 	private static final Logger logger = LoggerFactory.getLogger(LightweightNXSScanCmdDecorator.class);

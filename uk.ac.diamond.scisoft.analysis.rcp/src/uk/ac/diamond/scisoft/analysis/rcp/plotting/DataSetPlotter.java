@@ -2275,6 +2275,23 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 	}
 
 	/**
+	 * Enable/Disable Axis visibility
+	 * 
+	 * @param checked
+	 *            true (enable feature detection) false (disable feature detection)
+	 */
+	public void setAxisVisibility(boolean checked) {
+		if (currentMode == PlottingMode.TWOD) {
+			coordXLabels.setVisible(checked);
+			coordYLabels.setVisible(checked);
+			coordZLabels.setVisible(checked);
+			coordAxes.setVisible(checked);
+			coordTicks.setVisible(checked);
+			refresh(checked);
+		}
+	}
+
+	/**
 	 * Set if transparency should be used on the 3D scatter plot
 	 * 
 	 * @param newTransp
