@@ -94,7 +94,7 @@ public class JythonCreator implements IStartup {
 		"uk.ac.diamond.org.apache.xmlrpc.server",
 	};
 
-	private final static String[] pluginKeys = { "uk.ac.diamond", "uk.ac.gda", "org.dawb.hdf5"};
+	private final static String[] pluginKeys = { "uk.ac.diamond", "uk.ac.gda", "org.dawb.hdf5", "ncsa.hdf"};
 	
 	private void initialiseInterpreter(IProgressMonitor monitor) throws CoreException {
 
