@@ -849,4 +849,19 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 	public void setMonitorActive(boolean monitorActive) {
 		monActive = monitorActive;
 	}
+
+	/**
+	 * Play button action of ImageExplorer
+	 */
+	public void play(){
+		boolean isPaused = playback.isPaused();
+		btnPlay.setImage(imgStill);
+		playback.start();
+		if (!isPaused) {
+			playback.setSelection(getSelection());
+			playback.setDelay(getPreferenceTimeDelay());
+			playback.setStepping(getPreferencePlaybackRate());
+			execSvc.execute(playback);
+		}
+	}
 }
