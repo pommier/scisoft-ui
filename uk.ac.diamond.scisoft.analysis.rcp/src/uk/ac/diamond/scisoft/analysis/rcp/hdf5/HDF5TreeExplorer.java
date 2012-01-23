@@ -16,9 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.hdf5;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,14 +42,12 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Attribute;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Dataset;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Group;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.MetadataSelection;
-import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
 import uk.ac.diamond.scisoft.analysis.rcp.views.AsciiTextView;
 import uk.ac.gda.monitor.IMonitor;
@@ -63,8 +59,6 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	private HDF5TableTree tableTree = null;
 	private Display display;
 
-	private ILazyDataset cData; // chosen dataset
-	List<AxisSelection> axes; // list of axes for each dimension
 	private String filename;
 
 	/**
@@ -114,54 +108,46 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 		}, contextListener);
 
 		cListeners = new HashSet<ISelectionChangedListener>();
-		axes = new ArrayList<AxisSelection>();
 	}
 
 	/**
-	 * populate a selection object
+	 * Select a node and populate a selection object
+	 * @param link node link
+	 * @param type
 	 */
 	public void selectHDF5Node(HDF5NodeLink link, InspectorType type) {
 		if (link == null)
 			return;
 
-		if (handleSelectedNode(link)) {
-			// provide selection
-			setSelection(new HDF5Selection(type, filename, link.getFullName(), axes, cData));
-
-		} else
-			logger.error("Could not process update of selected node: {}", link.getName());
-	}
-
-	private boolean handleSelectedNode(HDF5NodeLink link) {
 		if (processTextNode(link)) {
-			return false;
+			return;
 		}
 
-		if (!processSelectedNode(link))
-			return false;
+		HDF5Selection s = HDF5Utils.createDatasetSelection(link, isOldGDA);
+		if (s == null) {
+			logger.error("Could not process update of selected node: {}", link.getName());
+			return;
+		}
 
-		if (cData == null)
-			return false;
-
-		return true;
+		// provide selection
+		s.setFileName(filename);
+		s.setType(type);
+		setSelection(s);
 	}
 
 	/**
-	 * Handle a node given by the path
-	 * @param path
+	 * Select a node and populate a selection object
+	 * @param path path of node
+	 * @param type
 	 */
-	public void handleNode(String path) {
+	public void selectHDF5Node(String path, InspectorType type) {
 		HDF5NodeLink link = tree.findNodeLink(path);
 
 		if (link != null) {
-			if (handleSelectedNode(link)) {
-				// provide selection
-				setSelection(new HDF5Selection(InspectorType.LINE, filename, link.getName(), axes, cData));
-				return;
-			}
-			logger.debug("Could not handle selected node: {}", link.getName());
+			selectHDF5Node(link, type);
+		} else {
+			logger.debug("Could not find selected node: {}", path);
 		}
-		logger.debug("Could not find selected node: {}", path);
 	}
 
 	private void handleContextClick() {
@@ -231,14 +217,6 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 			logger.error("Error processing text node {}: {}", link.getName(), e);
 		}
 		return false;
-	}
-
-	private boolean processSelectedNode(HDF5NodeLink link) {
-		final HDF5AxisBean bean = HDF5Utils.getAxisInfo(link, isOldGDA);
-        if (bean==null) return false;
-        this.cData = bean.getcData();
-        this.axes  = bean.getAxes();
-		return true;
 	}
 
 	@Override

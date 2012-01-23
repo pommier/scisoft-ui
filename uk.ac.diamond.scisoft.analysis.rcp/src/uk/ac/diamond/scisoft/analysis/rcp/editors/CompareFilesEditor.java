@@ -522,6 +522,8 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			loadDatasets(name);
 			loadAxisSelections(currentDatasetSelection.getAxes(), node);
 			refresh = true;
+		} else {
+			return;
 		}
 
 		if (currentDatasetSelection != null) {
