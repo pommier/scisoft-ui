@@ -16,6 +16,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.wizards;
 
+import java.io.File;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -54,6 +56,7 @@ public class DataWizard extends Wizard implements INewWizard {
 	private static final Logger logger = LoggerFactory.getLogger(DataWizard.class);	
 	private DataWizardPage page;
 	private ISelection selection;
+	private String defaultDataLocation, defaultFolderName;
 
 	/**
 	 * Constructor for TestWizard.
@@ -81,6 +84,13 @@ public class DataWizard extends Wizard implements INewWizard {
 			prevFolder = settings.get(DIALOG_SETTING_KEY_FOLDER);
 			prevDirectory = settings.get(DIALOG_SETTING_KEY_DIRECTORY);
 		}
+		if (defaultDataLocation!=null) {
+			prevDirectory = defaultDataLocation;
+		}
+		if (defaultFolderName!=null) {
+			prevFolder = defaultFolderName;
+		}
+		
 		page = new DataWizardPage(selection, prevProject, prevFolder, prevDirectory);
 		addPage(page);
 	}
@@ -134,5 +144,10 @@ public class DataWizard extends Wizard implements INewWizard {
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		this.selection = selection;
+	}
+
+	public void setDataLocation(File selectedPath) {
+		this.defaultDataLocation = selectedPath.getAbsolutePath();
+		this.defaultFolderName   = selectedPath.getName();
 	}
 }

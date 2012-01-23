@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
 
@@ -129,7 +130,7 @@ public class AxisValues implements Iterable<Double>, Serializable {
 	 * @param data
 	 */
 	public void setValues(AbstractDataset data) {
-		values = new DoubleDataset(data);
+		values = (DoubleDataset) DatasetUtils.cast(data, AbstractDataset.FLOAT64);
 		isDirty = true;
 	}
 

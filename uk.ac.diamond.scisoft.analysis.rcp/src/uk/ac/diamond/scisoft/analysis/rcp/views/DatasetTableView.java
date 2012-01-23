@@ -66,6 +66,7 @@ import org.eclipse.ui.part.ViewPart;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
+import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 
 /**
  * Display a 2D dataset
@@ -197,10 +198,10 @@ class DatasetGridLayerStack extends DefaultGridLayer {
 
 	public DatasetGridLayerStack(AbstractDataset dataset, AbstractDataset rows, AbstractDataset cols) {
 		super(true);
-		if (rows != null && rows.getName().startsWith("dim:"))
+		if (rows != null && rows.getName().startsWith(AbstractExplorer.DIM_PREFIX))
 			rows = null;
 		rowsCustom = rows != null;
-		if (cols != null && cols.getName().startsWith("dim:"))
+		if (cols != null && cols.getName().startsWith(AbstractExplorer.DIM_PREFIX))
 			cols = null;
 		colsCustom = cols != null;
 		bodyDataProvider = new DatasetContentProvider(dataset, rows, cols);
@@ -215,10 +216,10 @@ class DatasetGridLayerStack extends DefaultGridLayer {
 	}
 
 	public void setData(AbstractDataset dataset, AbstractDataset rows, AbstractDataset cols) {
-		if (rows != null && rows.getName().startsWith("dim:"))
+		if (rows != null && rows.getName().startsWith(AbstractExplorer.DIM_PREFIX))
 			rows = null;
 		rowsCustom = rows != null;
-		if (cols != null && cols.getName().startsWith("dim:"))
+		if (cols != null && cols.getName().startsWith(AbstractExplorer.DIM_PREFIX))
 			cols = null;
 		colsCustom = cols != null;
 

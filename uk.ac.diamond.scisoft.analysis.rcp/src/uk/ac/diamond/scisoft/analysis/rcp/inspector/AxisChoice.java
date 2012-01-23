@@ -20,8 +20,6 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 
 /**
@@ -35,7 +33,7 @@ public class AxisChoice {
 	private int primary; // possible order in a list of choices (0 signifies leave to end of list)
 	private int number;  // which dimension does this axis represent for signal dataset
 	private int[] indexMapping = null; // array of dimensions of chosen dataset which map to the values dataset
-	private String name; // long name if available  
+	private String name; // long name if available
 
 	/**
 	 * @param values
@@ -82,7 +80,7 @@ public class AxisChoice {
 	 * @param values The values to set
 	 */
 	public void setValues(ILazyDataset values) {
-		if (this.values != null && this.values.getRank() != values.getRank()) {
+		if (this.values != null && values != null && this.values.getRank() != values.getRank()) {
 			throw new IllegalArgumentException("Replacement axis values dataset must have the same rank");
 		}
 		this.values = values;
@@ -91,12 +89,8 @@ public class AxisChoice {
 	/**
 	 * @return Returns the values
 	 */
-	public AbstractDataset getValues() {
-		try {
-			return DatasetUtils.convertToAbstractDataset(values.getSlice());
-		} catch (Exception e) {
-			return null;
-		}
+	public ILazyDataset getValues() {
+		return values;
 	}
 
 	/**
@@ -220,7 +214,7 @@ public class AxisChoice {
 	 * Clone everything but values
 	 */
 	@Override
-	protected AxisChoice clone() throws CloneNotSupportedException {
+	protected AxisChoice clone() {
 		AxisChoice choice = new AxisChoice(values, primary);
 		choice.setIndexMapping(indexMapping);
 		choice.setAxisNumber(number);

@@ -44,7 +44,6 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IReusableEditor;
 import org.eclipse.ui.ISharedImages;
-import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
@@ -59,7 +58,6 @@ import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
-import uk.ac.diamond.scisoft.analysis.utils.ImageThumbnailLoader;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import uk.ac.gda.monitor.ProgressMonitorWrapper;
 
@@ -74,6 +72,7 @@ public class PlotEditor extends EditorPart implements ISelectionProvider, IReusa
 	private AbstractDataset image;
 	private Action doubleClickAction;
 	private DatasetSelection dSelection = null;
+	private File file;
 	
 	@Override
 	public void doSave(IProgressMonitor monitor) {
@@ -89,9 +88,35 @@ public class PlotEditor extends EditorPart implements ISelectionProvider, IReusa
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
 		setSite(site);
-		getSite().setSelectionProvider(this);
 		setInput(input);
+		if (file == null || !file.exists()) {
+			throw new PartInitException("Input is not a file or file does not exist");
+		} else if (!file.canRead()) {
+			throw new PartInitException("Cannot read file (are permissions correct?)");
+		}
+
+		getSite().setSelectionProvider(this);
+	}
+
+	@Override
+	public void setInput(IEditorInput input) {
+		file = EclipseUtils.getFile(input);
+		if (file == null || !file.canRead()) {
+			logger.error("Cannot load {}", input.getName());
+			return;
+		}
+
+		super.setInput(input);
+		try {
+			loadFile(file);
+		} catch (Exception e) {
+			logger.error("Cannot load "+input.getName(), e);
+			return;
+		}
+		
 		setPartName(input.getName());
+		DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, null, image);
+		setSelection(datasetSelection);
 	}
 
 	@Override
@@ -154,51 +179,21 @@ public class PlotEditor extends EditorPart implements ISelectionProvider, IReusa
 		return (ILazyDataset) obj;		
 	}
 	
-	
-	@Override
-	public void setInput(final IEditorInput input) {
-		
-		super.setInput(input);
-		
-		if (!(input instanceof IURIEditorInput)) {
-			logger.warn("Editor input cannot be used here");
-			return;
-		}
-		setPartName(input.getName());
-		
-		try {
-			loadFile(input);
-		} catch (Exception e) {
-			logger.error("Cannot load "+input.getName(), e);
-		}
-		
-		DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, null, image);
-		setSelection(datasetSelection);
-
-	}
-
 	/**
 	 * Uses separate job to parse and open file so that large files work
-	 * @param input
+	 * @param f
 	 * @throws InterruptedException 
 	 * @throws InvocationTargetException 
 	 */
-	private void loadFile(final IEditorInput input) throws InvocationTargetException, InterruptedException {
+	private void loadFile(final File f) throws InvocationTargetException, InterruptedException {
 		
-		final IProgressService service = (IProgressService)getSite().getService(IProgressService.class);
+		final IProgressService service = (IProgressService) getSite().getService(IProgressService.class);
 		service.run(true, true, new IRunnableWithProgress() {
 			
 			@Override
 			public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-				monitor.beginTask("Opening " + input.getName(), 100);
+				monitor.beginTask("Opening " + f.getName(), 100);
 				monitor.worked(1);
-
-				File f = EclipseUtils.getFile(input);
-				if (f == null || !f.exists()) {
-					logger.error("Could not load {}", input.getName());
-					monitor.done();
-					return;
-				}
 
 				final String fileName = f.getAbsolutePath();
 				// Had to use LoaderFactory to avoid out of memory errors.
@@ -207,10 +202,15 @@ public class PlotEditor extends EditorPart implements ISelectionProvider, IReusa
 					final DataHolder dh = LoaderFactory.getData(fileName, new ProgressMonitorWrapper(monitor));
 
 					// Rest should be fast.
-					image = ImageThumbnailLoader.getSingle(fileName, false, dh);
-					if (image != null && image.getRank() != 2) {
+					if (dh.size() == 0) {
 						image = null;
 						logger.warn("File is not an image, plot editor only supports images at the moment");
+					} else {
+						image = dh.getDataset(0);
+						if (image != null && image.getRank() != 2) {
+							image = null;
+							logger.warn("File is not an image, plot editor only supports images at the moment");
+						}
 					}
 				} catch (Exception ne) {
 					logger.error("Cannot load file " + fileName, ne);
@@ -222,15 +222,13 @@ public class PlotEditor extends EditorPart implements ISelectionProvider, IReusa
 	}
 
 	@Override
-	public void dispose()
-	{
+	public void dispose() {
 		super.dispose();
 	}
 
 	@Override
 	public void setFocus() {
 		// Nothing to do
-		
 	}
 
 	@Override
@@ -253,62 +251,64 @@ public class PlotEditor extends EditorPart implements ISelectionProvider, IReusa
 
 	@Override
 	public void setSelection(ISelection selection) {
-		logger.debug("Starting selection Update");
+		logger.debug("Starting selection update");
 		if (selection instanceof DatasetSelection)
 			dSelection = (DatasetSelection) selection;
 
 		SelectionChangedEvent e = new SelectionChangedEvent(this, dSelection);
 		for (ISelectionChangedListener listener : listeners) {
-			logger.debug("Updateing ", listener.toString());
+			logger.debug("Updating ", listener.toString());
 			listener.selectionChanged(e);	
 		}
-		logger.debug("Finished selection Update");
+		logger.debug("Finished selection update");
 	}
 
 	private class ViewContentProvider implements IStructuredContentProvider {
 		@Override
 		public void inputChanged(Viewer v, Object oldInput, Object newInput) {
 		}
-		
+
 		@Override
 		public void dispose() {
 		}
-		
+
 		@Override
 		public Object[] getElements(Object parent) {
 			if (image != null) {
-				return new Object[]{image};
-			} 
-			return new Object[]{};
+				return new Object[] { image };
+			}
+			return new Object[] {};
 		}
-		
+
 	}
-	
+
 	class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
 		@Override
 		public String getColumnText(Object obj, int index) {
 			IDataset dataset = (IDataset) obj;
-			if (index == 0) return dataset.getName();
-			if (index == 1) return dataset.min().toString();
-			if (index == 2) return dataset.max().toString();
+			if (index == 0)
+				return dataset.getName();
+			if (index == 1)
+				return dataset.min().toString();
+			if (index == 2)
+				return dataset.max().toString();
 			if (index == 3) {
 				String[] parts = dataset.elementClass().toString().split("\\.");
-				return parts[parts.length-1];
+				return parts[parts.length - 1];
 			}
 			return null;
 		}
-		
+
 		@Override
 		public Image getColumnImage(Object obj, int index) {
-			if (index == 0 ) return getImage(obj);
+			if (index == 0)
+				return getImage(obj);
 			return null;
 		}
-		
+
 		@Override
 		public Image getImage(Object obj) {
-			return PlatformUI.getWorkbench().
-			getSharedImages().getImage(ISharedImages.IMG_OBJ_ELEMENT);
+			return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_ELEMENT);
 		}
-	}	
-	
+	}
 }

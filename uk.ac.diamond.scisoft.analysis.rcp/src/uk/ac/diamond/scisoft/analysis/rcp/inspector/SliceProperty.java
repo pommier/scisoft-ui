@@ -24,6 +24,10 @@ import uk.ac.diamond.scisoft.analysis.dataset.Slice;
  * Represent slice used in GUI and model
  */
 public class SliceProperty extends InspectorProperty {
+	private final static String propName = "slice";
+
+	public final static String sliceUpdate = "sliceupdate";
+
 	protected Slice slice;
 	protected int max = -1; // maximum size
 
@@ -48,7 +52,7 @@ public class SliceProperty extends InspectorProperty {
 		Slice oldValue = this.slice;
 		this.slice = slice;
 
-		fire(new PropertyChangeEvent(this, "slice", oldValue, slice));
+		fire(new PropertyChangeEvent(this, propName, oldValue, slice));
 	}
 
 	public void setStart(int start) {
@@ -60,10 +64,14 @@ public class SliceProperty extends InspectorProperty {
 			slice.setStart(start);
 		}
 
-		fire(new PropertyChangeEvent(this, "slice", oldStart, start));
+		fire(new PropertyChangeEvent(this, propName, oldStart, start));
 	}
 
 	public void setStop(int stop) {
+		setStop(stop, false);
+	}
+
+	public void setStop(int stop, boolean triggerSlicerUpdate) {
 		Integer oldStop = null;
 		if (slice == null)
 			slice = new Slice(stop);
@@ -72,7 +80,7 @@ public class SliceProperty extends InspectorProperty {
 			slice.setStop(stop);
 		}
 
-		fire(new PropertyChangeEvent(this, "slice", oldStop, stop));
+		fire(new PropertyChangeEvent(this, triggerSlicerUpdate ? sliceUpdate : propName, oldStop, stop));
 	}
 
 	public void setLength(int length) {
@@ -91,7 +99,7 @@ public class SliceProperty extends InspectorProperty {
 			slice.setStep(step);
 		}
 
-		fire(new PropertyChangeEvent(this, "slice", oldStep, step));
+		fire(new PropertyChangeEvent(this, propName, oldStep, step));
 	}
 
 	public void setMax(int max) {

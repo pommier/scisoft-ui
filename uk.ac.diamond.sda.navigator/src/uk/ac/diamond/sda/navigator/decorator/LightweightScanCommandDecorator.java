@@ -115,7 +115,7 @@ public class LightweightScanCommandDecorator extends LabelProvider implements IL
 					}
 				} catch (ScanFileHolderException e) {
 					logger.error("Could not read hdf5 file: ", e);
-				}catch (Exception e){
+				} catch (Exception e) {
 					logger.error("Could not read hdf5metadata: ", e);
 				}
 			}

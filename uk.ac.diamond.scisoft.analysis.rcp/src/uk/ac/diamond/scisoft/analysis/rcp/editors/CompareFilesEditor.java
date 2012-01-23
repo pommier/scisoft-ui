@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -69,20 +68,24 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.AggregateDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.io.Utils;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.MetadataSelection;
-import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5TreeExplorer.HDF5Selection;
+import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5Selection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
-import uk.ac.diamond.scisoft.analysis.rcp.inspector.MultipleDatasetsSelection;
+import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
 
 /**
  * This editor allows a set of files which can be loaded by one type of loader to be compared. It
@@ -98,6 +101,8 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	public static IEditorInput createComparesFilesEditorInput(IStructuredSelection sel) {
 		return new CompareFilesEditorInput(sel);
 	}
+
+	private static final Logger logger = LoggerFactory.getLogger(CompareFilesEditor.class);
 
 	public final static String ID = "uk.ac.diamond.scisoft.analysis.rcp.editors.CompareFilesEditor";
 	private SashForm sashComp;
@@ -124,7 +129,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	private BooleanHolder useRowIndexAsValue = new BooleanHolder();
 	private Menu headerMenu;
 	private DatasetSelection currentDatasetSelection;
-	private MultipleDatasetsSelection selections;
+	private DatasetSelection multipleSelection;
 
 	@Override
 	public void doSave(IProgressMonitor monitor) {
@@ -158,11 +163,23 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		fileList = new ArrayList<SelectedFile>();
 
 		int n = 0;
-		for (Object o: filesInput.list) {
+		int l = 0;
+		while (l < filesInput.list.length) {
+			Object o = filesInput.list[l++];
 			if (o instanceof IFile) {
 				IFile f = (IFile) o;
-				fileList.add(new SelectedFile(n++, f));
+				try {
+					fileList.add(new SelectedFile(n, f));
+					n++;
+					break;
+				} catch (IllegalArgumentException e) {
+					logger.warn("Problem with selection: ", e);
+				}
 			}
+		}
+		if (n == 0) {
+			// TODO error
+			return;
 		}
 
 		firstFileName = fileList.get(0).getAbsolutePath();
@@ -182,11 +199,27 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			throw new IllegalArgumentException("No explorer available to read " + firstFileName);
 		}
 
-		for (int i = 1; i < n; i++) {
-			String name = fileList.get(i).getAbsolutePath();
-			if (!getEditorCls(name).contains(edName)) {
-				throw new IllegalArgumentException("Editor cannot read file: " + fileList.get(i).getAbsolutePath());
+		while (l < filesInput.list.length) {
+			Object o = filesInput.list[l++];
+			if (o instanceof IFile) {
+				IFile f = (IFile) o;
+				try {
+					SelectedFile sf = new SelectedFile(n, f);
+					String name = sf.getAbsolutePath();
+					if (!getEditorCls(name).contains(edName)) {
+						logger.warn("Editor cannot read file: {}", name);
+					}
+
+					fileList.add(sf);
+					n++;
+				} catch (IllegalArgumentException e) {
+					logger.warn("Problem with selection: ", e);
+				}
 			}
+		}
+
+		if (n != filesInput.list.length) {
+			// TODO warning
 		}
 
 		setPartName(input.getToolTipText());
@@ -227,7 +260,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			Color colour = null;
 			if (!sf.hasMetaValue() && !useRowIndex.isTrue()) {
 				colour = display.getSystemColor(SWT.COLOR_RED);
-			} else if (sf.getData() == null) {
+			} else if (!sf.hasData()) {
 				colour = display.getSystemColor(SWT.COLOR_YELLOW);
 			}
 			cell.setForeground(colour);
@@ -246,7 +279,6 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		public PathLabelProvider(Display display) {
 			this.display = display;
 		}
-
 
 		@Override
 		public void update(ViewerCell cell) {
@@ -469,38 +501,57 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	@Override
 	public void selectionChanged(SelectionChangedEvent e) {
 		ISelection sel = e.getSelection();
+		boolean refresh = false;
 
-		if (sel instanceof DatasetSelection) {
-			currentDatasetSelection = (DatasetSelection) sel;
-		} else if (sel instanceof MetadataSelection) {
+		if (sel instanceof MetadataSelection) {
 			loadMetaValues(((MetadataSelection) sel).getPathname());
 			useRowIndexAsValue.reset();
+			refresh = true;
+		} else if (sel instanceof DatasetSelection) {
+			currentDatasetSelection = (DatasetSelection) sel;
+			String name;
+			String node;
+			if (currentDatasetSelection instanceof HDF5Selection) {
+				name = ((HDF5Selection) currentDatasetSelection).getNode();
+				node = name.substring(0, name.lastIndexOf(HDF5Node.SEPARATOR)+1);
+			} else {
+				name = currentDatasetSelection.getFirstElement().getName();
+				node = null;
+			}
+			logger.debug("Selected data = {}", name);
+			loadDatasets(name);
+			loadAxisSelections(currentDatasetSelection.getAxes(), node);
+			refresh = true;
 		}
 
 		if (currentDatasetSelection != null) {
-			String name = currentDatasetSelection.getFirstElement().getName();
-			String node = null;
-			if (currentDatasetSelection instanceof HDF5Selection) {
-				node = ((HDF5Selection) currentDatasetSelection).getNode() + HDF5Node.SEPARATOR;
-			}
-			System.out.println("Selected data = " + (node != null ? node + name : name));
-			loadDatasets(name);
+			List<ILazyDataset> dataList = new ArrayList<ILazyDataset>();
+			List<ILazyDataset> metaList = new ArrayList<ILazyDataset>();
+			List<List<AxisSelection>> axesList = new ArrayList<List<AxisSelection>>();
 
-			makeSelection(currentDatasetSelection.getAxes(), node);
-			if (selections != null && checkShapesSame())
-				setSelection(selections);
+			for (SelectedFile f : fileList) {
+				if (f.doUse() && f.hasData() && (useRowIndexAsValue.isTrue() || f.hasMetaValue())) {
+					dataList.add(f.getData());
+					metaList.add(f.getMetaValue());
+					axesList.add(new ArrayList<AxisSelection>(f.getAxisSelections()));
+				}
+			}
+
+			setSelection(createSelection(dataList, metaList, axesList));
 		}
-		
+
 		// TODO sync in GUI thread
-		viewer.refresh();
+		if (refresh)
+			viewer.refresh();
 	}
 
+	/**
+	 * Load metadata values from selected files
+	 */
 	private void loadMetaValues(String key) {
-		System.out.println("Selected metadata = " + key);
+		logger.debug("Selected metadata = {}", key);
+
 		// TODO change column title
-		/*
-		 * iterate through selected files and find metadata values 
-		 */
 		// TODO async outside GUI thread
 		for (SelectedFile f : fileList) {
 			if (!f.hasMetadata() && !f.hasDataHolder()) {
@@ -515,10 +566,10 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 	}
 
+	/**
+	 * Load datasets from selected files
+	 */
 	private void loadDatasets(String key) {
-		/*
-		 * iterate through selected files and find datasets 
-		 */
 		for (SelectedFile f : fileList) {
 			if (!f.hasDataHolder()) {
 				try {
@@ -533,139 +584,174 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	}
 
 	/**
-	 * 
-	 * @return true if shapes are all the same
+	 * Load axis selections from selected files
 	 */
-	private boolean checkShapesSame() {
-		int rank = 0;
-		int[] shape = null;
-		for (SelectedFile f : fileList) {
-			if (!f.doUse())
-				continue;
-			ILazyDataset d = f.getData();
-			if (d == null)
-				continue;
+	private void loadAxisSelections(List<AxisSelection> axes, String node) {
+		boolean isFirst = true;
 
-			if (shape == null) {
-				rank = d.getRank();
-				shape = d.getShape();
-			} else {
-				int[] nshape = d.getShape();
-				if (rank != nshape.length) {
-					return false;
-				}
-				for (int i = 0; i < rank; i++) {
-					if (shape[i] != nshape[i])
-						return false;
+		List<AxisSelection> laxes = new ArrayList<AxisSelection>();
+		for (AxisSelection as : axes)
+			laxes.add(as.clone());
+
+		for (SelectedFile f : fileList) {
+			if (f.doUse() && f.hasData() && (useRowIndexAsValue.isTrue() || f.hasMetaValue())) {
+				if (isFirst) {
+					isFirst = false;
+					f.setAxisSelections(laxes);
+				} else {
+					f.setAxisSelections(makeAxes(laxes, f, node));
 				}
 			}
 		}
 
-		return true;
-	}
+		// prune missing choices
+		List<String> choices = new ArrayList<String>();
+		int rank = axes.size();
+		for (int i = 0; i < rank; i++) {
+			choices.clear();
+			choices.addAll(axes.get(i).getNames());
 
-	/*
-	 * TODO
-	 *  . add in values (check with dataset shape)
-	 *  . 
-	 */
-	/**
-	 * Check shapes and extend if necessary
-	 * @return true if shapes have been made uniform
-	 */
-	private boolean checkShapes() {
-		int lrank = Integer.MAX_VALUE;
-		int hrank = Integer.MIN_VALUE;
-
-		// find upper and lower ranks
-		for (SelectedFile f : fileList) {
-			ILazyDataset d = f.getData();
-			if (d == null)
-				continue;
-
-			int r = d.getRank();
-			if (r < lrank)
-				lrank = r;
-			if (r > hrank)
-				hrank = r;
-		}
-
-		if (lrank != hrank || lrank + 1 != hrank)
-			return false; // can only have difference in rank of one 
-
-		boolean isFirst = true;
-
-		// check if lower dimensions match
-		int[] nshape = new int[hrank];
-		for (SelectedFile f : fileList) {
-			ILazyDataset d = f.getData();
-			if (d == null)
-				continue;
-
-			int[] shape = d.getShape();
-			int offset = shape.length == lrank ? 1 : 0;
-			if (isFirst) {
-				isFirst = false;
-				for (int i = 0; i < shape.length; i++) {
-					nshape[i+offset] = shape[i];
-				}
-				if (offset == 1)
-					nshape[0] = 1;
-			} else {
-				for (int i = 0; i < shape.length; i++) {
-					if (nshape[i+offset] != shape[i]) {
-						f.resetData();
-						break;
+			for (SelectedFile f : fileList) {
+				AxisSelection as = f.getAxisSelections().get(i);
+				for (String n : as) {
+					if (as.getAxis(n) == null) {
+						logger.warn("Removing choice {} as it is missing in {}", n, f.getName());
+						choices.remove(n);
 					}
 				}
 			}
-			if (offset == 1)
-				d.setShape(nshape);
-		}
-		return true;
-	}
 
-	private MultipleDatasetsSelection makeSelection(List<AxisSelection> axes, String node) {
-		/*
-		 * iterate through selected files and find datasets 
-		 */
-		boolean isFirst = true;
-		selections = new MultipleDatasetsSelection();
-
-		for (SelectedFile f : fileList) {
-			if (isFirst) {
-				isFirst = false;
-				if (f.doUse())
-					selections.addDatasetSelection(f.getData(), f.getMetaValue(), axes);
-			} else if (f.doUse()) {
-				selections.addDatasetSelection(f.getData(), f.getMetaValue(), makeAxes(axes, f, node));
+			for (SelectedFile f : fileList) {
+				AxisSelection as = f.getAxisSelections().get(i);
+				for (String n : as) {
+					if (!choices.contains(n)) {
+						as.removeChoice(n);
+					}
+				}
 			}
 		}
-		return selections;
 	}
 
+	/**
+	 * Create axes from file based on other axes
+	 * @param oldAxes
+	 * @param file
+	 * @param node
+	 * @return list of axis selections
+	 */
 	private List<AxisSelection> makeAxes(List<AxisSelection> oldAxes, SelectedFile file, String node) {
 		List<AxisSelection> newAxes = new ArrayList<AxisSelection>();
 		for (AxisSelection a : oldAxes) {
-			AxisSelection n;
-			try {
-				n = a.clone();
-				for (int i = 0, imax = n.size(); i < imax; i++) {
-					AxisChoice c = n.getAxis(i);
-					String name = c.getName();
-					ILazyDataset d = file.getAxis(node != null ? node + name : name);
-					if (Arrays.equals(d.getShape(), a.getAxis(i).getValues().getShape()))
-							c.setValues(d); // FIXME only for same axis shape
+			AxisSelection n = a.clone();
+			for (int i = 0, imax = n.size(); i < imax; i++) {
+				AxisChoice c = n.getAxis(i);
+				String name = c.getName();
+				ILazyDataset d = file.getAxis(node != null ? node + name : name); // can be null (from Index or dim:)
+				if (d == null) {
+					if (name.startsWith(AbstractExplorer.DIM_PREFIX)) {
+						d = c.getValues().clone();
+					}
 				}
-				newAxes.add(n);
-			} catch (CloneNotSupportedException e) {
+				c.setValues(d);
 			}
+			newAxes.add(n);
 		}
 		return newAxes;
 	}
 
+	/**
+	 * Create a data selection from given lists of datasets, metadata value datasets and axis selection lists  
+	 * @param datasets
+	 * @param metavalues
+	 * @param axisSelectionLists
+	 * @return data selection
+	 */
+	public static DatasetSelection createSelection(List<ILazyDataset> datasets, List<ILazyDataset> metavalues, List<List<AxisSelection>> axisSelectionLists) {
+		boolean extend = true;
+		for (ILazyDataset m : metavalues) { // if all metadata is multi-valued then do not extend aggregate shape
+			if (m.getSize() > 1) {
+				extend = false;
+				break;
+			}
+		}
+
+		AggregateDataset allData = new AggregateDataset(extend, datasets.toArray(new ILazyDataset[0]));
+		AggregateDataset allMeta = new AggregateDataset(extend, metavalues.toArray(new ILazyDataset[0]));
+		List<AxisSelection> newAxes = new ArrayList<AxisSelection>();
+		if (extend) { // extra entries as aggregate datasets can have extra dimension
+			for (List<AxisSelection> asl : axisSelectionLists) {
+				asl.add(0, null);
+			}
+		}
+
+		// mash together axes
+		int[] shape = allData.getShape();
+		int rank = shape.length;
+		AxisSelection as;
+		List<ILazyDataset> avalues = new ArrayList<ILazyDataset>();
+
+		// for each dimension,
+		for (int i = 0; i < rank; i++) {
+			as = new AxisSelection(rank, i);
+			newAxes.add(as);
+			if (i == 0) { // add meta values first
+				AxisChoice nc = new AxisChoice(allMeta, 1);
+				int[] map = new int[allMeta.getRank()];
+				for (int j = 0; j < map.length; j++) {
+					map[j] = j;
+				}
+				nc.setIndexMapping(map);
+				nc.setAxisNumber(0);
+				as.addChoice(nc, 1);
+			}
+
+			AxisSelection ias = axisSelectionLists.get(0).get(0); // initial
+			if (ias == null)
+				ias = axisSelectionLists.get(0).get(1);
+
+			for (int k = 0, kmax = ias.size(); k < kmax; k++) { // for each choice
+				avalues.clear();
+				for (List<AxisSelection> asl : axisSelectionLists) { // for each file
+					AxisSelection a = asl.get(i);
+					if (a == null)
+						break; // was extended
+
+					AxisChoice ec = a.getAxis(k);
+					avalues.add(ec.getValues());
+				}
+				if (avalues.size() == 0)
+					break;
+
+				// consume list for choice
+				AggregateDataset allAxis = new AggregateDataset(extend, avalues.toArray(new ILazyDataset[0]));
+				final AxisChoice c = ias.getAxis(i);
+				AxisChoice nc = new AxisChoice(allAxis, c.getPrimary());
+				int[] map = c.getIndexMapping();
+				String name = ias.getName(k);
+				if (extend) {
+					int[] nmap = new int[map.length+1];
+					for (int l = 0; l < map.length; l++) {
+						nmap[l+1] = map[l] + 1;
+					}
+					nc.setIndexMapping(nmap);
+					if (name.startsWith(AbstractExplorer.DIM_PREFIX)) { // increment dim: number
+						int d = Integer.parseInt(name.substring(AbstractExplorer.DIM_PREFIX.length()));
+						name = AbstractExplorer.DIM_PREFIX + (d+1);
+					}
+				} else {
+					nc.setIndexMapping(map.clone());
+				}
+				nc.setAxisNumber(i);
+				as.addChoice(name, nc, ias.getOrder(k));
+			}
+
+			as.selectAxis(0);
+		}
+
+		return new DatasetSelection(InspectorType.LINESTACK, newAxes, allData);
+	}
+
 	private List<ISelectionChangedListener> listeners = new ArrayList<ISelectionChangedListener>();
-	private MultipleDatasetsSelection mSelection = null;
 
 	@Override
 	public void addSelectionChangedListener(ISelectionChangedListener listener) {
@@ -676,7 +762,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 	@Override
 	public ISelection getSelection() {
-		return mSelection;
+		return multipleSelection;
 	}
 
 	@Override
@@ -686,10 +772,10 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 	@Override
 	public void setSelection(ISelection selection) {
-		if (selection instanceof MultipleDatasetsSelection)
-			mSelection = (MultipleDatasetsSelection) selection;
+		if (selection instanceof DatasetSelection)
+			multipleSelection = (DatasetSelection) selection;
 
-		SelectionChangedEvent e = new SelectionChangedEvent(this, mSelection);
+		SelectionChangedEvent e = new SelectionChangedEvent(this, multipleSelection);
 		for (ISelectionChangedListener listener : listeners)
 			listener.selectionChanged(e);
 	}
@@ -754,16 +840,17 @@ class SelectedFile {
 	boolean use = true;
 	int i;
 	File f;
-	boolean hasMetaValue = true;
-	boolean hasData = true;
 	DataHolder h;
 	IMetaData m;
 	ILazyDataset d;
 	Serializable mv;
+	List<AxisSelection> asl;
 
 	public SelectedFile(int index, IFile file) {
 		i = index;
 		f = new File(file.getLocationURI());
+		if (f == null || !f.canRead())
+			throw new IllegalArgumentException("File '" + file.getName() + "' does not exist or can not be read");
 	}
 
 	public String getAbsolutePath() {
@@ -805,6 +892,10 @@ class SelectedFile {
 		return h != null;
 	}
 
+	public boolean hasData() {
+		return d != null;
+	}
+
 	public void setMetadata(IMetaData metadata) {
 		m = metadata;
 	}
@@ -829,12 +920,16 @@ class SelectedFile {
 	}
 
 	public ILazyDataset getAxis(String key) {
-		return h.getLazyDataset(key);
+		return h != null ? h.getLazyDataset(key) : null;
 	}
 
+	private final static String INDEX = "index";
 	public ILazyDataset getMetaValue() {
-		if (mv == null)
-			return null;
+		if (mv == null) {
+			AbstractDataset a = AbstractDataset.array(Integer.valueOf(i));
+			a.setName(INDEX);
+			return a;
+		}
 		if (mv instanceof ILazyDataset)
 			return (ILazyDataset) mv;
 		return AbstractDataset.array(mv);
@@ -846,11 +941,31 @@ class SelectedFile {
 
 		try {
 			mv = m.getMetaValue(key);
+			if (mv instanceof String) {
+				mv = Utils.parseValue((String) mv); // TODO parse common multiple values string
+				if (mv != null) {
+					AbstractDataset a = AbstractDataset.array(mv);
+					a.setName(key);
+					mv = a;
+				}
+			}
 			if (mv == null && h != null) {
 				mv = h.getDataset(key);
 			}
 		} catch (Exception e) {
 		}
 		return mv != null;
+	}
+
+	public void setAxisSelections(List<AxisSelection> axisSelectionList) {
+		asl = axisSelectionList;
+	}
+
+	public List<AxisSelection> getAxisSelections() {
+		return asl;
+	}
+
+	public boolean hasAxisSelections() {
+		return asl != null;
 	}
 }

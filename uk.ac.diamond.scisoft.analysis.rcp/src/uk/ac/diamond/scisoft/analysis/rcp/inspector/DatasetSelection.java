@@ -167,9 +167,10 @@ public class DatasetSelection implements IStructuredSelection {
 				continue;
 			if (!Arrays.equals(a.getShape(), b.getShape()))
 				return false;
-			if (!a.getName().equals(b.getName())) {
+			if (!a.getName().equals(b.getName()))
 				return false;
-			}
+			if (a.hashCode() != b.hashCode())
+				return false;
 		}
 		return true;
 	}

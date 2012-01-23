@@ -23,6 +23,8 @@ import java.util.LinkedList;
  * Represent plot axis used in GUI and model
  */
 public class PlotAxisProperty extends InspectorProperty {
+	private final static String propName = "plotaxis";
+
 	protected PlotAxis plotAxis;
 
 	@Override
@@ -49,7 +51,7 @@ public class PlotAxisProperty extends InspectorProperty {
 		PlotAxis oldValue = this.plotAxis;
 		this.plotAxis = plotAxis;
 
-		fire(new PropertyChangeEvent(this, "plotaxis", oldValue, plotAxis));
+		fire(new PropertyChangeEvent(this, propName, oldValue, plotAxis));
 	}
 
 	public boolean isInSet() {
@@ -100,7 +102,7 @@ public class PlotAxisProperty extends InspectorProperty {
 		plotAxis.setName(name);
 
 		if (fire)
-			fire(new PropertyChangeEvent(this, "plotaxis", oldName, name));
+			fire(new PropertyChangeEvent(this, propName, oldName, name));
 	}
 
 	public void setInSet(boolean inSet) {

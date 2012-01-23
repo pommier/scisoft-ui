@@ -78,49 +78,6 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	 */
 	public static final String HDF5FILENAME_NODEPATH_SEPARATOR = "#";
 
-	public static class HDF5Selection extends DatasetSelection {
-		private String fileName;
-		private String node;
-
-		public HDF5Selection(InspectorType type, String filename, String node, List<AxisSelection> axes, ILazyDataset... dataset) {
-			super(type, axes, dataset);
-			this.fileName = filename;
-			this.node = node;
-		}
-
-		@Override
-		public boolean equals(Object other) {
-			if (super.equals(other) && other instanceof HDF5Selection) {
-				HDF5Selection that = (HDF5Selection) other;
-				if (fileName == null && that.fileName == null)
-					return node.equals(that.node);
-				if (fileName != null && fileName.equals(that.fileName))
-					return node.equals(that.node);
-			}
-			return false;
-		}
-
-		@Override
-		public int hashCode() {
-			int hash = super.hashCode();
-			hash = hash * 17 + node.hashCode();
-			return hash;
-		}
-
-		@Override
-		public String toString() {
-			return node + " = " + super.toString();
-		}
-
-		public String getFileName() {
-			return fileName;
-		}
-
-		public String getNode() {
-			return node;
-		}
-	}
-
 	private HDF5Selection hdf5Selection;
 	private Set<ISelectionChangedListener> cListeners;
 
@@ -504,7 +461,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 
 		for (int i = 0; i < rank; i++) {
 			int dim = shape[i];
-			AxisSelection aSel = new AxisSelection(dim);
+			AxisSelection aSel = new AxisSelection(dim, i);
 			axes.add(i, null); // expand list
 			for (AxisChoice c : choices) {
 				if (c.getAxisNumber() == i) {
@@ -523,7 +480,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 
 			// add in an automatically generated axis with top order so it appears after primary axes
 			AbstractDataset axis = AbstractDataset.arange(dim, AbstractDataset.INT32);
-			axis.setName("dim:" + (i + 1));
+			axis.setName(DIM_PREFIX + (i + 1));
 			AxisChoice newChoice = new AxisChoice(axis);
 			newChoice.setAxisNumber(i);
 			aSel.addChoice(newChoice, aSel.getMaxOrder() + 1);
