@@ -707,9 +707,9 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				as.addChoice(nc, 1);
 			}
 
-			AxisSelection ias = axisSelectionLists.get(0).get(0); // initial
+			AxisSelection ias = axisSelectionLists.get(0).get(i); // initial
 			if (ias == null)
-				ias = axisSelectionLists.get(0).get(1);
+				continue;
 
 			for (int k = 0, kmax = ias.size(); k < kmax; k++) { // for each choice
 				avalues.clear();
@@ -726,7 +726,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 				// consume list for choice
 				AggregateDataset allAxis = new AggregateDataset(extend, avalues.toArray(new ILazyDataset[0]));
-				final AxisChoice c = ias.getAxis(i);
+				final AxisChoice c = ias.getAxis(k);
 				AxisChoice nc = new AxisChoice(allAxis, c.getPrimary());
 				int[] map = c.getIndexMapping();
 				String name = ias.getName(k);
@@ -746,8 +746,6 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				nc.setAxisNumber(i);
 				as.addChoice(name, nc, ias.getOrder(k));
 			}
-
-			as.selectAxis(0);
 		}
 
 		return new DatasetSelection(InspectorType.LINESTACK, newAxes, allData);

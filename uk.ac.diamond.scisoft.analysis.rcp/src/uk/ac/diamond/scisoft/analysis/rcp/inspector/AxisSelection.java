@@ -175,7 +175,7 @@ public class AxisSelection extends InspectorProperty implements Iterable<String>
 	}
 
 	/**
-	 * Add axis choice with given order
+	 * Add axis choice with given order and sets choice to first
 	 * @param axis
 	 * @param order (can be zero to denote last)
 	 */
@@ -187,7 +187,7 @@ public class AxisSelection extends InspectorProperty implements Iterable<String>
 	}
 
 	/**
-	 * Add axis choice with given name and order
+	 * Add axis choice with given name and order and sets choice to first
 	 * @param name
 	 * @param axis
 	 * @param order (can be zero to denote last)
@@ -224,6 +224,7 @@ public class AxisSelection extends InspectorProperty implements Iterable<String>
 				asData.add(j, a);
 			}
 		}
+		selectAxis(0);
 	}
 
 	/**

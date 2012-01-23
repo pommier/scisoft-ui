@@ -268,14 +268,13 @@ public class HDF5Utils {
 			}
 		}
 
-		// set up AxisSelector
 		// build up list of choice per dimension
 		List<AxisSelection> axes  = new ArrayList<AxisSelection>(); // list of axes for each dimension
 
 		for (int i = 0; i < rank; i++) {
 			int dim = shape[i];
 			AxisSelection aSel = new AxisSelection(dim, i);
-			axes.add(i, null); // expand list
+			axes.add(aSel);
 			for (AxisChoice c : choices) {
 				if (c.getAxisNumber() == i) {
 					// add if choice has been designated as for this dimension
@@ -297,10 +296,6 @@ public class HDF5Utils {
 			AxisChoice newChoice = new AxisChoice(axis);
 			newChoice.setAxisNumber(i);
 			aSel.addChoice(newChoice, aSel.getMaxOrder() + 1);
-
-			aSel.reorderChoices();
-			aSel.selectAxis(0);
-			axes.set(i, aSel);
 		}
 
 		return new HDF5Selection(InspectorType.LINE, null, link.getFullName(), axes, cData);
