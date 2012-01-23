@@ -42,12 +42,12 @@ import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
+import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
 import uk.ac.gda.monitor.IMonitor;
 
 public class HDF5Utils {
-
 	private static final Logger logger = LoggerFactory.getLogger(HDF5Utils.class);
-	
+
 	private static final String NXAXES = "axes";
 	private static final String NXAXIS = "axis";
 	private static final String NXLABEL = "label";
@@ -57,16 +57,18 @@ public class HDF5Utils {
 	private static final String NXNAME = "long_name";
 	private static final String SDS = "SDS";
 
-	public static HDF5AxisBean getAxisInfo(HDF5NodeLink link, final boolean isOldGDA) {
-		
-		ILazyDataset        cData= null; // chosen dataset
-		List<AxisSelection> axes = new ArrayList<AxisSelection>(); // list of axes for each dimension
-
+	/**
+	 * Create a (HDF5) dataset selection from given node link. It defaults the inspector type
+	 * to a line and leaves file name null
+	 * @param link
+	 * @param isOldGDA
+	 * @return HDF5 selection
+	 */
+	public static HDF5Selection createDatasetSelection(HDF5NodeLink link, final boolean isOldGDA) {
 		// two cases: axis and primary or axes
 		// iterate through each child to find axes and primary attributes
 		HDF5Node node = link.getDestination();
 		List<AxisChoice> choices = new ArrayList<AxisChoice>();
-		HDF5Attribute axesAttr = null;
 		HDF5Group gNode = null;
 		HDF5Dataset dNode = null;
 
@@ -81,8 +83,6 @@ public class HDF5Utils {
 			if (!dNode.isSupported())
 				return null;
 
-			cData = dNode.getDataset();
-			axesAttr = dNode.getAttribute(NXAXES);
 			gNode = (HDF5Group) link.getSource(); // before hunting for axes
 		} else if (nxClass.equals(NXDATA)) {
 			assert node instanceof HDF5Group;
@@ -92,8 +92,7 @@ public class HDF5Utils {
 				if (l.isDestinationADataset()) {
 					dNode = (HDF5Dataset) l.getDestination();
 					if (dNode.containsAttribute(NXSIGNAL) && dNode.isSupported()) {
-						cData = dNode.getDataset();
-						axesAttr = dNode.getAttribute(NXAXES);
+						link = l;
 						break; // only one signal per NXdata item
 					}
 					dNode = null;
@@ -102,6 +101,8 @@ public class HDF5Utils {
 		}
 
 		if (dNode == null || gNode == null) return null;
+		ILazyDataset cData = dNode.getDataset(); // chosen dataset
+		HDF5Attribute axesAttr = dNode.getAttribute(NXAXES);
 
 		// find possible long name
 		stringAttr = dNode.getAttribute(NXNAME);
@@ -269,7 +270,7 @@ public class HDF5Utils {
 
 		// set up AxisSelector
 		// build up list of choice per dimension
-		axes.clear();
+		List<AxisSelection> axes  = new ArrayList<AxisSelection>(); // list of axes for each dimension
 
 		for (int i = 0; i < rank; i++) {
 			int dim = shape[i];
@@ -302,13 +303,9 @@ public class HDF5Utils {
 			axes.set(i, aSel);
 		}
 
-		final HDF5AxisBean bean = new HDF5AxisBean();
-		bean.setcData(cData);
-		bean.setAxes(axes);
-		return bean;
+		return new HDF5Selection(InspectorType.LINE, null, link.getFullName(), axes, cData);
 	}
 
-	
 	private static final String NXENTRY = "NXentry";
 	private static final String NXPROGRAM = "program_name";
 	private static final String GDAVERSIONSTRING = "GDA ";
@@ -339,7 +336,6 @@ public class HDF5Utils {
 	 * @return true is old
 	 */
 	public static boolean isOldGDAFile(HDF5File tree) {
-		
 		for (HDF5NodeLink link : tree.getGroup()) {
 			if (link.isDestinationAGroup()) {
 				HDF5Group g = (HDF5Group) link.getDestination();

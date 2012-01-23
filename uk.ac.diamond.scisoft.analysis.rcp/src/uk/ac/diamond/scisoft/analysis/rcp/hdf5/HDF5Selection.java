@@ -31,7 +31,7 @@ public class HDF5Selection extends DatasetSelection {
 
 	public HDF5Selection(InspectorType type, String filename, String node, List<AxisSelection> axes, ILazyDataset... dataset) {
 		super(type, axes, dataset);
-		this.fileName = filename;
+		fileName = filename;
 		this.node = node;
 	}
 
@@ -61,6 +61,10 @@ public class HDF5Selection extends DatasetSelection {
 
 	public String getFileName() {
 		return fileName;
+	}
+
+	public void setFileName(final String filename) {
+		fileName = filename;
 	}
 
 	public String getNode() {

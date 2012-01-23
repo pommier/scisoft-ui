@@ -595,7 +595,7 @@ class PlotTab extends ATab {
 				AbstractDataset slicedAxis = DatasetUtils.convertToAbstractDataset(axesData.getSlice(s));
 
 				AbstractDataset reorderdAxesData = DatasetUtils.transpose(slicedAxis, reorderAxesDims);
-				reorderdAxesData.setName(axesData.getName());
+//				reorderdAxesData.setName(axesData.getName());
 
 				reorderdAxesData.setName(c.getLongName());
 
@@ -684,7 +684,7 @@ class PlotTab extends ATab {
 		try {
 			metaDataObject = dataset.getMetadata();
 		} catch (Exception e1) {
-			logger.error("Meta data cannot be retreived from "+dataset.getName(), e1);
+			logger.error("Meta data cannot be retrieved from " + dataset.getName(), e1);
 		}
 
 		switch(itype) {
