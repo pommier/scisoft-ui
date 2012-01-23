@@ -92,6 +92,7 @@ public class JythonCreator implements IStartup {
 		"uk.ac.diamond.org.apache.xmlrpc.client",
 		"uk.ac.diamond.org.apache.xmlrpc.common",
 		"uk.ac.diamond.org.apache.xmlrpc.server",
+		"org.dawb.hdf5"
 	};
 
 	private final static String[] pluginKeys = { "uk.ac.diamond", "uk.ac.gda", "org.dawb.hdf5", "ncsa.hdf"};
