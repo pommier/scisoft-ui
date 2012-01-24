@@ -59,7 +59,7 @@ public class SidePlotUtils {
 			logger.warn("Could not find side plot ",e);
 		}
 		if (sidePlotView == null) {
-			logger.error("Cannot find side plot");
+//			logger.error("Cannot find side plot");
 			throw new IllegalStateException("Cannot find side plot");
 		}
 

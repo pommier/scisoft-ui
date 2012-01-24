@@ -44,8 +44,13 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerCell;
+import org.eclipse.jface.viewers.ViewerDropAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.FileTransfer;
+import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -54,6 +59,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -131,6 +137,14 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	private DatasetSelection currentDatasetSelection;
 	private DatasetSelection multipleSelection;
 
+	private TableColumn valueColumn;
+
+	private FileDialog fileDialog;
+
+	private String editorName;
+
+	private final static String VALUE_DEFAULT_TEXT = "Value";
+
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 	}
@@ -184,12 +198,12 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 		firstFileName = fileList.get(0).getAbsolutePath();
 		List<String> eList = getEditorCls(firstFileName);
-		String edName = null;
+		editorName = null;
 		for (String e : eList) {
 			try {
 				Class edClass = Class.forName(e);
 				Method m = edClass.getMethod("getExplorerClass");
-				edName = e;
+				editorName = e;
 				expClass  = (Class) m.invoke(null);
 				break;
 			} catch (Exception e1) {
@@ -206,7 +220,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				try {
 					SelectedFile sf = new SelectedFile(n, f);
 					String name = sf.getAbsolutePath();
-					if (!getEditorCls(name).contains(edName)) {
+					if (!getEditorCls(name).contains(editorName)) {
 						logger.warn("Editor cannot read file: {}", name);
 					}
 
@@ -223,6 +237,60 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 
 		setPartName(input.getToolTipText());
+	}
+
+	/**
+	 * Add new file to comparison list
+	 * @param path
+	 * @return true, if file can be added
+	 */
+	public boolean addFile(String path) {
+		if (path == null)
+			return false;
+
+		SelectedFile sf = createSelectedFile(path);
+		if (sf == null)
+			return false;
+
+		fileList.add(sf);
+
+		if (currentDatasetSelection != null)
+			selectionChanged(new SelectionChangedEvent(this, currentDatasetSelection));
+		else
+			viewer.refresh();
+
+		return true;
+	}
+
+	private SelectedFile createSelectedFile(String path) {
+		try {
+			SelectedFile sf = new SelectedFile(fileList.size(), path);
+			String name = sf.getAbsolutePath();
+			if (!getEditorCls(name).contains(editorName)) {
+				logger.warn("Editor cannot read file: {}", name);
+				return null;
+			}
+
+			return sf;
+		} catch (IllegalArgumentException e) {
+			logger.warn("Problem with new file: ", e);
+			return null;
+		}
+	}
+
+	/**
+	 * call to bring up a file dialog
+	 */
+	public void addFileUsingFileDialog() {
+		if (fileDialog == null) {
+			fileDialog = new FileDialog(getSite().getShell(), SWT.OPEN);
+		}
+
+		final String path = fileDialog.open();
+
+		if (path != null) {
+			addFile(path);
+		}
 	}
 
 	@Override
@@ -242,11 +310,9 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	private static class TickLabelProvider extends CellLabelProvider {
 		private final Image TICK = AnalysisRCPActivator.getImageDescriptor("icons/tick.png").createImage();
 		private Display display;
-		private BooleanHolder useRowIndex;
 
-		public TickLabelProvider(Display display, BooleanHolder useRowIndexAsValue) {
+		public TickLabelProvider(Display display) {
 			this.display = display;
-			useRowIndex = useRowIndexAsValue;
 		}
 
 		@Override
@@ -258,18 +324,16 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				cell.setImage(null);
 			}
 			Color colour = null;
-			if (!sf.hasMetaValue() && !useRowIndex.isTrue()) {
-				colour = display.getSystemColor(SWT.COLOR_RED);
-			} else if (!sf.hasData()) {
+			if (!sf.hasData()) {
 				colour = display.getSystemColor(SWT.COLOR_YELLOW);
 			}
-			cell.setForeground(colour);
+			cell.setBackground(colour);
 		}
 
 		@Override
 		public String getToolTipText(Object element) {
 			System.out.println(element.toString());
-			return super.getToolTipText("Hello");
+			return "Hello";
 		}
 	}
 
@@ -301,12 +365,22 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		@Override
 		public void update(ViewerCell cell) {
 			SelectedFile sf = (SelectedFile) cell.getElement();
+			Color colour = null;
 			if (useRowIndex.isTrue()) {
 				cell.setText(sf.getIndex());
 			} else {
 				cell.setText(sf.toString());
+				if (!sf.hasMetaValue()) {
+					colour = display.getSystemColor(SWT.COLOR_YELLOW);
+				}
 			}
+			cell.setBackground(colour);
 			cell.setForeground(sf.doUse() ? null : display.getSystemColor(SWT.COLOR_GRAY));
+		}
+
+		@Override
+		public String getToolTipText(Object element) {
+			return "Goodbye";
 		}
 	}
 
@@ -326,8 +400,8 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		tCol.setToolTipText("Toggle to use in dataset inspector");
 		tCol.setWidth(40);
 		tCol.setMoveable(false);
-		tVCol.setEditingSupport(new FCEditingSupport(viewer, Column.TICK, null));
-		tVCol.setLabelProvider(new TickLabelProvider(display, useRowIndexAsValue));
+		tVCol.setEditingSupport(new CFEditingSupport(viewer, Column.TICK, null));
+		tVCol.setLabelProvider(new TickLabelProvider(display));
 
 		tVCol = new TableViewerColumn(viewer, SWT.NONE);
 		tCol = tVCol.getColumn();
@@ -335,16 +409,16 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		tCol.setToolTipText("Name of resource");
 		tCol.setWidth(100);
 		tCol.setMoveable(false);
-		tVCol.setEditingSupport(new FCEditingSupport(viewer, Column.PATH, null));
+		tVCol.setEditingSupport(new CFEditingSupport(viewer, Column.PATH, null));
 		tVCol.setLabelProvider(new PathLabelProvider(display));
 
 		tVCol = new TableViewerColumn(viewer, SWT.NONE);
-		tCol = tVCol.getColumn();
-		tCol.setText("Value");
-		tCol.setToolTipText("Value of resource");
-		tCol.setWidth(40);
-		tCol.setMoveable(false);
-		tVCol.setEditingSupport(new FCEditingSupport(viewer, Column.VALUE, null));
+		valueColumn = tVCol.getColumn();
+		valueColumn.setText(VALUE_DEFAULT_TEXT);
+		valueColumn.setToolTipText("Value of resource");
+		valueColumn.setWidth(40);
+		valueColumn.setMoveable(false);
+		tVCol.setEditingSupport(new CFEditingSupport(viewer, Column.VALUE, null));
 		tVCol.setLabelProvider(new ValueLabelProvider(display, useRowIndexAsValue));
 
 		viewer.setContentProvider(new IStructuredContentProvider() {
@@ -363,6 +437,8 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			}
 		});
 
+		// drop support
+		viewer.addDropSupport(DND.DROP_COPY | DND.DROP_MOVE, new Transfer[] {FileTransfer.getInstance()}, new CFDropAdapter(viewer));
 
 		final Table table = viewer.getTable();
 		table.setHeaderVisible(true);
@@ -381,10 +457,10 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		MenuItem item = new MenuItem(headerMenu, SWT.PUSH);
 		item.setText("Use row index as value");
 		item.addListener(SWT.Selection, new Listener() {
-			
 			@Override
 			public void handleEvent(Event event) {
 				useRowIndexAsValue.set();
+				valueColumn.setText(VALUE_DEFAULT_TEXT);
 				viewer.refresh();
 			}
 		});
@@ -422,11 +498,33 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		getSite().setSelectionProvider(this);
 	}
 
-	final private class FCEditingSupport extends EditingSupport {
+	final private class CFDropAdapter extends ViewerDropAdapter {
+
+		protected CFDropAdapter(Viewer viewer) {
+			super(viewer);
+		}
+
+		@Override
+		public boolean performDrop(Object data) {
+			String[] files = (String[]) data;
+			boolean ok = true;
+			for (String f : files)
+				ok |= addFile(f);
+
+			return ok;
+		}
+
+		@Override
+		public boolean validateDrop(Object target, int operation, TransferData transferType) {
+			return FileTransfer.getInstance().isSupportedType(transferType);
+		}
+	}
+
+	final private class CFEditingSupport extends EditingSupport {
 		private CheckboxCellEditor editor = null;
 		private Column column;
 
-		public FCEditingSupport(TableViewer viewer, Column column, ICellEditorListener listener) {
+		public CFEditingSupport(TableViewer viewer, Column column, ICellEditorListener listener) {
 			super(viewer);
 			if (column == Column.TICK) {
 				editor = new CheckboxCellEditor(viewer.getTable(), SWT.CHECK);
@@ -501,12 +599,12 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	@Override
 	public void selectionChanged(SelectionChangedEvent e) {
 		ISelection sel = e.getSelection();
-		boolean refresh = false;
 
 		if (sel instanceof MetadataSelection) {
-			loadMetaValues(((MetadataSelection) sel).getPathname());
+			final String metaValue = ((MetadataSelection) sel).getPathname();  
+			loadMetaValues(metaValue);
 			useRowIndexAsValue.reset();
-			refresh = true;
+			valueColumn.setText(metaValue);
 		} else if (sel instanceof DatasetSelection) {
 			currentDatasetSelection = (DatasetSelection) sel;
 			String name;
@@ -521,7 +619,8 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			logger.debug("Selected data = {}", name);
 			loadDatasets(name);
 			loadAxisSelections(currentDatasetSelection.getAxes(), node);
-			refresh = true;
+		} else {
+			return;
 		}
 
 		if (currentDatasetSelection != null) {
@@ -540,9 +639,8 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			setSelection(createSelection(dataList, metaList, axesList));
 		}
 
-		// TODO sync in GUI thread
-		if (refresh)
-			viewer.refresh();
+		// TODO? sync in GUI thread
+		viewer.refresh();
 	}
 
 	/**
@@ -551,8 +649,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	private void loadMetaValues(String key) {
 		logger.debug("Selected metadata = {}", key);
 
-		// TODO change column title
-		// TODO async outside GUI thread
+		// TODO? async outside GUI thread
 		for (SelectedFile f : fileList) {
 			if (!f.hasMetadata() && !f.hasDataHolder()) {
 				try {
@@ -705,9 +802,9 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				as.addChoice(nc, 1);
 			}
 
-			AxisSelection ias = axisSelectionLists.get(0).get(0); // initial
+			AxisSelection ias = axisSelectionLists.get(0).get(i); // initial
 			if (ias == null)
-				ias = axisSelectionLists.get(0).get(1);
+				continue;
 
 			for (int k = 0, kmax = ias.size(); k < kmax; k++) { // for each choice
 				avalues.clear();
@@ -716,15 +813,21 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 					if (a == null)
 						break; // was extended
 
-					AxisChoice ec = a.getAxis(k);
-					avalues.add(ec.getValues());
+					ILazyDataset ad = a.getAxis(k).getValues();
+					if (ad == null) {
+						avalues.clear();
+						logger.warn("Missing data for choice {} in dim:{} ", ias.getName(k), i);
+						break;
+					}
+					avalues.add(ad);
 				}
 				if (avalues.size() == 0)
-					break;
+					continue;
 
 				// consume list for choice
 				AggregateDataset allAxis = new AggregateDataset(extend, avalues.toArray(new ILazyDataset[0]));
-				final AxisChoice c = ias.getAxis(i);
+
+				final AxisChoice c = ias.getAxis(k);
 				AxisChoice nc = new AxisChoice(allAxis, c.getPrimary());
 				int[] map = c.getIndexMapping();
 				String name = ias.getName(k);
@@ -744,8 +847,6 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				nc.setAxisNumber(i);
 				as.addChoice(name, nc, ias.getOrder(k));
 			}
-
-			as.selectAxis(0);
 		}
 
 		return new DatasetSelection(InspectorType.LINESTACK, newAxes, allData);
@@ -851,6 +952,13 @@ class SelectedFile {
 		f = new File(file.getLocationURI());
 		if (f == null || !f.canRead())
 			throw new IllegalArgumentException("File '" + file.getName() + "' does not exist or can not be read");
+	}
+
+	public SelectedFile(int index, String file) {
+		i = index;
+		f = new File(file);
+		if (f == null || !f.canRead())
+			throw new IllegalArgumentException("File '" + file + "' does not exist or can not be read");
 	}
 
 	public String getAbsolutePath() {

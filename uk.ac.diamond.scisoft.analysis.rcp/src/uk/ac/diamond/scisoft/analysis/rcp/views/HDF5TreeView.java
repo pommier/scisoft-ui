@@ -52,6 +52,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5TreeExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5Selection;
+import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
 import uk.ac.gda.monitor.ProgressMonitorWrapper;
 
 public class HDF5TreeView extends ViewPart implements IObserver {
@@ -348,7 +349,7 @@ public class HDF5TreeView extends ViewPart implements IObserver {
 
 				if (filename.equals(file)) {
 					String path = fullname.substring(i + 1);
-					hdfxp.handleNode(path);
+					hdfxp.selectHDF5Node(path, InspectorType.LINE);
 				}
 //				logger.debug("File from selected node does not match: {}", file);
 			}
