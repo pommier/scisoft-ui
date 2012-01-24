@@ -28,22 +28,14 @@ import java.util.Set;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.printing.PrintDialog;
-import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.IActionBars;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -551,112 +543,13 @@ public class Plot1DUIAdapter extends AbstractPlotUI {
 		printGraph = new Action() {
 			@Override
 			public void run() {
-//				plotter.printGraph(printerData, 1);
 				plotter.printGraph();
-				
 			}
 		};
 		
 		printGraph.setText(printButtonText);
 		printGraph.setToolTipText(printToolTipText);
 		printGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(printImagePath));
-//		printGraph.setMenuCreator(new IMenuCreator() {
-//			@Override
-//			public Menu getMenu(final Control parent) {
-//				Menu menu = new Menu(parent);
-//				MenuItem item10 = new MenuItem(menu, SWT.None);
-//				item10.setText(listPrintScaleText[0]);
-//				item10.addSelectionListener(new SelectionListener() {
-//					@Override
-//					public void widgetSelected(SelectionEvent e) {
-//						PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
-//						PrinterData printerData = dialog.open();
-//						plotter.printGraph(printerData, 0.1f);
-//					}
-//					@Override
-//					public void widgetDefaultSelected(SelectionEvent e) {}
-//				});
-//				MenuItem item25 = new MenuItem(menu, SWT.None);
-//				item25.setText(listPrintScaleText[1]);
-//				item25.addSelectionListener(new SelectionListener() {
-//					@Override
-//					public void widgetSelected(SelectionEvent e) {
-//						PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
-//						PrinterData printerData = dialog.open();
-//						plotter.printGraph(printerData, 0.25f);
-//					}
-//					@Override
-//					public void widgetDefaultSelected(SelectionEvent e) {}
-//				});
-//				MenuItem item33 = new MenuItem(menu, SWT.None);
-//				item33.setText(listPrintScaleText[2]);
-//				item33.addSelectionListener(new SelectionListener() {
-//					@Override
-//					public void widgetSelected(SelectionEvent e) {
-//						PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
-//						PrinterData printerData = dialog.open();
-//						plotter.printGraph(printerData, 0.33f);
-//					}
-//					@Override
-//					public void widgetDefaultSelected(SelectionEvent e) {}
-//				});
-//				MenuItem item50 = new MenuItem(menu, SWT.None);
-//				item50.setText(listPrintScaleText[3]);
-//				item50.addSelectionListener(new SelectionListener() {
-//					@Override
-//					public void widgetSelected(SelectionEvent e) {
-//						PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
-//						PrinterData printerData = dialog.open();
-//						plotter.printGraph(printerData, 0.5f);
-//					}
-//					@Override
-//					public void widgetDefaultSelected(SelectionEvent e) {}
-//				});
-//				MenuItem item66 = new MenuItem(menu, SWT.None);
-//				item66.setText(listPrintScaleText[4]);
-//				item66.addSelectionListener(new SelectionListener() {
-//					@Override
-//					public void widgetSelected(SelectionEvent e) {
-//						PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
-//						PrinterData printerData = dialog.open();
-//						plotter.printGraph(printerData, 0.66f);
-//					}
-//					@Override
-//					public void widgetDefaultSelected(SelectionEvent e) {}
-//				});
-//				MenuItem item75 = new MenuItem(menu, SWT.None);
-//				item75.setText(listPrintScaleText[5]);
-//				item75.addSelectionListener(new SelectionListener() {
-//					@Override
-//					public void widgetSelected(SelectionEvent e) {
-//						PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
-//						PrinterData printerData = dialog.open();
-//						plotter.printGraph(printerData, 0.75f);
-//					}
-//					@Override
-//					public void widgetDefaultSelected(SelectionEvent e) {}
-//				});
-//				MenuItem item100 = new MenuItem(menu, SWT.None);
-//				item100.setText(listPrintScaleText[6]);
-//				item100.addSelectionListener(new SelectionListener() {
-//					@Override
-//					public void widgetSelected(SelectionEvent e) {
-//						PrintDialog dialog = new PrintDialog(parent.getShell(), SWT.NULL);
-//						PrinterData printerData = dialog.open();
-//						plotter.printGraph(printerData, 1);
-//					}
-//					@Override
-//					public void widgetDefaultSelected(SelectionEvent e) {}
-//				});
-//				return menu;
-//			}
-//			@Override
-//			public Menu getMenu(Menu parent) {
-//				return null;
-//			}
-//			@Override
-//			public void dispose() {}
-//		});
 
 		rightClickOnGraphAction = new Action("Activate right click action.\nWith this action enabled you can right click on the graph to show the data within the current zoom area.\n\nPlease click precisely on the data you require.",IAction.AS_CHECK_BOX)
 		{

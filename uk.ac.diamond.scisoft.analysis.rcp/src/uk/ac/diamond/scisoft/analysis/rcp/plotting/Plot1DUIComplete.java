@@ -350,6 +350,9 @@ public class Plot1DUIComplete extends Plot1DUIAdapter {
 				e.printStackTrace();
 			}
 			
+			//we set the plot/file name
+			plotter.setTitle(page.getActivePart().getTitle());
+			
 			parent.getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {

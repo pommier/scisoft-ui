@@ -308,17 +308,12 @@ public class PlotExportUtil {
 
 		ImageData imageData;
 		Printer printer = new Printer(printerData);
-//		Rectangle area = printer.getClientArea();
+		
 		final Point dpi = printer.getDPI();
 		final int oversampling = dpi.x < 100 ? 1 : 3;
 		if (oversampling == 1) {
 			logger.info("Printer dpi was lower than 100 ({}) so oversampling not used", dpi.x);
 		}
-
-//		final Dimension dims = viewerApp.getCurrentViewer().getViewingComponentSize();
-//		float imageAspect = (float) dims.width / (float) dims.height;
-//
-//		float printAspect = (float) area.width / (float) area.height;
 
 		int printScaleFactor = 1;
 
@@ -328,14 +323,9 @@ public class PlotExportUtil {
 		if (SWT.getPlatform().toLowerCase().equals("gtk"))
 			printScaleFactor = resolutionMultiplier;
 
-//	if (imageAspect > printAspect) {
-//			ExportImage.exportImage(viewerApp.getCurrentViewer(), imageFile, area.height * printScaleFactor, area.width
-//					* printScaleFactor, oversampling);
-			ExportImage.exportImage(viewerApp.getCurrentViewer(), imageFile, viewerApp.getCurrentViewer().getViewingComponentSize().width*printScaleFactor, 
+		ExportImage.exportImage(viewerApp.getCurrentViewer(), imageFile, viewerApp.getCurrentViewer().getViewingComponentSize().width*printScaleFactor, 
 					viewerApp.getCurrentViewer().getViewingComponentSize().height*printScaleFactor, oversampling);
-//		} else {
-//			ExportImage.exportImage(viewerApp.getCurrentViewer(), imageFile, area.width, area.height, oversampling);
-//		}
+
 		ImageLoader loader = new ImageLoader();
 		imageData = loader.load(imageFile.getAbsolutePath())[0];
 		Image reloadedImage = new Image(display, imageData);
@@ -356,7 +346,6 @@ public class PlotExportUtil {
 			legendGap = 10 + Math.max(1, (numActiveEntries / 4)) * 32;
 		}
 
-		//gc.drawImage(reloadedImage, -trim.x, -trim.y);
 		gc.drawImage(reloadedImage, 0, 0, reloadedImage.getBounds().width, reloadedImage.getBounds().height,
 				-trim.x, -trim.y, reloadedImage.getBounds().width, reloadedImage.getBounds().height);
 		if (legendTable != null) {
