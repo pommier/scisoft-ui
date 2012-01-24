@@ -709,6 +709,9 @@ class PlotTab extends ATab {
 			break;
 		case LINESTACK:
 			reorderedData = slicedAndReorderData(monitor, slices, order);
+			if (reorderedData != null && reorderedData.getRank() == 1) {
+				reorderedData.setShape(reorderedData.getSize(), 1);
+			}
 			if (reorderedData == null || reorderedData.getRank() != 2) {
 				try {
 					SDAPlotter.clearPlot(PLOTNAME);
@@ -729,8 +732,8 @@ class PlotTab extends ATab {
 				p.setStop((st == null ? 0 : st) + STACKPLOTLIMIT*s.getStep(), true);
 				return;
 			}
-			AbstractDataset zaxis = slicedAxes.get(1);
 
+			AbstractDataset zaxis = slicedAxes.get(1);
 			AbstractDataset xaxisarray = slicedAxes.get(0);
 
 			AbstractDataset[] xaxes = new AbstractDataset[lines];
@@ -746,10 +749,12 @@ class PlotTab extends ATab {
 			for (int i = 0; i < lines; i++) {
 				AbstractDataset slice = reorderedData.getSlice(new int[] {0, i}, new int[] {dims[0], i+1}, null);
 				slice.squeeze();
-				if (isDimAxis)
+				if (isDimAxis) {
 					slice.setName(String.format("%s[%d]", dataset.getName(), i));
-				else
-					slice.setName(String.format("%s[%d=%s]", dataset.getName(), i, zaxis.getString(i)));
+				} else {
+					String z = lines == 1 && zaxis.getRank() == 0 ? zaxis.getString() : zaxis.getString(i);
+					slice.setName(String.format("%s[%d=%s]", dataset.getName(), i, z));
+				}
 				yaxes[i] = slice;
 			}
 			try {
