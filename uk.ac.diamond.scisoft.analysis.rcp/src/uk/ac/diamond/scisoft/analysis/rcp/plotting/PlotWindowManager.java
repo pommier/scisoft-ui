@@ -72,10 +72,14 @@ public class PlotWindowManager implements IPlotWindowManager, IObservable, IIsBe
 				logger.error("Unable to register PlotWindowManager for use over RMI", e);
 			}
 
-			// register as an RPC service
-			IAnalysisRpcHandler dispatcher = new AnalysisRpcSyncExecDispatcher(IPlotWindowManager.class, manager);
-			AnalysisRpcServerProvider.getInstance().addHandler(PlotWindow.RPC_SERVICE_NAME, dispatcher);
-
+			try {
+				// register as an RPC service
+				IAnalysisRpcHandler dispatcher = new AnalysisRpcSyncExecDispatcher(IPlotWindowManager.class, manager);
+				AnalysisRpcServerProvider.getInstance().addHandler(PlotWindow.RPC_SERVICE_NAME, dispatcher);
+			} catch (Exception e) {
+				logger.error("Unable to register PlotWindowManager as RPC service", e);
+				manager = null;
+			}
 		}
 		return manager;
 	}
