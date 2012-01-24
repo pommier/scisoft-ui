@@ -1591,5 +1591,19 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.contributions.NeXusScansCheatsheet"
             name="NeXus Data Files">
       </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.divatutorial"
+            composite="false"
+            contentFile="cheat/DiffractionViewerLookAtDifractionData.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.divalookatdata"
+            name="DIVA - Look at diffraction data">
+      </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.divatutorial"
+            composite="false"
+            contentFile="cheat/DiffractionViewerLookAtSpotProfiles.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.divaspotprofile"
+            name="DIVA - Look at Spot Profiles">
+      </cheatsheet>
    </extension>
 </fragment>

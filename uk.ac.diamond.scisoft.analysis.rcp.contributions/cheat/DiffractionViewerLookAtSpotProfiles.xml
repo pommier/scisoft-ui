@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet
+      title="DIVA - Looking at Spot Profiles">
+   	<intro>
+      	<description>
+        	This Tutorial will show you how to get a first look at diffraction spots in images to see the quality of collected data.
+    	</description>
+   	</intro>
+   	<item title="Open DIVA Perspective">
+   		<command required="true"
+   			serialization="org.eclipse.ui.perspectives.showPerspective(org.eclipse.ui.perspectives.showPerspective.perspectiveId=uk.ac.diamond.scisoft.diffractionviewerperspective)"/>
+   		<description>	
+   			The DIVA perspective is designed to make looking at diffraction images as easy as possible.
+   		</description>
+	</item>
+</cheatsheet> 
