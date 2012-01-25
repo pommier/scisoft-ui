@@ -228,7 +228,8 @@ public class PlotEditor extends EditorPart implements ISelectionProvider, IReusa
 
 	@Override
 	public void setFocus() {
-		// Nothing to do
+		//set the focus on the editor part!!
+		viewer.getControl().setFocus();
 	}
 
 	@Override
