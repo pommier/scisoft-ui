@@ -123,7 +123,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 			if (element.isDirectory()) {
 				treeViewer.setChildCount(element, 1); // 1 for now
 				if (updateChildThread==null) updateChildThread = createUpdateThread(childQueue, 2, "Update child size");
-				childQueue.add(new ChildUpdateRequest(element)); // process size from queue
+				childQueue.add(new ChildUpdateRequest(element, false)); // process size from queue
 			} else {
 				treeViewer.setChildCount(element, 0);
 			}
@@ -143,7 +143,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		
 		if (PlatformUI.isWorkbenchRunning()) {
 			if (updateChildThread==null) updateChildThread = createUpdateThread(childQueue, 2, "Update child size");
-			childQueue.add(new ChildUpdateRequest(element));
+			childQueue.add(new ChildUpdateRequest(element, true));
 		} else {
 			updateChildCountInternal(element, currentChildCount);
 		}
@@ -322,9 +322,13 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	
 	private class ChildUpdateRequest extends UpdateRequest {
 
-		public ChildUpdateRequest(Object element) {
+		private boolean updateBusyRequired;
+
+
+		public ChildUpdateRequest(Object element, boolean updateBusyRequired) {
 			super();
 			this.element = element;
+			this.updateBusyRequired = updateBusyRequired;
 		}
 
 
@@ -333,7 +337,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 			
 			try {
 				
-				updateBusy(childQueue, true);
+				if (updateBusyRequired) updateBusy(childQueue, true);
 				
 				final File   node = (File)element;
 				final Object[] fa = node.list(); // Only way speed up - use JNA and rely on unix command which has been tuned.
@@ -352,7 +356,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 				
 			} finally {
 				
-			    updateBusy(childQueue, true);
+			    if (updateBusyRequired) updateBusy(childQueue, true);
 			}
 			
 			return true;
