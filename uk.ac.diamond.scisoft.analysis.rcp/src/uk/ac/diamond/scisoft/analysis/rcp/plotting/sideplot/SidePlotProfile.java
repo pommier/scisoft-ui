@@ -53,6 +53,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIDataList;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIHandles;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROITableViewer;
+import uk.ac.diamond.scisoft.analysis.rcp.queue.InteractiveQueue;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.analysis.roi.MaskingBean;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
@@ -102,6 +103,18 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 	protected boolean isBulkUpdate = false; // this is set true when updating many widgets' selection
 
 	protected BooleanDataset mask;
+
+	protected InteractiveQueue roiQueue;
+
+	public SidePlotProfile() {
+		roiQueue = new InteractiveQueue();
+	}
+
+	@Override
+	public void dispose() {
+		roiQueue.dispose();
+		super.dispose();
+	}
 
 	public int calcHandleSize(final int[] shape) {
 		int tsize;
