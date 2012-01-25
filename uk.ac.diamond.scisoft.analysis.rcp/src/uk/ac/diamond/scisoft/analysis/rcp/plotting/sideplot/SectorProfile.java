@@ -21,11 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.IJobManager;
-import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.SWT;
@@ -76,6 +71,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.SectorROIData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.SectorROIHandler;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.SectorROITableViewer;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
+import uk.ac.diamond.scisoft.analysis.rcp.queue.InteractiveJobAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.scisoft.analysis.roi.SectorROI;
@@ -133,286 +129,61 @@ public class SectorProfile extends SidePlotProfile {
 	private Button centreLock, centreReset, centreCentroid;
 	private boolean lockCentre;
 
-	private String sectorJobFamily = "SectorJob";
-	private String sideplotJobFamily = "SideplotJob";
-	private IJobManager jobManager;
-	private SectorMutex sectorJobMutex;
-	
-	
-	private class SectorJob extends Job {
+	private class SectorJob extends InteractiveJobAdapter {
 		private SectorROI sroi = null;
+		private boolean subsample;
 
-		public SectorJob() {
-			super("Sector profile calculation");
-			setSystem(true);
-			setPriority(Job.DECORATE);
-		}
-
-		public void setROI(SectorROI sroi) {
+		public SectorJob(SectorROI sroi, boolean quick) {
 			this.sroi = sroi;
+			subsample = quick;
 		}
 
 		@Override
-		protected IStatus run(IProgressMonitor monitor) {
+		public void run(IProgressMonitor monitor) {
+			if (isNull())
+				return;
+
 			if (monitor != null) monitor.worked(1);
-			if (sroi != null) {
+
+			if (subsample)
+				roiData = new SectorROIData(sroi, subData, mask, subFactor);
+			else {
+				if (oProvider!=null) oProvider.setPlotAreaCursor(SWT.CURSOR_WAIT);
+
 				roiData = new SectorROIData(sroi, data, mask);
-				jobManager.cancel(sideplotJobFamily);
-				SideplotJob sideplotJob = new SideplotJob();
-				sideplotJob.setROI(sroi);
-				sideplotJob.schedule();
-				try {
-					sideplotJob.join();
-				} catch (InterruptedException e) {
-					logger.error("Sideplot update interrupted", e);
-				}
+
+				if (oProvider!=null) oProvider.restoreDefaultPlotAreaCursor();
 			}
-			if (monitor != null) monitor.done();
-			return Status.OK_STATUS;
+			if (monitor != null) {
+				if (monitor.isCanceled())
+					return;
+
+				monitor.worked(1);
+			}
+
+			if (roiData.isPlot())
+				drawPlots(sroi);
+
+			if (monitor != null) monitor.worked(1);
+
+			getControl().getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					txSum.setText(String.format("%.3e", roiData.getProfileSum()));
+				}
+			});
 		}
-		
+
 		@Override
-		public boolean belongsTo(Object family) {
-			return sectorJobFamily.equals(family);
+		public boolean isNull() {
+			return sroi == null;
 		}
 	}
-	
-	private class SectorMutex implements ISchedulingRule {
 
-		@Override
-		public boolean contains(ISchedulingRule rule) {
-			return (this == rule);
-		}
-
-		@Override
-		public boolean isConflicting(ISchedulingRule rule) {
-			return (this == rule);
-		}
-		
-	}
-
-	private class SideplotJob extends Job {
-		private Plot1DGraphTable colourTable;
-		private Plot1DAppearance newApp;
-		private int p, l;
-		private int nHistory;
-
-		ArrayList<IDataset> plots;
-		List<AxisValues> paxes;
-		
-		public SideplotJob() {
-			super("Sideplot update");
-			plots = new ArrayList<IDataset>();
-			paxes = new ArrayList<AxisValues>();
-			
-			setSystem(true);
-			setPriority(Job.INTERACTIVE);
-		}
-
-		private SectorROI sroi = null;
-
-		public void setROI(SectorROI sroi) {
-			this.sroi = sroi;
-		}
-
-		@Override
-		public boolean belongsTo(Object family) {
-			return sideplotJobFamily.equals(family);
-		}
-		
-		@Override
-		protected IStatus run(IProgressMonitor monitor) {
-
-			l = p = 0;
-			colourTable = radPlotter.getColourTable();
-			nHistory = radPlotter.getNumHistory();
-
-			if (sroi != null && roiData.getProfileData() != null) {
-				if (l + nHistory >= colourTable.getLegendSize()) {
-					newApp = new Plot1DAppearance(PlotColorUtility.getDefaultColour(p), Plot1DStyles.SOLID, "Line 1");
-					colourTable.addEntryOnLegend(l, newApp);
-				} else {
-					newApp = colourTable.getLegendEntry(l);
-					newApp.setColour(PlotColorUtility.getDefaultColour(p));
-					newApp.setStyle(Plot1DStyles.SOLID);
-					newApp.setName("Line 1");
-				}
-
-				plots.add(roiData.getProfileData(0));
-				paxes.add(roiData.getXAxis(0));
-
-				if (sroi.hasSeparateRegions()) {
-					l++;
-					if (l + nHistory >= colourTable.getLegendSize()) {
-						newApp = new Plot1DAppearance(PlotColorUtility.getDefaultColour(p), Plot1DStyles.DASHED,
-								"Symmetry Line 1");
-						colourTable.addEntryOnLegend(l, newApp);
-					} else {
-						newApp = colourTable.getLegendEntry(l);
-						newApp.setColour(PlotColorUtility.getDefaultColour(p));
-						newApp.setStyle(Plot1DStyles.DASHED);
-						newApp.setName("Symmetry Line 1");
-					}
-
-					plots.add(roiData.getProfileData(2));
-					paxes.add(roiData.getXAxis(2));
-				}
-				l++;
-				p++;
-			}
-
-			for (int i = 0, imax = roiDataList.size(); i < imax; i++) {
-				SectorROIData rd = (SectorROIData) roiDataList.get(i);
-				Color colour = PlotColorUtility.getDefaultColour(i + 1);
-				RGB rgb = new RGB(colour.getRed(), colour.getGreen(), colour.getBlue());
-				rd.setPlotColourRGB(rgb);
-
-				if (rd.isPlot() && rd.getProfileData() != null) {
-					plots.add(rd.getProfileData(0));
-					paxes.add(rd.getXAxis(0));
-					if (l + nHistory >= colourTable.getLegendSize()) {
-						newApp = new Plot1DAppearance(colour, Plot1DStyles.SOLID, "Line " + (p + 1));
-						colourTable.addEntryOnLegend(l, newApp);
-					} else {
-						newApp = colourTable.getLegendEntry(l);
-						newApp.setColour(colour);
-						newApp.setStyle(Plot1DStyles.SOLID);
-						newApp.setName("Line " + (p + 1));
-					}
-
-					if (rd.getROI().hasSeparateRegions()) {
-						l++;
-						if (l + nHistory >= colourTable.getLegendSize()) {
-							newApp = new Plot1DAppearance(colour, Plot1DStyles.DASHED, "Symmetry Line " + (p + 1));
-							colourTable.addEntryOnLegend(l, newApp);
-						} else {
-							newApp = colourTable.getLegendEntry(l);
-							newApp.setColour(colour);
-							newApp.setStyle(Plot1DStyles.DASHED);
-							newApp.setName("Symmetry Line " + (p + 1));
-						}
-
-						plots.add(rd.getProfileData(2));
-						paxes.add(rd.getXAxis(2));
-					}
-					l++;
-					p++;
-				}
-			}
-
-			while (nHistory-- > 0) { // tidy up history colours
-				newApp = colourTable.getLegendEntry(l++);
-				newApp.setColour(PlotColorUtility.getDefaultColour(p++));
-			}
-
-			try {
-				radPlotter.replaceAllPlots(plots, paxes);
-			} catch (PlotException e) {
-				e.printStackTrace();
-			}
-
-			plots.clear();
-			paxes.clear();
-
-			l = p = 0;
-			colourTable = aziPlotter.getColourTable();
-			nHistory = aziPlotter.getNumHistory();
-			if (sroi != null && roiData.getProfileData() != null) {
-				if (l + nHistory >= colourTable.getLegendSize()) {
-					newApp = new Plot1DAppearance(PlotColorUtility.getDefaultColour(p), Plot1DStyles.SOLID, "Line 1");
-					colourTable.addEntryOnLegend(l, newApp);
-				} else {
-					newApp = colourTable.getLegendEntry(l);
-					newApp.setColour(PlotColorUtility.getDefaultColour(p));
-					newApp.setStyle(Plot1DStyles.SOLID);
-					newApp.setName("Line 1");
-				}
-
-				plots.add(roiData.getProfileData(1));
-				paxes.add(roiData.getXAxis(1));
-
-				if (sroi.hasSeparateRegions()) {
-					l++;
-					if (l + nHistory >= colourTable.getLegendSize()) {
-						newApp = new Plot1DAppearance(PlotColorUtility.getDefaultColour(p), Plot1DStyles.DASHED,
-								"Symmetry Line 1");
-						colourTable.addEntryOnLegend(l, newApp);
-					} else {
-						newApp = colourTable.getLegendEntry(l);
-						newApp.setColour(PlotColorUtility.getDefaultColour(p));
-						newApp.setStyle(Plot1DStyles.DASHED);
-						newApp.setName("Symmetry Line 1");
-					}
-
-					plots.add(roiData.getProfileData(3));
-					paxes.add(roiData.getXAxis(3));
-				}
-				l++;
-				p++;
-			}
-
-			for (int i = 0, imax = roiDataList.size(); i < imax; i++) {
-				SectorROIData rd = (SectorROIData) roiDataList.get(i);
-				if (rd.isPlot() && rd.getProfileData() != null) {
-					plots.add(rd.getProfileData(1));
-					paxes.add(rd.getXAxis(1));
-					if (l + nHistory >= colourTable.getLegendSize()) {
-						newApp = new Plot1DAppearance(rd.getPlotColour(), Plot1DStyles.SOLID, "Line " + (p + 1));
-						colourTable.addEntryOnLegend(l, newApp);
-					} else {
-						newApp = colourTable.getLegendEntry(l);
-						newApp.setColour(rd.getPlotColour());
-						newApp.setStyle(Plot1DStyles.SOLID);
-						newApp.setName("Line " + (p + 1));
-					}
-
-					if (rd.getROI().hasSeparateRegions()) {
-						l++;
-						if (l + nHistory >= colourTable.getLegendSize()) {
-							newApp = new Plot1DAppearance(rd.getPlotColour(), Plot1DStyles.DASHED,
-									"Symmetry Line " + (p + 1));
-							colourTable.addEntryOnLegend(l, newApp);
-						} else {
-							newApp = colourTable.getLegendEntry(l);
-							newApp.setColour(rd.getPlotColour());
-							newApp.setStyle(Plot1DStyles.DASHED);
-							newApp.setName("Symmetry Line " + (p + 1));
-						}
-
-						plots.add(rd.getProfileData(3));
-						paxes.add(rd.getXAxis(3));
-					}
-					l++;
-					p++;
-				}
-			}
-
-			while (nHistory-- > 0) { // tidy up history colours
-				newApp = colourTable.getLegendEntry(l++);
-				newApp.setColour(PlotColorUtility.getDefaultColour(p++));
-			}
-
-			try {
-				aziPlotter.replaceAllPlots(plots, paxes);
-			} catch (PlotException e) {
-				e.printStackTrace();
-			}
-
-			radPlotter.updateAllAppearance();
-			radPlotter.refresh(false);
-			aziPlotter.updateAllAppearance();
-			aziPlotter.refresh(false);
-			return Status.OK_STATUS;
-		}
-		
-	}
-	
 	public SectorProfile() {
 		super();
 		roiClass = SectorROI.class;
 		roiListClass = SectorROIList.class;
-		jobManager= Job.getJobManager();
-		sectorJobMutex = new SectorMutex();
 	}
 
 	/**
@@ -697,25 +468,213 @@ public class SectorProfile extends SidePlotProfile {
 		}
 
 		if (sroi != null) {
-			if (oProvider!=null) oProvider.setPlotAreaCursor(SWT.CURSOR_WAIT);
-			SectorJob sectorJob = new SectorJob();
-			sectorJob.setROI(sroi);
-			jobManager.cancel(sectorJobFamily);
-			sectorJob.setRule(sectorJobMutex);
-			sectorJob.schedule();
-
-			if (oProvider!=null) oProvider.restoreDefaultPlotAreaCursor();
-			
-			if (roiData == null) return;
-			else if (!roiData.isPlot())	return;
-
-			getControl().getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					txSum.setText(String.format("%.3e", roiData.getProfileSum()));
+			if (dragging && subData != null) {
+				try {
+					final SectorJob obj = new SectorJob(sroi, true);
+					roiQueue.addJob(obj);
+				} catch (Exception e) {
+					logger.error("Cannot generate ROI data", e);
 				}
-			});
+			} else {
+				try {
+					final SectorJob obj = new SectorJob(sroi, false);
+					roiQueue.addJob(obj);
+				} catch (Exception e) {
+					logger.error("Cannot generate ROI data", e);
+				}
+			}
 		}
+	}
+
+	public void drawPlots(SectorROI sroi) {
+		Plot1DGraphTable colourTable;
+		Plot1DAppearance newApp;
+		int p, l;
+		int nHistory;
+
+		List<IDataset> plots = new ArrayList<IDataset>();
+		List<AxisValues> paxes = new ArrayList<AxisValues>();
+		
+		l = p = 0;
+		colourTable = radPlotter.getColourTable();
+		nHistory = radPlotter.getNumHistory();
+
+		if (sroi != null && roiData.getProfileData() != null) {
+			if (l + nHistory >= colourTable.getLegendSize()) {
+				newApp = new Plot1DAppearance(PlotColorUtility.getDefaultColour(p), Plot1DStyles.SOLID, "Line 1");
+				colourTable.addEntryOnLegend(l, newApp);
+			} else {
+				newApp = colourTable.getLegendEntry(l);
+				newApp.setColour(PlotColorUtility.getDefaultColour(p));
+				newApp.setStyle(Plot1DStyles.SOLID);
+				newApp.setName("Line 1");
+			}
+
+			plots.add(roiData.getProfileData(0));
+			paxes.add(roiData.getXAxis(0));
+
+			if (sroi.hasSeparateRegions()) {
+				l++;
+				if (l + nHistory >= colourTable.getLegendSize()) {
+					newApp = new Plot1DAppearance(PlotColorUtility.getDefaultColour(p), Plot1DStyles.DASHED,
+							"Symmetry Line 1");
+					colourTable.addEntryOnLegend(l, newApp);
+				} else {
+					newApp = colourTable.getLegendEntry(l);
+					newApp.setColour(PlotColorUtility.getDefaultColour(p));
+					newApp.setStyle(Plot1DStyles.DASHED);
+					newApp.setName("Symmetry Line 1");
+				}
+
+				plots.add(roiData.getProfileData(2));
+				paxes.add(roiData.getXAxis(2));
+			}
+			l++;
+			p++;
+		}
+
+		for (int i = 0, imax = roiDataList.size(); i < imax; i++) {
+			SectorROIData rd = (SectorROIData) roiDataList.get(i);
+			Color colour = PlotColorUtility.getDefaultColour(i + 1);
+			RGB rgb = new RGB(colour.getRed(), colour.getGreen(), colour.getBlue());
+			rd.setPlotColourRGB(rgb);
+
+			if (rd.isPlot() && rd.getProfileData() != null) {
+				plots.add(rd.getProfileData(0));
+				paxes.add(rd.getXAxis(0));
+				if (l + nHistory >= colourTable.getLegendSize()) {
+					newApp = new Plot1DAppearance(colour, Plot1DStyles.SOLID, "Line " + (p + 1));
+					colourTable.addEntryOnLegend(l, newApp);
+				} else {
+					newApp = colourTable.getLegendEntry(l);
+					newApp.setColour(colour);
+					newApp.setStyle(Plot1DStyles.SOLID);
+					newApp.setName("Line " + (p + 1));
+				}
+
+				if (rd.getROI().hasSeparateRegions()) {
+					l++;
+					if (l + nHistory >= colourTable.getLegendSize()) {
+						newApp = new Plot1DAppearance(colour, Plot1DStyles.DASHED, "Symmetry Line " + (p + 1));
+						colourTable.addEntryOnLegend(l, newApp);
+					} else {
+						newApp = colourTable.getLegendEntry(l);
+						newApp.setColour(colour);
+						newApp.setStyle(Plot1DStyles.DASHED);
+						newApp.setName("Symmetry Line " + (p + 1));
+					}
+
+					plots.add(rd.getProfileData(2));
+					paxes.add(rd.getXAxis(2));
+				}
+				l++;
+				p++;
+			}
+		}
+
+		while (nHistory-- > 0) { // tidy up history colours
+			newApp = colourTable.getLegendEntry(l++);
+			newApp.setColour(PlotColorUtility.getDefaultColour(p++));
+		}
+
+		try {
+			radPlotter.replaceAllPlots(plots, paxes);
+		} catch (PlotException e) {
+			e.printStackTrace();
+		}
+
+		plots.clear();
+		paxes.clear();
+
+		l = p = 0;
+		colourTable = aziPlotter.getColourTable();
+		nHistory = aziPlotter.getNumHistory();
+		if (sroi != null && roiData.getProfileData() != null) {
+			if (l + nHistory >= colourTable.getLegendSize()) {
+				newApp = new Plot1DAppearance(PlotColorUtility.getDefaultColour(p), Plot1DStyles.SOLID, "Line 1");
+				colourTable.addEntryOnLegend(l, newApp);
+			} else {
+				newApp = colourTable.getLegendEntry(l);
+				newApp.setColour(PlotColorUtility.getDefaultColour(p));
+				newApp.setStyle(Plot1DStyles.SOLID);
+				newApp.setName("Line 1");
+			}
+
+			plots.add(roiData.getProfileData(1));
+			paxes.add(roiData.getXAxis(1));
+
+			if (sroi.hasSeparateRegions()) {
+				l++;
+				if (l + nHistory >= colourTable.getLegendSize()) {
+					newApp = new Plot1DAppearance(PlotColorUtility.getDefaultColour(p), Plot1DStyles.DASHED,
+							"Symmetry Line 1");
+					colourTable.addEntryOnLegend(l, newApp);
+				} else {
+					newApp = colourTable.getLegendEntry(l);
+					newApp.setColour(PlotColorUtility.getDefaultColour(p));
+					newApp.setStyle(Plot1DStyles.DASHED);
+					newApp.setName("Symmetry Line 1");
+				}
+
+				plots.add(roiData.getProfileData(3));
+				paxes.add(roiData.getXAxis(3));
+			}
+			l++;
+			p++;
+		}
+
+		for (int i = 0, imax = roiDataList.size(); i < imax; i++) {
+			SectorROIData rd = (SectorROIData) roiDataList.get(i);
+			if (rd.isPlot() && rd.getProfileData() != null) {
+				plots.add(rd.getProfileData(1));
+				paxes.add(rd.getXAxis(1));
+				if (l + nHistory >= colourTable.getLegendSize()) {
+					newApp = new Plot1DAppearance(rd.getPlotColour(), Plot1DStyles.SOLID, "Line " + (p + 1));
+					colourTable.addEntryOnLegend(l, newApp);
+				} else {
+					newApp = colourTable.getLegendEntry(l);
+					newApp.setColour(rd.getPlotColour());
+					newApp.setStyle(Plot1DStyles.SOLID);
+					newApp.setName("Line " + (p + 1));
+				}
+
+				if (rd.getROI().hasSeparateRegions()) {
+					l++;
+					if (l + nHistory >= colourTable.getLegendSize()) {
+						newApp = new Plot1DAppearance(rd.getPlotColour(), Plot1DStyles.DASHED, "Symmetry Line "
+								+ (p + 1));
+						colourTable.addEntryOnLegend(l, newApp);
+					} else {
+						newApp = colourTable.getLegendEntry(l);
+						newApp.setColour(rd.getPlotColour());
+						newApp.setStyle(Plot1DStyles.DASHED);
+						newApp.setName("Symmetry Line " + (p + 1));
+					}
+
+					plots.add(rd.getProfileData(3));
+					paxes.add(rd.getXAxis(3));
+				}
+				l++;
+				p++;
+			}
+		}
+
+		while (nHistory-- > 0) { // tidy up history colours
+			newApp = colourTable.getLegendEntry(l++);
+			newApp.setColour(PlotColorUtility.getDefaultColour(p++));
+		}
+
+		try {
+			aziPlotter.replaceAllPlots(plots, paxes);
+		} catch (PlotException e) {
+			e.printStackTrace();
+		}
+
+		radPlotter.updateAllAppearance();
+		radPlotter.refresh(false);
+		aziPlotter.updateAllAppearance();
+		aziPlotter.refresh(false);
+
 	}
 
 	/**
