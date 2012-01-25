@@ -335,8 +335,9 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 				
 				updateBusy(childQueue, true);
 				
-				final File node = (File)element;
-				final File[] fa = node.listFiles();
+				final File   node = (File)element;
+				final Object[] fa = node.list(); // Only way speed up - use JNA and rely on unix command which has been tuned.
+				final int    size = fa==null||fa.length<1 ? 0 : fa.length;
 
 				if (treeViewer.getControl().isDisposed()) return false;
 				treeViewer.getControl().getDisplay().asyncExec(new Runnable() {
@@ -344,7 +345,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 					public void run() {
 						if (treeViewer.getControl().isDisposed()) return;
 
-						updateChildCountInternal(node, fa==null||fa.length<1 ? 0 : fa.length);
+						updateChildCountInternal(node, size);
 					}
 				});
 				    
@@ -402,6 +403,32 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		thread.start();
 
 		return thread;
+	}
+	
+	/**
+	 * Method to find out if list() or listFiles() is faster
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		
+		final File dir = new File("E:/Data_Backup/ID22-ODA-Complete");
+		
+		long start, end;
+		Object[] fa;
+		
+		start = System.currentTimeMillis();
+		fa = dir.listFiles();
+		end = System.currentTimeMillis();		
+		System.out.print("Time to listFiles(): "+(end-start)+"\n");
+
+		start = System.currentTimeMillis();
+		fa = dir.list();
+		end = System.currentTimeMillis();		
+		System.out.print("Time to list(): "+(end-start)+"\n");
+
+		
+		
+
 	}
 
 }
