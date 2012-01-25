@@ -18,6 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.inspector;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Arrays;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -218,7 +219,10 @@ public class AxisSlicer {
 		} else
 			adata = DatasetUtils.convertToAbstractDataset(axisData.getSlice());
 
-		assert adata.getRank() == 1 : adata.getShape();
+		if (adata.getRank() == 0)
+			adata.setShape(1);
+
+		assert adata.getRank() == 1 : Arrays.toString(adata.getShape());
 	}
 
 	private void init(boolean reset) {
