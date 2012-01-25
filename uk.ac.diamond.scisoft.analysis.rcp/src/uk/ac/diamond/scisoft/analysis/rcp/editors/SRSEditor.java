@@ -90,13 +90,14 @@ public class SRSEditor extends EditorPart {
 		}
 
 		site.setSelectionProvider(srsxp);
-
 		// Register selection listener
 		registerSelectionListener();
 	}
 
 	@Override
 	public void setFocus() {
+		//set the focus on the editor part!!
+		srsxp.setFocus();
 	}
 
 	private ISelectionListener selectionListener;
