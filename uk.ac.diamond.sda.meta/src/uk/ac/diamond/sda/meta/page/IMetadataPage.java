@@ -10,5 +10,6 @@ public interface IMetadataPage {
 	 */
 	public void setMetaData(IMetaData metadata);
 	
-
+	
+	
 }

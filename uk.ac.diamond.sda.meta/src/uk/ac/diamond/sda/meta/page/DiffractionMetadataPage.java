@@ -4,7 +4,6 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -27,15 +26,13 @@ import uk.ac.diamond.scisoft.analysis.diffraction.DiffractionCrystalEnvironment;
 import uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.diamond.scisoft.analysis.rcp.views.ISidePage;
-import uk.ac.diamond.scisoft.analysis.rcp.views.ISidePlotPart;
-import uk.ac.diamond.scisoft.analysis.rcp.views.ISidePlotPart.SidePlotPreference;
 import uk.ac.diamond.sda.meta.Activator;
 
-public class DiffractionMetadataPage extends Page implements IAdaptable, ISidePage, IMetadataPage{
+public class DiffractionMetadataPage extends Page implements IAdaptable, IMetadataPage{
 
 	
 	private static final Logger logger = LoggerFactory.getLogger(DiffractionMetadataPage.class);
+	
 	private Text wavelength;
 	private Text phiStart;
 	private Text phiStop;
@@ -55,7 +52,9 @@ public class DiffractionMetadataPage extends Page implements IAdaptable, ISidePa
 	private Text yBeam;
 	private Composite               content;
 	
-	
+	public DiffractionMetadataPage(){
+		
+	}
 
 	
 	@Override
@@ -301,7 +300,7 @@ public class DiffractionMetadataPage extends Page implements IAdaptable, ISidePa
 		return null;
 	}
 
-	@Override
+
 	public void setMetadataObject(IMetaData meta) {
 		try {
 			if (meta instanceof IDiffractionMetadata)
@@ -391,22 +390,6 @@ public class DiffractionMetadataPage extends Page implements IAdaptable, ISidePa
 	
 
 	@Override
-	public boolean isApplicableFor(ISidePlotPart prov) {
-		
-		if (prov.getSidePlotPreference()!=SidePlotPreference.DIFFRACTION_3D) return false;
-		
-		IMetaData metadata;
-		try {
-			metadata = prov.getMetadata();
-			setMetadataObject(metadata);
-		} catch (Exception e) {
-			logger.error("Could not get metadata",e);
-		}		
-		return true;
-	}
-
-
-	@Override
 	public void setMetaData(IMetaData metadata) {
 		if(metadata instanceof IDiffractionMetadata){
 			updateGUI((IDiffractionMetadata)metadata);
@@ -428,4 +411,5 @@ public class DiffractionMetadataPage extends Page implements IAdaptable, ISidePa
 	public ImageDescriptor getActionIcon(){
 		return Activator.getImageDescriptor("icons/DiffractionIcon.png");
 	}
+
 }

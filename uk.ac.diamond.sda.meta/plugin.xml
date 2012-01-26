@@ -24,13 +24,13 @@
             class="uk.ac.diamond.sda.meta.page.DiffractionMetadataPage"
             icon="icons/DiffractionIcon.png"
             name="Diffraction Metadata"
-            supportedMetadata="uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata">
+            supportedMetadata="uk.ac.diamond.sda.meta.discriminator.DiffractionMetadataDiscriminator">
       </client>
       <client
             class="uk.ac.diamond.sda.meta.page.HeaderTablePage"
             icon="icons/header_table.gif"
             name="Header"
-            supportedMetadata="uk.ac.diamond.scisoft.analysis.io.IMetaData">
+            supportedMetadata="uk.ac.diamond.sda.meta.discriminator.MetadataDiscriminator">
       </client>
    </extension>
 

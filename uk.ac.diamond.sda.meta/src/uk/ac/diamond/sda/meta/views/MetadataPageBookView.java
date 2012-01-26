@@ -1,9 +1,11 @@
 package uk.ac.diamond.sda.meta.views;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -27,6 +29,7 @@ import org.dawb.common.services.ILoaderService;
 
 import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.sda.meta.contribution.MetadataPageContribution;
 import uk.ac.diamond.sda.meta.page.HeaderTablePage;
 import uk.ac.diamond.sda.meta.page.IMetadataPage;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
@@ -37,7 +40,7 @@ public class MetadataPageBookView extends PageBookView implements ISelectionList
 	private static final Logger logger = LoggerFactory.getLogger(MetadataPageBookView.class);
 	private IMetaData meta;
 	private HeaderTablePage htp;
-	private HashMap<String, IMetadataPage> pagesRegister;
+	private ArrayList<MetadataPageContribution>pagesRegister = new ArrayList<MetadataPageContribution>();
 
 	private static final String PAGE_EXTENTION_ID = "uk.ac.diamond.sda.meta.metadataPageRegister";
 
@@ -47,11 +50,13 @@ public class MetadataPageBookView extends PageBookView implements ISelectionList
 	}
 	
 	private void getExtentionPoints() {
-		pagesRegister = new HashMap<String, IMetadataPage>();
 		IExtension[] extentionPoints = Platform.getExtensionRegistry().getExtensionPoint(PAGE_EXTENTION_ID).getExtensions();
 		for (int i=0;i<extentionPoints.length;i++){
 			IExtension extension = extentionPoints[i];
 			IConfigurationElement[] configElements = extension.getConfigurationElements();
+			for (int j = 0; j < configElements.length; j++) { 
+					pagesRegister.add(new MetadataPageContribution(configElements[j]));
+			}
 		}
 	}
 
@@ -61,9 +66,6 @@ public class MetadataPageBookView extends PageBookView implements ISelectionList
 		// selection. If this is an image editor part, then we know that to do.
 		getSite().getPage().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
 		getSite().getPage().addPartListener(this);
-
-		// create a list of pages that extend this extention point
-		
 		
 		htp = new HeaderTablePage();
 		initPage(htp);
@@ -122,7 +124,7 @@ public class MetadataPageBookView extends PageBookView implements ISelectionList
 						updatePath(filePath);
 					} else if (sel instanceof IMetadataProvider) {
 						try {
-							htp.setMetaData(((IMetadataProvider) sel).getMetadata());
+							metadataChanged(((IMetadataProvider) sel).getMetadata());
 						} catch (Exception e) {
 							logger.error("Could not capture metadata from selection",e);
 						}
@@ -131,6 +133,15 @@ public class MetadataPageBookView extends PageBookView implements ISelectionList
 		}
 	}
 	
+	private void metadataChanged(IMetaData meta){
+		//this method should react to the different types of metadata 
+		for(MetadataPageContribution mpc:pagesRegister){
+			if(mpc.isApplicableFor(meta)){
+				
+			}
+		}
+		htp.setMetaData(meta);
+	}
 	
 	private void updatePath(final String filePath) {
 		final Job metaJob = new Job("Extra Meta Data " + filePath) {
@@ -147,7 +158,7 @@ public class MetadataPageBookView extends PageBookView implements ISelectionList
 					return Status.CANCEL_STATUS;
 				}
 
-				htp.setMetaData(meta);
+				metadataChanged(meta);
 
 				return Status.OK_STATUS;
 			}
@@ -162,7 +173,7 @@ public class MetadataPageBookView extends PageBookView implements ISelectionList
 
 		if (part instanceof IMetadataProvider) {
 			try {
-				htp.setMetaData(((IMetadataProvider) part).getMetadata());
+				metadataChanged(((IMetadataProvider) part).getMetadata());
 			} catch (Exception e) {
 				logger.warn("Could not get metadata from currently active window");
 			}
@@ -180,7 +191,7 @@ public class MetadataPageBookView extends PageBookView implements ISelectionList
 	public void partBroughtToTop(IWorkbenchPart part) {
 		if (part instanceof IMetadataProvider) {
 			try {
-				htp.setMetaData(((IMetadataProvider) part).getMetadata());
+				metadataChanged(((IMetadataProvider) part).getMetadata());
 			} catch (Exception e) {
 				logger.warn("Could not get metadata from currently active window");
 			}

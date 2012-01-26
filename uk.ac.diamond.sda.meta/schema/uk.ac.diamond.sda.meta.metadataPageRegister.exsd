@@ -69,10 +69,10 @@
          <attribute name="supportedMetadata" type="string" use="required">
             <annotation>
                <documentation>
-                  
+                  This is the sepecific implementation of IMetaData that is supported by this page.
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java"/>
+                  <meta.attribute kind="java" basedOn=":uk.ac.diamond.sda.meta.discriminator.IMetadataDiscriminator"/>
                </appinfo>
             </annotation>
          </attribute>
