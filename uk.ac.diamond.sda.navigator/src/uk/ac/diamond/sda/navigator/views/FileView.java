@@ -314,6 +314,7 @@ public class FileView extends ViewPart {
 		final CheckableActionGroup grp = new CheckableActionGroup();
 		
 		final Action dirsTop = new Action("Sort alpha numeric, directories at top.", IAction.AS_CHECK_BOX) {
+			@Override
 			public void run() {
 				final File selection = getSelectedFile();
 				((FileContentProvider)tree.getContentProvider()).setSort(FileSortType.ALPHA_NUMERIC_DIRS_FIRST);
@@ -328,6 +329,7 @@ public class FileView extends ViewPart {
 		
 		
 		final Action alpha = new Action("Alpha numeric sort for everything.", IAction.AS_CHECK_BOX) {
+			@Override
 			public void run() {
 				final File selection = getSelectedFile();
 				((FileContentProvider)tree.getContentProvider()).setSort(FileSortType.ALPHA_NUMERIC);

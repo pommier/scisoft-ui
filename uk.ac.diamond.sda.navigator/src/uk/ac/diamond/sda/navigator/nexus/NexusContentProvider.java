@@ -87,7 +87,7 @@ public class NexusContentProvider implements ITreeContentProvider, IResourceChan
 				updateModel(modelFile);
 				hdf5Tree = (Tree) cachedModelMap.get(modelFile);
 				children = hdf5Tree.getRoot().getChildren().toArray();
-				if (children == null) {// && updateModel(modelFile) != null) {
+				if (children == null) {
 					hdf5Tree = (Tree) cachedModelMap.get(modelFile);
 					children = hdf5Tree.getRoot().getChildren().toArray();
 				}
@@ -177,11 +177,8 @@ public class NexusContentProvider implements ITreeContentProvider, IResourceChan
 
 	private void loadHDF5Data(IFile file) {
 
-		
 		fileName = file.getLocation().toString();
 		System.out.println(fileName);
-		// if (hdf5File != null)
-		// return;
 		try {
 			setData(new HDF5Loader(fileName).loadFile());
 			hdf5File = new HDF5Loader(fileName).loadTree(null);
@@ -191,7 +188,6 @@ public class NexusContentProvider implements ITreeContentProvider, IResourceChan
 			getData().addDataset("Failed to load File", new DoubleDataset(1)); //$NON-NLS-1$
 			logger.warn("Could not load NeXus file {}", fileName);
 		}
-		// return;
 	}
 
 	/**
