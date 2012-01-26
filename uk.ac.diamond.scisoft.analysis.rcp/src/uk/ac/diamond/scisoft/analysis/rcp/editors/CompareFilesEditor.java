@@ -258,7 +258,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			f.setIndex(i++);
 
 		if (currentDatasetSelection != null)
-			selectionChanged(new SelectionChangedEvent(this, currentDatasetSelection));
+			changeSelection();
 		else
 			viewer.refresh();
 
@@ -327,7 +327,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				cell.setImage(null);
 			}
 			Color colour = null;
-			if (currentDatasetSelection != null && !sf.hasData()) {
+			if (currentDatasetSelection != null && (!sf.hasData() || !sf.isDataOK())) {
 				colour = display.getSystemColor(SWT.COLOR_YELLOW);
 			}
 			cell.setBackground(colour);
@@ -387,7 +387,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		tVCol = new TableViewerColumn(viewer, SWT.NONE);
 		tCol = tVCol.getColumn();
 		tCol.setText("Use");
-		tCol.setToolTipText("Toggle to use in dataset inspector (a yellow background indicates a missing dataset)");
+		tCol.setToolTipText("Toggle to use in dataset inspector (a yellow background indicates a missing or incompatible dataset)");
 		tCol.setWidth(40);
 		tCol.setMoveable(false);
 		tVCol.setEditingSupport(new CFEditingSupport(viewer, Column.TICK, null));
@@ -447,16 +447,13 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 		MenuItem item = new MenuItem(headerMenu, SWT.PUSH);
 		item.setText("Use row index as value");
-		final ISelectionProvider p = this;
 		item.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
 				useRowIndexAsValue = true;
 				valueColumn.setText(VALUE_DEFAULT_TEXT);
 				viewer.refresh();
-				if (currentDatasetSelection != null) {
-					selectionChanged(new SelectionChangedEvent(p, currentDatasetSelection));
-				}
+				changeSelection();
 			}
 		});
 
@@ -494,6 +491,12 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 		explorer.addSelectionChangedListener(this);
 		getSite().setSelectionProvider(this);
+	}
+
+	private void changeSelection() {
+		if (currentDatasetSelection != null) {
+			selectionChanged(new SelectionChangedEvent(this, currentDatasetSelection));
+		}
 	}
 
 	final private class CFDropAdapter extends ViewerDropAdapter {
@@ -564,6 +567,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				sf.setUse((Boolean) value);
 			}
 			getViewer().update(element, null);
+			changeSelection();
 		}
 	}
 
@@ -635,14 +639,41 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			List<List<AxisSelection>> axesList = new ArrayList<List<AxisSelection>>();
 
 			for (SelectedFile f : fileList) {
-				if (f.doUse() && f.hasData() && (useRowIndexAsValue || f.hasMetaValue())) {
+				if (f.doUse() && f.hasData() && f.hasMetaValue()) {
+					f.setDataOK(true); // blindly set okay (check later)
 					dataList.add(f.getData());
 					metaList.add(f.getMetaValue());
 					axesList.add(new ArrayList<AxisSelection>(f.getAxisSelections()));
 				}
 			}
+			boolean extend = true;
+			for (ILazyDataset m : metaList) { // if all metadata is multi-valued then do not extend aggregate shape
+				if (m.getSize() > 1) {
+					extend = false;
+					break;
+				}
+			}
 
-			setSelection(createSelection(dataList, metaList, axesList));
+			// remove incompatible data
+			int[][] shapes = AggregateDataset.calcShapes(extend, dataList.toArray(new ILazyDataset[0]));
+			int j = shapes.length - 1;
+			int[] s = shapes[0];
+			final int axis = extend ? 0 : -1;
+			for (int k = fileList.size() - 1; k >= 0 && j > 0; k--) {
+				SelectedFile f = fileList.get(k);
+				if (f.doUse() && f.hasData() && f.hasMetaValue()) {
+					boolean ok = AbstractDataset.areShapesCompatible(s, shapes[j], axis);
+					f.setDataOK(ok);
+					if (!ok) {
+						dataList.remove(j);
+						metaList.remove(j);
+						axesList.remove(j);
+					}
+					j--;
+				}
+			}
+
+			setSelection(createSelection(extend, dataList, metaList, axesList));
 		}
 
 		viewer.refresh();
@@ -788,6 +819,18 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				break;
 			}
 		}
+		return createSelection(extend, datasets, metavalues, axisSelectionLists);
+	}
+
+	/**
+	 * Create a data selection from given lists of datasets, metadata value datasets and axis selection lists  
+	 * @param extend
+	 * @param datasets
+	 * @param metavalues
+	 * @param axisSelectionLists
+	 * @return data selection
+	 */
+	public static DatasetSelection createSelection(boolean extend, List<ILazyDataset> datasets, List<ILazyDataset> metavalues, List<List<AxisSelection>> axisSelectionLists) {
 
 		AggregateDataset allData = new AggregateDataset(extend, datasets.toArray(new ILazyDataset[0]));
 		AggregateDataset allMeta = new AggregateDataset(extend, metavalues.toArray(new ILazyDataset[0]));
@@ -956,6 +999,8 @@ class CompareFilesEditorInput extends PlatformObject implements IEditorInput {
 
 class SelectedFile {
 	boolean use = true;
+	boolean canUseData = false;
+	boolean hasMV = false;
 	IntegerDataset i;
 	File f;
 	DataHolder h;
@@ -986,10 +1031,6 @@ class SelectedFile {
 		return f.getName();
 	}
 
-	public boolean doUse() {
-		return use;
-	}
-
 	@Override
 	public String toString() {
 		if (mv == null)
@@ -1007,12 +1048,24 @@ class SelectedFile {
 		return i.getString(0);
 	}
 
+	public boolean doUse() {
+		return use;
+	}
+
 	public void setUse(boolean doUse) {
 		use = doUse;
 	}
 
+	public boolean isDataOK() {
+		return canUseData;
+	}
+
+	public void setDataOK(boolean dataOK) {
+		canUseData = dataOK;
+	}
+	
 	public boolean hasMetaValue() {
-		return m != null && mv != null;
+		return hasMV;
 	}
 
 	public boolean hasMetadata() {
@@ -1027,9 +1080,9 @@ class SelectedFile {
 		return d != null;
 	}
 
-	public void setMetadata(IMetaData metadata) {
-		m = metadata;
-	}
+//	public void setMetadata(IMetaData metadata) {
+//		m = metadata;
+//	}
 
 	public void setDataHolder(DataHolder holder) {
 		h = holder;
@@ -1037,14 +1090,13 @@ class SelectedFile {
 			m = h.getMetadata();
 	}
 
-	public boolean setData(String key) {
+	public void setData(String key) {
 		d = h.getLazyDataset(key);
-		return d != null;
 	}
 
-	public void resetData() {
-		d = null;
-	}
+//	public void resetData() {
+//		d = null;
+//	}
 
 	public ILazyDataset getData() {
 		return d;
@@ -1055,7 +1107,7 @@ class SelectedFile {
 	}
 
 	public ILazyDataset getMetaValue() {
-		if (mv == null)
+		if (!hasMV)
 			return null;
 		if (mv instanceof ILazyDataset)
 			return (ILazyDataset) mv;
@@ -1063,12 +1115,15 @@ class SelectedFile {
 	}
 
 	public void setMetaValueAsIndex() {
+		hasMV = true;
 		mv = i;
 	}
 
-	public boolean setMetaValue(String key) {
-		if (m == null)
-			return false;
+	public void setMetaValue(String key) {
+		if (m == null) {
+			hasMV = false;
+			return;
+		}
 
 		try {
 			mv = m.getMetaValue(key);
@@ -1085,7 +1140,7 @@ class SelectedFile {
 			}
 		} catch (Exception e) {
 		}
-		return mv != null;
+		hasMV = mv != null;
 	}
 
 	public void setAxisSelections(List<AxisSelection> axisSelectionList) {
