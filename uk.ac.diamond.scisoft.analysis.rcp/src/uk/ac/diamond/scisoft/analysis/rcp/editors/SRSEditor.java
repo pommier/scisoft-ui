@@ -96,7 +96,6 @@ public class SRSEditor extends EditorPart {
 
 	@Override
 	public void setFocus() {
-		//set the focus on the editor part!!
 		srsxp.setFocus();
 	}
 
