@@ -191,6 +191,7 @@ public class SectorProfile extends SidePlotProfile {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
+		super.createPartControl(parent);
 		container = new Composite(parent, SWT.NONE);
 		container.setLayout(new FillLayout());
 
