@@ -29,6 +29,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
@@ -104,16 +105,18 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 
 	protected BooleanDataset mask;
 
-	protected InteractiveQueue roiQueue;
-
-	public SidePlotProfile() {
-		roiQueue = new InteractiveQueue();
-	}
+	protected InteractiveQueue roiQueue = null;
 
 	@Override
 	public void dispose() {
-		roiQueue.dispose();
+		if (roiQueue != null)
+			roiQueue.dispose();
 		super.dispose();
+	}
+
+	@Override
+	public void createPartControl(Composite parent) {
+		roiQueue = new InteractiveQueue();
 	}
 
 	public int calcHandleSize(final int[] shape) {
