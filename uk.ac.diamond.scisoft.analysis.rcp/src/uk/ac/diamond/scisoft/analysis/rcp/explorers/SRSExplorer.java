@@ -123,6 +123,7 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 
 		for (int j = 0; j < shape.length; j++) {
 			AxisSelection axisSelection = new AxisSelection(shape[j], j);
+			axes.add(axisSelection);
 
 			AbstractDataset autoAxis = AbstractDataset.arange(shape[j], AbstractDataset.INT32);
 			autoAxis.setName(AbstractExplorer.DIM_PREFIX + (j+1));
@@ -136,9 +137,6 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 				newChoice.setAxisNumber(j);
 				axisSelection.addChoice(newChoice, i + 1);
 			}
-
-			axisSelection.selectAxis(0);
-			axes.add(axisSelection);
 		}
 
 		return axes;

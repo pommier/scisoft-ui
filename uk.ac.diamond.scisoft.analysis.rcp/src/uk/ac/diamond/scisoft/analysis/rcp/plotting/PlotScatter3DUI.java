@@ -25,21 +25,13 @@ import java.util.List;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.printing.PrintDialog;
-import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
@@ -91,10 +83,6 @@ public class PlotScatter3DUI extends AbstractPlotUI {
 	private Action resetView;
 	private IWorkbenchPage page;
 	
-	private String[] listPrintScaleText = { ResourceProperties.getResourceString("PRINT_LISTSCALE_0"),
-		ResourceProperties.getResourceString("PRINT_LISTSCALE_1"), ResourceProperties.getResourceString("PRINT_LISTSCALE_2"),
-		ResourceProperties.getResourceString("PRINT_LISTSCALE_3"), ResourceProperties.getResourceString("PRINT_LISTSCALE_4"),
-		ResourceProperties.getResourceString("PRINT_LISTSCALE_5"), ResourceProperties.getResourceString("PRINT_LISTSCALE_6") };
 	private String printButtonText = ResourceProperties.getResourceString("PRINT_BUTTON");
 	private String printToolTipText = ResourceProperties.getResourceString("PRINT_TOOLTIP");
 	private String printImagePath = ResourceProperties.getResourceString("PRINT_IMAGE_PATH");
@@ -207,111 +195,13 @@ public class PlotScatter3DUI extends AbstractPlotUI {
 		printGraph = new Action() {
 			@Override
 			public void run() {
-//				PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
-//				PrinterData printerData = dialog.open();
 				plotter.printGraph();
 			}
 		};
 		printGraph.setText(printButtonText);
 		printGraph.setToolTipText(printToolTipText);
 		printGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(printImagePath));
-//		printGraph.setMenuCreator(new IMenuCreator() {
-//			@Override
-//			public Menu getMenu(Control parent) {
-//				Menu menu = new Menu(parent);
-//				MenuItem item10 = new MenuItem(menu, SWT.None);
-//				item10.setText(listPrintScaleText[0]);
-//				item10.addSelectionListener(new SelectionListener() {
-//					@Override
-//					public void widgetSelected(SelectionEvent e) {
-//						PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
-//						PrinterData printerData = dialog.open();
-//						plotter.printGraph(printerData, 0.1f);
-//					}
-//					@Override
-//					public void widgetDefaultSelected(SelectionEvent e) {}
-//				});
-//				MenuItem item25 = new MenuItem(menu, SWT.None);
-//				item25.setText(listPrintScaleText[1]);
-//				item25.addSelectionListener(new SelectionListener() {
-//					@Override
-//					public void widgetSelected(SelectionEvent e) {
-//						PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
-//						PrinterData printerData = dialog.open();
-//						plotter.printGraph(printerData, 0.25f);
-//					}
-//					@Override
-//					public void widgetDefaultSelected(SelectionEvent e) {}
-//				});
-//				MenuItem item33 = new MenuItem(menu, SWT.None);
-//				item33.setText(listPrintScaleText[2]);
-//				item33.addSelectionListener(new SelectionListener() {
-//					@Override
-//					public void widgetSelected(SelectionEvent e) {
-//						PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
-//						PrinterData printerData = dialog.open();
-//						plotter.printGraph(printerData, 0.33f);
-//					}
-//					@Override
-//					public void widgetDefaultSelected(SelectionEvent e) {}
-//				});
-//				MenuItem item50 = new MenuItem(menu, SWT.None);
-//				item50.setText(listPrintScaleText[3]);
-//				item50.addSelectionListener(new SelectionListener() {
-//					@Override
-//					public void widgetSelected(SelectionEvent e) {
-//						PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
-//						PrinterData printerData = dialog.open();
-//						plotter.printGraph(printerData, 0.5f);
-//					}
-//					@Override
-//					public void widgetDefaultSelected(SelectionEvent e) {}
-//				});
-//				MenuItem item66 = new MenuItem(menu, SWT.None);
-//				item66.setText(listPrintScaleText[4]);
-//				item66.addSelectionListener(new SelectionListener() {
-//					@Override
-//					public void widgetSelected(SelectionEvent e) {
-//						PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
-//						PrinterData printerData = dialog.open();
-//						plotter.printGraph(printerData, 0.66f);
-//					}
-//					@Override
-//					public void widgetDefaultSelected(SelectionEvent e) {}
-//				});
-//				MenuItem item75 = new MenuItem(menu, SWT.None);
-//				item75.setText(listPrintScaleText[5]);
-//				item75.addSelectionListener(new SelectionListener() {
-//					@Override
-//					public void widgetSelected(SelectionEvent e) {
-//						PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
-//						PrinterData printerData = dialog.open();
-//						plotter.printGraph(printerData, 0.75f);
-//					}
-//					@Override
-//					public void widgetDefaultSelected(SelectionEvent e) {}
-//				});
-//				MenuItem item100 = new MenuItem(menu, SWT.None);
-//				item100.setText(listPrintScaleText[6]);
-//				item100.addSelectionListener(new SelectionListener() {
-//					@Override
-//					public void widgetSelected(SelectionEvent e) {
-//						PrintDialog dialog = new PrintDialog(shell, SWT.NULL);
-//						PrinterData printerData = dialog.open();
-//						plotter.printGraph(printerData, 1);
-//					}
-//					@Override
-//					public void widgetDefaultSelected(SelectionEvent e) {}
-//				});
-//				return menu;
-//			}
-//			@Override
-//			public Menu getMenu(Menu parent) {
-//				return null;
-//			}
-//			@Override
-//			public void dispose() {}
-//		});
+
 		manager.add(resetView);
 		manager.add(boundingBox);
 		manager.add(new Separator(getClass().getName()+"Print"));
@@ -595,6 +485,8 @@ public class PlotScatter3DUI extends AbstractPlotUI {
 						e.printStackTrace();
 					}					
 				}
+				//set the title/filename of plot
+				mainPlotter.setTitle(page.getActivePart().getTitle());
 				
 				final HistogramDataUpdate histoUpdate = new
 				  HistogramDataUpdate(datasets.get(0));

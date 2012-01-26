@@ -30,6 +30,7 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.StatusLineContributionItem;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IWorkbenchPage;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
@@ -43,6 +44,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEvent;
  */
 public class PlotScatter2DUI extends Plot1DUIAdapter {
 
+	private IWorkbenchPage page;
 	private final static String STATUSSTRING = "Pos: ";
 	public final static String STATUSITEMID = "uk.ac.dimaond.scisoft.analysis.rcp.plotting.PlotScatter2DUI";
 	private DataSetPlotter mainPlotter;
@@ -52,11 +54,12 @@ public class PlotScatter2DUI extends Plot1DUIAdapter {
 	public PlotScatter2DUI(final PlotWindow window,
 							IActionBars bars, 
 							final DataSetPlotter plotter,
-							Composite parent, String viewName)
+							Composite parent, IWorkbenchPage page, String viewName)
 	{
 		super(window.getMainPlotter(), parent, viewName);
 		this.mainPlotter = plotter;
 		this.parent = parent;		
+		this.page = page;
 		this.plotWindow = window;
 		buildToolActions(bars.getToolBarManager());
 		buildMenuActions(bars.getMenuManager());
@@ -196,6 +199,9 @@ public class PlotScatter2DUI extends Plot1DUIAdapter {
 					}
 				}					
 			}
+			
+			//we set the plot/file name
+			mainPlotter.setTitle(page.getActivePart().getTitle());
 			
 			parent.getDisplay().asyncExec(new Runnable() {
 				@Override

@@ -576,7 +576,6 @@ public class DatasetInspector extends Composite {
 					AxisChoice newChoice = new AxisChoice(axis);
 					newChoice.setAxisNumber(i);
 					aSel.addChoice(newChoice, aSel.getMaxOrder() + 1);
-					aSel.selectAxis(0);
 					inspection.addDatasetAxis(aSel);
 				}
 			}
@@ -677,7 +676,11 @@ public class DatasetInspector extends Composite {
 		}
 		List<SliceProperty> slices = inspection.getSlices();
 
+		if (rank > inspection.datasetAxes.size()) {
+			System.err.println("Axis selection wrong!");
+		}
 		/*
+
 		 * need to create list/array of slice objects that pertain to each axis
 		 */
 		for (int i = 0; i < rank; i++) {

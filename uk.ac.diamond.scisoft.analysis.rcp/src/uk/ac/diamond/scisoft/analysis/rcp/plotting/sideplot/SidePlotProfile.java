@@ -29,6 +29,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
@@ -53,6 +54,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIDataList;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIHandles;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROITableViewer;
+import uk.ac.diamond.scisoft.analysis.rcp.queue.InteractiveQueue;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.analysis.roi.MaskingBean;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
@@ -102,6 +104,20 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 	protected boolean isBulkUpdate = false; // this is set true when updating many widgets' selection
 
 	protected BooleanDataset mask;
+
+	protected InteractiveQueue roiQueue = null;
+
+	@Override
+	public void dispose() {
+		if (roiQueue != null)
+			roiQueue.dispose();
+		super.dispose();
+	}
+
+	@Override
+	public void createPartControl(Composite parent) {
+		roiQueue = new InteractiveQueue();
+	}
 
 	public int calcHandleSize(final int[] shape) {
 		int tsize;

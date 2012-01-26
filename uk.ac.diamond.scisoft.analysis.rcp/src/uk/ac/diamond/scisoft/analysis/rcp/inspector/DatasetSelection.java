@@ -31,8 +31,58 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
  */
 public class DatasetSelection implements IStructuredSelection {
 
+	/**
+	 * Enumerate types supported by inspector
+	 */
 	public enum InspectorType {
-		LINE, POINTS1D, LINESTACK, DATA1D, POINTS2D, IMAGE, MULTIIMAGE, SURFACE, DATA2D, POINTS3D, VOLUME, EMPTY;
+		/**
+		 * Single line plot of 1D dataset
+		 */
+		LINE,
+		/**
+		 * Points plot of 1D dataset 
+		 */
+		POINTS1D,
+		/**
+		 * Multiple lines plot of 2D dataset
+		 */
+		LINESTACK,
+		/**
+		 * Data table of 1D dataset
+		 */
+		DATA1D,
+		/**
+		 * Points plot of 2D dataset
+		 */
+		POINTS2D,
+		/**
+		 * Image plot of 2D dataset
+		 */
+		IMAGE,
+		/**
+		 * Surface plot of 2D dataset
+		 */
+		SURFACE,
+		/**
+		 * Data table of 2D dataset
+		 */
+		DATA2D,
+		/**
+		 * Stacked images plot of 3D dataset
+		 */
+		MULTIIMAGE,
+		/**
+		 * Points plot of 3D dataset
+		 */
+		POINTS3D,
+		/**
+		 * Volume plot of 3D dataset
+		 */
+		VOLUME,
+		/**
+		 * Clear plot
+		 */
+		EMPTY;
 		private static int index = 0;
 		private int value;
 		private static int getIndex() {
@@ -57,7 +107,7 @@ public class DatasetSelection implements IStructuredSelection {
 
 	final private List<AxisSelection> axes;
 	final private ILazyDataset[] datasets;
-	final private InspectorType view;
+	private InspectorType view;
 
 	/**
 	 * Null constructor to not show any plot or view
@@ -211,8 +261,17 @@ public class DatasetSelection implements IStructuredSelection {
 		return axes;
 	}
 
+	/**
+	 * @return type of inspection
+	 */
 	public InspectorType getType() {
 		return view;
 	}
 
+	/**
+	 * @param type inspector type
+	 */
+	public void setType(InspectorType type) {
+		view = type;
+	}
 }

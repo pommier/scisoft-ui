@@ -19,14 +19,11 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting.actions;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.printing.PrintDialog;
-import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
-//import uk.ac.diamond.scisoft.analysis.rcp.views.plot.AbstractPlotView;
+
 /**
  *
  */
@@ -34,23 +31,14 @@ public class PlotPrintGraphAction extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		// String viewID = event.getParameter("uk.ac.diamond.scisoft.analysis.command.sourceView");
-		// if (viewID == null)
-		// return Boolean.FALSE;
-		// final AbstractPlotView apv = (AbstractPlotView) PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-		// .getActivePage().findView(viewID);
-		// DataSetPlotter plotter = apv.getPlotter();
 
 		final PlotView pv = (PlotView) HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().getActivePart();
 		DataSetPlotter plotter = pv.getMainPlotter();
 
 		if (plotter != null) {
-//			PrintDialog dialog = new PrintDialog(pv.getSite().getShell(), SWT.NULL);
-//			PrinterData printerData = dialog.open();
 			plotter.printGraph();
 		}
 		return Boolean.TRUE;
-
 	}
 
 }

@@ -21,9 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -64,6 +61,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.RectangularROIData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.RectangularROIHandler;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.RectangularROITableViewer;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
+import uk.ac.diamond.scisoft.analysis.rcp.queue.InteractiveJobAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
@@ -108,27 +106,54 @@ public class BoxProfile extends SidePlotProfile {
 	private FloatSpinner splmaj, splmin, spang;
 	private Text txSum;
 
-//	private BoxJob boxJob;
-
-	private class BoxJob extends Job {
+	private class BoxJob extends InteractiveJobAdapter {
 		private RectangularROI rroi = null;
+		private boolean subsample;
 
-		public BoxJob() {
-			super("Box profile calculation");
-			setUser(true);
-		}
-
-		public void setROI(RectangularROI rroi) {
+		public BoxJob(RectangularROI rroi, boolean quick) {
 			this.rroi = rroi;
+			subsample = quick;
 		}
 
 		@Override
-		protected IStatus run(IProgressMonitor monitor) {
+		public void run(IProgressMonitor monitor) {
+			if (isNull())
+				return;
+
 			if (monitor != null) monitor.worked(1);
-			if (rroi != null)
+
+			if (subsample)
+				roiData = new RectangularROIData(rroi, subData, mask, subFactor);
+			else {
+				if (oProvider!=null) oProvider.setPlotAreaCursor(SWT.CURSOR_WAIT);
+
 				roiData = new RectangularROIData(rroi, data, mask);
+
+				if (oProvider!=null) oProvider.restoreDefaultPlotAreaCursor();
+			}
+			if (monitor != null) {
+				if (monitor.isCanceled())
+					return;
+
+				monitor.worked(1);
+			}
+
+			if (roiData.isPlot())
+				drawPlots(rroi);
+
 			if (monitor != null) monitor.worked(1);
-			return Status.OK_STATUS;
+
+			getControl().getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					txSum.setText(String.format("%.3e", roiData.getProfileSum()));
+				}
+			});
+		}
+
+		@Override
+		public boolean isNull() {
+			return rroi == null;
 		}
 	}
 
@@ -136,7 +161,6 @@ public class BoxProfile extends SidePlotProfile {
 		super();
 		roiClass = RectangularROI.class;
 		roiListClass = RectangularROIList.class;
-//		boxJob = new BoxJob();
 	}
 
 	/**
@@ -144,6 +168,7 @@ public class BoxProfile extends SidePlotProfile {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
+		super.createPartControl(parent);
 		container = new Composite(parent, SWT.NONE);
 		container.setLayout(new FillLayout());
 
@@ -299,37 +324,24 @@ public class BoxProfile extends SidePlotProfile {
 
 		if (rroi != null) {
 			if (dragging && subData != null) {
-				roiData = new RectangularROIData(rroi, subData, mask, subFactor);
-			} else {
-				if (oProvider!=null) oProvider.setPlotAreaCursor(SWT.CURSOR_WAIT);
-
-				roiData = new RectangularROIData(rroi, data, mask);
-
-/*				The following code can cause dead lock, so replaced with just set a nwo roiData 
-				boxJob.setROI(rroi);
-				boxJob.schedule();
 				try {
-					boxJob.join();
-				} catch (InterruptedException e) {
-					logger.warn("Box calculation interrupted");
-					return;
+					final BoxJob obj = new BoxJob(rroi, true);
+					roiQueue.addJob(obj);
+				} catch (Exception e) {
+					logger.error("Cannot generate ROI data", e);
 				}
-*/
-				
-				if (oProvider!=null) oProvider.restoreDefaultPlotAreaCursor();
+			} else {
+				try {
+					final BoxJob obj = new BoxJob(rroi, false);
+					roiQueue.addJob(obj);
+				} catch (Exception e) {
+					logger.error("Cannot generate ROI data", e);
+				}
 			}
-
-			if (!roiData.isPlot())
-				return;
-
-			getControl().getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					txSum.setText(String.format("%.3e", roiData.getProfileSum()));
-				}
-			});
 		}
+	}
 
+	private void drawPlots(RectangularROI rroi) {
 		Plot1DGraphTable colourTable;
 		Plot1DAppearance newApp;
 		int p, l;
