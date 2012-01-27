@@ -2,8 +2,6 @@ package uk.ac.diamond.sda.meta.views;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -13,17 +11,20 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.IPage;
-import org.eclipse.ui.part.PageBook;
-import org.eclipse.ui.part.PageBookView;
+import org.eclipse.ui.part.ViewPart;
 
 import org.dawb.common.services.ILoaderService;
 
@@ -36,15 +37,18 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MetadataPageBookView extends PageBookView implements ISelectionListener, IPartListener {
-	private static final Logger logger = LoggerFactory.getLogger(MetadataPageBookView.class);
+public class MetadataPageView extends ViewPart implements ISelectionListener, IPartListener {
+	private static final Logger logger = LoggerFactory.getLogger(MetadataPageView.class);
+	
 	private IMetaData meta;
 	private HeaderTablePage htp;
 	private ArrayList<MetadataPageContribution>pagesRegister = new ArrayList<MetadataPageContribution>();
 
+	private IToolBarManager toolBarManager;
+
 	private static final String PAGE_EXTENTION_ID = "uk.ac.diamond.sda.meta.metadataPageRegister";
 
-	public MetadataPageBookView(){
+	public MetadataPageView(){
 		super();
 		getExtentionPoints();
 	}
@@ -60,43 +64,7 @@ public class MetadataPageBookView extends PageBookView implements ISelectionList
 		}
 	}
 
-	@Override
-	protected IPage createDefaultPage(PageBook book) {
-		// Instead of sample controller we use the workbench
-		// selection. If this is an image editor part, then we know that to do.
-		getSite().getPage().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
-		getSite().getPage().addPartListener(this);
-		
-		htp = new HeaderTablePage();
-		initPage(htp);
-		htp.createControl(book);
-		return htp;
-	}
 
-	@Override
-	protected PageRec doCreatePage(IWorkbenchPart part) {
-		return null;
-	}
-
-	@Override
-	protected void doDestroyPage(IWorkbenchPart part, PageRec pageRecord) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	protected IWorkbenchPart getBootstrapPart() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	//this is not necessary as the metadata view is looking at 
-	//many parts and selections and the pagebook view is not 
-	//associated with a particular view or flavour of view
-	@Override
-	protected boolean isImportant(IWorkbenchPart part) {
-		return true;
-	}
 
 	@Override
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
@@ -135,14 +103,32 @@ public class MetadataPageBookView extends PageBookView implements ISelectionList
 	
 	private void metadataChanged(IMetaData meta){
 		//this method should react to the different types of metadata 
+		toolBarManager.removeAll();
 		for(MetadataPageContribution mpc:pagesRegister){
 			if(mpc.isApplicableFor(meta)){
-				
+				pageActionFactory(mpc);
 			}
 		}
-		htp.setMetaData(meta);
+		//htp.setMetaData(meta);
 	}
 	
+	private void pageActionFactory(final MetadataPageContribution mpc) {
+		final Action metadatapage = new Action(mpc.getExtentionPointname()) {
+			@Override
+			public void run() {
+				
+				try {
+					IMetadataPage imetadataPage = mpc.getPage();
+					
+				} catch (CoreException e) {
+					logger.warn("Could not create "+mpc.getExtentionPointname());
+				}
+			}
+			
+		};
+		toolBarManager.add(metadatapage);
+	}
+
 	private void updatePath(final String filePath) {
 		final Job metaJob = new Job("Extra Meta Data " + filePath) {
 
@@ -212,4 +198,25 @@ public class MetadataPageBookView extends PageBookView implements ISelectionList
 	public void partOpened(IWorkbenchPart part) {
 
 	}
+
+	@Override
+	public void createPartControl(Composite parent) {
+		//composite
+		Composite comp = new Composite(parent, SWT.NONE);
+		comp.setLayout(new GridLayout(1, true));
+		
+		getSite().getPage().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
+		getSite().getPage().addPartListener(this);
+		
+		//add some toolbar
+		toolBarManager = getViewSite().getActionBars().getToolBarManager();
+	}
+
+	@Override
+	public void setFocus() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
 }

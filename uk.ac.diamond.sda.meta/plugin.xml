@@ -11,9 +11,9 @@
       </category>
       <view
             category="uk.ac.diamond.sda.meta.category"
-            class="uk.ac.diamond.sda.meta.views.MetadataPageBookView"
+            class="uk.ac.diamond.sda.meta.views.MetadataPageView"
             icon="icons/DiffractionIcon.png"
-            id="uk.ac.diamond.sda.meta.MetadataPageBookView"
+            id="uk.ac.diamond.sda.meta.MetadataPageView"
             name="Metadata View"
             restorable="true">
       </view>

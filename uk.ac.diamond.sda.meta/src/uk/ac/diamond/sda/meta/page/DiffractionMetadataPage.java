@@ -1,10 +1,8 @@
 package uk.ac.diamond.sda.meta.page;
 
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Point;
@@ -12,26 +10,19 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.part.Page;
 import org.eclipse.ui.progress.UIJob;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.diffraction.DetectorProperties;
 import uk.ac.diamond.scisoft.analysis.diffraction.DiffractionCrystalEnvironment;
 import uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.diamond.sda.meta.Activator;
 
-public class DiffractionMetadataPage extends Page implements IAdaptable, IMetadataPage{
+public class DiffractionMetadataPage implements IMetadataPage{
 
-	
-	private static final Logger logger = LoggerFactory.getLogger(DiffractionMetadataPage.class);
 	
 	private Text wavelength;
 	private Text phiStart;
@@ -58,7 +49,7 @@ public class DiffractionMetadataPage extends Page implements IAdaptable, IMetada
 
 	
 	@Override
-	public void createControl(Composite parent) {
+	public Composite createComposite(Composite parent) {
 	
 		this.content = new Composite(parent, SWT.NONE);
 		content.setLayout(new GridLayout(1, true));
@@ -277,38 +268,10 @@ public class DiffractionMetadataPage extends Page implements IAdaptable, IMetada
 		scrComp.setContent(comp);
 		final Point controlsSize = comp.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 		comp.setSize(controlsSize);
-	}
-
-    
-	@Override
-	public Control getControl() {
+		
 		return content;
 	}
 
-	@Override
-	public void setFocus() {
-		// TODO Auto-generated method stub
-
-	}
-
-	
-	@Override
-	public Object getAdapter(Class type) {
-		if (type == String.class) {
-			return "Diffraction Metadata View";
-		}
-		return null;
-	}
-
-
-	public void setMetadataObject(IMetaData meta) {
-		try {
-			if (meta instanceof IDiffractionMetadata)
-				updateGUI((IDiffractionMetadata) meta);
-		} catch (NullPointerException npe) {
-			// do something but later
-		}
-	}
 
 	private void updateGUI(final IDiffractionMetadata meta) {
 		UIJob update = new UIJob("Updating metadata GUI") {
@@ -397,19 +360,6 @@ public class DiffractionMetadataPage extends Page implements IAdaptable, IMetada
 			clearGUI();
 		}
 	}
-	/**
-	 * This method returns true if the metadata being presented can be processed by the the page
-	 * @param metadata
-	 * @return is the page can process the metadata
-	 */
-	public boolean isApplicableFor(IMetaData metadata){
-		if( metadata instanceof IDiffractionMetadata){
-			return true;
-		}return false;
-	}
-	
-	public ImageDescriptor getActionIcon(){
-		return Activator.getImageDescriptor("icons/DiffractionIcon.png");
-	}
+
 
 }

@@ -55,7 +55,7 @@
                   
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn="org.eclipse.ui.part.Page:uk.ac.diamond.sda.meta.page.IMetadataPage"/>
+                  <meta.attribute kind="java" basedOn=":uk.ac.diamond.sda.meta.page.IMetadataPage"/>
                </appinfo>
             </annotation>
          </attribute>
