@@ -209,13 +209,6 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.LoadHDF5TreeAction"
             name="LoadHDF5Tree">
       </command>
-<!-- Demo command
-      <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.actions.NavigatorDemoAction"
-            id="uk.ac.diamond.scisoft.analysis.rcp.NavigatorDemoAction"
-            name="ActionJackson">
-      </command>
--->
       <command
             defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.handlers.CompareFilesHandler"
             id="uk.ac.diamond.scisoft.analysis.rcp.CompareFilesHandler"
@@ -1095,7 +1088,7 @@
             locationURI="popup:uk.ac.diamond.scisoft.explorer.group">
            <command
                  commandId="uk.ac.diamond.scisoft.analysis.rcp.CompareFilesHandler"
-                 label="Compare datasets"
+                 label="Compare files"
                  style="push">
               <visibleWhen
                     checkEnabled="false">
@@ -1105,12 +1098,23 @@
                         </iterate>
                         <count value="(1-" />
                     </and>
-<!--                 <with
-                       variable="selection">
-                    <count
-                          value="(1-">
-                    </count>
-                 </with> -->
+              </visibleWhen>
+           </command>
+        </menuContribution>
+        <menuContribution
+            locationURI="popup:uk.ac.diamond.sda.navigator.views.FileView?after=uk.ac.diamond.sda.navigator.separator2">
+           <command
+                 commandId="uk.ac.diamond.scisoft.analysis.rcp.CompareFilesHandler"
+                 label="Compare files"
+                 style="push">
+              <visibleWhen
+                    checkEnabled="false">
+                    <and>
+                        <iterate ifEmpty="false" operator="and">
+                            <instanceof value="java.io.File" />
+                        </iterate>
+                        <count value="(1-" />
+                    </and>
               </visibleWhen>
            </command>
         </menuContribution>
@@ -1279,32 +1283,6 @@
    </extension>
    <extension
          point="org.eclipse.ui.popupMenus">
-<!--
-      <objectContribution
-            adaptable="true"
-            id="uk.ac.diamond.scisoft.analysis.rcp.NavigatorDemoContribution"
-            objectClass="org.eclipse.core.resources.IFile">
-         <action
-               class="uk.ac.diamond.scisoft.analysis.rcp.actions.NavigatorDemoAction"
-               enablesFor="+"
-               id="uk.ac.diamond.scisoft.analysis.rcp.DemoNavigatorDelegate"
-               label="ActionJackson"
-               menubarPath="uk.ac.diamond.scisoft.analysis.rcp.contributions.menu1/group1"
-               tooltip="Demo">
-         </action>
-      </objectContribution>
-      <objectContribution
-            adaptable="false"
-            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.objectContribution2"
-            objectClass="org.eclipse.core.resources.IFile">
-         <menu
-               id="uk.ac.diamond.scisoft.analysis.rcp.contributions.menu1"
-               label="SDA">
-            <separator
-                  name="group1">
-            </separator>
-         </menu>
-      </objectContribution> -->
       <!-- 
       
       Explore folders with the dawb image monitor rather than the ImageGridView
@@ -1419,22 +1397,6 @@
             name="SRS File content"
             priority="normal">
       </content-type>
-   </extension>
-   <extension
-         id="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewDefault"
-         name="Default"
-         point="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewRegister">
-         <ViewRegister
-         	ViewName="Plot 1">
-         </ViewRegister>
-   </extension>
-   <extension
-         id="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewDefault"
-         name="Default"
-         point="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewRegister">
-         <ViewRegister
-         	ViewName="Plot 2">
-         </ViewRegister>
    </extension>
    <extension
          point="uk.ac.diamond.scisoft.introRegister">
