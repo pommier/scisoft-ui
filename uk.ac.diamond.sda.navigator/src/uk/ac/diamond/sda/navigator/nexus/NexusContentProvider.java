@@ -52,7 +52,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode;
 public class NexusContentProvider implements ITreeContentProvider, IResourceChangeListener, IResourceDeltaVisitor {
 	private StructuredViewer viewer;
 	private String DELIMITER = "/";
-	public static final Object NEXUS_EXT = "nxs"; //$NON-NLS-1$
+	public static final String NEXUS_EXT = "nxs"; //$NON-NLS-1$
 	private HDF5File hdf5File;
 	private String fileName;
 	private static final Object[] NO_CHILDREN = new Object[0];
@@ -175,7 +175,7 @@ public class NexusContentProvider implements ITreeContentProvider, IResourceChan
 		return false;
 	}
 
-	protected void loadHDF5Data(IFile file) {
+	private void loadHDF5Data(IFile file) {
 
 		fileName = file.getLocation().toString();
 		System.out.println(fileName);
@@ -250,8 +250,6 @@ public class NexusContentProvider implements ITreeContentProvider, IResourceChan
 			heightIs = str.length - 2;
 
 			if (i == 0) { // if pathname is "/root"
-				//nodes.add(0, new TreeNode(str[str.length - 1]));
-				//myStack.push(new TreeNode(str[str.length - 1]));
 				nodes.add(0, new TreeNode(list.get(i), file));
 				myStack.push(new TreeNode(list.get(i), file));
 			} else {
@@ -266,7 +264,6 @@ public class NexusContentProvider implements ITreeContentProvider, IResourceChan
 						myStack.pop();
 				}
 
-				//nodes.add(i, new TreeNode(str[str.length - 1]));
 				nodes.add(i, new TreeNode(list.get(i), file));
 				myStack.push(nodes.get(i));
 
@@ -322,7 +319,6 @@ public class NexusContentProvider implements ITreeContentProvider, IResourceChan
 	 */
 	public List<String> getChildrenList(String parentpath, String[] pathnames) {
 		List<String> list = new ArrayList<String>();
-		// String[] pathnames = data.getNames();
 
 		for (int i = 0; i < pathnames.length; i++) {
 			if (pathnames[i].contains(parentpath) && !parentpath.equals(pathnames[i]) && !parentpath.equals("/")) {

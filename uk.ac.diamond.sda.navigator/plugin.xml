@@ -295,16 +295,32 @@
       <decorator
             adaptable="true"
             class="uk.ac.diamond.sda.navigator.decorator.LightweightMetadataDecorator"
-            id="uk.ac.diamond.sda.navigator.metaData"
-            label="File Meta Data"
+            id="uk.ac.diamond.sda.navigator.metadataDecorator"
+            label="File Meta Data Decorator"
             lightweight="true"
             state="true">
             <enablement>
                <objectClass name="org.eclipse.core.resources.IResource"/>
             </enablement>
             <description>
-               Displays the file size and the date of last modification.
+               Displays the size, date of last modification and file permission of a resource file.
             </description>
+      </decorator>
+      <decorator
+            adaptable="true"
+            class="uk.ac.diamond.sda.navigator.decorator.LightweightFileOwnerDecorator"
+            id="uk.ac.diamond.sda.navigator.fileOwnerDecorator"
+            label="File Owner Decorator"
+            lightweight="true"
+            state="false">
+         <enablement>
+            <objectClass
+                  name="org.eclipse.core.resources.IResource">
+            </objectClass>
+         </enablement>
+         <description>
+            Displays the file owner of a resource file. (Unix only)
+         </description>
       </decorator>
       <!-- Not correctly working yet -->
       <!--decorator
@@ -325,23 +341,9 @@
       </decorator-->
       <decorator
             adaptable="true"
-            class="uk.ac.diamond.sda.navigator.hdf5.HDF5LabelProvider"
-            id="uk.ac.diamond.sda.navigator.hdf5Decorator"
-            label="HDF5 element"
-            state="true">
-         <enablement>
-            <objectClass
-                  name="uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode">
-            </objectClass></enablement>
-         <description>
-            Displays the HDF5 tree elements caracteristics.
-         </description>
-      </decorator>
-      <decorator
-            adaptable="true"
-            class="uk.ac.diamond.sda.navigator.decorator.LightweightScanCommandDecorator"
-            id="uk.ac.diamond.sda.navigator.scanCmdFileDecorator"
-            label="SRS/Nexus Scan Command and Title Decorator"
+            class="uk.ac.diamond.sda.navigator.decorator.LightweightSRSScanCmdDecorator"
+            id="uk.ac.diamond.sda.navigator.srsScancmdDecorator"
+            label="DAT file Scan Command Decorator"
             lightweight="true"
             state="true">
          <enablement>
@@ -350,7 +352,38 @@
             </objectClass>
          </enablement>
          <description>
-            Displays the Scan Command of a .dat file and the Title and Scan Command of a Nexus file (if there are any).
+            Displays the Scan Command of a .dat file as a decorator (if there are any).
+         </description>
+      </decorator>
+      <decorator
+            adaptable="true"
+            class="uk.ac.diamond.sda.navigator.decorator.LightweightNXSScanCmdDecorator"
+            id="uk.ac.diamond.sda.navigator.nxsScancmdDecorator"
+            label="Nexus Scan Command and Title Decorator"
+            lightweight="true"
+            state="true">
+         <enablement>
+            <objectClass
+                  name="org.eclipse.core.resources.IResource">
+            </objectClass>
+         </enablement>
+         <description>
+            Displays the Title and Scan Command of a Nexus file as a decorator (if there are any).
+         </description>
+      </decorator>
+      <decorator
+            adaptable="true"
+            class="uk.ac.diamond.sda.navigator.hdf5.HDF5LabelProvider"
+            id="uk.ac.diamond.sda.navigator.hdf5Decorator"
+            label="HDF5 tree element Decorator"
+            state="true">
+         <enablement>
+            <objectClass
+                  name="uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode">
+            </objectClass>
+         </enablement>
+         <description>
+            Displays the HDF5 tree elements data as decorator.
          </description>
       </decorator>
    </extension>
@@ -466,26 +499,25 @@
             name="Create workflow">
       </command>
    </extension>
-   <!-- Bind the Action Provider independently 
    <extension
-         point="org.eclipse.ui.navigator.navigatorContent">         
-      <actionProvider
-           class="uk.ac.diamond.sda.navigator.properties.actions.PropertyActionProvider"
-           id="uk.ac.diamond.sda.navigator.properties.actions.OpenProvider"/>
-      <actionProvider
-           class="uk.ac.diamond.sda.navigator.srs.actions.SRSActionProvider"
-           id="uk.ac.diamond.sda.navigator.srs.actions.OpenProvider"/>
+         point="org.eclipse.ui.cheatsheets.cheatSheetContent">
+      <category
+            id="uk.ac.diamond.sda.navigator.basic.data.viewing.category"
+            name="Basic Data Viewing">
+      </category>
+      <cheatsheet
+            category="uk.ac.diamond.sda.navigator.basic.data.viewing.category"
+            composite="true"
+            contentFile="cheatsheets/DATNXSFileExplorer.xml"
+            id="uk.ac.diamond.sda.navigator.dat.nxs.file.explorer.cheatsheet"
+            name="DAT and NXS file explorer">
+      </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.sda.navigator.basic.data.viewing.category"
+            composite="false"
+            contentFile="cheatsheets/ProjectExplorerFileDecorators.xml"
+            id="uk.ac.diamond.sda.navigator.project.explorer.decorators.cheatsheet"
+            name="Project Explorer File Decorators">
+      </cheatsheet>
    </extension>
-   <extension
-         point="org.eclipse.ui.navigator.viewer">
-      <viewerActionBinding viewerId="uk.ac.diamond.sda.navigator.view">
-         <includes>
-            <actionExtension 
-                  pattern="uk.ac.diamond.sda.navigator.properties.actions.*"/>
-            <actionExtension 
-                  pattern="uk.ac.diamond.sda.navigator.srs.actions.*"/>
-         </includes>
-      </viewerActionBinding>
-   </extension>
-   -->
 </plugin>

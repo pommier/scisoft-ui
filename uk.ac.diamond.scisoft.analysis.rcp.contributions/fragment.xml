@@ -209,13 +209,6 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.LoadHDF5TreeAction"
             name="LoadHDF5Tree">
       </command>
-<!-- Demo command
-      <command
-            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.actions.NavigatorDemoAction"
-            id="uk.ac.diamond.scisoft.analysis.rcp.NavigatorDemoAction"
-            name="ActionJackson">
-      </command>
--->
       <command
             defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.handlers.CompareFilesHandler"
             id="uk.ac.diamond.scisoft.analysis.rcp.CompareFilesHandler"
@@ -1095,7 +1088,7 @@
             locationURI="popup:uk.ac.diamond.scisoft.explorer.group">
            <command
                  commandId="uk.ac.diamond.scisoft.analysis.rcp.CompareFilesHandler"
-                 label="Compare datasets"
+                 label="Compare files"
                  style="push">
               <visibleWhen
                     checkEnabled="false">
@@ -1105,12 +1098,23 @@
                         </iterate>
                         <count value="(1-" />
                     </and>
-<!--                 <with
-                       variable="selection">
-                    <count
-                          value="(1-">
-                    </count>
-                 </with> -->
+              </visibleWhen>
+           </command>
+        </menuContribution>
+        <menuContribution
+            locationURI="popup:uk.ac.diamond.sda.navigator.views.FileView?after=uk.ac.diamond.sda.navigator.separator2">
+           <command
+                 commandId="uk.ac.diamond.scisoft.analysis.rcp.CompareFilesHandler"
+                 label="Compare files"
+                 style="push">
+              <visibleWhen
+                    checkEnabled="false">
+                    <and>
+                        <iterate ifEmpty="false" operator="and">
+                            <instanceof value="java.io.File" />
+                        </iterate>
+                        <count value="(1-" />
+                    </and>
               </visibleWhen>
            </command>
         </menuContribution>
@@ -1138,7 +1142,6 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
             name="SDA">
       </page>
-     
    </extension>
    <extension
          point="uk.ac.diamond.scisoft.analysis.rcp.sidePlot">
@@ -1279,32 +1282,6 @@
    </extension>
    <extension
          point="org.eclipse.ui.popupMenus">
-<!--
-      <objectContribution
-            adaptable="true"
-            id="uk.ac.diamond.scisoft.analysis.rcp.NavigatorDemoContribution"
-            objectClass="org.eclipse.core.resources.IFile">
-         <action
-               class="uk.ac.diamond.scisoft.analysis.rcp.actions.NavigatorDemoAction"
-               enablesFor="+"
-               id="uk.ac.diamond.scisoft.analysis.rcp.DemoNavigatorDelegate"
-               label="ActionJackson"
-               menubarPath="uk.ac.diamond.scisoft.analysis.rcp.contributions.menu1/group1"
-               tooltip="Demo">
-         </action>
-      </objectContribution>
-      <objectContribution
-            adaptable="false"
-            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.objectContribution2"
-            objectClass="org.eclipse.core.resources.IFile">
-         <menu
-               id="uk.ac.diamond.scisoft.analysis.rcp.contributions.menu1"
-               label="SDA">
-            <separator
-                  name="group1">
-            </separator>
-         </menu>
-      </objectContribution> -->
       <!-- 
       
       Explore folders with the dawb image monitor rather than the ImageGridView
@@ -1387,6 +1364,18 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.analysisRpcAndRmiPreferencePage"
             name="Analysis RPC and RMI">
       </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.PrintSettingsPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.printSettingsPreferencePage"
+            name="Plot Printing Settings">
+      </page>
+      <!-- page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.LabelDecorationsPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.preferences.labelDecorationsPreferencePage"
+            name="Label Decorations">
+      </page-->
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
@@ -1419,22 +1408,6 @@
             name="SRS File content"
             priority="normal">
       </content-type>
-   </extension>
-   <extension
-         id="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewDefault"
-         name="Default"
-         point="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewRegister">
-         <ViewRegister
-         	ViewName="Plot 1">
-         </ViewRegister>
-   </extension>
-   <extension
-         id="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewDefault"
-         name="Default"
-         point="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewRegister">
-         <ViewRegister
-         	ViewName="Plot 2">
-         </ViewRegister>
    </extension>
    <extension
          point="uk.ac.diamond.scisoft.introRegister">
@@ -1516,6 +1489,17 @@
    <extension
          point="org.eclipse.ui.cheatsheets.cheatSheetContent">
       <category
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.uitesting"
+            name="Basic UI Features Testing">
+      </category>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.uitesting"
+            composite="true"
+            contentFile="cheat/PrintPlottingMain.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.plotprintingtest"
+            name="Plot Printing Testing">
+      </cheatsheet>
+      <category
             id="uk.ac.diamond.scisoft.analysis.rcp.contributions.divatutorial"
             name="DIVA Tutorials">
       </category>
@@ -1550,6 +1534,38 @@
             contentFile="cheat/JythonBasicProjectTutoral.xml"
             id="uk.ac.diamond.scisoft.analysis.rcp.jythonbasicprojecttutorial"
             name="b) Jython Basic Project Tutorial">
+      </cheatsheet>
+      <category
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.DataExplorerCategory"
+            name="Data Explorer Examples">
+      </category>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.DataExplorerCategory"
+            composite="false"
+            contentFile="cheat/LookingAtSRSScansWithPilatusImages.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.SRSWithPilatusCheatsheet"
+            name="SRS Data Files with Pilatus Images">
+      </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.DataExplorerCategory"
+            composite="false"
+            contentFile="cheat/LookingAtNeXusScans.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.NeXusScansCheatsheet"
+            name="NeXus Data Files">
+      </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.divatutorial"
+            composite="false"
+            contentFile="cheat/DiffractionViewerLookAtDifractionData.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.divalookatdata"
+            name="DIVA - Look at diffraction data">
+      </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.divatutorial"
+            composite="false"
+            contentFile="cheat/DiffractionViewerLookAtSpotProfiles.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.divaspotprofile"
+            name="DIVA - Look at Spot Profiles">
       </cheatsheet>
    </extension>
 </fragment>

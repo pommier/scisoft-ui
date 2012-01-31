@@ -102,6 +102,7 @@ public class Plot2DUI extends AbstractPlotUI {
 	private Action colourCastLinear = null;
 	private Action colourCastLog = null;
 	private Action gradientMode = null;
+	private Action axisVisibility = null;
 	private IGuiInfoManager manager = null;
 	private List<Action> switchToTabs;
 	private HistogramDataUpdate histoUpdate = null;
@@ -307,6 +308,7 @@ public class Plot2DUI extends AbstractPlotUI {
 		};
 		xLabelTypeSI.setText("X-Axis labels SI units");
 		xLabelTypeSI.setToolTipText("Change the labelling on the x-axis to using SI units");
+
 		yLabelTypeRound = new Action("",IAction.AS_RADIO_BUTTON)
 		{
 			@Override
@@ -367,7 +369,7 @@ public class Plot2DUI extends AbstractPlotUI {
 			}
 		};
 		colourCastLinear.setChecked(getPreferenceColourScaleChoice() == 0);
-		colourCastLinear.setText("Linear mappig colours");
+		colourCastLinear.setText("Linear mapping colours");
 		colourCastLinear.setToolTipText("Apply linear colour mapping to image");
 
 		colourCastLog = new Action("",IAction.AS_RADIO_BUTTON) 
@@ -381,7 +383,7 @@ public class Plot2DUI extends AbstractPlotUI {
 				logScaleSettings.put(histogramView.getPartName(), 1);
 			}
 		};
-		colourCastLog.setText("Logarithmic mappig colours");
+		colourCastLog.setText("Logarithmic mapping colours");
 		colourCastLog.setToolTipText("Apply logarithmic colour mapping to image");
 		colourCastLog.setChecked(getPreferenceColourScaleChoice() != 0);
 		
@@ -400,7 +402,19 @@ public class Plot2DUI extends AbstractPlotUI {
 		};
 		gradientMode.setText("Switch to gradient mode");
 		gradientMode.setToolTipText("Switches display to gradient mode shows magnitude of gradients");
-		
+
+		axisVisibility = new Action("",IAction.AS_CHECK_BOX)
+		{
+			@Override
+			public void run()
+			{
+				plotter.setAxisVisibility(axisVisibility.isChecked());
+			}
+		};
+		axisVisibility.setText("Show Axis");
+		axisVisibility.setToolTipText("Switches on/off Axis visibility");
+		axisVisibility.setChecked(true);
+
 		MenuManager xAxisMenu = new MenuManager("X-Axis");
 		MenuManager yAxisMenu = new MenuManager("Y-Axis");
 		manager.add(xAxisMenu);
@@ -416,6 +430,7 @@ public class Plot2DUI extends AbstractPlotUI {
 		manager.add(colourCastLinear);
 		manager.add(colourCastLog);
 		manager.add(gradientMode);
+		manager.add(axisVisibility);
 		manager.update(true);
 	}
 	

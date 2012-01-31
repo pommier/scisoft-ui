@@ -23,6 +23,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.ISelectionListener;
@@ -160,14 +161,18 @@ public class SRSEditor extends EditorPart {
 	}
 
 	public void update(final IWorkbenchPart original, final SRSTreeData srsData) {
-
-		/**
-		 * TODO Instead of selecting the editor, firing the selection and then selecting the navigator again, better to
-		 * have one object type selected by both the editor and navigator which the plot view listens to using eclipse
-		 * selection events.
-		 */
-
-		EclipseUtils.getActivePage().activate(this);
+		
+		// Make Display to wait until current focus event is finish, and then execute new focus event	
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				while (Display.getDefault().readAndDispatch()) {
+					//wait for events to finish before continue
+				}
+				srsxp.forceFocus();
+			}
+		});
+		//EclipseUtils.getActivePage().activate(this);
 
 		TableViewer viewer = srsxp.getViewer();
 		for (int i = 0; i < viewer.getTable().getItemCount(); i++) {
@@ -180,6 +185,7 @@ public class SRSEditor extends EditorPart {
 			}
 		}
 
+		// new focus event
 		EclipseUtils.getActivePage().activate(original);
 
 	}

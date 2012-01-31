@@ -34,6 +34,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode;
  */
 public class HDF5LabelProvider extends LabelProvider implements ILabelProvider, IDescriptionProvider, ILabelDecorator {
 	
+	public static final String ID = "uk.ac.diamond.sda.navigator.hdf5Decorator";
+	
 	@Override
 	public Image getImage(Object element) {
 		TreeNode data = (TreeNode) element;
@@ -95,14 +97,12 @@ public class HDF5LabelProvider extends LabelProvider implements ILabelProvider, 
 				strClass = temp[1].trim();
 				break; //no need to stay in the for loop
 			} else {
-
 				if (str[i].contains("shape")) {
 					String[] temp = str[i].split("shape");
 					strData = strData + "shape " + temp[1].trim() + " ";
 				} else if (str[i].contains("@axis")) {
 					String[] temp = str[i].split("=");
 					strData = strData + "axis = " + temp[1].trim() + " ";
-
 				} else {
 					strData = strData + " " + str[i].trim() + " ";
 				}

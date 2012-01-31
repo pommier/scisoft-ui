@@ -175,7 +175,18 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				} catch (IllegalArgumentException e) {
 					logger.warn("Problem with selection: ", e);
 				}
+			} else if (o instanceof File) {
+				File pf = (File) o;
+				try {
+					fileList.add(new SelectedFile(n, pf));
+					n++;
+					break;
+				} catch (IllegalArgumentException e) {
+					logger.warn("Problem with selection: ", e);
+				}
+				
 			}
+			
 		}
 		if (n == 0) {
 			// TODO error
@@ -205,6 +216,20 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				IFile f = (IFile) o;
 				try {
 					SelectedFile sf = new SelectedFile(n, f);
+					String name = sf.getAbsolutePath();
+					if (!getEditorCls(name).contains(editorName)) {
+						logger.warn("Editor cannot read file: {}", name);
+					}
+
+					fileList.add(sf);
+					n++;
+				} catch (IllegalArgumentException e) {
+					logger.warn("Problem with selection: ", e);
+				}
+			} else if (o instanceof File) {
+				File pf = (File) o;
+				try {
+					SelectedFile sf = new SelectedFile(n, pf);
 					String name = sf.getAbsolutePath();
 					if (!getEditorCls(name).contains(editorName)) {
 						logger.warn("Editor cannot read file: {}", name);
@@ -988,6 +1013,10 @@ class CompareFilesEditorInput extends PlatformObject implements IEditorInput {
 					IFile f = (IFile) o;
 					s.append(f.getFullPath().toString());
 					s.append(", ");
+				} else if (o instanceof File) {
+					File pf = (File) o;
+					s.append(pf.getAbsolutePath());
+					s.append(", ");
 				}
 			}
 			int end = s.length();
@@ -1011,6 +1040,13 @@ class SelectedFile {
 
 	public SelectedFile(int index, IFile file) {
 		f = new File(file.getLocationURI());
+		if (f == null || !f.canRead())
+			throw new IllegalArgumentException("File '" + file.getName() + "' does not exist or can not be read");
+		setIndex(index);
+	}
+
+	public SelectedFile(int index, File file) {
+		f = file;
 		if (f == null || !f.canRead())
 			throw new IllegalArgumentException("File '" + file.getName() + "' does not exist or can not be read");
 		setIndex(index);

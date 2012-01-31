@@ -83,6 +83,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.legend.LegendTable;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay1DConsumer;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay2DConsumer;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.OverlayConsumer;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.printing.PlotPrintPreviewDialog;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.printing.PrintSettings;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.SurfacePlotROI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.CameraRotationTool;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.ClickWheelZoomTool;
@@ -185,9 +187,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 	private double cacheMaxValue;
 
 	private PrinterData defaultPrinterData;
-	private String printOrientation;
-	private double printScale;
-	private int printResolution;
+	private PrintSettings settings;
 	
 	/**
 	 * Define the handness of the coordinate system
@@ -265,9 +265,6 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 		hasData = false;
 		
 		defaultPrinterData = Printer.getDefaultPrinterData();
-		printOrientation = PlotPrintPreviewDialog.portraitText;
-		printScale= 0.5;
-		printResolution = 2;
 	}
 
 	public void setUseLegend(final boolean useLeg) {
@@ -2035,21 +2032,15 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 				|| currentMode == PlottingMode.SCATTER2D) {
 			if(defaultPrinterData==null)
 				defaultPrinterData=Printer.getDefaultPrinterData();
-			PlotPrintPreviewDialog dialog = new PlotPrintPreviewDialog(viewerApp, container.getDisplay(),graphColourTable, 
-					defaultPrinterData, printOrientation, printScale, printResolution);
-			defaultPrinterData=dialog.open();
-			printOrientation = dialog.getOrientation();
-			printScale = dialog.getScale();
-			printResolution = dialog.getResolution();
+			if (settings==null) settings = new PrintSettings();
+			PlotPrintPreviewDialog dialog = new PlotPrintPreviewDialog(viewerApp, container.getDisplay(),graphColourTable, settings);
+			settings=dialog.open();
 		} else{
 			if(defaultPrinterData==null)
 				defaultPrinterData=Printer.getDefaultPrinterData();
-			PlotPrintPreviewDialog dialog = new PlotPrintPreviewDialog(viewerApp, container.getDisplay(),null,
-					defaultPrinterData, printOrientation, printScale, printResolution);
-			defaultPrinterData=dialog.open();
-			printOrientation = dialog.getOrientation();
-			printScale = dialog.getScale();
-			printResolution = dialog.getResolution();
+			if (settings==null) settings = new PrintSettings();
+			PlotPrintPreviewDialog dialog = new PlotPrintPreviewDialog(viewerApp, container.getDisplay(),null, settings);
+			settings=dialog.open();
 		}
 		isInExporting = false;
 
@@ -2281,6 +2272,23 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 		if (plotter == null)
 			return null;
 		return plotter.getAxisValues();
+	}
+
+	/**
+	 * Enable/Disable Axis visibility
+	 * 
+	 * @param checked
+	 *            true (enable feature detection) false (disable feature detection)
+	 */
+	public void setAxisVisibility(boolean checked) {
+		if (currentMode == PlottingMode.TWOD) {
+			coordXLabels.setVisible(checked);
+			coordYLabels.setVisible(checked);
+			coordZLabels.setVisible(checked);
+			coordAxes.setVisible(checked);
+			coordTicks.setVisible(checked);
+			refresh(checked);
+		}
 	}
 
 	/**
