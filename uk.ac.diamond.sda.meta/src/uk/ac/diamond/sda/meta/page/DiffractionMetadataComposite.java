@@ -21,7 +21,7 @@ import uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 
-public class DiffractionMetadataPage implements IMetadataPage{
+public class DiffractionMetadataComposite implements IMetadataPage{
 
 	
 	private Text wavelength;
@@ -43,7 +43,7 @@ public class DiffractionMetadataPage implements IMetadataPage{
 	private Text yBeam;
 	private Composite               content;
 	
-	public DiffractionMetadataPage(){
+	public DiffractionMetadataComposite(){
 		
 	}
 

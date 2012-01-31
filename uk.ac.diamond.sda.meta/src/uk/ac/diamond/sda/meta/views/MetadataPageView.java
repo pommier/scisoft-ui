@@ -1,5 +1,6 @@
 package uk.ac.diamond.sda.meta.views;
 
+
 import java.io.File;
 import java.util.ArrayList;
 import org.eclipse.core.resources.IFile;
@@ -13,11 +14,14 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener;
@@ -25,6 +29,7 @@ import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.progress.UIJob;
 
 import org.dawb.common.services.ILoaderService;
 
@@ -45,6 +50,8 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 	private ArrayList<MetadataPageContribution>pagesRegister = new ArrayList<MetadataPageContribution>();
 
 	private IToolBarManager toolBarManager;
+
+	private Composite parent;
 
 	private static final String PAGE_EXTENTION_ID = "uk.ac.diamond.sda.meta.metadataPageRegister";
 
@@ -101,15 +108,23 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 		}
 	}
 	
-	private void metadataChanged(IMetaData meta){
+	private void metadataChanged(final IMetaData meta){
 		//this method should react to the different types of metadata 
-		toolBarManager.removeAll();
-		for(MetadataPageContribution mpc:pagesRegister){
-			if(mpc.isApplicableFor(meta)){
-				pageActionFactory(mpc);
+		UIJob updateActionsForNewMetadata = new UIJob("Update for new metadata") {
+			
+			@Override
+			public IStatus runInUIThread(IProgressMonitor monitor) {
+				toolBarManager.removeAll();
+				for(MetadataPageContribution mpc:pagesRegister){
+					if(mpc.isApplicableFor(meta)){
+						pageActionFactory(mpc);
+					}
+				}
+				toolBarManager.update(false);
+				return Status.OK_STATUS;
 			}
-		}
-		//htp.setMetaData(meta);
+		};
+		updateActionsForNewMetadata.schedule();
 	}
 	
 	private void pageActionFactory(final MetadataPageContribution mpc) {
@@ -118,14 +133,27 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 			public void run() {
 				
 				try {
-					IMetadataPage imetadataPage = mpc.getPage();
-					
+					final IMetadataPage imetadataPage = mpc.getPage();
+					UIJob updateComposite = new UIJob("Update Composite") {
+						@Override
+						public IStatus runInUIThread(IProgressMonitor monitor) {
+							for (Control iterable_element : parent.getChildren()) {
+								iterable_element.dispose();
+							}
+							imetadataPage.createComposite(parent);
+							imetadataPage.setMetaData(meta);
+							parent.layout();
+							return Status.OK_STATUS;
+						}
+					};
+					updateComposite.schedule();
 				} catch (CoreException e) {
-					logger.warn("Could not create "+mpc.getExtentionPointname());
+					logger.warn("Could not create "+mpc.getExtentionPointname());	
 				}
 			}
-			
 		};
+		
+		metadatapage.setImageDescriptor(mpc.getIcon());
 		toolBarManager.add(metadatapage);
 	}
 
@@ -201,9 +229,7 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 
 	@Override
 	public void createPartControl(Composite parent) {
-		//composite
-		Composite comp = new Composite(parent, SWT.NONE);
-		comp.setLayout(new GridLayout(1, true));
+		this.parent = parent;
 		
 		getSite().getPage().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
 		getSite().getPage().addPartListener(this);
