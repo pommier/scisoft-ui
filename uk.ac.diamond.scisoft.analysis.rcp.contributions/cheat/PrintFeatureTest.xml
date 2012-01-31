@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet
+      title="Plot Printing Testing">
+   <intro>
+      <description>
+         <b>This cheat sheet is to test the SDA printing feature of plots and images.</b>
+      </description>
+   </intro>
+   <item
+         title="Open a data file in its corresponding editor">
+      <description>
+         Please follow the steps below to test the print feature.
+      </description>
+      <subitem
+         label="1. Open in the project explorer the file '/SRS/i16-SCAN/76003.dat' using 'right-click/Open With/SRS Editor'.">
+      </subitem>
+      <subitem
+         label="2. Select one of the preferred data set to have the plotting refreshed.">
+      </subitem>
+      <subitem
+         label="3. On the Dataset Plot View, click on the Printer button on the tool bar or on the menu located on the top right hand corner of that same view">
+      </subitem>
+      <subitem
+         label="4. If the Dataset Plot View is active you can also use the main menu/tool bar Print Button or the short key CTRL+P.">
+      </subitem>
+      <subitem
+         label="5. On the new Preview dialog displayed, you can select the scale (10% to 100%), the resolution/quality of the plot and the printer to use.">
+      </subitem>
+      <subitem
+         label="6. Once the characteristics of the printing are chosen click on Select Printer/Print or Print button if your preferred printer is already the one by default.">
+      </subitem>
+      <subitem
+         label="7. Try the previous steps with another plot/image and other printing characteristics.">
+      </subitem>
+      <subitem
+         label="8. The chosen print settings are kept in memory and the last settings used will be chosen once a new instance of the preview dialog is open. You can also change those settings from the general preference page by going to 'Window/Preferences/SDA/Plot Printing Settings'.">
+      </subitem>
+   </item>
+</cheatsheet>

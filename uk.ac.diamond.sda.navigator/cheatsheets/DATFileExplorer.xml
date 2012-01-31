@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<cheatsheet title="DAT File Navigator in Package Explorer">
+  <intro>
+    <description>
+      This cheat sheet describes how to use the DAT file navigation feature of the package explorer.
+    </description>
+  </intro>
+  <item
+        title="Open the folder containing the .dat files">
+     <description>
+        Once the Data Project is loaded, open the folder containing the DAT files within the Project Explorer.
+     </description>
+  </item>
+
+   <item
+        title="Browsing the data through the SRSEditor and the Package Explorer">
+    
+     <description>
+        All DAT files appearing in the project explorer can be opened as folders and once opened will display the list of their content.<br/><br/>
+        Furthermore, by default, all resource files in the Project Explorer have decorators displaying the size, date of creation and scan command (for the DAT files).
+     </description>
+  </item>
+  <item
+        title="Activate / deactivate the scan command decorator">
+     <description>
+        The scan command decorator (active by default) can be activated/deactivated through &apos;Window -> Preferences -> General -> Appearance -> Label Decorations&apos; or through the link below.<br/><br/>
+        The label decorator that manages the scan command decoration is called &apos;DAT File Scan Command Decorator&apos;.
+     </description>
+     <command
+           required="false"
+           serialization="org.eclipse.ui.window.preferences(preferencePageId=org.eclipse.ui.preferencePages.Decorators)"/>
+  </item>
+  <item
+        title="Open the DAT file in SRS Editor">
+     <description>
+        In order to be able to display the DAT file data in the DExplore plotting, we need to open the DAT file with the SRS Editor.<br/><br/>
+        This can be done with &apos;Right Click on the DAT file -> Open With -> SRS Editor&apos;.<br/><br/>
+        <b>Note</b>: the DAT files can also be opened by double clicking on one of the DAT file sub element, however the editor used to open the file will be the last one in the workspace history used to open the file.<br/><br/>
+     </description>
+  </item>
+  <item
+        title="Navigate through the DAT file data and have the SRS Editor and the plotting refreshed accordingly">
+     <description>
+        With the Project Explorer active (see note below) and the DAT file opened in a SRS Editor, select one of the DAT file sub element.<br/><br/>
+        Check that both the plotting and the corresponding SRS Editor are updated accordingly.<br/><br/>
+        <b>Note</b>: if the DAT file is opened through double clicking on it or through the steps above, one needs to make sure the Project Explorer is active in order to have the SRS Editor and the plotting refreshed after a sub element selection.
+     </description>
+  </item>
+</cheatsheet>
+

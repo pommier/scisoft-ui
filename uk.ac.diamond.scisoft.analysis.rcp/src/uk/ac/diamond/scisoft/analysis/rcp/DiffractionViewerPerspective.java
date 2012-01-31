@@ -31,10 +31,12 @@ public class DiffractionViewerPerspective implements IPerspectiveFactory {
 
 		IFolderLayout plotsLayout = layout.createFolder("plotFolder", IPageLayout.RIGHT, 0.4f, "toolsFolder");
 		plotsLayout.addView("uk.ac.diamond.scisoft.analysis.rcp.plotViewDP");
-		plotsLayout.addView("uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView:Dataset Plot");
-		plotsLayout.addView("uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView");
 		
-		IFolderLayout explorerLayout = layout.createFolder("explorerFolder", IPageLayout.TOP, 0.5f, "toolsFolder");
+		IFolderLayout sidefolder = layout.createFolder("sidefolder", IPageLayout.TOP, 0.8f, "toolsFolder");
+		sidefolder.addView("uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView:Dataset Plot");
+		sidefolder.addView("uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView:Dataset Plot");
+		
+		IFolderLayout explorerLayout = layout.createFolder("explorerFolder", IPageLayout.TOP, 0.5f, "sidefolder");
 		explorerLayout.addView("uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView");
 		explorerLayout.addPlaceholder("org.dawb.workbench.views.imageMonitorView");
 		

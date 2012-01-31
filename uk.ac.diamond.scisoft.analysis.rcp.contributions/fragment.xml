@@ -1142,7 +1142,6 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
             name="SDA">
       </page>
-     
    </extension>
    <extension
          point="uk.ac.diamond.scisoft.analysis.rcp.sidePlot">
@@ -1365,6 +1364,18 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.analysisRpcAndRmiPreferencePage"
             name="Analysis RPC and RMI">
       </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.PrintSettingsPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.printSettingsPreferencePage"
+            name="Plot Printing Settings">
+      </page>
+      <!-- page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.LabelDecorationsPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.preferences.labelDecorationsPreferencePage"
+            name="Label Decorations">
+      </page-->
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
@@ -1478,6 +1489,17 @@
    <extension
          point="org.eclipse.ui.cheatsheets.cheatSheetContent">
       <category
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.uitesting"
+            name="Basic UI Features Testing">
+      </category>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.uitesting"
+            composite="true"
+            contentFile="cheat/PrintPlottingMain.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.plotprintingtest"
+            name="Plot Printing Testing">
+      </cheatsheet>
+      <category
             id="uk.ac.diamond.scisoft.analysis.rcp.contributions.divatutorial"
             name="DIVA Tutorials">
       </category>
@@ -1512,6 +1534,38 @@
             contentFile="cheat/JythonBasicProjectTutoral.xml"
             id="uk.ac.diamond.scisoft.analysis.rcp.jythonbasicprojecttutorial"
             name="b) Jython Basic Project Tutorial">
+      </cheatsheet>
+      <category
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.DataExplorerCategory"
+            name="Data Explorer Examples">
+      </category>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.DataExplorerCategory"
+            composite="false"
+            contentFile="cheat/LookingAtSRSScansWithPilatusImages.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.SRSWithPilatusCheatsheet"
+            name="SRS Data Files with Pilatus Images">
+      </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.DataExplorerCategory"
+            composite="false"
+            contentFile="cheat/LookingAtNeXusScans.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.NeXusScansCheatsheet"
+            name="NeXus Data Files">
+      </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.divatutorial"
+            composite="false"
+            contentFile="cheat/DiffractionViewerLookAtDifractionData.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.divalookatdata"
+            name="DIVA - Look at diffraction data">
+      </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.divatutorial"
+            composite="false"
+            contentFile="cheat/DiffractionViewerLookAtSpotProfiles.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.divaspotprofile"
+            name="DIVA - Look at Spot Profiles">
       </cheatsheet>
    </extension>
 </fragment>

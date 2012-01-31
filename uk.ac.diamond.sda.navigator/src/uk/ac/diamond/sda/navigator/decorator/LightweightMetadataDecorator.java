@@ -22,16 +22,21 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.LabelProvider;
 
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LightweightMetadataDecorator extends LabelProvider implements ILightweightLabelDecorator {
+
+	public static final String ID = "uk.ac.diamond.sda.navigator.metadataDecorator";
+	
+	private static final Logger logger = LoggerFactory.getLogger(LightweightMetadataDecorator.class);
 	
 	public LightweightMetadataDecorator() {
 		super();
@@ -58,31 +63,48 @@ public class LightweightMetadataDecorator extends LabelProvider implements ILigh
 	@Override
 	public void removeListener(ILabelProviderListener listener) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void decorate(Object element, IDecoration decoration) {
-		IResource objectResource = (IResource) element;
 		if (element instanceof IFile) {
-			// Decorate the label of the resource with the admin name
 			IFile ifile = (IFile) element;
 			IPath path = ifile.getLocation();
 			File file = path.toFile();
-			objectResource.getResourceAttributes().toString();
-
 			String lastModified = new SimpleDateFormat("dd/MM/yy hh:mm aaa").format(new Date(file.lastModified()));
-			
-			decoration.addSuffix("  " + readableFileSize(file.length()) + "  " + lastModified);
-			//decoration.setForegroundColor(Display.getCurrent().getSystemColor(SWT.COLOR_CYAN));
+			String filePermission = getFilePermission(file);
+			//file size - date of last modification - file permissions
+			decoration.addSuffix("  "+readableFileSize(file.length())+"  "+lastModified);//+"  "+filePermission);
+			//Image overlay decoration according to file permission:
+			if(filePermission.equals("- - -")){
+				ImageDescriptor lockOverlay = ImageDescriptor.createFromFile(this .getClass(),"/icons/decorators/unconfigured_co.gif");
+				decoration.addOverlay(lockOverlay);
+			}
 		}
 	}
-	
+
 	public static String readableFileSize(long size) {
 		if (size <= 0)
 			return "0";
 		final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
 		int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
 		return new DecimalFormat("#,##0.#").format(size / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
+	}
+
+	public static String getFilePermission(File file) { 
+		// File Permissions:
+		// r = read permission
+		// w = write permission
+		// x = execute permission
+		// - = no permission
+		String read = "-", write = "-", execute = "-";
+		if (file.canRead())
+			read = "r";
+		if (file.canWrite())
+			write = "w";
+		if (file.canExecute())
+			execute = "x";
+
+		return read + " " + write + " " + execute;
 	}
 }

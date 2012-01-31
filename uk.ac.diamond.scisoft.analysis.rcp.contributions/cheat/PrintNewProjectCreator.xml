@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet title="Data Projects">
+	<intro>
+		<description>
+		This cheat sheet walks you through the creation of a Data Project in the 'Project Explorer'
+		</description>
+ 	</intro>
+
+  <item title="DExplore perspective">
+    <description>
+      Open the DExplore perspective, designed for browsing through the data
+    </description>
+    <command
+      serialization="org.eclipse.ui.perspectives.showPerspective(org.eclipse.ui.perspectives.showPerspective.perspectiveId=uk.ac.diamond.scisoft.dataexplorationperspective)"
+      confirm="true" translate="" >
+    </command>
+  </item>
+  <item title="Create a New Data Project">
+	<description>
+		Click below to start the new data project wizard. This creates a project capable of containing new data files and importing large data links. You can also start this wizard by right clicking and selecting "New --> Other --> Data --> Data Project".<br/><br/>
+		Fill the Data Wizard text fields with the necessary information:<br/><br/>
+		1. Enter a name in the project and folder text fields<br/>
+		2. Enter "/dls/sci-scratch/ExampleData" in the directory text field<br/>
+		3. Press the 'finish' button.
+	</description>
+	<command 
+		required="false"
+		serialization="org.eclipse.ui.newWizard(newWizardId=uk.ac.diamond.scisoft.analysis.rcp.wizards.DataWizard)"/>
+  </item>
+</cheatsheet>

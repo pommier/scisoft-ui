@@ -2,14 +2,15 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Navigator
 Bundle-SymbolicName: uk.ac.diamond.sda.navigator;singleton:=true
-Bundle-Version: 1.1.0.qualifier
+Bundle-Version: 1.0.0.qualifier
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.resources,
  org.eclipse.core.runtime,
  org.eclipse.ui.navigator,
  org.eclipse.ui,
  org.eclipse.ui.ide,
- uk.ac.gda.common
+ uk.ac.gda.common,
+ org.eclipse.ui.cheatsheets;bundle-version="3.4.100"
 Bundle-Activator: uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator
 Import-Package: com.isencia.passerelle.workbench.model.editor.ui.editor,
  com.isencia.passerelle.workbench.model.ui,
