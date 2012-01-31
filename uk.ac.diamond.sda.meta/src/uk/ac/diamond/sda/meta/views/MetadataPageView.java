@@ -3,6 +3,8 @@ package uk.ac.diamond.sda.meta.views;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -14,14 +16,10 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener;
@@ -48,7 +46,8 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 	private IMetaData meta;
 	private HeaderTablePage htp;
 	private ArrayList<MetadataPageContribution>pagesRegister = new ArrayList<MetadataPageContribution>();
-
+	
+	private HashMap<String , IMetadataPage> loadedPages = new HashMap<String, IMetadataPage>();
 	private IToolBarManager toolBarManager;
 
 	private Composite parent;
@@ -133,15 +132,17 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 			public void run() {
 				
 				try {
-					final IMetadataPage imetadataPage = mpc.getPage();
+					if(!loadedPages.containsKey(mpc.getExtentionPointname())){
+						loadedPages.put(mpc.getExtentionPointname(), mpc.getPage());
+					}
 					UIJob updateComposite = new UIJob("Update Composite") {
 						@Override
 						public IStatus runInUIThread(IProgressMonitor monitor) {
 							for (Control iterable_element : parent.getChildren()) {
 								iterable_element.dispose();
 							}
-							imetadataPage.createComposite(parent);
-							imetadataPage.setMetaData(meta);
+							loadedPages.get(mpc.getExtentionPointname()).createComposite(parent);
+							loadedPages.get(mpc.getExtentionPointname()).setMetaData(meta);
 							parent.layout();
 							return Status.OK_STATUS;
 						}
