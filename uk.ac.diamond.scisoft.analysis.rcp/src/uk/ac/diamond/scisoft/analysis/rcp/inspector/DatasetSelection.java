@@ -68,9 +68,13 @@ public class DatasetSelection implements IStructuredSelection {
 		 */
 		DATA2D,
 		/**
-		 * Stacked images plot of 3D dataset
+		 * Image explorer of 3D dataset
 		 */
-		MULTIIMAGE,
+		IMAGEXP,
+		/**
+		 * Stacked multiple images plot of 3D dataset
+		 */
+		MULTIIMAGES,
 		/**
 		 * Points plot of 3D dataset
 		 */

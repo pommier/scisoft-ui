@@ -71,6 +71,7 @@ import de.jreality.util.SceneGraphUtility;
  */
 public class DataSet3DPlot2DMulti extends DataSet3DPlot2D {
 
+	public static final int MAX_IMAGES = 7;
 	private Map<Texture2D, Object> imageDatas = new HashMap<Texture2D,Object>();
 	private int isRGB[] = new int[]{0,0,0,0,0,0,0};
 	private static final Logger logger = LoggerFactory
@@ -89,12 +90,12 @@ public class DataSet3DPlot2DMulti extends DataSet3DPlot2D {
  							     double min, double max) {
 		if (tableProg == null) {
 			tableProg = new GlslProgram(graphApp,"polygonShader",null,
-					JOGLGLSLShaderGenerator.generateCompositeShader(false,numGraphs > 8 ? 8 :numGraphs),
-					JOGLGLSLShaderGenerator.generateCompositeShaderName(false,numGraphs > 8 ? 8 : numGraphs));
+					JOGLGLSLShaderGenerator.generateCompositeShader(false,numGraphs > MAX_IMAGES ? MAX_IMAGES :numGraphs),
+					JOGLGLSLShaderGenerator.generateCompositeShaderName(false,numGraphs > MAX_IMAGES ? MAX_IMAGES : numGraphs));
 		} else {
 			tableProg.setShaders(null, 
-								 JOGLGLSLShaderGenerator.generateCompositeShader(false,numGraphs > 8 ? 8 :numGraphs),
-								 JOGLGLSLShaderGenerator.generateCompositeShaderName(false,numGraphs > 8 ? 8 : numGraphs));
+								 JOGLGLSLShaderGenerator.generateCompositeShader(false,numGraphs > MAX_IMAGES ? MAX_IMAGES :numGraphs),
+								 JOGLGLSLShaderGenerator.generateCompositeShaderName(false,numGraphs > MAX_IMAGES ? MAX_IMAGES : numGraphs));
 		}
 		tableProg.setUniform("maxValue", max);
 		tableProg.setUniform("minValue",min);
@@ -153,9 +154,9 @@ public class DataSet3DPlot2DMulti extends DataSet3DPlot2D {
 																	 graphApp,true);
 					break;						
 				}
-				for (int i = 0; i < (numGraphs < 7 ? numGraphs : 7); i++)
+				for (int i = 0; i < (numGraphs < MAX_IMAGES ? numGraphs : MAX_IMAGES); i++)
 					tableProg.setUniform("sampler"+i, i);
-				tableProg.setUniform("tableSampler", numGraphs < 7 ? numGraphs : 7);
+				tableProg.setUniform("tableSampler", numGraphs < MAX_IMAGES ? numGraphs : MAX_IMAGES);
 				// initial weights and compositing operators
 				float[] weights = new float[]{1.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f};
 				float[] masks = new float[21];
@@ -931,7 +932,7 @@ public class DataSet3DPlot2DMulti extends DataSet3DPlot2D {
 			float[] weights = new float[]{0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f};
 			float[] masks = new float[21];
 			int[] ops = new int[]{0,0,0,0,0,0,0};
-			for (int i = 0; i < (list.size() < 7 ? list.size() : 7); i++) {
+			for (int i = 0; i < (list.size() < MAX_IMAGES ? list.size() : MAX_IMAGES); i++) {
 				weights[i] = list.get(i).getWeight();
 				masks[i*3] = (list.get(i).getChannelMask()&1) == 1 ? 1.0f : 0.0f;
 				masks[i*3+1] = (list.get(i).getChannelMask()&2) == 2 ? 1.0f : 0.0f;
