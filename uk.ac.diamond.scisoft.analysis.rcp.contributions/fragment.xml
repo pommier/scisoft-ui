@@ -292,69 +292,6 @@
       		</commandParameter>
       </command>
       <command
-      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale10Action"
-      		name="Print 10 %">
-      		<commandParameter
-      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
-      			name="Source View"
-      			optional="false">
-      		</commandParameter>
-      </command>
-      <command
-      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale25Action"
-      		name="Print 25 %">
-      		<commandParameter
-      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
-      			name="Source View"
-      			optional="false">
-      		</commandParameter>
-      </command>
-      <command
-            id="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale33Action"
-            name="Print 33 %">
-         <commandParameter
-               id="uk.ac.diamond.scisoft.analysis.command.sourceView"
-               name="Source View"
-               optional="false">
-         </commandParameter>
-      </command>
-      <command
-      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale50Action"
-      		name="Print 50 %">
-      		<commandParameter
-      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
-      			name="Source View"
-      			optional="false">
-      		</commandParameter>
-      </command>
-      <command
-            id="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale66Action"
-            name="Print 66 %">
-         <commandParameter
-               id="uk.ac.diamond.scisoft.analysis.command.sourceView"
-               name="Source View"
-               optional="false">
-         </commandParameter>
-      </command>
-      <command
-      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale75Action"
-      		name="Print 75 %">
-      		<commandParameter
-      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
-      			name="Source View"
-      			optional="false">
-      		</commandParameter>
-      </command>
-      <command
-      		id="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale100Action"
-      		name="Print 100 %">
-      		<commandParameter
-      			id="uk.ac.diamond.scisoft.analysis.command.sourceView"
-      			name="Source View"
-      			optional="false">
-      		</commandParameter>
-      </command>
-      <command
             id="uk.ac.diamond.scisoft.analysis.rcp.PlotSaveGraphAction"
             name="Export / save the plotting">
       		<commandParameter
