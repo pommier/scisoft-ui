@@ -33,5 +33,13 @@
             supportedMetadata="uk.ac.diamond.sda.meta.discriminator.MetadataDiscriminator">
       </client>
    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="preferences.MetadataPageAssociationPreferences"
+            id="uk.ac.diamond.sda.meta.metadataPageAssociationPreferences"
+            name="Metadata Page Association Preferences">
+      </page>
+   </extension>
 
 </plugin>
