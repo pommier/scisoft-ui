@@ -69,43 +69,6 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 			}
 		}
 	}
-
-
-
-	@Override
-	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
-		if (part instanceof IMetadataProvider)
-			try {
-				htp.setMetaData(((IMetadataProvider) part).getMetadata());
-			} catch (Exception e) {
-				logger.error(
-						"There was a error reading the metadata from the selection",
-						e);
-			}
-		else {
-			if (selection == null)
-				if (selection instanceof StructuredSelection) {
-					// this.lastSelection = (StructuredSelection) selection;
-					final Object sel = ((StructuredSelection) selection)
-							.getFirstElement();
-
-					if (sel instanceof IFile) {
-						final String filePath = ((IFile) sel).getLocation()
-								.toOSString();
-						updatePath(filePath);
-					} else if (sel instanceof File) {
-						final String filePath = ((File) sel).getAbsolutePath();
-						updatePath(filePath);
-					} else if (sel instanceof IMetadataProvider) {
-						try {
-							metadataChanged(((IMetadataProvider) sel).getMetadata());
-						} catch (Exception e) {
-							logger.error("Could not capture metadata from selection",e);
-						}
-					}
-				}
-		}
-	}
 	
 	private void metadataChanged(final IMetaData meta){
 		//this method should react to the different types of metadata 
@@ -153,10 +116,46 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 				}
 			}
 		};
-		
 		metadatapage.setImageDescriptor(mpc.getIcon());
 		toolBarManager.add(metadatapage);
 	}
+	
+	@Override
+	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
+		if (part instanceof IMetadataProvider)
+			try {
+				htp.setMetaData(((IMetadataProvider) part).getMetadata());
+			} catch (Exception e) {
+				logger.error(
+						"There was a error reading the metadata from the selection",
+						e);
+			}
+		else {
+			if (selection == null)
+				if (selection instanceof StructuredSelection) {
+					// this.lastSelection = (StructuredSelection) selection;
+					final Object sel = ((StructuredSelection) selection)
+							.getFirstElement();
+
+					if (sel instanceof IFile) {
+						final String filePath = ((IFile) sel).getLocation()
+								.toOSString();
+						updatePath(filePath);
+					} else if (sel instanceof File) {
+						final String filePath = ((File) sel).getAbsolutePath();
+						updatePath(filePath);
+					} else if (sel instanceof IMetadataProvider) {
+						try {
+							metadataChanged(((IMetadataProvider) sel).getMetadata());
+						} catch (Exception e) {
+							logger.error("Could not capture metadata from selection",e);
+						}
+					}
+				}
+		}
+	}
+	
+
 
 	private void updatePath(final String filePath) {
 		final Job metaJob = new Job("Extra Meta Data " + filePath) {
