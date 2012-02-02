@@ -188,8 +188,6 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 		}
 	}
 	
-
-
 	private void updatePath(final String filePath) {
 		final Job metaJob = new Job("Extra Meta Data " + filePath) {
 
