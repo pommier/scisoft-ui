@@ -1,6 +1,5 @@
 package uk.ac.diamond.sda.meta.views;
 
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,46 +33,50 @@ import org.dawb.common.services.ILoaderService;
 import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.sda.meta.contribution.MetadataPageContribution;
-import uk.ac.diamond.sda.meta.page.HeaderTablePage;
 import uk.ac.diamond.sda.meta.page.IMetadataPage;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MetadataPageView extends ViewPart implements ISelectionListener, IPartListener {
-	private static final Logger logger = LoggerFactory.getLogger(MetadataPageView.class);
-	
+public class MetadataPageView extends ViewPart implements ISelectionListener,
+		IPartListener {
+	private static final Logger logger = LoggerFactory
+			.getLogger(MetadataPageView.class);
+
 	private IMetaData meta;
-	private ArrayList<MetadataPageContribution>pagesRegister = new ArrayList<MetadataPageContribution>();
-	
+	private ArrayList<MetadataPageContribution> pagesRegister = new ArrayList<MetadataPageContribution>();
+
 	private HashMap<String, IMetadataPage> loadedPages = new HashMap<String, IMetadataPage>();
 	private HashMap<String, Action> actionRegistary = new HashMap<String, Action>();
-	
+
 	private HashMap<String, String> metatdataPageAssociation = new HashMap<String, String>();
 	private String defaultComposite = "Header";
-	
+
 	private IToolBarManager toolBarManager;
 
 	private Composite parent;
 
 	private static final String PAGE_EXTENTION_ID = "uk.ac.diamond.sda.meta.metadataPageRegister";
 
-	public MetadataPageView(){
+	public MetadataPageView() {
 		super();
 		getExtentionPoints();
 	}
-	
+
 	private void getExtentionPoints() {
-		IExtension[] extentionPoints = Platform.getExtensionRegistry().getExtensionPoint(PAGE_EXTENTION_ID).getExtensions();
-		for (int i=0;i<extentionPoints.length;i++){
+		IExtension[] extentionPoints = Platform.getExtensionRegistry()
+				.getExtensionPoint(PAGE_EXTENTION_ID).getExtensions();
+		for (int i = 0; i < extentionPoints.length; i++) {
 			IExtension extension = extentionPoints[i];
-			IConfigurationElement[] configElements = extension.getConfigurationElements();
-			for (int j = 0; j < configElements.length; j++) { 
-					pagesRegister.add(new MetadataPageContribution(configElements[j]));
+			IConfigurationElement[] configElements = extension
+					.getConfigurationElements();
+			for (int j = 0; j < configElements.length; j++) {
+				pagesRegister.add(new MetadataPageContribution(
+						configElements[j]));
 			}
 		}
 	}
-	
+
 	private void metadataChanged(final IMetaData meta) {
 		// this method should react to the different types of metadata
 		UIJob updateActionsForNewMetadata = new UIJob("Update for new metadata") {
@@ -98,14 +101,15 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 		updateActionsForNewMetadata.schedule();
 		doDefaultBehaviour();
 	}
-	
+
 	private void doDefaultBehaviour() {
 		String defaultView;
 		if (metatdataPageAssociation.containsKey(meta.getClass().toString())) {
-			defaultView = metatdataPageAssociation.get(meta.getClass().toString());
+			defaultView = metatdataPageAssociation.get(meta.getClass()
+					.toString());
 			if (actionRegistary.containsKey(defaultView))
 				actionRegistary.get(defaultView).run();
-		}else{
+		} else {
 			if (actionRegistary.containsKey(defaultComposite))
 				actionRegistary.get(defaultComposite).run();
 		}
@@ -119,37 +123,40 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 
 				try {
 					if (!loadedPages.containsKey(mpc.getExtentionPointname())) {
-						loadedPages.put(mpc.getExtentionPointname(),mpc.getPage());
+						loadedPages.put(mpc.getExtentionPointname(),
+								mpc.getPage());
 					}
 				} catch (CoreException e) {
-					logger.warn("Could not create "+ mpc.getExtentionPointname());
+					logger.warn("Could not create "
+							+ mpc.getExtentionPointname());
 					return;
 				}
 
 				UIJob updateComposite = new UIJob("Update Composite") {
 					@Override
 					public IStatus runInUIThread(IProgressMonitor monitor) {
-						//clear the old composite
+						// clear the old composite
 						for (Control iterable_element : parent.getChildren()) {
 							iterable_element.dispose();
 						}
-						loadedPages.get(mpc.getExtentionPointname()).createComposite(parent);
-						loadedPages.get(mpc.getExtentionPointname()).setMetaData(meta);
+						loadedPages.get(mpc.getExtentionPointname())
+								.createComposite(parent);
+						loadedPages.get(mpc.getExtentionPointname())
+								.setMetaData(meta);
 						parent.layout();
 						return Status.OK_STATUS;
 					}
 				};
 				updateComposite.schedule();
-				metatdataPageAssociation.put(meta.getClass().toString(), mpc.getExtentionPointname());
+				metatdataPageAssociation.put(meta.getClass().toString(),
+						mpc.getExtentionPointname());
 			}
-			
+
 		};
 		metadatapage.setImageDescriptor(mpc.getIcon());
 		return metadatapage;
 	}
-	
-	
-	
+
 	@Override
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 		if (part instanceof IMetadataProvider)
@@ -165,7 +172,8 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 			if (selection != null)
 				if (selection instanceof StructuredSelection) {
 					// this.lastSelection = (StructuredSelection) selection;
-					final Object sel = ((StructuredSelection) selection).getFirstElement();
+					final Object sel = ((StructuredSelection) selection)
+							.getFirstElement();
 
 					if (sel instanceof IFile) {
 						final String filePath = ((IFile) sel).getLocation()
@@ -187,7 +195,7 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 				}
 		}
 	}
-	
+
 	private void updatePath(final String filePath) {
 		final Job metaJob = new Job("Extra Meta Data " + filePath) {
 
@@ -262,19 +270,19 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 	@Override
 	public void createPartControl(Composite parent) {
 		this.parent = parent;
-		
-		getSite().getPage().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
+
+		getSite().getPage().getWorkbenchWindow().getSelectionService()
+				.addSelectionListener(this);
 		getSite().getPage().addPartListener(this);
-		
-		//add some toolbar
+
+		// add some toolbar
 		toolBarManager = getViewSite().getActionBars().getToolBarManager();
 	}
 
 	@Override
 	public void setFocus() {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
-	
+
 }
