@@ -11,4 +11,6 @@ public interface IMetadataDiscriminator {
 	 * @return is the page can process the metadata
 	 */
 	public boolean isApplicableFor(IMetaData metadata);
+	
+	
 }

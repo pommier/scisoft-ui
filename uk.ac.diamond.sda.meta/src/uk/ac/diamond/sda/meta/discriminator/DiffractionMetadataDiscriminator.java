@@ -14,5 +14,6 @@ public class DiffractionMetadataDiscriminator implements IMetadataDiscriminator 
 			return true;
 		return false;
 	}
+	
 
 }

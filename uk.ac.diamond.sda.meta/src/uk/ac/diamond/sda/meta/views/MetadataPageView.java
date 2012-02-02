@@ -44,10 +44,14 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 	private static final Logger logger = LoggerFactory.getLogger(MetadataPageView.class);
 	
 	private IMetaData meta;
-	private HeaderTablePage htp;
 	private ArrayList<MetadataPageContribution>pagesRegister = new ArrayList<MetadataPageContribution>();
 	
-	private HashMap<String , IMetadataPage> loadedPages = new HashMap<String, IMetadataPage>();
+	private HashMap<String, IMetadataPage> loadedPages = new HashMap<String, IMetadataPage>();
+	private HashMap<String, Action> actionRegistary = new HashMap<String, Action>();
+	
+	private HashMap<String, String> metatdataPageAssociation = new HashMap<String, String>();
+	private String defaultComposite = "Header";
+	
 	private IToolBarManager toolBarManager;
 
 	private Composite parent;
@@ -70,72 +74,98 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 		}
 	}
 	
-	private void metadataChanged(final IMetaData meta){
-		//this method should react to the different types of metadata 
+	private void metadataChanged(final IMetaData meta) {
+		// this method should react to the different types of metadata
 		UIJob updateActionsForNewMetadata = new UIJob("Update for new metadata") {
-			
+
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				toolBarManager.removeAll();
-				for(MetadataPageContribution mpc:pagesRegister){
-					if(mpc.isApplicableFor(meta)){
-						pageActionFactory(mpc);
+				for (MetadataPageContribution mpc : pagesRegister) {
+					if (mpc.isApplicableFor(meta)) {
+						Action action = pageActionFactory(mpc);
+						actionRegistary
+								.put(mpc.getExtentionPointname(), action);
+						toolBarManager.add(action);
 					}
 				}
 				toolBarManager.update(false);
+				// select the page that was last active for a given metadata
+				// This is not going to end well!!
 				return Status.OK_STATUS;
 			}
 		};
 		updateActionsForNewMetadata.schedule();
+		doDefaultBehaviour();
 	}
 	
-	private void pageActionFactory(final MetadataPageContribution mpc) {
+	private void doDefaultBehaviour() {
+		String defaultView;
+		if (metatdataPageAssociation.containsKey(meta.getClass().toString())) {
+			defaultView = metatdataPageAssociation.get(meta.getClass().toString());
+			if (actionRegistary.containsKey(defaultView))
+				actionRegistary.get(defaultView).run();
+		}else{
+			if (actionRegistary.containsKey(defaultComposite))
+				actionRegistary.get(defaultComposite).run();
+		}
+	}
+
+	private Action pageActionFactory(final MetadataPageContribution mpc) {
 		final Action metadatapage = new Action(mpc.getExtentionPointname()) {
+
 			@Override
 			public void run() {
-				
+
 				try {
-					if(!loadedPages.containsKey(mpc.getExtentionPointname())){
-						loadedPages.put(mpc.getExtentionPointname(), mpc.getPage());
+					if (!loadedPages.containsKey(mpc.getExtentionPointname())) {
+						loadedPages.put(mpc.getExtentionPointname(),mpc.getPage());
 					}
-					UIJob updateComposite = new UIJob("Update Composite") {
-						@Override
-						public IStatus runInUIThread(IProgressMonitor monitor) {
-							for (Control iterable_element : parent.getChildren()) {
-								iterable_element.dispose();
-							}
-							loadedPages.get(mpc.getExtentionPointname()).createComposite(parent);
-							loadedPages.get(mpc.getExtentionPointname()).setMetaData(meta);
-							parent.layout();
-							return Status.OK_STATUS;
-						}
-					};
-					updateComposite.schedule();
 				} catch (CoreException e) {
-					logger.warn("Could not create "+mpc.getExtentionPointname());	
+					logger.warn("Could not create "+ mpc.getExtentionPointname());
+					return;
 				}
+
+				UIJob updateComposite = new UIJob("Update Composite") {
+					@Override
+					public IStatus runInUIThread(IProgressMonitor monitor) {
+						//clear the old composite
+						for (Control iterable_element : parent.getChildren()) {
+							iterable_element.dispose();
+						}
+						loadedPages.get(mpc.getExtentionPointname()).createComposite(parent);
+						loadedPages.get(mpc.getExtentionPointname()).setMetaData(meta);
+						parent.layout();
+						return Status.OK_STATUS;
+					}
+				};
+				updateComposite.schedule();
+				metatdataPageAssociation.put(meta.getClass().toString(), mpc.getExtentionPointname());
 			}
+			
 		};
 		metadatapage.setImageDescriptor(mpc.getIcon());
-		toolBarManager.add(metadatapage);
+		return metadatapage;
 	}
+	
+	
 	
 	@Override
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) {
 		if (part instanceof IMetadataProvider)
 			try {
-				htp.setMetaData(((IMetadataProvider) part).getMetadata());
+				meta = ((IMetadataProvider) part).getMetadata();
+				metadataChanged(meta);
 			} catch (Exception e) {
 				logger.error(
 						"There was a error reading the metadata from the selection",
 						e);
 			}
 		else {
-			if (selection == null)
+			if (selection != null)
 				if (selection instanceof StructuredSelection) {
 					// this.lastSelection = (StructuredSelection) selection;
-					final Object sel = ((StructuredSelection) selection)
-							.getFirstElement();
+					final Object sel = ((StructuredSelection) selection).getFirstElement();
 
 					if (sel instanceof IFile) {
 						final String filePath = ((IFile) sel).getLocation()
@@ -146,9 +176,12 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 						updatePath(filePath);
 					} else if (sel instanceof IMetadataProvider) {
 						try {
-							metadataChanged(((IMetadataProvider) sel).getMetadata());
+							metadataChanged(((IMetadataProvider) sel)
+									.getMetadata());
 						} catch (Exception e) {
-							logger.error("Could not capture metadata from selection",e);
+							logger.error(
+									"Could not capture metadata from selection",
+									e);
 						}
 					}
 				}
@@ -173,7 +206,6 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 				}
 
 				metadataChanged(meta);
-
 				return Status.OK_STATUS;
 			}
 
@@ -187,7 +219,8 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 
 		if (part instanceof IMetadataProvider) {
 			try {
-				metadataChanged(((IMetadataProvider) part).getMetadata());
+				meta = ((IMetadataProvider) part).getMetadata();
+				metadataChanged(meta);
 			} catch (Exception e) {
 				logger.warn("Could not get metadata from currently active window");
 			}
@@ -205,7 +238,8 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 	public void partBroughtToTop(IWorkbenchPart part) {
 		if (part instanceof IMetadataProvider) {
 			try {
-				metadataChanged(((IMetadataProvider) part).getMetadata());
+				meta = ((IMetadataProvider) part).getMetadata();
+				metadataChanged(meta);
 			} catch (Exception e) {
 				logger.warn("Could not get metadata from currently active window");
 			}
@@ -243,6 +277,6 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	
 }

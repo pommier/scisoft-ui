@@ -54,4 +54,5 @@ public class MetadataPageContribution {
 			return false;
 		return discriminator.isApplicableFor(meta);
 	}
+	
 }
