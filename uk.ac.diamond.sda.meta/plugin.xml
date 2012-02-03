@@ -34,11 +34,18 @@
       </client>
    </extension>
    <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="uk.ac.diamond.sda.meta.preferences.PreferenceInitializer">
+      </initializer>
+   </extension>
+   <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            class="preferences.MetadataPageAssociationPreferences"
-            id="uk.ac.diamond.sda.meta.metadataPageAssociationPreferences"
-            name="Metadata Page Association Preferences">
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.sda.meta.preferences.MetadataAssociationPreferences"
+            id="uk.ac.diamond.sda.meta.preferences.MetadataAccociationPreferences"
+            name="Metadata Accociation Preferences">
       </page>
    </extension>
 

@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Composite;
@@ -23,7 +24,9 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.UIJob;
@@ -32,11 +35,16 @@ import org.dawb.common.services.ILoaderService;
 
 import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+
+import uk.ac.diamond.sda.meta.Activator;
 import uk.ac.diamond.sda.meta.contribution.MetadataPageContribution;
 import uk.ac.diamond.sda.meta.page.IMetadataPage;
+import uk.ac.diamond.sda.meta.preferences.PreferenceConstants;
+import uk.ac.diamond.sda.meta.utils.MapUtils;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class MetadataPageView extends ViewPart implements ISelectionListener,
 		IPartListener {
@@ -61,6 +69,18 @@ public class MetadataPageView extends ViewPart implements ISelectionListener,
 	public MetadataPageView() {
 		super();
 		getExtentionPoints();
+	}
+
+	@Override
+	public void init(IViewSite site) throws PartInitException {
+		super.init(site);
+		initializePreferences();
+	}
+
+	private void initializePreferences() {
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		defaultComposite = store.getString(PreferenceConstants.defaultPage);
+		metatdataPageAssociation = (HashMap<String, String>) MapUtils.getMap(store.getString(PreferenceConstants.defaultMetadataAssociation));
 	}
 
 	private void getExtentionPoints() {
@@ -104,7 +124,7 @@ public class MetadataPageView extends ViewPart implements ISelectionListener,
 
 	private void doDefaultBehaviour() {
 		String defaultView;
-		if (metatdataPageAssociation.containsKey(meta.getClass().toString())) {
+		if (metatdataPageAssociation!=null&&metatdataPageAssociation.containsKey(meta.getClass().toString())) {
 			defaultView = metatdataPageAssociation.get(meta.getClass()
 					.toString());
 			if (actionRegistary.containsKey(defaultView))
@@ -150,11 +170,17 @@ public class MetadataPageView extends ViewPart implements ISelectionListener,
 				updateComposite.schedule();
 				metatdataPageAssociation.put(meta.getClass().toString(),
 						mpc.getExtentionPointname());
+				updateAssociationsMap();
 			}
 
 		};
 		metadatapage.setImageDescriptor(mpc.getIcon());
 		return metadatapage;
+	}
+
+	protected void updateAssociationsMap() {
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		store.setValue(PreferenceConstants.defaultMetadataAssociation, MapUtils.getString(metatdataPageAssociation));
 	}
 
 	@Override
@@ -284,5 +310,6 @@ public class MetadataPageView extends ViewPart implements ISelectionListener,
 		// TODO Auto-generated method stub
 
 	}
+
 
 }
