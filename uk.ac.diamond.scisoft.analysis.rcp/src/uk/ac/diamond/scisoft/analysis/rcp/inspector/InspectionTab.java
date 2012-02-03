@@ -672,7 +672,7 @@ class PlotTab extends ATab {
 
 		int[] order = getOrder(dataset.getRank());
 		// FIXME: Image, surface and volume plots can't work with multidimensional axis data
-		List<AbstractDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, order);  
+		List<AbstractDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, order);
 
 		if (itype == InspectorType.IMAGE || itype == InspectorType.SURFACE || itype == InspectorType.MULTIIMAGE) {
 			// note that the DataSet plotter's 2D image/surface mode is row-major
@@ -899,6 +899,72 @@ class PlotTab extends ATab {
 
 				SDAPlotter.plotImageToGrid(explorerName, reorderedData, true);
 			}
+		} catch (Exception e) {
+			logger.warn("Problem with sending data to image explorer", e);
+		} finally {
+			stopInspection();
+		}
+	}
+
+	private void pushMultipleImages(final IMonitor monitor, List<SliceProperty> sliceProperties, final Slice[] slices, List<AbstractDataset> slicedAxes, final int[] order) {
+		// work out slicing result
+		int[] shape = dataset.getShape();
+		int smax = slices.length;
+		if (smax < 2)
+			smax = 2;
+		final int sliceAxis = order[2];
+		final Slice[] subSlices = new Slice[smax];
+		for (int i = 0; i < smax; i++) {
+			if (i < slices.length) {
+				subSlices[i] = i == sliceAxis ? slices[i].clone() : slices[i];
+			} else {
+				subSlices[i] = new Slice(shape[i]);
+			}
+			shape[i] = slices[i].getNumSteps();
+		}
+
+		final int nimages = shape[sliceAxis];
+
+		if (nimages > MULTIIMAGESLIMIT) {
+			logger.warn("Try plot too many images in multiple images plot: reduced from {} images to {}", nimages, MULTIIMAGESLIMIT);
+			SliceProperty p = sliceProperties.get(sliceAxis);
+			Slice s = p.getValue();
+			Integer st = s.getStart();
+			p.setStop((st == null ? 0 : st) + MULTIIMAGESLIMIT*s.getStep(), true);
+			return;
+		}
+
+		AbstractDataset yaxis = make1DAxisSlice(slicedAxes, 1);
+		AbstractDataset xaxis = make1DAxisSlice(slicedAxes, 0);
+
+		try {
+			Slice subSlice = subSlices[sliceAxis];
+			int start = subSlice.getStart() == null ? 0 : subSlice.getStart();
+			subSlices[sliceAxis].setStop(start+1);
+			setInspectionRunning();
+
+			IDataset[] images = new IDataset[nimages];
+			for (int i = 0; i < nimages; i++) {
+				subSlices[sliceAxis].setPosition(start + i);
+				AbstractDataset slicedData = sliceData(monitor, subSlices);
+				if (slicedData == null)
+					return;
+
+				AbstractDataset reorderedData = DatasetUtils.transpose(slicedData, order);
+
+				reorderedData.setName(slicedData.getName());
+				reorderedData.squeeze();
+				if (reorderedData.getSize() < 1)
+					return;
+
+				reorderedData.setName(dataset.getName() + "." + i);
+				if (!canContinueInspection()) {
+					return;
+				}
+
+				images[i] = reorderedData;
+			}
+			SDAPlotter.imagesPlot(PLOTNAME, xaxis, yaxis, images);
 		} catch (Exception e) {
 			logger.warn("Problem with sending data to image explorer", e);
 		} finally {
