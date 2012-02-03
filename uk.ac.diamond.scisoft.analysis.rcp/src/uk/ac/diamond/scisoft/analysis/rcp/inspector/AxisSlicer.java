@@ -63,11 +63,16 @@ public class AxisSlicer {
 	public AxisSlicer(Composite parent) {
 		composite = parent;
 		listener = new PropertyChangeListener() {
-			
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				createAxisDataset();
-				init(false);
+				composite.getDisplay().asyncExec(new Runnable() {
+					
+					@Override
+					public void run() {
+						init(false);
+					}
+				});
 			}
 		};
 	}

@@ -84,7 +84,8 @@ public class LightweightSRSScanCmdDecorator extends LabelProvider implements ILi
 						decoration.addSuffix(decorator);
 					}
 				}catch (Exception e) {
-					logger.error("Could not read metadata: ", e);
+					logger.warn("Could not read metadata from file {}",ifile.getFullPath());
+					logger.error("Could not read metadata from {}: ", e);
 				}
 			}
 		}

@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -79,6 +80,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.AggregateDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
@@ -647,6 +649,10 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				node = name.substring(0, name.lastIndexOf(HDF5Node.SEPARATOR)+1);
 			} else {
 				name = currentDatasetSelection.getFirstElement().getName();
+				int i = name.indexOf(":");
+				if (i >= 0) {
+					name = name.substring(i);
+				}
 				node = null;
 			}
 			logger.debug("Selected data = {}", name);
@@ -679,6 +685,11 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				}
 			}
 
+			if (dataList.size() == 0) {
+				logger.warn("No datasets found or selected");
+				return;
+			}
+
 			// remove incompatible data
 			int[][] shapes = AggregateDataset.calcShapes(extend, dataList.toArray(new ILazyDataset[0]));
 			int j = shapes.length - 1;
@@ -698,7 +709,18 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				}
 			}
 
-			setSelection(createSelection(extend, dataList, metaList, axesList));
+			InspectorType itype;
+			switch (currentDatasetSelection.getType()) {
+			case IMAGE:
+				itype = InspectorType.MULTIIMAGES;
+				break;
+			case LINE:
+			default:
+				itype = InspectorType.LINESTACK;
+				break;
+			}
+
+			setSelection(createSelection(itype, extend, dataList, metaList, axesList));
 		}
 
 		viewer.refresh();
@@ -740,6 +762,9 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			if (!f.hasDataHolder()) {
 				try {
 					DataHolder holder = explorer.loadFile(f.getAbsolutePath(), null);
+					if (holder == null)
+						continue;
+
 					f.setDataHolder(holder);
 				} catch (Exception e) {
 					continue;
@@ -831,12 +856,13 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 	/**
 	 * Create a data selection from given lists of datasets, metadata value datasets and axis selection lists  
+	 * @param itype
 	 * @param datasets
 	 * @param metavalues
 	 * @param axisSelectionLists
 	 * @return data selection
 	 */
-	public static DatasetSelection createSelection(List<ILazyDataset> datasets, List<ILazyDataset> metavalues, List<List<AxisSelection>> axisSelectionLists) {
+	public static DatasetSelection createSelection(InspectorType itype, List<ILazyDataset> datasets, List<ILazyDataset> metavalues, List<List<AxisSelection>> axisSelectionLists) {
 		boolean extend = true;
 		for (ILazyDataset m : metavalues) { // if all metadata is multi-valued then do not extend aggregate shape
 			if (m.getSize() > 1) {
@@ -844,18 +870,19 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				break;
 			}
 		}
-		return createSelection(extend, datasets, metavalues, axisSelectionLists);
+		return createSelection(itype, extend, datasets, metavalues, axisSelectionLists);
 	}
 
 	/**
 	 * Create a data selection from given lists of datasets, metadata value datasets and axis selection lists  
+	 * @param itype 
 	 * @param extend
 	 * @param datasets
 	 * @param metavalues
 	 * @param axisSelectionLists
 	 * @return data selection
 	 */
-	public static DatasetSelection createSelection(boolean extend, List<ILazyDataset> datasets, List<ILazyDataset> metavalues, List<List<AxisSelection>> axisSelectionLists) {
+	public static DatasetSelection createSelection(InspectorType itype, boolean extend, List<ILazyDataset> datasets, List<ILazyDataset> metavalues, List<List<AxisSelection>> axisSelectionLists) {
 
 		AggregateDataset allData = new AggregateDataset(extend, datasets.toArray(new ILazyDataset[0]));
 		AggregateDataset allMeta = new AggregateDataset(extend, metavalues.toArray(new ILazyDataset[0]));
@@ -871,6 +898,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		int rank = shape.length;
 		AxisSelection as;
 		List<ILazyDataset> avalues = new ArrayList<ILazyDataset>();
+		final int off = extend ? 1 : 0;
 
 		// for each dimension,
 		for (int i = 0; i < rank; i++) {
@@ -893,10 +921,12 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 			for (int k = 0, kmax = ias.size(); k < kmax; k++) { // for each choice
 				avalues.clear();
+				final AxisChoice c = ias.getAxis(k);
+				int[] map = c.getIndexMapping();
 				for (List<AxisSelection> asl : axisSelectionLists) { // for each file
 					AxisSelection a = asl.get(i);
 					if (a == null)
-						break; // was extended
+						break; // this dimension was extended
 
 					ILazyDataset ad = a.getAxis(k).getValues();
 					if (ad == null) {
@@ -904,27 +934,43 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 						logger.warn("Missing data for choice {} in dim:{} ", ias.getName(k), i);
 						break;
 					}
+					if (extend && rank > 2 && ad.getRank() == 1) {
+						// expand 1D axis
+						int[] reps = Arrays.copyOfRange(shape, off, rank);
+						reps[i-off] = 1;
+						AbstractDataset axis = DatasetUtils.convertToAbstractDataset(ad);
+						int[] ns = new int[reps.length];
+						Arrays.fill(ns, 1);
+						ns[i-off] = ad.getSize();
+						axis.setShape(ns);
+						String name = ad.getName();
+						ad = DatasetUtils.tile(axis, reps);
+						ad.setName(name);
+						map = new int[reps.length];
+						for (int l = 0; l < map.length; l++) {
+							map[l] = l;
+						}
+					}
 					avalues.add(ad);
 				}
-				if (avalues.size() == 0)
-					continue;
 
 				// consume list for choice
-				AggregateDataset allAxis = new AggregateDataset(extend, avalues.toArray(new ILazyDataset[0]));
+				ILazyDataset allAxis = new AggregateDataset(extend, avalues.toArray(new ILazyDataset[0]));
 
-				final AxisChoice c = ias.getAxis(k);
 				AxisChoice nc = new AxisChoice(allAxis, c.getPrimary());
-				int[] map = c.getIndexMapping();
 				String name = ias.getName(k);
 				if (extend) {
-					int[] nmap = new int[map.length+1];
-					for (int l = 0; l < map.length; l++) {
-						nmap[l+1] = map[l] + 1;
+					if (allAxis.getRank() > 1) {
+						int[] nmap = new int[rank];
+						for (int l = 0; l < map.length; l++) {
+							nmap[l+1] = map[l] + 1;
+						}
+						nc.setIndexMapping(nmap);
 					}
-					nc.setIndexMapping(nmap);
 					if (name.startsWith(AbstractExplorer.DIM_PREFIX)) { // increment dim: number
 						int d = Integer.parseInt(name.substring(AbstractExplorer.DIM_PREFIX.length()));
 						name = AbstractExplorer.DIM_PREFIX + (d+1);
+						allAxis.setName(name);
 					}
 				} else {
 					nc.setIndexMapping(map.clone());
@@ -934,7 +980,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			}
 		}
 
-		return new DatasetSelection(InspectorType.LINESTACK, newAxes, allData);
+		return new DatasetSelection(itype, newAxes, allData);
 	}
 
 	private List<ISelectionChangedListener> listeners = new ArrayList<ISelectionChangedListener>();
@@ -1124,10 +1170,24 @@ class SelectedFile {
 		h = holder;
 		if (h != null)
 			m = h.getMetadata();
+		else
+			d = null;
 	}
 
 	public void setData(String key) {
-		d = h.getLazyDataset(key);
+		if (h.contains(key))
+			d = h.getLazyDataset(key);
+		else {
+			int n = h.size();
+			d = null;
+			for (int i = 0; i < n; i++) {
+				ILazyDataset l = h.getLazyDataset(i);
+				if (key.equals(l.getName())) {
+					d = l;
+					break;
+				}
+			}
+		}
 	}
 
 //	public void resetData() {

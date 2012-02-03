@@ -96,10 +96,10 @@ public class DataSet3DPlot3D implements IDataSet3DCorePlot {
 
 	protected double globalZmin;
 	protected double globalZmax;
-	protected double globalRealXmin;
-	protected double globalRealXmax;
-	protected double globalRealYmin;
-	protected double globalRealYmax;
+	protected double globalRealXmin = 0;
+	protected double globalRealXmax = 1;
+	protected double globalRealYmin = 0;
+	protected double globalRealYmax = 1;
 	protected double xSpan;
 	protected double ySpan;
 	protected double colourTableMin;

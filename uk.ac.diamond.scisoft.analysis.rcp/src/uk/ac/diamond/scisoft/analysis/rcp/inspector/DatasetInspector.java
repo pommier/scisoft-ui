@@ -19,6 +19,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.inspector;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -591,16 +592,9 @@ public class DatasetInspector extends Composite {
 			display.asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					StringBuilder msg = new StringBuilder(String.format("Name: %s, Rank: %d, Dims: ",
+					StringBuilder msg = new StringBuilder(String.format("Name: %s; Rank: %d; Dims: ",
 							cData.getName(), cData.getRank()));
-					for (int i : cData.getShape()) {
-						msg.append(i);
-						msg.append(", ");
-					}
-					if (msg.length() > 2) {
-						msg.deleteCharAt(msg.length() - 1);
-						msg.deleteCharAt(msg.length() - 1);
-					}
+					msg.append(Arrays.toString(cData.getShape()));
 					dsDetails.setText(msg.toString());
 					axisSelector.setInput(inspection.datasetAxes);
 					createSlicers(iComp);
@@ -627,7 +621,6 @@ public class DatasetInspector extends Composite {
 						cInspectionTab.setParameters(cData, inspection.datasetAxes, inspection.getPlotAxes());
 						cInspectionTab.drawTab();
 					}
-
 				}
 			});
 		}
@@ -665,6 +658,9 @@ public class DatasetInspector extends Composite {
 			slicers = new ArrayList<AxisSlicer>();
 
 		int rank = cData.getRank();
+		if (rank > inspection.datasetAxes.size()) {
+			logger.error("Axis selection wrong!");
+		}
 
 		int size = slicers.size();
 		if (rank > size) {
@@ -676,15 +672,9 @@ public class DatasetInspector extends Composite {
 				slicers.get(i).setVisible(false);
 			}
 		}
+
+		// create array of slice properties that pertain to each axis
 		List<SliceProperty> slices = inspection.getSlices();
-
-		if (rank > inspection.datasetAxes.size()) {
-			System.err.println("Axis selection wrong!");
-		}
-		/*
-
-		 * need to create list/array of slice objects that pertain to each axis
-		 */
 		for (int i = 0; i < rank; i++) {
 			SliceProperty p = slices.get(i);
 			AxisChoice c = inspection.datasetAxes.get(i).getSelectedAxis();
@@ -757,5 +747,4 @@ public class DatasetInspector extends Composite {
 			logger.error("Cannot generate slices", e);
 		}
 	}
-
 }

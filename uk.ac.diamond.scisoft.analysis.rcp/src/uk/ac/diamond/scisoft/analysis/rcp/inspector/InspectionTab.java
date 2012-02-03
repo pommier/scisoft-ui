@@ -674,7 +674,7 @@ class PlotTab extends ATab {
 
 		int[] order = getOrder(dataset.getRank());
 		// FIXME: Image, surface and volume plots can't work with multidimensional axis data
-		List<AbstractDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, order);  
+		List<AbstractDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, order);
 
 		if (itype == InspectorType.IMAGE || itype == InspectorType.SURFACE || itype == InspectorType.IMAGEXP  || itype == InspectorType.MULTIIMAGES) {
 			// note that the DataSet plotter's 2D image/surface mode is row-major
@@ -939,8 +939,8 @@ class PlotTab extends ATab {
 			return;
 		}
 
-		AbstractDataset yaxis = slicedAxes.get(1);
-		AbstractDataset xaxis = slicedAxes.get(0);
+		AbstractDataset yaxis = make1DAxisSlice(slicedAxes, 1);
+		AbstractDataset xaxis = make1DAxisSlice(slicedAxes, 0);
 
 		try {
 			Slice subSlice = subSlices[sliceAxis];

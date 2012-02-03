@@ -16,6 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.explorers;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,9 +53,10 @@ import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection;
+import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
 import uk.ac.gda.monitor.IMonitor;
 
-public class SRSExplorer extends AbstractExplorer implements ISelectionProvider {
+public class ImageExplorer extends AbstractExplorer implements ISelectionProvider {
 
 	private TableViewer viewer;
 	private DataHolder data = null;
@@ -62,7 +64,7 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 	private Display display = null;
 	private SelectionAdapter contextListener = null;
 
-	public SRSExplorer(Composite parent, IWorkbenchPartSite partSite, ISelectionChangedListener valueSelect) {
+	public ImageExplorer(Composite parent, IWorkbenchPartSite partSite, ISelectionChangedListener valueSelect) {
 		super(parent, partSite, valueSelect);
 
 		display = parent.getDisplay();
@@ -95,7 +97,7 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 				ILazyDataset d = getActiveData();
 				if (d == null)
 					return;
-				DatasetSelection datasetSelection = new DatasetSelection(getAxes(d), d);
+				DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, getAxes(d), d);
 				setSelection(datasetSelection);
 			}
 		};
@@ -103,7 +105,7 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 		viewer.addSelectionChangedListener(listener);
 
 		if (metaValueListener != null) {
-			final SRSExplorer provider = this;
+			final ImageExplorer provider = this;
 			contextListener = new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
@@ -150,10 +152,21 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 	private ILazyDataset getActiveData() {
 		ISelection selection = viewer.getSelection();
 		Object obj = ((IStructuredSelection) selection).getFirstElement();
+		ILazyDataset d;
 		if (obj == null) {
-			return data.getLazyDataset(0);
+			d = data.getLazyDataset(0);
+		} else if (obj instanceof ILazyDataset) {
+			d = (ILazyDataset) obj;
+		} else
+			return null;
+
+		if (d.getRank() > 2)
+			return null;
+
+		if (d.getRank() == 1) {
+			d.setShape(1, d.getShape()[0]);
 		}
-		return (ILazyDataset) obj;
+		return d;
 	}
 
 	private class ViewContentProvider implements IStructuredContentProvider {
@@ -285,7 +298,10 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 			ILazyDataset d = getActiveData();
 			if (d == null)
 				return;
-			DatasetSelection datasetSelection = new DatasetSelection(getAxes(d), d);
+
+			d = d.clone();
+			d.setName(new File(fileName).getName() + ":" + d.getName());
+			DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, getAxes(d), d);
 			setSelection(datasetSelection);
 		}
 	}
@@ -294,7 +310,7 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 		ILazyDataset d = getActiveData();
 		if (d == null)
 			return;
-		DatasetSelection datasetSelection = new DatasetSelection(getAxes(d), d);
+		DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, getAxes(d), d);
 		setSelection(datasetSelection);
 	}
 
