@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="uk.ac.diamond.sda.meta.metadataPageRegister">
+      <client
+            class="extendedMetadata.ExtendedMetaDataComposite"
+            icon="icons/table_magnify.png"
+            name="Extended Metadata"
+            supportedMetadata="extendedMetadata.ExtendedMetadataDiscriminator">
+      </client>
+   </extension>
+
+
+</plugin>
