@@ -678,13 +678,14 @@ public class DatasetInspector extends Composite {
 		for (int i = 0; i < rank; i++) {
 			SliceProperty p = slices.get(i);
 			AxisChoice c = inspection.datasetAxes.get(i).getSelectedAxis();
+			String n = inspection.datasetAxes.get(i).getSelectedName();
 			int[] imap = c.getIndexMapping();
 			ILazyDataset axis = c.getValues();
 			SliceProperty[] props = new SliceProperty[imap.length];
 			for (int j = 0; j < imap.length; j++) {
 				props[j] = slices.get(imap[j]);
 			}
-			slicers.get(i).createAxisSlicer(p, axis, props);
+			slicers.get(i).createAxisSlicer(n, p, axis, props);
 		}
 		parent.pack();
 		parent.setSize(parent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
@@ -713,13 +714,14 @@ public class DatasetInspector extends Composite {
 
 			AxisSelection sel = inspection.datasetAxes.get(i);
 			AxisChoice choice = sel.getSelectedAxis();
+			String n = sel.getSelectedName();
 			ILazyDataset axis = choice.getValues();
 			int[] imap = choice.getIndexMapping();
 			SliceProperty[] props = new SliceProperty[imap.length];
 			for (int j = 0; j < imap.length; j++) {
 				props[j] = properties.get(imap[j]);
 			}
-			slicers.get(i).setParameters(p, axis, props, used[i]);
+			slicers.get(i).setParameters(n, p, axis, props, used[i]);
 		}
 		Composite parent = slicers.get(0).getParent();
 		parent.pack();

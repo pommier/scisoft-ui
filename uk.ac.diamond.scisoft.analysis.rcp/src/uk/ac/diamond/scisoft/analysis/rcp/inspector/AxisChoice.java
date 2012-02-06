@@ -55,7 +55,7 @@ public class AxisChoice {
 	 * @return Returns the name
 	 */
 	public String getName() {
-		return values != null ? values.getName(): null;
+		return values != null ? values.getName() : null;
 	}
 
 	/**
