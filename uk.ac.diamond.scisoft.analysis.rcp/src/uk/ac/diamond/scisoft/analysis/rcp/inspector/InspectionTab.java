@@ -939,13 +939,8 @@ class PlotTab extends ATab {
 			return;
 		}
 
-<<<<<<< OURS
 		AbstractDataset yaxis = make1DAxisSlice(slicedAxes, 1);
 		AbstractDataset xaxis = make1DAxisSlice(slicedAxes, 0);
-=======
-		AbstractDataset yaxis = slicedAxes.get(1);
-		AbstractDataset xaxis = slicedAxes.get(0);
->>>>>>> THEIRS
 
 		try {
 			Slice subSlice = subSlices[sliceAxis];
