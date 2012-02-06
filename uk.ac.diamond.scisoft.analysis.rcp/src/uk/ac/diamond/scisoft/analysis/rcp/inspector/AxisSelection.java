@@ -274,12 +274,12 @@ public class AxisSelection extends InspectorProperty implements Iterable<String>
 		String oldName = null;
 		if (a != null) {
 			a.setSelected(false);
-			oldName = a.getData().getName();
+			oldName = names.get(asData.indexOf(a));
 		}
 		a = asData.get(index);
 		a.setSelected(true);
 		if (fire)
-			fire(new PropertyChangeEvent(this, propName, oldName, a.getData().getName()));
+			fire(new PropertyChangeEvent(this, propName, oldName, names.get(index)));
 	}
 
 	/**
