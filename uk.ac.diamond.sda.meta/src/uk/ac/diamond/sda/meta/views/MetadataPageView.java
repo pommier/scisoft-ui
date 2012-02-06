@@ -16,6 +16,8 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.widgets.Composite;
@@ -58,7 +60,7 @@ public class MetadataPageView extends ViewPart implements ISelectionListener,
 	private HashMap<String, Action> actionRegistary = new HashMap<String, Action>();
 
 	private HashMap<String, String> metatdataPageAssociation = new HashMap<String, String>();
-	private String defaultComposite = "Header";
+	private String defaultComposite;
 
 	private IToolBarManager toolBarManager;
 
@@ -81,6 +83,17 @@ public class MetadataPageView extends ViewPart implements ISelectionListener,
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 		defaultComposite = store.getString(PreferenceConstants.defaultPage);
 		metatdataPageAssociation = (HashMap<String, String>) MapUtils.getMap(store.getString(PreferenceConstants.defaultMetadataAssociation));
+		store.addPropertyChangeListener(new IPropertyChangeListener() {
+			
+			@Override
+			public void propertyChange(PropertyChangeEvent event) {
+				if(event.getProperty() == PreferenceConstants.defaultMetadataAssociation)	
+					metatdataPageAssociation = (HashMap<String, String>) MapUtils.getMap(event.getNewValue().toString());
+				if(event.getProperty() == PreferenceConstants.defaultPage)
+					defaultComposite = event.getProperty().toString();
+				
+			}
+		});
 	}
 
 	private void getExtentionPoints() {

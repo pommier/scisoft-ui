@@ -25,50 +25,56 @@ import org.eclipse.ui.progress.UIJob;
 import uk.ac.diamond.sda.meta.Activator;
 import uk.ac.diamond.sda.meta.utils.MapUtils;
 
-
-
-public class MetadataAssociationPreferences
-	extends PreferencePage
-	implements IWorkbenchPreferencePage {
+public class MetadataAssociationPreferences extends PreferencePage implements
+		IWorkbenchPreferencePage {
 
 	private List fileAssociations;
 	private Text txtFileType;
 	private Text txtFileAssociation;
-
+	private Map<String, String> mapOfFileAssociations;
+	private String defaultView;
+	private Text defaultType;
 
 	public MetadataAssociationPreferences() {
-		//setDescription("These Preferences show the association between metadata loaders and different ways of viewing it");
 	}
-	
 
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
 	 */
 	public void init(IWorkbench workbench) {
-		setPreferenceStore(Activator.getDefault().getPreferenceStore());	
+		setPreferenceStore(Activator.getDefault().getPreferenceStore());
+		getCurrentSetting();
 	}
 
+	private void getCurrentSetting() {
+		mapOfFileAssociations = MapUtils.getMap(getPreferenceStore()
+				.getString(PreferenceConstants.defaultMetadataAssociation));
+		defaultView = getPreferenceStore().getString(
+				PreferenceConstants.defaultPage);
+	}
 
 	@Override
 	protected Control createContents(Composite parent) {
 		Composite comp = new Composite(parent, SWT.NONE);
 		comp.setLayout(new GridLayout(1, false));
-		
+
 		Group gpdefaultType = new Group(comp, SWT.NONE);
 		gpdefaultType.setText("Default Metadata Page");
 		gpdefaultType.setLayout(new GridLayout(2, true));
-		
+
 		new Label(gpdefaultType, SWT.NONE).setText("The default viewer is ");
-		Text defaultType = new Text(gpdefaultType, SWT.READ_ONLY);
-		defaultType.setText(getPreferenceStore().getDefaultString(PreferenceConstants.defaultPage));
+		defaultType = new Text(gpdefaultType, SWT.READ_ONLY);
 		defaultType.setBackground(gpdefaultType.getBackground());
-		
+
 		Group gpfileAssociationTable = new Group(comp, SWT.NONE);
 		gpfileAssociationTable.setText("File Associations");
 		gpfileAssociationTable.setLayout(new GridLayout(1, false));
-		gpfileAssociationTable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		
+		gpfileAssociationTable.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
+				true, true));
+
 		GridData data = new GridData(GridData.FILL_BOTH);
 		fileAssociations = new List(gpfileAssociationTable, SWT.BORDER);
 		fileAssociations.setLayoutData(data);
@@ -79,72 +85,73 @@ public class MetadataAssociationPreferences
 				super.widgetSelected(e);
 				updateAssociationDetails(fileAssociations.getSelection());
 			}
-		}
-		);
-		
+		});
+
 		Group gpFileAssociationDetails = new Group(comp, SWT.NONE);
 		gpFileAssociationDetails.setText("Association Details");
 		gpFileAssociationDetails.setLayout(new GridLayout(2, false));
-		gpFileAssociationDetails.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
-		
+		gpFileAssociationDetails.setLayoutData(new GridData(SWT.FILL, SWT.TOP,
+				true, true));
+
 		new Label(gpFileAssociationDetails, SWT.NONE).setText("File: ");
 		txtFileType = new Text(gpFileAssociationDetails, SWT.READ_ONLY);
 		txtFileType.setBackground(gpFileAssociationDetails.getBackground());
 		txtFileType.setLayoutData(data);
-		
+
 		new Label(gpFileAssociationDetails, SWT.NONE).setText("Association: ");
-		txtFileAssociation =  new Text(gpFileAssociationDetails, SWT.NONE);
-		txtFileAssociation.setBackground(gpFileAssociationDetails.getBackground());
+		txtFileAssociation = new Text(gpFileAssociationDetails, SWT.NONE);
+		txtFileAssociation.setBackground(gpFileAssociationDetails
+				.getBackground());
 		txtFileAssociation.setLayoutData(data);
+
+		updateFileAssociationList();
 		
-		updateFileAssociation();
 		return comp;
 	}
-	
-	
 
 	protected void updateAssociationDetails(final String[] selection) {
-	UIJob updateDetails = new UIJob("Updata details") {
-		
-		@Override
-		public IStatus runInUIThread(IProgressMonitor monitor) {
-			//there should only be a single selection.
-			Map<String, String> map = getHashMapFromPreferences();
-			txtFileType.setText(selection[0]);
-			txtFileAssociation.setText(map.get(selection[0]));
-			return Status.OK_STATUS;
-		}
-	};
-	updateDetails.schedule();
-	}
+		UIJob updateDetails = new UIJob("Updata details") {
 
-
-
-	private void updateFileAssociation() {
-		final Set<String> set = getHashMapFromPreferences().keySet();
-		UIJob updateLists = new UIJob("Update the file lists") {
-			
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
+				// there should only be a single selection.
+				Map<String, String> map = mapOfFileAssociations;
+				txtFileType.setText(selection[0]);
+				txtFileAssociation.setText(map.get(selection[0]));
+				return Status.OK_STATUS;
+			}
+		};
+		updateDetails.schedule();
+	}
+
+	private void updateFileAssociationList() {
+		final Set<String> set = mapOfFileAssociations.keySet();
+		UIJob updateLists = new UIJob("Update the file lists") {
+
+			@Override
+			public IStatus runInUIThread(IProgressMonitor monitor) {
+				fileAssociations.removeAll();
 				for (String string : set) {
 					fileAssociations.add(string);
-				}return Status.OK_STATUS;
+				}
+				defaultType.setText(defaultView);
+				return Status.OK_STATUS;
 			}
 		};
 		updateLists.schedule();
 	}
 
-	private Map<String, String> getHashMapFromPreferences(){
-		return MapUtils.getMap(getPreferenceStore().getString(PreferenceConstants.defaultMetadataAssociation));
-	}
-
-
 
 	@Override
 	protected void performDefaults() {
 		super.performDefaults();
-		// TODO There should be some code to do this here and in the view
+		mapOfFileAssociations = MapUtils.getMap(getPreferenceStore().getDefaultString(PreferenceConstants.defaultMetadataAssociation));
+		defaultView = getPreferenceStore().getDefaultString(PreferenceConstants.defaultPage);
+		updateFileAssociationList();
+		
+		//setDefaults
+		getPreferenceStore().setValue(PreferenceConstants.defaultMetadataAssociation, MapUtils.getString(mapOfFileAssociations));
+		getPreferenceStore().setValue(PreferenceConstants.defaultPage, defaultView);
 	}
 
-		
 }
