@@ -56,6 +56,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSet3DPlot2DMulti;
 import uk.ac.diamond.scisoft.analysis.rcp.views.DatasetTableView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView;
 import uk.ac.gda.monitor.IMonitor;
@@ -201,7 +202,8 @@ class PlotTab extends ATab {
 	private static final String VOLVIEWNAME = "Remote Volume Viewer";
 	private String explorerName;
 	// this is the current limit on the number of lines that stack can handle well
-	private final static int STACKPLOTLIMIT = 100;
+	private static final int STACKPLOTLIMIT = 100;
+	private static final int MULTIIMAGESLIMIT = DataSet3DPlot2DMulti.MAX_IMAGES;
 
 	private PropertyChangeListener axesListener = null;
 	private ImageExplorerView explorer = null;
@@ -674,7 +676,7 @@ class PlotTab extends ATab {
 		// FIXME: Image, surface and volume plots can't work with multidimensional axis data
 		List<AbstractDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, order);
 
-		if (itype == InspectorType.IMAGE || itype == InspectorType.SURFACE || itype == InspectorType.MULTIIMAGE) {
+		if (itype == InspectorType.IMAGE || itype == InspectorType.SURFACE || itype == InspectorType.IMAGEXP  || itype == InspectorType.MULTIIMAGES) {
 			// note that the DataSet plotter's 2D image/surface mode is row-major
 			swapFirstTwoInOrder(order);
 		}
@@ -796,11 +798,14 @@ class PlotTab extends ATab {
 				logger.error("Could not plot image or surface");
 			}
 			break;
-		case MULTIIMAGE:
+		case IMAGEXP:
 			if (isExplorerNull())
 				return;
 
 			pushImages(monitor, slices, order);
+			break;
+		case MULTIIMAGES:
+			pushMultipleImages(monitor, sliceProperties, slices, slicedAxes, order);
 			break;
 		case VOLUME:
 			reorderedData = slicedAndReorderData(monitor, slices, order);
@@ -934,8 +939,13 @@ class PlotTab extends ATab {
 			return;
 		}
 
+<<<<<<< OURS
 		AbstractDataset yaxis = make1DAxisSlice(slicedAxes, 1);
 		AbstractDataset xaxis = make1DAxisSlice(slicedAxes, 0);
+=======
+		AbstractDataset yaxis = slicedAxes.get(1);
+		AbstractDataset xaxis = slicedAxes.get(0);
+>>>>>>> THEIRS
 
 		try {
 			Slice subSlice = subSlices[sliceAxis];
@@ -1041,7 +1051,8 @@ class DataTab extends PlotTab {
 		case IMAGE:
 		case LINE:
 		case LINESTACK:
-		case MULTIIMAGE:
+		case IMAGEXP:
+		case MULTIIMAGES:
 		case POINTS1D:
 		case POINTS2D:
 		case POINTS3D:
@@ -1408,7 +1419,8 @@ class ScatterTab extends PlotTab {
 		case IMAGE:
 		case LINE:
 		case LINESTACK:
-		case MULTIIMAGE:
+		case IMAGEXP:
+		case MULTIIMAGES:
 		case SURFACE:
 		case VOLUME:
 			break;

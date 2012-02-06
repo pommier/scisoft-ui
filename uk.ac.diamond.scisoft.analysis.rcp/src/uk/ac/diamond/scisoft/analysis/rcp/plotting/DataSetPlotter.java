@@ -994,10 +994,10 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 				CompositeEntry entry = 
 					new CompositeEntry(name, weight, CompositeOp.ADD,(byte)7);
 				table.add(entry);
-			}			
+			}
 			if (cmpControl != null)
 				cmpControl.updateTable(table);
-			((DataSet3DPlot2DMulti)plotter).updateCompositingSettings(table);			
+			((DataSet3DPlot2DMulti)plotter).updateCompositingSettings(table);
 		}
 		if (currentDataSets.size() > 0) {
 			currentDataSet = currentDataSets.get(0);
@@ -2392,7 +2392,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 	}
 
 	/**
-	 * Allows to set the zoom area of the plot manually programatically
+	 * Allows to set the zoom area of the plot manually programmatically
 	 * 
 	 * @param startX
 	 *            start x coordinate in the data domain
@@ -2403,7 +2403,6 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 	 * @param endY
 	 *            end y coordinate in the data domain (endY must be >= startY)
 	 */
-
 	public void setPlotZoomArea(double startX, double startY, double endX, double endY) {
 		if (currentMode == PlottingMode.ONED || currentMode == PlottingMode.ONED_THREED
 				|| currentMode == PlottingMode.SCATTER2D) {
