@@ -47,7 +47,6 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class MetadataPageView extends ViewPart implements ISelectionListener,
 		IPartListener {
 	private static final Logger logger = LoggerFactory
@@ -76,36 +75,40 @@ public class MetadataPageView extends ViewPart implements ISelectionListener,
 	@Override
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
+		getSite().getPage().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
+		getSite().getPage().addPartListener(this);
 		initializePreferences();
 	}
 
+	@Override
+	public void dispose() {
+		super.dispose();
+		getSite().getPage().getWorkbenchWindow().getSelectionService().removeSelectionListener(this);
+		getSite().getPage().removePartListener(this);
+	}
 	private void initializePreferences() {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 		defaultComposite = store.getString(PreferenceConstants.defaultPage);
 		metatdataPageAssociation = (HashMap<String, String>) MapUtils.getMap(store.getString(PreferenceConstants.defaultMetadataAssociation));
 		store.addPropertyChangeListener(new IPropertyChangeListener() {
-			
+
 			@Override
 			public void propertyChange(PropertyChangeEvent event) {
-				if(event.getProperty() == PreferenceConstants.defaultMetadataAssociation)	
+				if (event.getProperty() == PreferenceConstants.defaultMetadataAssociation)
 					metatdataPageAssociation = (HashMap<String, String>) MapUtils.getMap(event.getNewValue().toString());
-				if(event.getProperty() == PreferenceConstants.defaultPage)
+				if (event.getProperty() == PreferenceConstants.defaultPage)
 					defaultComposite = event.getProperty().toString();
-				
 			}
 		});
 	}
 
 	private void getExtentionPoints() {
-		IExtension[] extentionPoints = Platform.getExtensionRegistry()
-				.getExtensionPoint(PAGE_EXTENTION_ID).getExtensions();
+		IExtension[] extentionPoints = Platform.getExtensionRegistry().getExtensionPoint(PAGE_EXTENTION_ID).getExtensions();
 		for (int i = 0; i < extentionPoints.length; i++) {
 			IExtension extension = extentionPoints[i];
-			IConfigurationElement[] configElements = extension
-					.getConfigurationElements();
+			IConfigurationElement[] configElements = extension.getConfigurationElements();
 			for (int j = 0; j < configElements.length; j++) {
-				pagesRegister.add(new MetadataPageContribution(
-						configElements[j]));
+				pagesRegister.add(new MetadataPageContribution(configElements[j]));
 			}
 		}
 	}
@@ -120,28 +123,26 @@ public class MetadataPageView extends ViewPart implements ISelectionListener,
 				for (MetadataPageContribution mpc : pagesRegister) {
 					if (mpc.isApplicableFor(meta)) {
 						Action action = pageActionFactory(mpc);
-						actionRegistary
-								.put(mpc.getExtentionPointname(), action);
+						actionRegistary.put(mpc.getExtentionPointname(), action);
 						toolBarManager.add(action);
 					}
 				}
 				toolBarManager.update(false);
 				// select the page that was last active for a given metadata
-				// This is not going to end well!!
+				doDefaultBehaviour();
 				return Status.OK_STATUS;
 			}
 		};
 		updateActionsForNewMetadata.schedule();
-		doDefaultBehaviour();
 	}
 
 	private void doDefaultBehaviour() {
-		String defaultView;
-		if (metatdataPageAssociation!=null&&metatdataPageAssociation.containsKey(meta.getClass().toString())) {
-			defaultView = metatdataPageAssociation.get(meta.getClass()
-					.toString());
-			if (actionRegistary.containsKey(defaultView))
-				actionRegistary.get(defaultView).run();
+		String currentAssociatedView;
+		if (metatdataPageAssociation != null
+				&& metatdataPageAssociation.containsKey(meta.getClass().toString())) {
+			currentAssociatedView = metatdataPageAssociation.get(meta.getClass().toString());
+			if (actionRegistary.containsKey(currentAssociatedView))
+				actionRegistary.get(currentAssociatedView).run();
 		} else {
 			if (actionRegistary.containsKey(defaultComposite))
 				actionRegistary.get(defaultComposite).run();
@@ -156,8 +157,7 @@ public class MetadataPageView extends ViewPart implements ISelectionListener,
 
 				try {
 					if (!loadedPages.containsKey(mpc.getExtentionPointname())) {
-						loadedPages.put(mpc.getExtentionPointname(),
-								mpc.getPage());
+						loadedPages.put(mpc.getExtentionPointname(),mpc.getPage());
 					}
 				} catch (CoreException e) {
 					logger.warn("Could not create "
@@ -172,17 +172,14 @@ public class MetadataPageView extends ViewPart implements ISelectionListener,
 						for (Control iterable_element : parent.getChildren()) {
 							iterable_element.dispose();
 						}
-						loadedPages.get(mpc.getExtentionPointname())
-								.createComposite(parent);
-						loadedPages.get(mpc.getExtentionPointname())
-								.setMetaData(meta);
+						loadedPages.get(mpc.getExtentionPointname()).createComposite(parent);
+						loadedPages.get(mpc.getExtentionPointname()).setMetaData(meta);
 						parent.layout();
 						return Status.OK_STATUS;
 					}
 				};
 				updateComposite.schedule();
-				metatdataPageAssociation.put(meta.getClass().toString(),
-						mpc.getExtentionPointname());
+				metatdataPageAssociation.put(meta.getClass().toString(),mpc.getExtentionPointname());
 				updateAssociationsMap();
 			}
 
@@ -193,7 +190,8 @@ public class MetadataPageView extends ViewPart implements ISelectionListener,
 
 	protected void updateAssociationsMap() {
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-		store.setValue(PreferenceConstants.defaultMetadataAssociation, MapUtils.getString(metatdataPageAssociation));
+		store.setValue(PreferenceConstants.defaultMetadataAssociation,
+				MapUtils.getString(metatdataPageAssociation));
 	}
 
 	@Override
@@ -203,9 +201,7 @@ public class MetadataPageView extends ViewPart implements ISelectionListener,
 				meta = ((IMetadataProvider) part).getMetadata();
 				metadataChanged(meta);
 			} catch (Exception e) {
-				logger.error(
-						"There was a error reading the metadata from the selection",
-						e);
+				logger.error("There was a error reading the metadata from the selection", e);
 			}
 		else {
 			if (selection != null)
@@ -226,9 +222,7 @@ public class MetadataPageView extends ViewPart implements ISelectionListener,
 							metadataChanged(((IMetadataProvider) sel)
 									.getMetadata());
 						} catch (Exception e) {
-							logger.error(
-									"Could not capture metadata from selection",
-									e);
+							logger.error("Could not capture metadata from selection", e);
 						}
 					}
 				}
@@ -308,21 +302,15 @@ public class MetadataPageView extends ViewPart implements ISelectionListener,
 
 	@Override
 	public void createPartControl(Composite parent) {
+		//this is very light weight as most of the widgets come from the extension point
 		this.parent = parent;
-
-		getSite().getPage().getWorkbenchWindow().getSelectionService()
-				.addSelectionListener(this);
-		getSite().getPage().addPartListener(this);
-
-		// add some toolbar
 		toolBarManager = getViewSite().getActionBars().getToolBarManager();
 	}
 
 	@Override
 	public void setFocus() {
-		// TODO Auto-generated method stub
+		//do nothing
 
 	}
-
 
 }
