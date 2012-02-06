@@ -19,6 +19,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.explorers;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -125,10 +126,11 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 		int[] shape = d.getShape();
 
 		for (int j = 0; j < shape.length; j++) {
-			AxisSelection axisSelection = new AxisSelection(shape[j], j);
+			final int len = shape[j];
+			AxisSelection axisSelection = new AxisSelection(len, j);
 			axes.add(axisSelection);
 
-			AbstractDataset autoAxis = AbstractDataset.arange(shape[j], AbstractDataset.INT32);
+			AbstractDataset autoAxis = AbstractDataset.arange(len, AbstractDataset.INT32);
 			autoAxis.setName(AbstractExplorer.DIM_PREFIX + (j+1));
 			AxisChoice newChoice = new AxisChoice(autoAxis);
 			newChoice.setAxisNumber(j);
@@ -138,9 +140,11 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 				ILazyDataset ldataset = data.getLazyDataset(i);
 				if (ldataset.equals(d))
 					continue;
-				newChoice = new AxisChoice(ldataset);
-				newChoice.setAxisNumber(j);
-				axisSelection.addChoice(newChoice, i + 1);
+				if (ArrayUtils.contains(ldataset.getShape(), len)) {
+					newChoice = new AxisChoice(ldataset);
+					newChoice.setAxisNumber(j);
+					axisSelection.addChoice(newChoice, i + 1);
+				}
 			}
 		}
 
