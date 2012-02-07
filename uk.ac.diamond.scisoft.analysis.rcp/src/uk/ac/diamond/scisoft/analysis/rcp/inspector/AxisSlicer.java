@@ -56,6 +56,7 @@ public class AxisSlicer {
 	private AbstractDataset adata;
 	private ILazyDataset axisData;
 	private PropertyChangeListener listener;
+	private String name;
 
 	public static final int COLUMNS = 6;
 	private static final Image undo = AnalysisRCPActivator.getImageDescriptor("icons/arrow_undo.png").createImage();
@@ -92,13 +93,14 @@ public class AxisSlicer {
 
 	/**
 	 * Create the GUI components for a slicer
+	 * @param name
 	 * @param property slice
 	 * @param axis dataset for axis values
 	 * @param properties slices that dataset depends on
 	 */
-	public void createAxisSlicer(SliceProperty property, ILazyDataset axis, SliceProperty[] properties) {
+	public void createAxisSlicer(String name, SliceProperty property, ILazyDataset axis, SliceProperty[] properties) {
 		if (label != null) {
-			setParameters(property, axis, properties, true);
+			setParameters(name, property, axis, properties, true);
 			return;
 		}
 		label  = new Label(composite, SWT.NONE);
@@ -181,17 +183,19 @@ public class AxisSlicer {
 			}
 		});
 		reset.setToolTipText("Reset slice");
-		setParameters(property, axis, properties, true);
+		setParameters(name, property, axis, properties, true);
 	}
 
 	/**
 	 * Set parameters for slicer
+	 * @param name
 	 * @param property slice
 	 * @param axis dataset for axis values
 	 * @param properties slices that axis dataset depends on
 	 * @param used true if axis is used in plot
 	 */
-	public void setParameters(final SliceProperty property, final ILazyDataset axis, final SliceProperty[] properties, boolean used) {
+	public void setParameters(final String name, final SliceProperty property, final ILazyDataset axis, final SliceProperty[] properties, boolean used) {
+		this.name = name;
 		slice = property;
 		if (axisSlices != null)
 			for (int i = 0; i < axisSlices.length; i++)
@@ -250,7 +254,7 @@ public class AxisSlicer {
 		if (maxSize < 0)
 			maxSize = length;
 
-		label.setText(adata.getName());
+		label.setText(name);
 		slider.setMinMax(0, length, adata.getString(0), adata.getString(length-1));
 		slider.setIncrements(1, 5);
 		String initValue;
