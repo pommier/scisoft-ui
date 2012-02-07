@@ -115,11 +115,15 @@ public class MetadataPageView extends ViewPart implements ISelectionListener,
 
 	private void metadataChanged(final IMetaData meta) {
 		// this method should react to the different types of metadata
+		System.out.println(meta);
 		UIJob updateActionsForNewMetadata = new UIJob("Update for new metadata") {
 
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
+				System.err.println(meta);
 				toolBarManager.removeAll();
+				if(meta == null)
+					return Status.CANCEL_STATUS;
 				for (MetadataPageContribution mpc : pagesRegister) {
 					if (mpc.isApplicableFor(meta)) {
 						Action action = pageActionFactory(mpc);
@@ -129,6 +133,7 @@ public class MetadataPageView extends ViewPart implements ISelectionListener,
 				}
 				toolBarManager.update(false);
 				// select the page that was last active for a given metadata
+				
 				doDefaultBehaviour();
 				return Status.OK_STATUS;
 			}
@@ -219,8 +224,8 @@ public class MetadataPageView extends ViewPart implements ISelectionListener,
 						updatePath(filePath);
 					} else if (sel instanceof IMetadataProvider) {
 						try {
-							metadataChanged(((IMetadataProvider) sel)
-									.getMetadata());
+							meta = ((IMetadataProvider) sel).getMetadata();
+							metadataChanged(meta);
 						} catch (Exception e) {
 							logger.error("Could not capture metadata from selection", e);
 						}
