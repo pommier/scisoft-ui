@@ -120,7 +120,23 @@ public class FileView extends ViewPart {
 	public File getSelectedFile() {
 		return (File)((IStructuredSelection)tree.getSelection()).getFirstElement();
 	}
-
+	
+	/**
+	 * Get the file paths selected
+	 * 
+	 * @return String[]
+	 */
+	public String[] getSelectedFiles() {
+		Object[] objects = ((IStructuredSelection)tree.getSelection()).toArray();
+		if (tree.getSelection()==null || tree.getSelection().isEmpty()) 
+			objects = new Object[]{savedSelection};
+		
+		String absolutePaths [] = new String[objects.length];
+		for (int i=0; i < objects.length; i++) {
+			absolutePaths[i] = ((File) (objects[i])).getAbsolutePath();
+		}
+		return absolutePaths;
+	}
 	
 	@Override
 	public void createPartControl(final Composite parent) {
@@ -209,8 +225,8 @@ public class FileView extends ViewPart {
 		dragSource.addDragListener(new DragSourceAdapter() {
 			@Override
 			public void dragSetData(DragSourceEvent event){
-				if (getSelectedFile()==null) return;
-				event.data = new String[]{getSelectedFile().getAbsolutePath()};
+				if (getSelectedFiles()==null) return;
+				event.data = getSelectedFiles();
 			}
 		});
 		
