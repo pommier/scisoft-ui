@@ -84,7 +84,7 @@ public class Activator extends AbstractUIPlugin {
 			CodeSource cs = pd.getCodeSource();
 			URL url = cs.getLocation();
 			File file = new File(url.getFile(), "logging/log_configuration.xml");
-			url = new URL("File://"+file.getAbsolutePath());
+			url = file.toURI().toURL();
 			
 			if (file.exists()) {
 				System.out.println("Logging Configuration File found at '"+url+"'");
@@ -94,17 +94,20 @@ public class Activator extends AbstractUIPlugin {
 			
 			String logloc = System.getProperty("log.folder");
 			if (logloc == null) {
-				System.out.println("Log folder property not set, setting this manualy to the temp directory");
+				System.out.println("Log folder property not set, setting this manually to the temp directory");
 				String tmpDir = System.getProperty("java.io.tmpdir");
 				System.setProperty("log.folder", tmpDir);
 			}
-			
+
 			System.out.println("log.folder java property set to '"+System.getProperty("log.folder")+"'");
-			
-			
+
 			JoranConfigurator configurator = new JoranConfigurator();
 			configurator.setContext(loggerContext);
-			configurator.doConfigure(url);
+			String host = url.getHost(); // workaround Windows issue with local files
+			if (host == null || host.length() == 0)
+				configurator.doConfigure(file);
+			else
+				configurator.doConfigure(url);
 			
 			System.out.println("Logging Configuration complete");
 			
