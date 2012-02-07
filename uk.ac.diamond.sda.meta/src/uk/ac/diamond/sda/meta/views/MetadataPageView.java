@@ -115,12 +115,10 @@ public class MetadataPageView extends ViewPart implements ISelectionListener,
 
 	private void metadataChanged(final IMetaData meta) {
 		// this method should react to the different types of metadata
-		System.out.println(meta);
 		UIJob updateActionsForNewMetadata = new UIJob("Update for new metadata") {
 
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
-				System.err.println(meta);
 				toolBarManager.removeAll();
 				if(meta == null)
 					return Status.CANCEL_STATUS;
