@@ -1,7 +1,12 @@
 package uk.ac.diamond.sda.meta.contribution;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IContributor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.spi.RegistryContributor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +15,7 @@ import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.sda.meta.Activator;
 import uk.ac.diamond.sda.meta.discriminator.IMetadataDiscriminator;
 import uk.ac.diamond.sda.meta.page.IMetadataPage;
-
+import java.net.URL;
 public class MetadataPageContribution {
 
 	private static final Logger logger = LoggerFactory.getLogger(MetadataPageContribution.class);
@@ -27,7 +32,12 @@ public class MetadataPageContribution {
 	
 	public MetadataPageContribution(IConfigurationElement iConfigurationElement) {
 		this.configurationElement = iConfigurationElement;
-		icon = Activator.getImageDescriptor(iConfigurationElement.getAttribute(ICON));
+		//get the icon
+		IContributor contrib = configurationElement.getContributor();
+		String contribName = contrib instanceof RegistryContributor ? ((RegistryContributor) contrib).getActualName() : contrib.getName();
+		URL imgURL = FileLocator.find(Platform.getBundle(contribName), new Path(configurationElement.getAttribute(ICON)), null);
+		icon = ImageDescriptor.createFromURL(imgURL);
+		
 		extentionPointname = iConfigurationElement.getAttribute(NAME);
 		try {
 			discriminator = (IMetadataDiscriminator)iConfigurationElement.createExecutableExtension(SUPPORTED_METADATA);
