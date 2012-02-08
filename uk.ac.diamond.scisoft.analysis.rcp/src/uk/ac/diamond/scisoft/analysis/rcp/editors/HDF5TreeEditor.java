@@ -205,6 +205,8 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 	}
 
 	private void unregisterSelectionListener() {
+		if (selectionListener == null)
+			return;
 
 		final ISelectionService selectionService = getSite().getWorkbenchWindow().getSelectionService();
 		if (selectionService == null)
