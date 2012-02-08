@@ -49,9 +49,12 @@ import org.slf4j.LoggerFactory;
 
 public class MetadataPageView extends ViewPart implements ISelectionListener,
 		IPartListener {
-	private static final Logger logger = LoggerFactory
-			.getLogger(MetadataPageView.class);
+	
+	public final static String ID = "uk.ac.diamond.sda.meta.MetadataPageView";
+	
+	private static final Logger logger = LoggerFactory.getLogger(MetadataPageView.class);
 
+	
 	private IMetaData meta;
 	private ArrayList<MetadataPageContribution> pagesRegister = new ArrayList<MetadataPageContribution>();
 
