@@ -40,9 +40,9 @@ public class DiffractionViewerPerspective implements IPerspectiveFactory {
 		explorerLayout.addView("uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView");
 		explorerLayout.addPlaceholder("org.dawb.workbench.views.imageMonitorView");
 		
-		layout.addView("fable.imageviewer.views.HeaderView", IPageLayout.TOP, 0.8f, layout.getEditorArea());
+		layout.addView("uk.ac.diamond.sda.meta.MetadataPageView", IPageLayout.TOP, 0.8f, layout.getEditorArea());
 		
-		IFolderLayout navigatorLayout = layout.createFolder("navigators", IPageLayout.TOP, 0.6f, "fable.imageviewer.views.HeaderView");
+		IFolderLayout navigatorLayout = layout.createFolder("navigators", IPageLayout.TOP, 0.6f, "uk.ac.diamond.sda.meta.MetadataPageView");
 		navigatorLayout.addView("uk.ac.diamond.sda.navigator.views.FileView");
 		navigatorLayout.addView("org.eclipse.ui.navigator.ProjectExplorer");
 		

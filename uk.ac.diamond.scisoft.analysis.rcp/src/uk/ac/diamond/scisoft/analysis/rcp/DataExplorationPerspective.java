@@ -52,7 +52,7 @@ public class DataExplorationPerspective implements IPerspectiveFactory {
 		if (layout.getViewLayout(sidePlot) != null)
 			layout.getViewLayout(sidePlot).setCloseable(false);
 		
-		layout.addView("fable.imageviewer.views.HeaderView", IPageLayout.BOTTOM, 0.60f, sidePlot);
+		layout.addView("uk.ac.diamond.sda.meta.MetadataPageView", IPageLayout.BOTTOM, 0.60f, sidePlot);
 
 		String inspector = DatasetInspectorView.ID;
 		layout.addStandaloneView(inspector, false, IPageLayout.BOTTOM, 0.60f, editorArea);
