@@ -1022,6 +1022,23 @@
            </menu>
         </menuContribution>
         <menuContribution
+            locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?before=additions">
+           <command
+                 commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.openImageGridView"
+                 label="Explore Images"
+                 style="push">
+              <visibleWhen
+                    checkEnabled="false">
+                    <and>
+                        <iterate ifEmpty="false" operator="and">
+                            <instanceof value="org.eclipse.core.resources.IFile" />
+                        </iterate>
+                        <count value="+" />
+                    </and>
+              </visibleWhen>
+           </command>
+        </menuContribution>
+        <menuContribution
             locationURI="popup:uk.ac.diamond.scisoft.explorer.group">
            <command
                  commandId="uk.ac.diamond.scisoft.analysis.rcp.CompareFilesHandler"
@@ -1216,39 +1233,6 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.editors.CompareFilesEditor"
             name="Compare">
       </editor>
-   </extension>
-   <extension
-         point="org.eclipse.ui.popupMenus">
-      <!-- 
-      
-      Explore folders with the dawb image monitor rather than the ImageGridView
-      Commented out unless we decide to put this back and have both.
-      
-      <objectContribution
-            adaptable="true"
-            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.ImageGridView"
-            objectClass="org.eclipse.core.resources.IFolder">
-         <action
-               class="uk.ac.diamond.scisoft.analysis.rcp.actions.ImageGridViewPathSetterAction"
-               enablesFor="1"
-               id="uk.ac.diamond.scisoft.analysis.rcp.contributions.ImageGridViewPathSetterAction"
-               label="Explore with ImageExplorer View"
-               tooltip="Explores this directory using the Image Explorer View">
-         </action>
-      </objectContribution>
-      -->
-      <objectContribution
-            adaptable="true"
-            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.SelectedImageGridView"
-            objectClass="org.eclipse.core.resources.IFile">
-         <action
-               class="uk.ac.diamond.scisoft.analysis.rcp.actions.SelectedImageGridViewAction"
-               enablesFor="+"
-               id="uk.ac.diamond.scisoft.analysis.rcp.contributions.SelectedImageGridViewAction"
-               label="Explore images"
-               tooltip="Explores these images using the Image Explorer View">
-         </action>
-      </objectContribution>
    </extension>
 
    <extension
