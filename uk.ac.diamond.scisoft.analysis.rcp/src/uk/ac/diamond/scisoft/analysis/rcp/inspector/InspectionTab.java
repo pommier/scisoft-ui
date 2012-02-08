@@ -466,7 +466,7 @@ class PlotTab extends ATab {
 		for (int i = 0; i < cSize; i++) {
 			Combo c = combos.get(i + comboOffset);
 			c.removeAll();
-			
+
 			ArrayList<Integer> keyList = new ArrayList<Integer>(sAxes.keySet());
 			Collections.sort(keyList);
 			Integer lastKey = keyList.get(keyList.size() - 1);
@@ -474,10 +474,24 @@ class PlotTab extends ATab {
 			PlotAxisProperty p = paxes.get(i + comboOffset);
 			p.clear();
 
-			for (int j : keyList) {
-				String n = sAxes.get(j);
-				p.put(j, n);
-				c.add(n);
+			if (axes.length == 1) { // for 1D plots and 1D dataset table, remove single point axes
+				int[] shape = dataset.getShape();
+				while (shape[lastKey] == 1) {
+					lastKey--;
+				}
+				a = sAxes.get(lastKey); // reverse order
+				for (int j : keyList) {
+					String n = sAxes.get(j);
+					p.put(j, n);
+					if (shape[j] != 1)
+						c.add(n);
+				}
+			} else {
+				for (int j : keyList) {
+					String n = sAxes.get(j);
+					p.put(j, n);
+					c.add(n);
+				}
 			}
 			c.setText(a);
 			sAxes.remove(lastKey);
@@ -496,7 +510,7 @@ class PlotTab extends ATab {
 		if (sAxes.size() == 0)
 			return;
 		int cSize = combos.size() - comboOffset;
-		int dmax = AbstractDataset.squeezeShape(dataset.getShape(),false).length;
+		int dmax = daxes.size();
 		String a = null;
 		if (oldName != null && newName != null) { // only one dataset axis has changed
 			LinkedList<String> oAxes = paxes.get(comboOffset).getNames(); // old axes
@@ -521,10 +535,20 @@ class PlotTab extends ATab {
 				String curAxis = cAxes.get(i);
 				a = oldName.equals(curAxis) ? newName : curAxis;
 
-				for (String n : axesMap.keySet()) {
-					Integer j = axesMap.get(n);
-					p.put(j, n);
-					c.add(n);
+				if (axes.length == 1) { // for 1D plots and 1D dataset table
+					int[] shape = dataset.getShape();
+					for (String n : axesMap.keySet()) {
+						Integer j = axesMap.get(n);
+						p.put(j, n);
+						if (shape[j] != 1)
+							c.add(n);
+					}
+				} else {
+					for (String n : axesMap.keySet()) {
+						Integer j = axesMap.get(n);
+						p.put(j, n);
+						c.add(n);
+					}
 				}
 				c.setText(a);
 				axesMap.remove(a);
@@ -554,11 +578,22 @@ class PlotTab extends ATab {
 			}
 			p.clear();
 
-			for (String n : axesMap.keySet()) {
-				Integer j = axesMap.get(n);
-				p.put(j, n);
-				c.add(n);
+			if (axes.length == 1) { // for 1D plots and 1D dataset table
+				int[] shape = dataset.getShape();
+				for (String n : axesMap.keySet()) {
+					Integer j = axesMap.get(n);
+					p.put(j, n);
+					if (shape[j] != 1)
+						c.add(n);
+				}
+			} else {
+				for (String n : axesMap.keySet()) {
+					Integer j = axesMap.get(n);
+					p.put(j, n);
+					c.add(n);
+				}
 			}
+
 			c.setText(a);
 			axesMap.remove(a);
 			p.setName(a, false);
@@ -656,10 +691,40 @@ class PlotTab extends ATab {
 					sl[idx] = new Slice();
 			
 			logger.warn("2D plots can only handle 1D axis. Taking first slice from {} dataset", axisSlice.getName());
-			return axisSlice.getSlice(sl).squeeze();
+			AbstractDataset d = axisSlice.getSlice(sl).squeeze();
+			if (d.getRank() == 0) {
+				d.setShape(1);
+			}
+			return d;
 		}
-		
+
+		if (axisSlice.getRank() == 0)
+			axisSlice.setShape(1);
+
 		return axisSlice;
+	}
+
+	/**
+	 * Check rank of dataset and correct if necessary
+	 * @param a
+	 * @param rank
+	 * @return true if something wrong
+	 */
+	private boolean isRankBad(AbstractDataset a, int rank) {
+		if (a == null)
+			return true;
+		int r = a.getRank();
+		if (r > rank)
+			return true;
+		if (r == rank)
+			return false;
+		int[] s = Arrays.copyOf(a.getShape(), rank);
+
+		for (; r < rank; r++) {
+			s[r] = 1;
+		}
+		a.setShape(s);
+		return false;
 	}
 
 	@Override
@@ -672,7 +737,7 @@ class PlotTab extends ATab {
 			slices[i] = sliceProperties.get(i).getValue();
 		}
 
-		int[] order = getOrder(dataset.getRank());
+		int[] order = getOrder(daxes.size());
 		// FIXME: Image, surface and volume plots can't work with multidimensional axis data
 		List<AbstractDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, order);
 
@@ -692,7 +757,7 @@ class PlotTab extends ATab {
 		switch(itype) {
 		case LINE:
 			reorderedData = slicedAndReorderData(monitor, slices, order);
-			if (reorderedData == null || reorderedData.getRank() != 1) {
+			if (isRankBad(reorderedData, 1)) {
 				try {
 					SDAPlotter.clearPlot(PLOTNAME);
 				} catch (Exception e) {
@@ -711,10 +776,7 @@ class PlotTab extends ATab {
 			break;
 		case LINESTACK:
 			reorderedData = slicedAndReorderData(monitor, slices, order);
-			if (reorderedData != null && reorderedData.getRank() == 1) {
-				reorderedData.setShape(reorderedData.getSize(), 1);
-			}
-			if (reorderedData == null || reorderedData.getRank() != 2) {
+			if (isRankBad(reorderedData, 2)) {
 				try {
 					SDAPlotter.clearPlot(PLOTNAME);
 				} catch (Exception e) {
@@ -772,7 +834,7 @@ class PlotTab extends ATab {
 		case IMAGE:
 		case SURFACE:
 			reorderedData = slicedAndReorderData(monitor, slices, order);
-			if (reorderedData == null || reorderedData.getRank() != 2) {
+			if (isRankBad(reorderedData, 2)) {
 				try {
 					SDAPlotter.clearPlot(PLOTNAME);
 				} catch (Exception e) {
@@ -809,7 +871,7 @@ class PlotTab extends ATab {
 			break;
 		case VOLUME:
 			reorderedData = slicedAndReorderData(monitor, slices, order);
-			if (reorderedData == null || reorderedData.getRank() != 3) {
+			if (isRankBad(reorderedData, 3)) {
 				return;
 			}
 
@@ -997,7 +1059,7 @@ class DataTab extends PlotTab {
 			slices[i] = sliceProperties.get(i).getValue();
 		}
 
-		int[] order = getOrder(dataset.getRank());
+		int[] order = getOrder(daxes.size());
 		final List<AbstractDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, order);
 
 
@@ -1115,14 +1177,14 @@ class ScatterTab extends PlotTab {
 	public boolean[] getUsedDims() {
 		boolean[] used = super.getUsedDims();
 
-		if (dataset != null && dataset.getRank() == 1)
+		if (daxes != null && daxes.size() == 1)
 			used[0] = true;
 		return used;
 	}
 
 	@Override
 	protected List<AxisChoice> getChosenAxes() {
-		if (dataset != null && dataset.getRank() != 1)
+		if (daxes != null && daxes.size() != 1)
 			return super.getChosenAxes();
 
 		List<String> names = getChosenAxisNames();
@@ -1177,7 +1239,7 @@ class ScatterTab extends PlotTab {
 			p.setName(CONSTANT, false);
 		}
 
-		if (dataset != null && dataset.getRank() != 1) {
+		if (daxes!= null && daxes.size() != 1) {
 			super.populateCombos();
 			return;
 		}
@@ -1220,7 +1282,7 @@ class ScatterTab extends PlotTab {
 		if (combos == null)
 			return;
 
-		if (dataset != null && dataset.getRank() != 1) {
+		if (daxes != null && daxes.size() != 1) {
 			super.repopulateCombos(oldName, newName);
 			return;
 		}
@@ -1270,7 +1332,7 @@ class ScatterTab extends PlotTab {
 
 	@Override
 	protected List<AbstractDataset> sliceAxes(List<AxisChoice> axes, Slice[] slices, int[] order) {
-		if (dataset.getRank() != 1)
+		if (daxes.size() != 1)
 			return super.sliceAxes(axes, slices, order);
 
 		List<AbstractDataset> slicedAxes = new ArrayList<AbstractDataset>();
@@ -1304,7 +1366,7 @@ class ScatterTab extends PlotTab {
 		}
 
 		List<AxisChoice> axes = getChosenAxes();
-		int rank = dataset.getRank();
+		int rank = daxes.size();
 		int[] order = getOrder(rank);
 		List<AbstractDataset> slicedAxes = sliceAxes(axes, slices, order);
 		if (slicedAxes == null)
