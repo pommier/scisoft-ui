@@ -20,6 +20,8 @@ import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.IFolderLayout;
 
+import uk.ac.diamond.sda.meta.views.MetadataPageView;
+
 public class DiffractionViewerPerspective implements IPerspectiveFactory {
 
 	static final String ID = "uk.ac.diamond.scisoft.diffractionviewerperspective";
@@ -40,7 +42,7 @@ public class DiffractionViewerPerspective implements IPerspectiveFactory {
 		explorerLayout.addView("uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView");
 		explorerLayout.addPlaceholder("org.dawb.workbench.views.imageMonitorView");
 		
-		layout.addView("uk.ac.diamond.sda.meta.MetadataPageView", IPageLayout.TOP, 0.8f, layout.getEditorArea());
+		layout.addView(MetadataPageView.ID, IPageLayout.TOP, 0.8f, layout.getEditorArea());
 		
 		IFolderLayout navigatorLayout = layout.createFolder("navigators", IPageLayout.TOP, 0.6f, "uk.ac.diamond.sda.meta.MetadataPageView");
 		navigatorLayout.addView("uk.ac.diamond.sda.navigator.views.FileView");

@@ -12,9 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
-import uk.ac.diamond.sda.meta.Activator;
 import uk.ac.diamond.sda.meta.discriminator.IMetadataDiscriminator;
 import uk.ac.diamond.sda.meta.page.IMetadataPage;
+
 import java.net.URL;
 public class MetadataPageContribution {
 

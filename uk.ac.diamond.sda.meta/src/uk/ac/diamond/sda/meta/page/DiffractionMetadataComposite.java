@@ -19,7 +19,7 @@ import uk.ac.diamond.scisoft.analysis.diffraction.DetectorProperties;
 import uk.ac.diamond.scisoft.analysis.diffraction.DiffractionCrystalEnvironment;
 import uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
-import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
+import uk.ac.diamond.sda.meta.Activator;
 
 public class DiffractionMetadataComposite implements IMetadataPage{
 
@@ -217,32 +217,32 @@ public class DiffractionMetadataComposite implements IMetadataPage{
 				new Label(beamCentreControls, SWT.NONE);
 				{
 					Button upBeam = new Button(beamCentreControls, SWT.NONE);
-					upBeam.setImage(AnalysisRCPActivator.getImageDescriptor("/icons/arrow_up.png").createImage());
+					upBeam.setImage(Activator.getImageDescriptor("/icons/arrow_up.png").createImage());
 					upBeam.setEnabled(false);
 				}
 				new Label(beamCentreControls, SWT.NONE);
 				{
 					Button leftBeam = new Button(beamCentreControls, SWT.NONE);
 
-					leftBeam.setImage(AnalysisRCPActivator.getImageDescriptor("/icons/arrow_left.png").createImage());
+					leftBeam.setImage(Activator.getImageDescriptor("/icons/arrow_left.png").createImage());
 					leftBeam.setEnabled(false);
 				}
 				{
 					showBeam = new Button(beamCentreControls, SWT.TOGGLE);
 					showBeam.setToolTipText("Show beam centre");
-					showBeam.setImage(AnalysisRCPActivator.getImageDescriptor("icons/asterisk_yellow.png")
+					showBeam.setImage(Activator.getImageDescriptor("icons/asterisk_yellow.png")
 							.createImage());
 					showBeam.setEnabled(false);
 				}
 				{
 					Button rightBeam = new Button(beamCentreControls, SWT.NONE);
-					rightBeam.setImage(AnalysisRCPActivator.getImageDescriptor("/icons/arrow_right.png").createImage());
+					rightBeam.setImage(Activator.getImageDescriptor("/icons/arrow_right.png").createImage());
 					rightBeam.setEnabled(false);
 				}
 				new Label(beamCentreControls, SWT.NONE);
 				{
 					Button downBeam = new Button(beamCentreControls, SWT.NONE);
-					downBeam.setImage(AnalysisRCPActivator.getImageDescriptor("/icons/arrow_down.png").createImage());
+					downBeam.setImage(Activator.getImageDescriptor("/icons/arrow_down.png").createImage());
 					downBeam.setEnabled(false);
 				}
 				new Label(beamCentreControls, SWT.NONE);

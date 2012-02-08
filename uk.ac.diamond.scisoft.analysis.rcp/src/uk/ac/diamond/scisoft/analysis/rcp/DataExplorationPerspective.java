@@ -23,6 +23,7 @@ import org.eclipse.ui.IPerspectiveFactory;
 import uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView;
+import uk.ac.diamond.sda.meta.views.MetadataPageView;
 
 public class DataExplorationPerspective implements IPerspectiveFactory {
 
@@ -52,7 +53,7 @@ public class DataExplorationPerspective implements IPerspectiveFactory {
 		if (layout.getViewLayout(sidePlot) != null)
 			layout.getViewLayout(sidePlot).setCloseable(false);
 		
-		layout.addView("uk.ac.diamond.sda.meta.MetadataPageView", IPageLayout.BOTTOM, 0.60f, sidePlot);
+		layout.addView(MetadataPageView.ID, IPageLayout.BOTTOM, 0.60f, sidePlot);
 
 		String inspector = DatasetInspectorView.ID;
 		layout.addStandaloneView(inspector, false, IPageLayout.BOTTOM, 0.60f, editorArea);
