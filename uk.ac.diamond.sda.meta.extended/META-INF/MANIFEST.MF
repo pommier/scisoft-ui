@@ -5,11 +5,9 @@ Bundle-SymbolicName: uk.ac.diamond.sda.meta.extended;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: uk.ac.diamond.sda.meta.extended.Activator
 Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime
+ org.eclipse.core.runtime,
+ uk.ac.diamond.sda.meta;bundle-version="[1.1.0,2.0.0)"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.apache.commons.io,
- uk.ac.diamond.scisoft.analysis.io,
- uk.ac.diamond.sda.meta.discriminator,
- uk.ac.diamond.sda.meta.page,
- uk.ac.diamond.sda.meta.views
+ uk.ac.diamond.scisoft.analysis.io
