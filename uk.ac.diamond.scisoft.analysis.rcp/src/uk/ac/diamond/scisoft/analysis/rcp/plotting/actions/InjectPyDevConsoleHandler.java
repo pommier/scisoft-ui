@@ -136,15 +136,9 @@ public class InjectPyDevConsoleHandler extends AbstractHandler {
 			cmds.append("# Importing scisoftpy.\n");
 			cmds.append("import scisoftpy as dnp\n");
 
-			int rmiPort = 0;
-			int rpcPort = 0;
-			if (RMIServerProvider.getInstance().getPort() != RMIServerProvider.DEFAULT_REGISTRYSERVERPORT) {
-				rmiPort = RMIServerProvider.getInstance().getPort();
-
-			}
-			if (AnalysisRpcServerProvider.getInstance().getPort() != AnalysisRpcServerProvider.DEFAULT_RPCPORT) {
-				rpcPort = AnalysisRpcServerProvider.getInstance().getPort();
-			}
+			int rmiPort = RMIServerProvider.getInstance().getPort();
+			int rpcPort = AnalysisRpcServerProvider.getInstance().getPort();
+			
 			if (rmiPort != 0 || rpcPort != 0) {
 				cmds.append("dnp.plot.setremoteport(rmiport=");
 				cmds.append(rmiPort);

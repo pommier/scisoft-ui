@@ -55,18 +55,18 @@ public class AnalysisRpcAndRmiPreferencePage extends FieldEditorPreferencePage i
 				getFieldEditorParent()));
 
 		addField(new IntegerFieldEditor(PreferenceConstants.ANALYSIS_RPC_SERVER_PORT,
-				"Analysis RPC Port: (0 for default, requires restart)", getFieldEditorParent()));
+				"Analysis RPC Port: (0 for auto, requires restart)", getFieldEditorParent()));
 		addField(new IntegerFieldEditor(PreferenceConstants.RMI_SERVER_PORT,
-				"RMI Port: (0 for default, requires restart)", getFieldEditorParent()));
+				"RMI Port: (0 for auto, requires restart)", getFieldEditorParent()));
 
-		addField(new LabelFieldEditor(
-				"Any changes here also affect scisoftpy connecting to this instance of SDA.\n"
-						+ "Therefore, if you are not using the defaults, add this Python snippet to your Python scripts and consoles.\n\n"
-						+ "import scisoftpy as dnp\n"
-						+ "dnp.rpc.settemplocation(<path>)\n"
-						+ "dnp.plot.setremoteport(rmiport=<rmiport>, rpcport=<rpcport>)\n\n"
-						+ "If you have those lines in PyDev's 'Initial Interpretter Commands' pressing OK will give you the option of updating them.",
-				getFieldEditorParent()));
+		addField(new LabelFieldEditor("The currently in use ports are:\n" + "- Analysis RPC: "
+				+ AnalysisRpcServerProvider.getInstance().getPort() + "\n" + "- RMI: "
+				+ RMIServerProvider.getInstance().getPort() + "\n" + "\n"
+				+ "SDA automatically passes the parameters on this page using environment variables \n"
+				+ "which are set up in the PyDev Interpreter Info preference pages. \n"
+				+ "These are automatically used by scisoftpy. The environment variables are: \n"
+				+ "Analysis RPC Port: SCISOFT_RPC_PORT\n" + "RMI Port: SCISOFT_RMI_PORT\n"
+				+ "Temporary File Location: SCISOFT_RPC_TEMP\n", getFieldEditorParent()));
 
 	}
 
@@ -77,10 +77,8 @@ public class AnalysisRpcAndRmiPreferencePage extends FieldEditorPreferencePage i
 			int runningRpcPort = AnalysisRpcServerProvider.getInstance().getPort();
 			int newRpcPort = getAnalysisRpcPort();
 			int newRmiPort = getRmiPort();
-			boolean rpcPortChanged = (newRpcPort == 0 && runningRpcPort != AnalysisRpcServerProvider.DEFAULT_RPCPORT)
-					|| (newRpcPort != 0 && runningRpcPort != newRpcPort);
-			boolean rmiPortChanged = (newRmiPort == 0 && runningRmiPort != RMIServerProvider.DEFAULT_REGISTRYSERVERPORT)
-					|| (newRmiPort != 0 && runningRmiPort != newRmiPort);
+			boolean rpcPortChanged = newRpcPort != 0 && runningRpcPort != newRpcPort;
+			boolean rmiPortChanged = newRmiPort != 0 && runningRmiPort != newRmiPort;
 
 			File tempLocation = FlatteningService.getFlattener().getTempLocation();
 			String runningTempLocation = tempLocation == null ? null : tempLocation.toString();

@@ -6,4 +6,5 @@ Bundle-Version: 1.1.0.qualifier
 Bundle-Vendor: Diamond Light Source Ltd.
 Fragment-Host: uk.ac.diamond.scisoft.analysis.rcp;bundle-version="1.1.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.eclipse.ui.cheatsheets
+Require-Bundle: org.eclipse.ui.cheatsheets,
+ org.eclipse.core.variables

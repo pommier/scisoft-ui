@@ -22,7 +22,7 @@ import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.RMIServerProvider;
+import uk.ac.diamond.scisoft.analysis.RMIClientProvider;
 import uk.ac.diamond.scisoft.analysis.plotserver.IPlotWindowManagerRMI;
 
 /**
@@ -48,7 +48,7 @@ public class RMIPlotWindowManger implements IPlotWindowManagerRMI {
 	public static IPlotWindowManagerRMI getManager() {
 		try {
 			if (manager == null) {
-				manager = (IPlotWindowManagerRMI) RMIServerProvider.getInstance().lookup(null, PlotWindow.RMI_SERVICE_NAME);
+				manager = (IPlotWindowManagerRMI) RMIClientProvider.getInstance().lookup(null, PlotWindow.RMI_SERVICE_NAME);
 			}
 			return manager;
 		} catch (Exception e) {
