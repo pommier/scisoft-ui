@@ -64,5 +64,6 @@ Export-Package: com.swtdesigner,
  uk.ac.diamond.scisoft.analysis.rcp.volimage,
  uk.ac.diamond.scisoft.analysis.rcp.wizards
 Import-Package: ncsa.hdf.object,
- org.eclipse.ui
+ org.eclipse.ui,
+ org.slf4j;version="[1.5.0,2.0.0)"
 Bundle-ActivationPolicy: lazy
