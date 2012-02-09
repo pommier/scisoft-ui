@@ -16,6 +16,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.preference;
 
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.printing.PrintSettings;
+
 public class PreferenceConstants {
 
 	public static final String IGNORE_DATASET_FILTERS = "ignore.data.set.filters";
@@ -81,4 +83,10 @@ public class PreferenceConstants {
 	// RMI preferences
 	public static final String RMI_SERVER_PORT = "rmi.server.port";
 	
+	// Print Settings preferences
+	public static final String PRINTSETTINGS_PRINTER_NAME = "printsettings.printername";
+	public static final String PRINTSETTINGS_ORIENTATION = "printsettings.orientation";
+	public static final String PRINTSETTINGS_SCALE = "printsettings.scale";
+	public static final String PRINTSETTINGS_RESOLUTION = "printsettings.resolution";
+
 }

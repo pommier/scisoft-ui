@@ -66,7 +66,7 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 		comp.setLayoutData(gdc);
 		Label lblColourMap = new Label(comp,SWT.LEFT);
 		lblColourMap.setText("Default colour mapping");
-		cmbColourMap = new Combo(comp, SWT.RIGHT);
+		cmbColourMap = new Combo(comp, SWT.RIGHT|SWT.READ_ONLY);
 		gdc = new GridData();
 		gdc.horizontalSpan = 2;
 		cmbColourMap.setLayoutData(gdc);
@@ -91,7 +91,7 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 		lblUnits.setText("in ms");
 		Label lblPlayback = new Label(comp,SWT.LEFT);
 		lblPlayback.setText("View to use for playback");
-		cmbDisplayViews = new Combo(comp,SWT.RIGHT);
+		cmbDisplayViews = new Combo(comp,SWT.RIGHT|SWT.READ_ONLY);
 		cmbDisplayViews.setLayoutData(gdc);
 		List<String> views = ImageExplorerView.getRegisteredViews();
 		for (String s : views) {

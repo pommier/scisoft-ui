@@ -41,5 +41,27 @@
       </PollJob>
       
    </extension>
+   <extension
+         point="org.eclipse.ui.cheatsheets.cheatSheetContent">
+      <category
+            id="uk.ac.diamond.scisoft.analysis.polling.category"
+            name="Polling Tasks">
+      </category>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.polling.category"
+            composite="false"
+            contentFile="cheat/SimpleImagePollingExample.xml"
+            id="uk.ac.diamond.scisoft.analysis.polling.simpleimageplotingexample"
+            name="a) Simple Image Plotting Example ">
+      </cheatsheet>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="uk.ac.diamond.scisoft.analysis.polling.PollingPerspectiveFactory"
+            id="uk.ac.diamond.scisoft.analysis.polling.perspective"
+            name="Polling">
+      </perspective>
+   </extension>
 
 </plugin>

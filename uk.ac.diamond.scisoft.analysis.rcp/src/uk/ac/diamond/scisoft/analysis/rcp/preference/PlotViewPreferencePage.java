@@ -66,7 +66,7 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		plotMulti1DGroup.setLayoutData(gd);
 		Label lblCameraType = new Label(plotMulti1DGroup, SWT.LEFT);
 		lblCameraType.setText("Camera projection: ");
-		cmbCameraPerspective = new Combo(plotMulti1DGroup, SWT.RIGHT);
+		cmbCameraPerspective = new Combo(plotMulti1DGroup, SWT.RIGHT|SWT.READ_ONLY);
 		cmbCameraPerspective.add("Orthographic");
 		cmbCameraPerspective.add("Perspective");
 		Group plot2DGroup = new Group(comp, SWT.NONE);
@@ -76,18 +76,18 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		plot2DGroup.setLayoutData(gd);
 		Label lblColourMap = new Label(plot2DGroup, SWT.LEFT);
 		lblColourMap.setText("Default colour mapping");
-		cmbColourMap = new Combo(plot2DGroup, SWT.RIGHT);
+		cmbColourMap = new Combo(plot2DGroup, SWT.RIGHT|SWT.READ_ONLY);
 		for (int i = 0; i < GlobalColourMaps.colourMapNames.length; i++)
 			cmbColourMap.add(GlobalColourMaps.colourMapNames[i]);
 		Label lblExpertMode = new Label(plot2DGroup, SWT.LEFT);
-		lblExpertMode.setText("Auto histogram");
+		lblExpertMode.setText("Default expert mode");
 		chkExpertMode = new Button(plot2DGroup, SWT.CHECK | SWT.RIGHT);
 		Label lblAutoHisto = new Label(plot2DGroup, SWT.LEFT);
 		lblAutoHisto.setText("Auto histogram");
 		chkAutoHisto = new Button(plot2DGroup, SWT.CHECK | SWT.RIGHT);
 		Label lblScaling = new Label(plot2DGroup, SWT.LEFT);
 		lblScaling.setText("Colour scaling");
-		cmbColourScale = new Combo(plot2DGroup, SWT.RIGHT);
+		cmbColourScale = new Combo(plot2DGroup, SWT.RIGHT|SWT.READ_ONLY);
 		cmbColourScale.add("Linear");
 		cmbColourScale.add("Logarithmic");
 		Label lblScrollbars = new Label(plot2DGroup, SWT.LEFT);
@@ -214,7 +214,6 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 			return getPreferenceStore().getDefaultBoolean(PreferenceConstants.PLOT_VIEWER_PLOT2D_SHOWSCROLLBAR);
 		}
 		return getPreferenceStore().getBoolean(PreferenceConstants.PLOT_VIEWER_PLOT2D_SHOWSCROLLBAR);
-
 	}
 
 	public void setColourMapChoicePreference(int value) {

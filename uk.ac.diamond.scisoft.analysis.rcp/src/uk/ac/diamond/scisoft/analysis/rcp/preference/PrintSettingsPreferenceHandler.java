@@ -14,33 +14,24 @@
  * limitations under the License.
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.plotting.actions;
+package uk.ac.diamond.scisoft.analysis.rcp.preference;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.printing.PrintDialog;
-import org.eclipse.swt.printing.PrinterData;
-import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.core.commands.IHandler;
+import org.eclipse.jface.preference.PreferenceDialog;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.PreferencesUtil;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
-import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
+public class PrintSettingsPreferenceHandler extends AbstractHandler implements IHandler {
 
-public class PlotPrintGraphWithScale10Action extends AbstractHandler {
+	private static final String PRINTSETTINGS_PAGE_ID = "uk.ac.diamond.scisoft.analysis.rcp.printSettingsPreferencePage";
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		final PlotView pv = (PlotView) HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().getActivePart();
-		DataSetPlotter plotter = pv.getMainPlotter();
-
-		if (plotter != null) {
-			
-			PrintDialog dialog = new PrintDialog(pv.getSite().getShell(), SWT.NULL);
-			PrinterData printerData = dialog.open();
-			plotter.printGraph(printerData, 0.1f);
-			//Printer pr =new Printer(data)
-		}
+		PreferenceDialog pref = PreferencesUtil.createPreferenceDialogOn(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), PRINTSETTINGS_PAGE_ID, null, null);	
+		if (pref != null) pref.open();
 		return Boolean.TRUE;
 	}
 

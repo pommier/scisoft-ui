@@ -16,6 +16,10 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.inspector;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Arrays;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -27,6 +31,8 @@ import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
+import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 
@@ -45,13 +51,31 @@ public class AxisSlicer {
 	private Button reset;
 	private int length;
 	private SliceProperty slice;
-	private AbstractDataset adata;
+	private SliceProperty[] axisSlices;
 	private boolean mode;
+	private AbstractDataset adata;
+	private ILazyDataset axisData;
+	private PropertyChangeListener listener;
+	private String name;
+
 	public static final int COLUMNS = 6;
 	private static final Image undo = AnalysisRCPActivator.getImageDescriptor("icons/arrow_undo.png").createImage();
 
 	public AxisSlicer(Composite parent) {
 		composite = parent;
+		listener = new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				createAxisDataset();
+				composite.getDisplay().asyncExec(new Runnable() {
+					
+					@Override
+					public void run() {
+						init(false);
+					}
+				});
+			}
+		};
 	}
 
 	public Composite getParent() {
@@ -69,12 +93,14 @@ public class AxisSlicer {
 
 	/**
 	 * Create the GUI components for a slicer
+	 * @param name
 	 * @param property slice
 	 * @param axis dataset for axis values
+	 * @param properties slices that dataset depends on
 	 */
-	public void createAxisSlicer(SliceProperty property, AbstractDataset axis) {
+	public void createAxisSlicer(String name, SliceProperty property, ILazyDataset axis, SliceProperty[] properties) {
 		if (label != null) {
-			setParameters(property, axis, true);
+			setParameters(name, property, axis, properties, true);
 			return;
 		}
 		label  = new Label(composite, SWT.NONE);
@@ -157,20 +183,55 @@ public class AxisSlicer {
 			}
 		});
 		reset.setToolTipText("Reset slice");
-		setParameters(property, axis, true);
+		setParameters(name, property, axis, properties, true);
 	}
 
 	/**
 	 * Set parameters for slicer
+	 * @param name
 	 * @param property slice
 	 * @param axis dataset for axis values
+	 * @param properties slices that axis dataset depends on
 	 * @param used true if axis is used in plot
 	 */
-	public void setParameters(final SliceProperty property, final AbstractDataset axis, boolean used) {
+	public void setParameters(final String name, final SliceProperty property, final ILazyDataset axis, final SliceProperty[] properties, boolean used) {
+		this.name = name;
 		slice = property;
-		adata = axis;
+		if (axisSlices != null)
+			for (int i = 0; i < axisSlices.length; i++)
+				axisSlices[i].removePropertyChangeListener(listener);
+
+		axisSlices = properties;
 		mode = used;
+		axisData = axis;
+		createAxisDataset();
 		init(false);
+	}
+
+	private void createAxisDataset() {
+		for (int i = 0; i < axisSlices.length; i++)
+			axisSlices[i].removePropertyChangeListener(listener);
+
+		if (axisData.getRank() > 1) {
+			Slice[] s = new Slice[axisSlices.length];
+			for (int i = 0; i < s.length; i++) {
+				SliceProperty p = axisSlices[i];
+				if (p != slice) {
+					s[i] = p.getValue();
+					if (s[i].getNumSteps() > 1) {
+						s[i] = new Slice(0, 1);
+					}
+					p.addPropertyChangeListener(listener);
+				}
+			}
+			adata = DatasetUtils.convertToAbstractDataset(axisData.getSlice(s).squeeze());
+		} else
+			adata = DatasetUtils.convertToAbstractDataset(axisData.getSlice());
+
+		if (adata.getRank() == 0)
+			adata.setShape(1);
+
+		assert adata.getRank() == 1 : Arrays.toString(adata.getShape());
 	}
 
 	private void init(boolean reset) {
@@ -193,7 +254,7 @@ public class AxisSlicer {
 		if (maxSize < 0)
 			maxSize = length;
 
-		label.setText(adata.getName());
+		label.setText(name);
 		slider.setMinMax(0, length, adata.getString(0), adata.getString(length-1));
 		slider.setIncrements(1, 5);
 		String initValue;

@@ -18,7 +18,6 @@ package uk.ac.diamond.scisoft.analysis.rcp.inspector;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,6 +36,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -49,11 +49,14 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
+import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSet3DPlot2DMulti;
 import uk.ac.diamond.scisoft.analysis.rcp.views.DatasetTableView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView;
 import uk.ac.gda.monitor.IMonitor;
@@ -87,7 +90,7 @@ interface InspectionTab {
 	 * @param monitor
 	 * @param slices
 	 */
-	public void pushToView(IMonitor monitor, Slice[] slices);
+	public void pushToView(IMonitor monitor, List<SliceProperty> slices);
 
 	/**
 	 * @return true if tab can plot constant in place of dataset
@@ -199,11 +202,13 @@ class PlotTab extends ATab {
 	private static final String VOLVIEWNAME = "Remote Volume Viewer";
 	private String explorerName;
 	// this is the current limit on the number of lines that stack can handle well
-	private final static int STACKPLOTLIMIT = 100;
+	private static final int STACKPLOTLIMIT = 100;
+	private static final int MULTIIMAGESLIMIT = DataSet3DPlot2DMulti.MAX_IMAGES;
 
 	private PropertyChangeListener axesListener = null;
 	private ImageExplorerView explorer = null;
 	protected boolean runLongJob = false;
+	private boolean plotStackIn3D = false;
 
 	public PlotTab(IWorkbenchPartSite partSite, InspectorType type, String title, String[] axisNames) {
 		super(partSite, type, title, axisNames);
@@ -236,6 +241,26 @@ class PlotTab extends ATab {
 
 		if (daxes != null)
 			populateCombos();
+
+		// TODO line stack button
+		if (itype == InspectorType.LINESTACK) {
+//			new Label(holder, SWT.NONE).setText("In 3D");
+			final Button b = new Button(holder, SWT.CHECK);
+			b.setText("In 3D");
+			b.setToolTipText("Check to plot stack of lines in 3D");
+			b.setSelection(plotStackIn3D);
+			b.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					plotStackIn3D = b.getSelection();
+
+					if (paxes != null) {
+						PlotAxisProperty p = paxes.get(0);
+						p.setName(p.getName());
+					}
+				}
+			});
+		}
 
 		holder.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		sComposite.setContent(holder);
@@ -286,7 +311,7 @@ class PlotTab extends ATab {
 				axesListener = new PropertyChangeListener() {
 					@Override
 					public void propertyChange(PropertyChangeEvent evt) {
-						repopulateCombos((String) evt.getOldValue(), (String) evt.getNewValue());
+						repopulateCombos(evt.getOldValue().toString(), evt.getNewValue().toString());
 					}
 				};
 			}
@@ -357,16 +382,16 @@ class PlotTab extends ATab {
 
 		return sAxes;
 	}
-	
+
 	final protected HashMap<Integer, String> getSelectedComboAxisNames() { // get selected axes to be added into combos
 		HashMap<Integer, String> sAxes = new HashMap<Integer, String>();
 		if (daxes != null) {
-			for (int i = 0; i < daxes.size(); i++) {
+			for (int i = 0, imax = daxes.size(); i < imax; i++) {
 				AxisSelection s = daxes.get(i);
 				String n = s.getSelectedName();
 				//TODO: We need more elaborate selection criteria to disable unsupported multidimensional axis
 				//      selection in image, surface and volume plots
-				if (n != null && s.getSelectedAxis().getLength() > 1) {
+				if (n != null) {// && s.getSelectedAxis().getSize() > 1) {
 					sAxes.put(i, n);
 				} else {
 					logger.warn("No axis selection available in {}", s);
@@ -399,7 +424,7 @@ class PlotTab extends ATab {
 
 		boolean[] used = new boolean[sAxes.size()];
 		for (int i = 0, imax = sAxes.size(); i < imax; i++) {
-			AbstractDataset selectedAxis = daxes.get(i).getSelectedAxis().getValues();
+			ILazyDataset selectedAxis = daxes.get(i).getSelectedAxis().getValues();
 			if (selectedAxis == null) {
 				continue;
 			}
@@ -441,7 +466,7 @@ class PlotTab extends ATab {
 		for (int i = 0; i < cSize; i++) {
 			Combo c = combos.get(i + comboOffset);
 			c.removeAll();
-			
+
 			ArrayList<Integer> keyList = new ArrayList<Integer>(sAxes.keySet());
 			Collections.sort(keyList);
 			Integer lastKey = keyList.get(keyList.size() - 1);
@@ -449,10 +474,24 @@ class PlotTab extends ATab {
 			PlotAxisProperty p = paxes.get(i + comboOffset);
 			p.clear();
 
-			for (int j : keyList) {
-				String n = sAxes.get(j);
-				p.put(j, n);
-				c.add(n);
+			if (axes.length == 1) { // for 1D plots and 1D dataset table, remove single point axes
+				int[] shape = dataset.getShape();
+				while (shape[lastKey] == 1) {
+					lastKey--;
+				}
+				a = sAxes.get(lastKey); // reverse order
+				for (int j : keyList) {
+					String n = sAxes.get(j);
+					p.put(j, n);
+					if (shape[j] != 1)
+						c.add(n);
+				}
+			} else {
+				for (int j : keyList) {
+					String n = sAxes.get(j);
+					p.put(j, n);
+					c.add(n);
+				}
 			}
 			c.setText(a);
 			sAxes.remove(lastKey);
@@ -471,7 +510,7 @@ class PlotTab extends ATab {
 		if (sAxes.size() == 0)
 			return;
 		int cSize = combos.size() - comboOffset;
-		int dmax = AbstractDataset.squeezeShape(dataset.getShape(),false).length;
+		int dmax = daxes.size();
 		String a = null;
 		if (oldName != null && newName != null) { // only one dataset axis has changed
 			LinkedList<String> oAxes = paxes.get(comboOffset).getNames(); // old axes
@@ -496,16 +535,27 @@ class PlotTab extends ATab {
 				String curAxis = cAxes.get(i);
 				a = oldName.equals(curAxis) ? newName : curAxis;
 
-				for (String n : axesMap.keySet()) {
-					Integer j = axesMap.get(n);
-					p.put(j, n);
-					c.add(n);
+				if (axes.length == 1) { // for 1D plots and 1D dataset table
+					int[] shape = dataset.getShape();
+					for (String n : axesMap.keySet()) {
+						Integer j = axesMap.get(n);
+						p.put(j, n);
+						if (shape[j] != 1)
+							c.add(n);
+					}
+				} else {
+					for (String n : axesMap.keySet()) {
+						Integer j = axesMap.get(n);
+						p.put(j, n);
+						c.add(n);
+					}
 				}
 				c.setText(a);
 				axesMap.remove(a);
 				p.setName(a, false);
 				p.setInSet(true);
 			}
+			// do not need to notify plot axes listeners
 			if (a != null && p != null) {
 				if (p.isInSet()) {
 					p.setName(a);
@@ -528,11 +578,22 @@ class PlotTab extends ATab {
 			}
 			p.clear();
 
-			for (String n : axesMap.keySet()) {
-				Integer j = axesMap.get(n);
-				p.put(j, n);
-				c.add(n);
+			if (axes.length == 1) { // for 1D plots and 1D dataset table
+				int[] shape = dataset.getShape();
+				for (String n : axesMap.keySet()) {
+					Integer j = axesMap.get(n);
+					p.put(j, n);
+					if (shape[j] != 1)
+						c.add(n);
+				}
+			} else {
+				for (String n : axesMap.keySet()) {
+					Integer j = axesMap.get(n);
+					p.put(j, n);
+					c.add(n);
+				}
 			}
+
 			c.setText(a);
 			axesMap.remove(a);
 			p.setName(a, false);
@@ -550,27 +611,32 @@ class PlotTab extends ATab {
 		boolean[] used = getUsedDims();
 		for (int o : order) {
 			if (used[o]) {
-				int[] idxAxes = axes.get(o).getAxes();
-				
+				AxisChoice c = axes.get(o);
+				int[] imap = c.getIndexMapping();
+
 				// We need to reorder multidimensional axis values to match reorder data  
-				ArrayList<Integer> reorderAxesList = new ArrayList<Integer>(idxAxes.length);
+				int[] reorderAxesDims = new int[imap.length];
+				int j = 0;
 				for (int i = 0; i < order.length; i++) {
-					int idx = ArrayUtils.indexOf(idxAxes, order[i]);
-					if (idx != -1)
-						reorderAxesList.add(idx);
+					int idx = ArrayUtils.indexOf(imap, order[i]);
+					if (idx != ArrayUtils.INDEX_NOT_FOUND)
+						reorderAxesDims[j++] = idx;
 				}
-				int[] reorderAxesDims = ArrayUtils.toPrimitive(reorderAxesList.toArray(new Integer[idxAxes.length])); 
-						
-				AbstractDataset axesData = axes.get(o).getValues();
-				AbstractDataset reorderdAxesData = DatasetUtils.transpose(axesData, reorderAxesDims);
-				reorderdAxesData.setName(axesData.getName());
-				
-				Slice[] s = new Slice[idxAxes.length];
+				assert j == imap.length : j;
+
+				ILazyDataset axesData = c.getValues();
+				Slice[] s = new Slice[imap.length];
 				for (int i = 0; i < s.length; i++)
-					s[i] = slices[idxAxes[reorderAxesDims[i]]];
-				
-				AbstractDataset slicedAxis = reorderdAxesData.getSlice(s);
-				slicedAxes.add(slicedAxis.squeeze());
+					s[i] = slices[imap[i]];
+
+				AbstractDataset slicedAxis = DatasetUtils.convertToAbstractDataset(axesData.getSlice(s));
+
+				AbstractDataset reorderdAxesData = DatasetUtils.transpose(slicedAxis, reorderAxesDims);
+//				reorderdAxesData.setName(axesData.getName());
+
+				reorderdAxesData.setName(c.getLongName());
+
+				slicedAxes.add(reorderdAxesData.squeeze());
 			}
 		}
 
@@ -625,43 +691,73 @@ class PlotTab extends ATab {
 					sl[idx] = new Slice();
 			
 			logger.warn("2D plots can only handle 1D axis. Taking first slice from {} dataset", axisSlice.getName());
-			return axisSlice.getSlice(sl).squeeze();
+			AbstractDataset d = axisSlice.getSlice(sl).squeeze();
+			if (d.getRank() == 0) {
+				d.setShape(1);
+			}
+			return d;
 		}
-		
+
+		if (axisSlice.getRank() == 0)
+			axisSlice.setShape(1);
+
 		return axisSlice;
 	}
+
+	/**
+	 * Check rank of dataset and correct if necessary
+	 * @param a
+	 * @param rank
+	 * @return true if something wrong
+	 */
+	private boolean isRankBad(AbstractDataset a, int rank) {
+		if (a == null)
+			return true;
+		int r = a.getRank();
+		if (r > rank)
+			return true;
+		if (r == rank)
+			return false;
+		int[] s = Arrays.copyOf(a.getShape(), rank);
+
+		for (; r < rank; r++) {
+			s[r] = 1;
+		}
+		a.setShape(s);
+		return false;
+	}
+
 	@Override
-	public void pushToView(IMonitor monitor, Slice[] slices) {
+	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) {
 		if (dataset == null)
 			return;
 
-		int[] order = getOrder(dataset.getRank());
+		Slice[] slices = new Slice[sliceProperties.size()];
+		for (int i = 0; i < slices.length; i++) {
+			slices[i] = sliceProperties.get(i).getValue();
+		}
+
+		int[] order = getOrder(daxes.size());
 		// FIXME: Image, surface and volume plots can't work with multidimensional axis data
-		List<AbstractDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, order);  
+		List<AbstractDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, order);
 
-
-		if (itype == InspectorType.IMAGE || itype == InspectorType.SURFACE || itype == InspectorType.MULTIIMAGE) {
+		if (itype == InspectorType.IMAGE || itype == InspectorType.SURFACE || itype == InspectorType.IMAGEXP  || itype == InspectorType.MULTIIMAGES) {
 			// note that the DataSet plotter's 2D image/surface mode is row-major
 			swapFirstTwoInOrder(order);
 		}
 
 		AbstractDataset reorderedData;
-		Map<String, ? extends Serializable> metadata = null;
-		if (dataset instanceof AbstractDataset) {
-			metadata = ((AbstractDataset) dataset).getMetadataMap();
-		}
-		IMetaData metaDataObject=null;
+		IMetaData metaDataObject = null;
 		try {
 			metaDataObject = dataset.getMetadata();
 		} catch (Exception e1) {
-			logger.error("Meta data cannot be retreived from "+dataset.getName(), e1);
-
+			logger.error("Metadata cannot be retrieved from " + dataset.getName(), e1);
 		}
 
 		switch(itype) {
 		case LINE:
 			reorderedData = slicedAndReorderData(monitor, slices, order);
-			if (reorderedData == null || reorderedData.getRank() != 1) {
+			if (isRankBad(reorderedData, 1)) {
 				try {
 					SDAPlotter.clearPlot(PLOTNAME);
 				} catch (Exception e) {
@@ -680,7 +776,7 @@ class PlotTab extends ATab {
 			break;
 		case LINESTACK:
 			reorderedData = slicedAndReorderData(monitor, slices, order);
-			if (reorderedData == null || reorderedData.getRank() != 2) {
+			if (isRankBad(reorderedData, 2)) {
 				try {
 					SDAPlotter.clearPlot(PLOTNAME);
 				} catch (Exception e) {
@@ -690,44 +786,47 @@ class PlotTab extends ATab {
 			}
 
 			final int[] dims = reorderedData.getShape();
-			
 			int lines = dims[1];
-			AbstractDataset zaxis;
-			//FIXME: Stack plots can't use multidimensional z-axis
 			if (lines > STACKPLOTLIMIT) {
 				logger.warn("Try plot too many lines in stack plot: reduced from {} lines to {}", lines, STACKPLOTLIMIT);
-				lines = STACKPLOTLIMIT;
-				zaxis = slicedAxes.get(1).getSlice(null, new int[] {lines}, null).flatten();
-				zaxis.setName(slicedAxes.get(1).getName());
-			} else {
-				zaxis = slicedAxes.get(1).flatten();
+				int d = order[1];
+				SliceProperty p = sliceProperties.get(d);
+				Slice s = p.getValue();
+				Integer st = s.getStart();
+				p.setStop((st == null ? 0 : st) + STACKPLOTLIMIT*s.getStep(), true);
+				return;
 			}
-			
-			AbstractDataset xaxisarray = slicedAxes.get(0);
-			
-			AbstractDataset[] xaxis = new AbstractDataset[lines];
-			for (int i = 0; i < lines; i++) {
-				if (xaxisarray.getRank() == 1)
-					xaxis[i] = xaxisarray;
-				else
-					xaxis[i] = xaxisarray.getSlice(new int[] {0, i}, new int[] {dims[0], i+1}, null).squeeze();
-			}
-						
-			AbstractDataset[] yaxes = new AbstractDataset[lines];
 
-			// TODO feedback limit to slicer
-			boolean isDimAxis = slicedAxes.get(1).getName().startsWith("dim:");
+			AbstractDataset zaxis = slicedAxes.get(1);
+			AbstractDataset xaxisarray = slicedAxes.get(0);
+
+			AbstractDataset[] xaxes = new AbstractDataset[lines];
+			if (xaxisarray.getRank() == 1)
+				for (int i = 0; i < lines; i++)
+					xaxes[i] = xaxisarray;
+			else
+				for (int i = 0; i < lines; i++)
+					xaxes[i] = xaxisarray.getSlice(new int[] {0, i}, new int[] {dims[0], i+1}, null).squeeze();
+
+			AbstractDataset[] yaxes = new AbstractDataset[lines];
+			boolean isDimAxis = slicedAxes.get(1).getName().startsWith(AbstractExplorer.DIM_PREFIX);
 			for (int i = 0; i < lines; i++) {
 				AbstractDataset slice = reorderedData.getSlice(new int[] {0, i}, new int[] {dims[0], i+1}, null);
 				slice.squeeze();
-				if (isDimAxis)
+				if (isDimAxis) {
 					slice.setName(String.format("%s[%d]", dataset.getName(), i));
-				else
-					slice.setName(String.format("%s[%d=%s]", dataset.getName(), i, zaxis.getString(i)));
+				} else {
+					String z = lines == 1 && zaxis.getRank() == 0 ? zaxis.getString() : zaxis.getString(i);
+					slice.setName(String.format("%s[%d=%s]", dataset.getName(), i, z));
+				}
 				yaxes[i] = slice;
 			}
 			try {
-				SDAPlotter.updateStackPlot(PLOTNAME, xaxis, yaxes, zaxis);
+				if (plotStackIn3D)
+					SDAPlotter.updateStackPlot(PLOTNAME, xaxes, yaxes, zaxis);
+				else {
+					SDAPlotter.updatePlot(PLOTNAME, xaxes, yaxes);
+				}
 			} catch (Exception e) {
 				logger.error("Could not plot 1d stack");
 			}
@@ -735,7 +834,7 @@ class PlotTab extends ATab {
 		case IMAGE:
 		case SURFACE:
 			reorderedData = slicedAndReorderData(monitor, slices, order);
-			if (reorderedData == null || reorderedData.getRank() != 2) {
+			if (isRankBad(reorderedData, 2)) {
 				try {
 					SDAPlotter.clearPlot(PLOTNAME);
 				} catch (Exception e) {
@@ -745,7 +844,6 @@ class PlotTab extends ATab {
 			}
 
 			reorderedData.setName(dataset.getName()); // TODO add slice string
-			reorderedData.setMetadataMap(metadata);
 			if (metaDataObject != null) {
 				reorderedData.setMetadata(metaDataObject);
 			}
@@ -762,15 +860,18 @@ class PlotTab extends ATab {
 				logger.error("Could not plot image or surface");
 			}
 			break;
-		case MULTIIMAGE:
+		case IMAGEXP:
 			if (isExplorerNull())
 				return;
 
 			pushImages(monitor, slices, order);
 			break;
+		case MULTIIMAGES:
+			pushMultipleImages(monitor, sliceProperties, slices, slicedAxes, order);
+			break;
 		case VOLUME:
 			reorderedData = slicedAndReorderData(monitor, slices, order);
-			if (reorderedData == null || reorderedData.getRank() != 3) {
+			if (isRankBad(reorderedData, 3)) {
 				return;
 			}
 
@@ -871,6 +972,72 @@ class PlotTab extends ATab {
 			stopInspection();
 		}
 	}
+
+	private void pushMultipleImages(final IMonitor monitor, List<SliceProperty> sliceProperties, final Slice[] slices, List<AbstractDataset> slicedAxes, final int[] order) {
+		// work out slicing result
+		int[] shape = dataset.getShape();
+		int smax = slices.length;
+		if (smax < 2)
+			smax = 2;
+		final int sliceAxis = order[2];
+		final Slice[] subSlices = new Slice[smax];
+		for (int i = 0; i < smax; i++) {
+			if (i < slices.length) {
+				subSlices[i] = i == sliceAxis ? slices[i].clone() : slices[i];
+			} else {
+				subSlices[i] = new Slice(shape[i]);
+			}
+			shape[i] = slices[i].getNumSteps();
+		}
+
+		final int nimages = shape[sliceAxis];
+
+		if (nimages > MULTIIMAGESLIMIT) {
+			logger.warn("Try plot too many images in multiple images plot: reduced from {} images to {}", nimages, MULTIIMAGESLIMIT);
+			SliceProperty p = sliceProperties.get(sliceAxis);
+			Slice s = p.getValue();
+			Integer st = s.getStart();
+			p.setStop((st == null ? 0 : st) + MULTIIMAGESLIMIT*s.getStep(), true);
+			return;
+		}
+
+		AbstractDataset yaxis = make1DAxisSlice(slicedAxes, 1);
+		AbstractDataset xaxis = make1DAxisSlice(slicedAxes, 0);
+
+		try {
+			Slice subSlice = subSlices[sliceAxis];
+			int start = subSlice.getStart() == null ? 0 : subSlice.getStart();
+			subSlices[sliceAxis].setStop(start+1);
+			setInspectionRunning();
+
+			IDataset[] images = new IDataset[nimages];
+			for (int i = 0; i < nimages; i++) {
+				subSlices[sliceAxis].setPosition(start + i);
+				AbstractDataset slicedData = sliceData(monitor, subSlices);
+				if (slicedData == null)
+					return;
+
+				AbstractDataset reorderedData = DatasetUtils.transpose(slicedData, order);
+
+				reorderedData.setName(slicedData.getName());
+				reorderedData.squeeze();
+				if (reorderedData.getSize() < 1)
+					return;
+
+				reorderedData.setName(dataset.getName() + "." + i);
+				if (!canContinueInspection()) {
+					return;
+				}
+
+				images[i] = reorderedData;
+			}
+			SDAPlotter.imagesPlot(PLOTNAME, xaxis, yaxis, images);
+		} catch (Exception e) {
+			logger.warn("Problem with sending data to image explorer", e);
+		} finally {
+			stopInspection();
+		}
+	}
 }
 
 /**
@@ -883,11 +1050,16 @@ class DataTab extends PlotTab {
 	}
 
 	@Override
-	public void pushToView(IMonitor monitor, Slice[] slices) {
+	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) {
 		if (dataset == null)
 			return;
 
-		int[] order = getOrder(dataset.getRank());
+		Slice[] slices = new Slice[sliceProperties.size()];
+		for (int i = 0; i < slices.length; i++) {
+			slices[i] = sliceProperties.get(i).getValue();
+		}
+
+		int[] order = getOrder(daxes.size());
 		final List<AbstractDataset> slicedAxes = sliceAxes(getChosenAxes(), slices, order);
 
 
@@ -936,7 +1108,8 @@ class DataTab extends PlotTab {
 		case IMAGE:
 		case LINE:
 		case LINESTACK:
-		case MULTIIMAGE:
+		case IMAGEXP:
+		case MULTIIMAGES:
 		case POINTS1D:
 		case POINTS2D:
 		case POINTS3D:
@@ -1004,14 +1177,14 @@ class ScatterTab extends PlotTab {
 	public boolean[] getUsedDims() {
 		boolean[] used = super.getUsedDims();
 
-		if (dataset != null && dataset.getRank() == 1)
+		if (daxes != null && daxes.size() == 1)
 			used[0] = true;
 		return used;
 	}
 
 	@Override
 	protected List<AxisChoice> getChosenAxes() {
-		if (dataset != null && dataset.getRank() != 1)
+		if (daxes != null && daxes.size() != 1)
 			return super.getChosenAxes();
 
 		List<String> names = getChosenAxisNames();
@@ -1066,7 +1239,7 @@ class ScatterTab extends PlotTab {
 			p.setName(CONSTANT, false);
 		}
 
-		if (dataset != null && dataset.getRank() != 1) {
+		if (daxes!= null && daxes.size() != 1) {
 			super.populateCombos();
 			return;
 		}
@@ -1109,7 +1282,7 @@ class ScatterTab extends PlotTab {
 		if (combos == null)
 			return;
 
-		if (dataset != null && dataset.getRank() != 1) {
+		if (daxes != null && daxes.size() != 1) {
 			super.repopulateCombos(oldName, newName);
 			return;
 		}
@@ -1159,7 +1332,7 @@ class ScatterTab extends PlotTab {
 
 	@Override
 	protected List<AbstractDataset> sliceAxes(List<AxisChoice> axes, Slice[] slices, int[] order) {
-		if (dataset.getRank() != 1)
+		if (daxes.size() != 1)
 			return super.sliceAxes(axes, slices, order);
 
 		List<AbstractDataset> slicedAxes = new ArrayList<AbstractDataset>();
@@ -1171,11 +1344,11 @@ class ScatterTab extends PlotTab {
 		Slice s = slices[0];
 		if (s != null && !s.isSliceComplete()) {
 			for (AxisChoice a : axes) {
-				slicedAxes.add(a.getValues().getSlice(s));
+				slicedAxes.add(DatasetUtils.convertToAbstractDataset(a.getValues().getSlice(s)));
 			}
 		} else {
 			for (AxisChoice a : axes) {
-				slicedAxes.add(a.getValues());
+				slicedAxes.add(DatasetUtils.convertToAbstractDataset(a.getValues()));
 			}
 		}
 
@@ -1183,12 +1356,17 @@ class ScatterTab extends PlotTab {
 	}
 
 	@Override
-	public void pushToView(IMonitor monitor, Slice[] slices) {
+	public void pushToView(IMonitor monitor, List<SliceProperty> sliceProperties) {
 		if (dataset == null)
 			return;
 
+		Slice[] slices = new Slice[sliceProperties.size()];
+		for (int i = 0; i < slices.length; i++) {
+			slices[i] = sliceProperties.get(i).getValue();
+		}
+
 		List<AxisChoice> axes = getChosenAxes();
-		int rank = dataset.getRank();
+		int rank = daxes.size();
 		int[] order = getOrder(rank);
 		List<AbstractDataset> slicedAxes = sliceAxes(axes, slices, order);
 		if (slicedAxes == null)
@@ -1202,7 +1380,7 @@ class ScatterTab extends PlotTab {
 
 		// TODO cope with axis datasets that are >1 dimensions
 		AbstractDataset x;
-		AbstractDataset y;
+		IDataset y;
 		switch (itype) {
 		case POINTS1D:
 			x = slicedAxes.get(0);
@@ -1211,7 +1389,7 @@ class ScatterTab extends PlotTab {
 				logger.error("Could not match axis to data for scatter plot");
 				return;
 			}
-			AbstractDataset size = useData ? y : new IntegerDataset(x.getSize()).fill(POINTSIZE);
+			IDataset size = useData ? y : new IntegerDataset(x.getSize()).fill(POINTSIZE);
 			try {
 				SDAPlotter.scatter2DPlot(PLOTNAME, x.flatten(), y, size);
 			} catch (Exception e) {
@@ -1241,12 +1419,12 @@ class ScatterTab extends PlotTab {
 					x = grid.get(0);
 					y = grid.get(1);
 				}
-				if (!x.isCompatibleWith(reorderedData) || !y.isCompatibleWith(reorderedData)) {
+				if (!reorderedData.isCompatibleWith(x) || !reorderedData.isCompatibleWith(y)) {
 					logger.error("Could not match axes to data for scatter plot");
 					return;
 				}
 				try {
-					SDAPlotter.scatter2DPlot(PLOTNAME, x.flatten(), y.flatten(), reorderedData.flatten());
+					SDAPlotter.scatter2DPlot(PLOTNAME, x.flatten(), ((AbstractDataset) y).flatten(), reorderedData.flatten());
 				} catch (Exception e) {
 					logger.error("Could not plot 2d points");
 					return;
@@ -1269,23 +1447,23 @@ class ScatterTab extends PlotTab {
 					return;
 				}
 			} else {
-				AbstractDataset z;
+				IDataset z;
+				x = DatasetUtils.convertToAbstractDataset(axes.get(0).getValues());
+				y = DatasetUtils.convertToAbstractDataset(axes.get(1).getValues());
+				z = DatasetUtils.convertToAbstractDataset(axes.get(2).getValues());
 				if (reorderedData.getRank() == 1) {
-					x = axes.get(0).getValues();
-					y = axes.get(1).getValues();
-					z = axes.get(2).getValues();
 				} else {
-					List<AbstractDataset> grid = DatasetUtils.meshGrid(axes.get(0).getValues(), axes.get(1).getValues(), axes.get(2).getValues());
+					List<AbstractDataset> grid = DatasetUtils.meshGrid(x, (AbstractDataset) y, (AbstractDataset) z);
 					x = grid.get(0);
 					y = grid.get(1);
 					z = grid.get(2);
 				}
-				if (!x.isCompatibleWith(reorderedData) || !y.isCompatibleWith(reorderedData) || !z.isCompatibleWith(reorderedData)) {
+				if (!reorderedData.isCompatibleWith(x) || !reorderedData.isCompatibleWith(y) || !reorderedData.isCompatibleWith(z)) {
 					logger.error("Could not match axes to data for scatter plot");
 					return;
 				}
 				try {
-					SDAPlotter.scatter3DPlot(PLOTNAME, x.flatten(), y.flatten(), z.flatten(), reorderedData.flatten());
+					SDAPlotter.scatter3DPlot(PLOTNAME, x.flatten(), ((AbstractDataset) y).flatten(), ((AbstractDataset) z).flatten(), reorderedData.flatten());
 				} catch (Exception e) {
 					logger.error("Could not plot 3d points");
 					return;
@@ -1298,7 +1476,8 @@ class ScatterTab extends PlotTab {
 		case IMAGE:
 		case LINE:
 		case LINESTACK:
-		case MULTIIMAGE:
+		case IMAGEXP:
+		case MULTIIMAGES:
 		case SURFACE:
 		case VOLUME:
 			break;

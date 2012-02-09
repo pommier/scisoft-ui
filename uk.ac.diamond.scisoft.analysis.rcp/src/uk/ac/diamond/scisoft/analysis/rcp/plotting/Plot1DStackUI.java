@@ -30,6 +30,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IWorkbenchPage;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
@@ -46,6 +47,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
  */
 public class Plot1DStackUI extends AbstractPlotUI {
 
+	private IWorkbenchPage page;
 	private AxisValues xAxis = null;
 	private AxisValues zAxis = null;
 	private DataSetPlotter mainPlotter;
@@ -76,9 +78,10 @@ public class Plot1DStackUI extends AbstractPlotUI {
 	public Plot1DStackUI(final PlotWindow window,
 						 IActionBars bars, 
 						 final DataSetPlotter plotter,
-						 Composite parent) {
+						 Composite parent, IWorkbenchPage page) {
 
 		this.parent = parent;
+		this.page = page;
 		this.plotWindow = window;
 		xAxis = new AxisValues();
 		zAxis = new AxisValues();
@@ -162,19 +165,18 @@ public class Plot1DStackUI extends AbstractPlotUI {
 					if (testValues != null) {
 						AxisValues xaxis = new AxisValues(testValues);
 						xAxisValuesList.add(xaxis);
-					}				
+					}
+					axisCounter++;
 				}
 				
 				Plot1DAppearance newApp = 
 					new Plot1DAppearance((colourLegend.isChecked() ? 
-										  PlotColorUtility.getDefaultColour(colourTable.getLegendSize()) : 
-										  java.awt.Color.BLACK),
-							             Plot1DStyles.SOLID,
-							             data.getName());
+							PlotColorUtility.getDefaultColour(colourTable.getLegendSize())
+								: java.awt.Color.BLACK), Plot1DStyles.SOLID, data.getName());
 				colourTable.addEntryOnLegend(newApp);
 				datasets.add(data);
 			}
-			mainPlotter.setPlotUpdateOperation(isUpdate);			
+			mainPlotter.setPlotUpdateOperation(isUpdate);
 			if (individualXAxis) {
 				try {
 					mainPlotter.replaceAllPlots(datasets, xAxisValuesList);
@@ -186,6 +188,9 @@ public class Plot1DStackUI extends AbstractPlotUI {
 					mainPlotter.replaceAllPlots(datasets);
 				} catch (PlotException ex) {}
 			}
+			
+			//we set the plot/file name
+			mainPlotter.setTitle(page.getActivePart().getTitle());
 	
 			parent.getDisplay().asyncExec(new Runnable() {
 				@Override

@@ -97,7 +97,7 @@ public class DiffractionViewerPreferencePage extends PreferencePage implements I
 
 		Label peakLabel = new Label(peakType, SWT.NONE);
 		peakLabel.setText("Peak Type");
-		pullDownPeaks = new Combo(peakType, SWT.NONE);
+		pullDownPeaks = new Combo(peakType, SWT.NONE|SWT.READ_ONLY);
 		for (int i = 0; i < peaknames.length; i++) {
 			pullDownPeaks.add(peaknames[i]);
 		}

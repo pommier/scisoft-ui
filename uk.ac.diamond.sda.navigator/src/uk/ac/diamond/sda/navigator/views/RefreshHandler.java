@@ -14,34 +14,21 @@
  * limitations under the License.
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.plotting.actions;
+package uk.ac.diamond.sda.navigator.views;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.printing.PrintDialog;
-import org.eclipse.swt.printing.PrinterData;
-import org.eclipse.ui.handlers.HandlerUtil;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
-import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
+import uk.ac.gda.common.rcp.util.EclipseUtils;
 
-public class PlotPrintGraphWithScale66Action extends AbstractHandler {
+public class RefreshHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		final PlotView pv = (PlotView) HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().getActivePart();
-		DataSetPlotter plotter = pv.getMainPlotter();
-
-		if (plotter != null) {
-			
-			PrintDialog dialog = new PrintDialog(pv.getSite().getShell(), SWT.NULL);
-			PrinterData printerData = dialog.open();
-			plotter.printGraph(printerData, 0.66f);
-			//Printer pr =new Printer(data)
-		}
-		return Boolean.TRUE;
+        final FileView fileView = (FileView)EclipseUtils.getActivePage().getActivePart();
+        fileView.refresh();
+        return Boolean.TRUE;
 	}
 
 }

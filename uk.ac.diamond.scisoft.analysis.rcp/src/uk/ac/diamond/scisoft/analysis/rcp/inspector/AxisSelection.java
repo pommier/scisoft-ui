@@ -17,58 +17,19 @@
 package uk.ac.diamond.scisoft.analysis.rcp.inspector;
 
 import java.beans.PropertyChangeEvent;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
-import org.apache.commons.collections.map.ListOrderedMap;
-
 
 /**
  * Class to hold a list of axis names and dataset from which an axis can be selected
  */
-public class AxisSelection extends InspectorProperty {
-	
-	/**
-	 * Subclass ListOrderedMap to avoid casting of the generic types in the rest of the code
-	 *
-	 */
-	class AxisSelDataOrderedMap extends ListOrderedMap {
-		public AxisSelDataOrderedMap() {
-			super();
-		}
-		
-		public AxisSelData get(String key) {
-			return (AxisSelData) super.get(key);
-		}
-		
-		@Override
-		public String get(int index) {
-			return (String) super.get(index);
-		}
-		
-		@Override
-		public AxisSelData getValue(int index) {
-			return (AxisSelData) super.getValue(index);
-		}
-		
-		@SuppressWarnings("unchecked")
-		@Override
-		public Set<String> keySet() {
-			return super.keySet();
-		}
-		
-		@SuppressWarnings("unchecked")
-		@Override
-		public List<AxisSelData> valueList() {
-			return super.valueList();
-		}
-	}
-	
+public class AxisSelection extends InspectorProperty implements Iterable<String> {
 	class AxisSelData implements Comparable<AxisSelData> {
 		private boolean selected;
 		private int order; // possible order in a list of choices (0 signifies leave to end of list) 
@@ -133,43 +94,58 @@ public class AxisSelection extends InspectorProperty {
 		
 	}
 
+	private final static String propName = "axisselection";
+	private int dim;    // dimension (or position index) of dataset
 	private int length; // length of axis
-	private AxisSelDataOrderedMap asData;
+	private List<AxisSelData> asData;
+	private List<String> names;
+	private final String suffix;
 
-	Transformer axisDataTransformer = new Transformer() {  
-		@Override
-		public Object transform(Object o) {
-			if (o instanceof AxisSelData)
-				return ((AxisSelData) o).getData();
-			return null;
-		}  
-	};
-	
-	Transformer orderTransformer = new Transformer() {  
+	Transformer orderTransformer = new Transformer() {
 		@Override
 		public Object transform(Object o) {
 			if (o instanceof AxisSelData)
 				return ((AxisSelData) o).getOrder();
 			return null;
-		}  
+		}
 	};
-	
-	Predicate axisSelectionPredicate = new Predicate() {  
+
+	Predicate axisSelectionPredicate = new Predicate() {
 		@Override
-		public boolean evaluate(Object o) {  
+		public boolean evaluate(Object o) {
 			if (o instanceof AxisSelData)
 				return ((AxisSelData) o).isSelected();
-			return false;  
-		}  
-	}; 
-	
+			return false;
+		}
+	};
+
+	class OrderPredicate implements Predicate {
+		int order;
+		public void setOrder(int order) {
+			this.order = order;
+		}
+
+		@Override
+		public boolean evaluate(Object obj) {
+			AxisSelData a = (AxisSelData) obj;
+			int o = a.getOrder();
+			return o == 0 || order < o;
+		}
+	}
+
+	OrderPredicate orderPredicate = new OrderPredicate();
+
 	/**
 	 * Create an axis selection that corresponds to a dataset dimension of given length
 	 * @param length 
+	 * @param dimension
 	 */
-	public AxisSelection(int length) {
+	public AxisSelection(int length, int dimension) {
+		dim = dimension;
 		this.length = length;
-		asData = new AxisSelDataOrderedMap();
+		asData = new ArrayList<AxisSelData>();
+		names = new ArrayList<String>();
+		suffix = ":" + (dim + 1);
 	}
 
 	/**
@@ -183,9 +159,9 @@ public class AxisSelection extends InspectorProperty {
 	public String toString() {
 		StringBuilder text = new StringBuilder();
 		text.append('(');
-		for (String n : asData.keySet()) {
-			text.append(n);
-			if (asData.get(n).isSelected()) {
+		for (AxisSelData a : asData) {
+			text.append(a.getData().getName());
+			if (a.isSelected()) {
 				text.append('*');
 			}
 			text.append(", ");
@@ -199,22 +175,56 @@ public class AxisSelection extends InspectorProperty {
 	}
 
 	/**
-	 * Add choice
+	 * Add axis choice with given order and sets choice to first
 	 * @param axis
+	 * @param order (can be zero to denote last)
 	 */
-	public void addSelection(AxisChoice axis, int order) {
+	public void addChoice(AxisChoice axis, int order) {
 		String name = axis.getName();
-		AxisSelData data;
-		if (asData.containsKey(name)) {
-			// already added name
-			data = asData.get(name); 
-			if (axis != data.getData())
-				data.setData(axis);
+		if (axis.getRank() > 1)
+			name += suffix;
+		addChoice(name, axis, order);
+	}
+
+	/**
+	 * Add axis choice with given name and order and sets choice to first
+	 * @param name
+	 * @param axis
+	 * @param order (can be zero to denote last)
+	 */
+	public void addChoice(String name, AxisChoice axis, int order) {
+		AxisSelData a;
+		int i = names.indexOf(name);
+		if (i >= 0) { // existing axis so replace
+			a = asData.get(i);
+			if (axis != a.getData())
+				a.setData(axis);
+			int o = a.getOrder();
+			if (o == order)
+				return;
+
+			names.remove(i);
+			asData.remove(i);
 		} else {
-			asData.put(name, new AxisSelData(axis, false));
-			data = asData.get(name);
+			a = new AxisSelData(axis, false);
 		}
-		data.setOrder(order);
+
+		a.setOrder(order);
+		if (order == 0) {
+			names.add(name);
+			asData.add(a);
+		} else {
+			orderPredicate.setOrder(order);
+			int j = asData.indexOf(CollectionUtils.find(asData, orderPredicate));
+			if (j < 0) {
+				names.add(name);
+				asData.add(a);
+			} else {
+				names.add(j, name);
+				asData.add(j, a);
+			}
+		}
+		selectAxis(0);
 	}
 
 	/**
@@ -222,15 +232,7 @@ public class AxisSelection extends InspectorProperty {
 	 * @return true if name is one of possible selections
 	 */
 	public boolean containsAxis(String name) {
-		return asData.containsKey(name);
-	}
-
-	/**
-	 * Select an axis with given name
-	 * @param name
-	 */
-	public void selectAxis(String name) {
-		selectAxis(name, true);
+		return names.contains(name);
 	}
 
 	/**
@@ -239,13 +241,19 @@ public class AxisSelection extends InspectorProperty {
 	 * @param fire
 	 */
 	public void selectAxis(String name, boolean fire) {
+		int i = names.indexOf(name);
+		if (i < 0)
+			return;
+
 		String oldName = getSelectedName();
-		for (String a: asData.keySet())
-			asData.get(a).setSelected(false);
-		asData.get(name).setSelected(true);
+		for (AxisSelData d: asData)
+			d.setSelected(false);
+
+		AxisSelData a = asData.get(i);
+		a.setSelected(true);
 
 		if (fire)
-			fire(new PropertyChangeEvent(this, "axisselection", oldName, name));
+			fire(new PropertyChangeEvent(this, propName, oldName, name));
 	}
 
 	/**
@@ -253,7 +261,25 @@ public class AxisSelection extends InspectorProperty {
 	 * @param index 
 	 */
 	public void selectAxis(int index) {
-		selectAxis(asData.get(index));
+		selectAxis(index, false);
+	}
+
+	/**
+	 * Select an axis with given index
+	 * @param index 
+	 * @param fire
+	 */
+	public void selectAxis(int index, boolean fire) {
+		AxisSelData a = (AxisSelData) CollectionUtils.find(asData, axisSelectionPredicate);
+		String oldName = null;
+		if (a != null) {
+			a.setSelected(false);
+			oldName = names.get(asData.indexOf(a));
+		}
+		a = asData.get(index);
+		a.setSelected(true);
+		if (fire)
+			fire(new PropertyChangeEvent(this, propName, oldName, names.get(index)));
 	}
 
 	/**
@@ -261,41 +287,68 @@ public class AxisSelection extends InspectorProperty {
 	 * @return axis name of given index
 	 */
 	public String getName(int index) {
-		return asData.get(index);
+		return names.get(index);
 	}
 
 	/**
-	 * @param name
-	 * @return dimension data for the given name
+	 * @return axis names
 	 */
-	public int[] getDimensions(String name) {
-		AxisSelData data = asData.get(name);
-		return data == null ? null : data.getData().getAxes();
+	public List<String> getNames() {
+		return names;
 	}
 
 	/**
 	 * @param index 
-	 * @return axis data of given index
+	 * @return axis order of given index
+	 */
+	public int getOrder(int index) {
+		AxisSelData a = asData.get(index); 
+		return a == null ? -1 : a.getOrder();
+	}
+
+	/**
+	 * @param index 
+	 * @return axis choice of given index
 	 */
 	public AxisChoice getAxis(int index) {
-		AxisSelData data = asData.getValue(index); 
-		return data == null ? null : data.getData();
+		AxisSelData a = asData.get(index); 
+		return a == null ? null : a.getData();
 	}
 
 	/**
 	 * @param name
-	 * @return axis data of given name
+	 * @return axis choice of given name
 	 */
 	public AxisChoice getAxis(String name) {
-		AxisSelData s = asData.get(name);
-		return s == null ? null : s.getData();
+		int i = names.indexOf(name);
+		return i < 0 ? null : asData.get(i).getData();
 	}
 
 	/**
-	 * @return number of names
+	 * Remove axis choice of given index
+	 * @param index
+	 */
+	public void removeChoice(int index) {
+		names.remove(index);
+		asData.remove(index);
+	}
+
+	/**
+	 * Remove axis choice of given name
+	 * @param name
+	 */
+	public void removeChoice(String name) {
+		int i = names.indexOf(name);
+		if (i < 0)
+			return;
+		removeChoice(i);
+	}
+
+	/**
+	 * @return number of choices
 	 */
 	public int size() {
-		return asData.size();
+		return names.size();
 	}
 
 	/**
@@ -303,17 +356,8 @@ public class AxisSelection extends InspectorProperty {
 	 * @return selection status
 	 */
 	public boolean isSelected(int index) {
-		AxisSelData data = asData.getValue(index); 
-		return (data == null) ? false : data.isSelected();
-	}
-
-	/**
-	 * Get index of selected axis
-	 * @return index or -1 if nothing selected
-	 */
-	public int getSelectedIndex() {
-		AxisChoice choice = getSelectedAxis();
-		return asData.indexOf(choice);
+		AxisSelData a = asData.get(index); 
+		return (a == null) ? false : a.isSelected();
 	}
 
 	/**
@@ -321,59 +365,58 @@ public class AxisSelection extends InspectorProperty {
 	 * @return name or null if nothing selected
 	 */
 	public String getSelectedName() {
-		AxisChoice choice = getSelectedAxis();
-		if (choice != null)
-			return choice.getName();	
-		return null;
+		int i = getSelectedIndex();
+		return i < 0 ? null : names.get(i);
+	}
+
+	/**
+	 * Get index of selected axis
+	 * @return index or -1 if nothing selected
+	 */
+	public int getSelectedIndex() {
+		AxisSelData a = (AxisSelData) CollectionUtils.find(asData, axisSelectionPredicate);
+		return asData.indexOf(a);
 	}
 
 	/**
 	 * @return selected dimensions
 	 */
-	public int[] getSelectedDimensions() {
+	public int[] getSelectedIndexMapping() {
 		AxisChoice choice = getSelectedAxis();
 		if (choice != null)
-			return choice.getAxes();	
+			return choice.getIndexMapping();	
 		return null;
 	}
 
 	/**
-	 * @return selected dataset
+	 * @return selected choice
 	 */
 	public AxisChoice getSelectedAxis() {
-		AxisSelData sel = (AxisSelData) CollectionUtils.find(asData.valueList(), axisSelectionPredicate);
-		return (sel == null) ? null :sel.getData();
+		AxisSelData a = (AxisSelData) CollectionUtils.find(asData, axisSelectionPredicate);
+		return (a == null) ? null : a.getData();
 	}
 
 	/**
-	 * Call this once finished adding selections to reorder names
+	 * Call this once finished adding choices to 
 	 */
-	public void reorderNames() {
-	    List<AxisSelData> asDataArray = asData.valueList();
-	    
-		Collections.sort(asDataArray);
-		
-	    AxisSelDataOrderedMap newAsData = new AxisSelDataOrderedMap();
-		for (AxisSelData data : asDataArray) {
-			String key = data.getData().getName();
-			newAsData.put(key, data);
-		}
-	    asData = newAsData;
+	public void reorderChoices() {
+
+//		Collections.sort(asData);
+
 	}
 
 	/**
 	 * @return maximum order
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	public int getMaxOrder() {
-		Collection orders = CollectionUtils.collect(asData.values(), orderTransformer);
+		List<Integer> orders = (List<Integer>) CollectionUtils.collect(asData, orderTransformer);
 		return orders.size() > 0 ? (Integer) Collections.max(orders) : 0;
 	}
 
 	/**
 	 * @return true if names and axis datasets have same values
 	 */
-	@SuppressWarnings("rawtypes")
 	@Override
 	public boolean equals(Object other) {
 		if (this == other)
@@ -382,13 +425,10 @@ public class AxisSelection extends InspectorProperty {
 		if (other instanceof AxisSelection) {
 			AxisSelection that = (AxisSelection) other;
 			
-			if (!CollectionUtils.isEqualCollection(that.asData.keySet(), asData.keySet()))
+			if (!that.names.equals(names))
 				return false;
 			
-			Collection asChoice = CollectionUtils.collect(asData.values(), axisDataTransformer);  
-			Collection thatChoice = CollectionUtils.collect(that.asData.values(), axisDataTransformer);  
-			
-			if (!CollectionUtils.isEqualCollection(asChoice, thatChoice))
+			if (!CollectionUtils.isEqualCollection(asData, that.asData))
 				return false;
 			
 			return true;
@@ -400,10 +440,10 @@ public class AxisSelection extends InspectorProperty {
 	@Override
 	public int hashCode() {
 		int hash = length;
-		for (Object n : asData.keyList())
+		for (String n : names)
 				hash = hash * 17 + n.hashCode();
-		for (Object d : asData.valueList())
-				hash = hash * 17 + d.hashCode();
+		for (AxisSelData n : asData)
+				hash = hash * 17 + n.hashCode();
 		return hash;
 	}
 
@@ -411,12 +451,23 @@ public class AxisSelection extends InspectorProperty {
 	 * Clone everything but axis choice values
 	 */
 	@Override
-	public AxisSelection clone() throws CloneNotSupportedException {
-		AxisSelection selection = new AxisSelection(length);
+	public AxisSelection clone() {
+		AxisSelection selection = new AxisSelection(length, dim);
 		for (int i = 0, imax = asData.size(); i < imax; i++) {
-			AxisSelData data = asData.getValue(i);
-			selection.addSelection(data.getData().clone(), data.getOrder());
+			AxisSelData a = asData.get(i);
+			selection.addChoice(names.get(i), a.getData().clone(), a.getOrder());
+			if (a.isSelected())
+				selection.selectAxis(i);
 		}
+		
 		return selection;
+	}
+
+	/**
+	 * @return iterator over names
+	 */
+	@Override
+	public Iterator<String> iterator() {
+		return names.iterator();
 	}
 }

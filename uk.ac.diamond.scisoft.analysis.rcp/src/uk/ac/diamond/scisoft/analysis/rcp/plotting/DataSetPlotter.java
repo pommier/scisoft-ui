@@ -83,6 +83,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.legend.LegendTable;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay1DConsumer;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay2DConsumer;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.OverlayConsumer;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.printing.PlotPrintPreviewDialog;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.printing.PrintSettings;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.SurfacePlotROI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.CameraRotationTool;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.ClickWheelZoomTool;
@@ -185,9 +187,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 	private double cacheMaxValue;
 
 	private PrinterData defaultPrinterData;
-	private String printOrientation;
-	private double printScale;
-	private int printResolution;
+	private PrintSettings settings;
 	
 	/**
 	 * Define the handness of the coordinate system
@@ -265,9 +265,6 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 		hasData = false;
 		
 		defaultPrinterData = Printer.getDefaultPrinterData();
-		printOrientation = PlotPrintPreviewDialog.portraitText;
-		printScale= 0.5;
-		printResolution = 2;
 	}
 
 	public void setUseLegend(final boolean useLeg) {
@@ -997,10 +994,10 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 				CompositeEntry entry = 
 					new CompositeEntry(name, weight, CompositeOp.ADD,(byte)7);
 				table.add(entry);
-			}			
+			}
 			if (cmpControl != null)
 				cmpControl.updateTable(table);
-			((DataSet3DPlot2DMulti)plotter).updateCompositingSettings(table);			
+			((DataSet3DPlot2DMulti)plotter).updateCompositingSettings(table);
 		}
 		if (currentDataSets.size() > 0) {
 			currentDataSet = currentDataSets.get(0);
@@ -1103,7 +1100,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 						qSpace = new QSpace(diffnMetadata.getDetector2DProperties(),
 								diffnMetadata.getDiffractionCrystalEnvironment());
 						isDiffImage = true;
-					} catch (IllegalArgumentException e) {
+					} catch (Exception e) {
 						logger.debug("Could not create a detector properties object from metadata");
 					}
 				}
@@ -2035,21 +2032,15 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 				|| currentMode == PlottingMode.SCATTER2D) {
 			if(defaultPrinterData==null)
 				defaultPrinterData=Printer.getDefaultPrinterData();
-			PlotPrintPreviewDialog dialog = new PlotPrintPreviewDialog(viewerApp, container.getDisplay(),graphColourTable, 
-					defaultPrinterData, printOrientation, printScale, printResolution);
-			defaultPrinterData=dialog.open();
-			printOrientation = dialog.getOrientation();
-			printScale = dialog.getScale();
-			printResolution = dialog.getResolution();
+			if (settings==null) settings = new PrintSettings();
+			PlotPrintPreviewDialog dialog = new PlotPrintPreviewDialog(viewerApp, container.getDisplay(),graphColourTable, settings);
+			settings=dialog.open();
 		} else{
 			if(defaultPrinterData==null)
 				defaultPrinterData=Printer.getDefaultPrinterData();
-			PlotPrintPreviewDialog dialog = new PlotPrintPreviewDialog(viewerApp, container.getDisplay(),null,
-					defaultPrinterData, printOrientation, printScale, printResolution);
-			defaultPrinterData=dialog.open();
-			printOrientation = dialog.getOrientation();
-			printScale = dialog.getScale();
-			printResolution = dialog.getResolution();
+			if (settings==null) settings = new PrintSettings();
+			PlotPrintPreviewDialog dialog = new PlotPrintPreviewDialog(viewerApp, container.getDisplay(),null, settings);
+			settings=dialog.open();
 		}
 		isInExporting = false;
 
@@ -2284,6 +2275,23 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 	}
 
 	/**
+	 * Enable/Disable Axis visibility
+	 * 
+	 * @param checked
+	 *            true (enable feature detection) false (disable feature detection)
+	 */
+	public void setAxisVisibility(boolean checked) {
+		if (currentMode == PlottingMode.TWOD) {
+			coordXLabels.setVisible(checked);
+			coordYLabels.setVisible(checked);
+			coordZLabels.setVisible(checked);
+			coordAxes.setVisible(checked);
+			coordTicks.setVisible(checked);
+			refresh(checked);
+		}
+	}
+
+	/**
 	 * Set if transparency should be used on the 3D scatter plot
 	 * 
 	 * @param newTransp
@@ -2384,7 +2392,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 	}
 
 	/**
-	 * Allows to set the zoom area of the plot manually programatically
+	 * Allows to set the zoom area of the plot manually programmatically
 	 * 
 	 * @param startX
 	 *            start x coordinate in the data domain
@@ -2395,7 +2403,6 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 	 * @param endY
 	 *            end y coordinate in the data domain (endY must be >= startY)
 	 */
-
 	public void setPlotZoomArea(double startX, double startY, double endX, double endY) {
 		if (currentMode == PlottingMode.ONED || currentMode == PlottingMode.ONED_THREED
 				|| currentMode == PlottingMode.SCATTER2D) {

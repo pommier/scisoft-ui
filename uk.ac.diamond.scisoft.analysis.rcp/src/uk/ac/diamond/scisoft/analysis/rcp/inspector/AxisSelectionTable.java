@@ -268,7 +268,7 @@ class AxisSelectionEditing extends EditingSupport {
 
 		if ((Boolean) value) {
 			assert index < axis.size();
-			axis.selectAxis(index);
+			axis.selectAxis(index, true);
 
 			getViewer().update(element, null);
 		}

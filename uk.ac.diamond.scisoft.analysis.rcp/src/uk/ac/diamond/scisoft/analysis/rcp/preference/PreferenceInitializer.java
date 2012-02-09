@@ -18,6 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.preference;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.swt.printing.Printer;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 
@@ -69,6 +70,11 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	public static final int DEFAULT_ANALYSIS_RPC_SERVER_PORT = 0;
 	public static final String DEFAULT_ANALYSIS_RPC_TEMP_FILE_LOCATION = "";
 	public static final int DEFAULT_RMI_SERVER_PORT = 0;
+	
+	public static final String DEFAULT_PRINTSETTINGS_PRINTNAME = Printer.getDefaultPrinterData().name;
+	public static final Double DEFAULT_PRINTSETTINGS_SCALE = 0.5;
+	public static final int DEFAULT_PRINTSETTINGS_RESOLUTION = 2;
+	public static final String DEFAULT_PRINTSETTINGS_ORIENTATION = "Portrait";
 	
 
 	@Override
@@ -129,5 +135,10 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.ANALYSIS_RPC_SERVER_PORT,DEFAULT_ANALYSIS_RPC_SERVER_PORT);
 		store.setDefault(PreferenceConstants.ANALYSIS_RPC_TEMP_FILE_LOCATION,DEFAULT_ANALYSIS_RPC_TEMP_FILE_LOCATION);
 		store.setDefault(PreferenceConstants.RMI_SERVER_PORT,DEFAULT_RMI_SERVER_PORT);
+		
+		store.setDefault(PreferenceConstants.PRINTSETTINGS_PRINTER_NAME,DEFAULT_PRINTSETTINGS_PRINTNAME);
+		store.setDefault(PreferenceConstants.PRINTSETTINGS_SCALE,DEFAULT_PRINTSETTINGS_SCALE);
+		store.setDefault(PreferenceConstants.PRINTSETTINGS_RESOLUTION,DEFAULT_PRINTSETTINGS_RESOLUTION);
+		store.setDefault(PreferenceConstants.PRINTSETTINGS_ORIENTATION,DEFAULT_PRINTSETTINGS_ORIENTATION);
 	}
 }

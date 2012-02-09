@@ -35,8 +35,10 @@ public abstract class InspectorProperty {
 	}
 
 	protected void fire(PropertyChangeEvent event) {
-		for (PropertyChangeListener l : pcl) {
-			if( l != null)
+		// allow concurrent modifications by make copy
+		HashSet<PropertyChangeListener> ls = new HashSet<PropertyChangeListener>(pcl);
+		for (PropertyChangeListener l : ls) {
+			if (l != null)
 				l.propertyChange(event);
 		}
 	}

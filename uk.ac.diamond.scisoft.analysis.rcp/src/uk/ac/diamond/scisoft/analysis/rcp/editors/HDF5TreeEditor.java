@@ -21,12 +21,14 @@ import java.io.File;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.PageChangedEvent;
+import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.ISelectionListener;
@@ -65,23 +67,28 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
-		setSite(site);
 		file = EclipseUtils.getFile(input);
 		if (file == null || !file.exists()) {
 			logger.warn("File does not exist: {}", input.getName());
 			throw new PartInitException("Input is not a file or file does not exist");
+		} else if (!file.canRead()) {
+			logger.warn("Cannot read file: {}", input.getName());
+			throw new PartInitException("Cannot read file (are permissions correct?)");
 		}
+
+		setSite(site);
 		setInput(input);
 	}
 
-	protected void loadHDF5Tree() {
+	protected boolean loadHDF5Tree() {
 		if (getHDF5Tree() != null)
-			return;
+			return true;
 
 		final String fileName = file.getAbsolutePath();
 		try {
 			if (hdfxp != null) {
 				hdfxp.loadFileAndDisplay(fileName, null);
+				return true;
 			}
 		} catch (Exception e) {
 			if (e.getCause() != null)
@@ -89,7 +96,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 			else
 				logger.warn("Could not load NeXus file {}: {}", fileName, e.getMessage());
 		}
-		return;
+		return false;
 	}
 
 	@Override
@@ -104,13 +111,15 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		registerSelectionListener();
 		IWorkbenchPartSite site = getSite();
 		hdfxp = new HDF5TreeExplorer(parent, site, null);
+		if (!loadHDF5Tree()) {
+			
+			return;
+		}
 		site.setSelectionProvider(hdfxp);
-
 		setPartName(file.getName());
-		loadHDF5Tree();
+		registerSelectionListener();
 	}
 
 	@Override
@@ -196,6 +205,8 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 	}
 
 	private void unregisterSelectionListener() {
+		if (selectionListener == null)
+			return;
 
 		final ISelectionService selectionService = getSite().getWorkbenchWindow().getSelectionService();
 		if (selectionService == null)
@@ -206,18 +217,19 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 
 	public void update(final IWorkbenchPart original, final TreeNode treeData, IStructuredSelection structuredSelection) {
 
-		/**
-		 * TODO Instead of selecting the editor, firing the selection and then selecting the navigator again, better to
-		 * have one object type selected by both the editor and navigator which the plot view listens to using eclipse
-		 * selection events.
-		 */
-		if(!EclipseUtils.getActivePage().getActivePart().getTitle().equals(this.getPartName()))
-			EclipseUtils.getActivePage().activate(this);
+		// Make Display to wait until current focus event is finish, and then execute new focus event
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				while (Display.getDefault().readAndDispatch()) {
+					//wait for events to finish before continue
+				}
+				hdfxp.forceFocus();
+			}
+		});
+		//EclipseUtils.getActivePage().activate(this);
 
-		//System.out.println(treeData.getData().toString());
 		//selection of hedf5 tree element no working
-		
-		
 		final Cursor cursor = hdfxp.getCursor();
 		Cursor tempCursor = hdfxp.getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
 		if (tempCursor != null)
@@ -228,7 +240,6 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 			
 			
 			TreePath navTreePath1 = new TreePath(structuredSelection.toArray());
-			//System.out.println(navTreePath1.getFirstSegment().toString());			
 			hdfxp.expandToLevel(navTreePath1,2);
 			hdfxp.setSelection(structuredSelection);
 			//TreePath[] editorTreePaths=hdfxp.getExpandedTreePaths();
@@ -260,8 +271,24 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 				hdfxp.setCursor(cursor);
 		}
 
-		//if(!original.getTitle().equals(this.getPartName()))
+		// new focus event
 		EclipseUtils.getActivePage().activate(original);
 
 	}
+	
+	/**
+	 * The Value view uses adapters to get an IContentProvider for its content.
+	 * 
+	 * This is used on the workflow perspective to show selected value in the tree.
+	 */
+	@Override
+    public Object getAdapter(final Class clazz) {
+		
+		if (clazz == IContentProvider.class) {
+			return new HDF5ValuePage();
+		}
+		
+		return super.getAdapter(clazz);
+	}
+
 }

@@ -52,7 +52,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.navigator.srs.SRSTreeData;
 public class SRSContentProvider implements ITreeContentProvider, IResourceChangeListener, IResourceDeltaVisitor {
 
 	private static final Object[] NO_CHILDREN = new Object[0];
-	private static final Object SRS_EXT = "dat"; //$NON-NLS-1$
+	private static final String SRS_EXT = "dat"; //$NON-NLS-1$
 	private final Map/* <IFile, SRSTreeData[]> */cachedModelMap = new HashMap();
 	private static StructuredViewer viewer;
 	protected static String fileName;
@@ -111,7 +111,7 @@ public class SRSContentProvider implements ITreeContentProvider, IResourceChange
 	 * @param modelFile
 	 *            The IFile which contains the persisted model
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes", "cast" })
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private synchronized IMetaData updateModel(IFile modelFile) {
 		srsFileLoader(modelFile);
 
@@ -125,7 +125,6 @@ public class SRSContentProvider implements ITreeContentProvider, IResourceChange
 					names[i] = (String) iterator.next();
 					i++;
 				}
-				
 				for (int j = 0; j < names.length; j++) {
 						properties.add(new SRSTreeData(names[j].trim(), "", "", "", modelFile));
 				}

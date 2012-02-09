@@ -16,11 +16,14 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.editors;
 
+import java.io.File;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.ISelectionListener;
@@ -38,7 +41,7 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
 public class SRSEditor extends EditorPart {
 
 	private SRSExplorer srsxp;
-	private String fileName;
+	private File file;
 
 	public SRSEditor() {
 	}
@@ -55,14 +58,16 @@ public class SRSEditor extends EditorPart {
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
-        setSite(site);
-		fileName = EclipseUtils.getFilePath(input);
-		if (fileName == null) {
+		file = EclipseUtils.getFile(input);
+		if (file == null || !file.exists()) {
 			throw new PartInitException("Input is not a file or file does not exist");
+		} else if (!file.canRead()) {
+			throw new PartInitException("Cannot read file (are permissions correct?)");
 		}
+
+		setSite(site);
         setInput(input);
 		setPartName(input.getName());
-
 	}
 
 	@Override
@@ -79,19 +84,20 @@ public class SRSEditor extends EditorPart {
 	public void createPartControl(Composite parent) {
 		IWorkbenchPartSite site = getSite();
 		srsxp = new SRSExplorer(parent, site, null);
-		site.setSelectionProvider(srsxp);
-
 		try {
-			srsxp.loadFileAndDisplay(fileName, null);
+			srsxp.loadFileAndDisplay(file.getPath(), null);
 		} catch (Exception e) {
+			return;
 		}
 
+		site.setSelectionProvider(srsxp);
 		// Register selection listener
 		registerSelectionListener();
 	}
 
 	@Override
 	public void setFocus() {
+		srsxp.setFocus();
 	}
 
 	private ISelectionListener selectionListener;
@@ -113,6 +119,8 @@ public class SRSEditor extends EditorPart {
 						if (element instanceof SRSTreeData) {
 							SRSTreeData srsData = (SRSTreeData) element;
 							String filename = srsData.getFile().getLocation().toString();
+							String[] temp = filename.split("/");
+							filename = temp[temp.length-1];
 							//update only the relevant srseditor
 							String editorName= getSite().getPart().getTitle();
 							if(filename.equals(editorName))
@@ -153,14 +161,18 @@ public class SRSEditor extends EditorPart {
 	}
 
 	public void update(final IWorkbenchPart original, final SRSTreeData srsData) {
-
-		/**
-		 * TODO Instead of selecting the editor, firing the selection and then selecting the naigator again, better to
-		 * have one object type selected by both the editor and navigator which the plot view listens to using eclipse
-		 * selection events.
-		 */
-
-		EclipseUtils.getActivePage().activate(this);
+		
+		// Make Display to wait until current focus event is finish, and then execute new focus event	
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				while (Display.getDefault().readAndDispatch()) {
+					//wait for events to finish before continue
+				}
+				srsxp.forceFocus();
+			}
+		});
+		//EclipseUtils.getActivePage().activate(this);
 
 		TableViewer viewer = srsxp.getViewer();
 		for (int i = 0; i < viewer.getTable().getItemCount(); i++) {
@@ -173,6 +185,7 @@ public class SRSEditor extends EditorPart {
 			}
 		}
 
+		// new focus event
 		EclipseUtils.getActivePage().activate(original);
 
 	}

@@ -19,6 +19,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.explorers;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -92,7 +93,10 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 			
 			@Override
 			public void selectionChanged(SelectionChangedEvent arg0) {
-				DatasetSelection datasetSelection = new DatasetSelection(getAxes(), getActiveData());
+				ILazyDataset d = getActiveData();
+				if (d == null)
+					return;
+				DatasetSelection datasetSelection = new DatasetSelection(getAxes(d), d);
 				setSelection(datasetSelection);
 			}
 		};
@@ -116,28 +120,33 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 		return viewer;
 	}
 
-	private List<AxisSelection> getAxes() {
+	private List<AxisSelection> getAxes(ILazyDataset d) {
 		List<AxisSelection> axes = new ArrayList<AxisSelection>();
 
-		AxisSelection axisSelection = new AxisSelection(data.getDataset(0).getShape()[0]);
+		int[] shape = d.getShape();
 
-		AbstractDataset autoAxis = AbstractDataset.arange(data.getDataset(0).getShape()[0], AbstractDataset.INT32);
-		autoAxis.setName("Index");
-		AxisChoice newChoice = new AxisChoice(autoAxis);
-		newChoice.setDimension(new int[] { 0 });
-		axisSelection.addSelection(newChoice, 0);
+		for (int j = 0; j < shape.length; j++) {
+			final int len = shape[j];
+			AxisSelection axisSelection = new AxisSelection(len, j);
+			axes.add(axisSelection);
 
-		for (int i = 0; i < data.size(); i++) {
-			ILazyDataset ldataset = data.getLazyDataset(i);
-			if (ldataset instanceof AbstractDataset) {
-				newChoice = new AxisChoice(ldataset);
-				newChoice.setDimension(new int[] { 0 });
-				axisSelection.addSelection(newChoice, i + 1);
+			AbstractDataset autoAxis = AbstractDataset.arange(len, AbstractDataset.INT32);
+			autoAxis.setName(AbstractExplorer.DIM_PREFIX + (j+1));
+			AxisChoice newChoice = new AxisChoice(autoAxis);
+			newChoice.setAxisNumber(j);
+			axisSelection.addChoice(newChoice, 0);
+
+			for (int i = 0, imax = data.size(); i < imax; i++) {
+				ILazyDataset ldataset = data.getLazyDataset(i);
+				if (ldataset.equals(d))
+					continue;
+				if (ArrayUtils.contains(ldataset.getShape(), len)) {
+					newChoice = new AxisChoice(ldataset);
+					newChoice.setAxisNumber(j);
+					axisSelection.addChoice(newChoice, i + 1);
+				}
 			}
 		}
-
-		axisSelection.selectAxis(0);
-		axes.add(axisSelection);
 
 		return axes;
 	}
@@ -277,13 +286,19 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 					}
 				});
 			}
-			DatasetSelection datasetSelection = new DatasetSelection(getAxes(), getActiveData());
+			ILazyDataset d = getActiveData();
+			if (d == null)
+				return;
+			DatasetSelection datasetSelection = new DatasetSelection(getAxes(d), d);
 			setSelection(datasetSelection);
 		}
 	}
 
 	public void selectItemSelection() {
-		DatasetSelection datasetSelection = new DatasetSelection(getAxes(), getActiveData());
+		ILazyDataset d = getActiveData();
+		if (d == null)
+			return;
+		DatasetSelection datasetSelection = new DatasetSelection(getAxes(d), d);
 		setSelection(datasetSelection);
 	}
 
