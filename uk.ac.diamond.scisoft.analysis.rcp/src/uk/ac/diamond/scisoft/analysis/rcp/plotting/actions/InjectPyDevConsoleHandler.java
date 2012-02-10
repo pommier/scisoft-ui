@@ -135,24 +135,6 @@ public class InjectPyDevConsoleHandler extends AbstractHandler {
 		if (setup.setupScisoftpy(newConsole)) {
 			cmds.append("# Importing scisoftpy.\n");
 			cmds.append("import scisoftpy as dnp\n");
-
-			int rmiPort = RMIServerProvider.getInstance().getPort();
-			int rpcPort = AnalysisRpcServerProvider.getInstance().getPort();
-			
-			if (rmiPort != 0 || rpcPort != 0) {
-				cmds.append("dnp.plot.setremoteport(rmiport=");
-				cmds.append(rmiPort);
-				cmds.append(", rpcport=");
-				cmds.append(rpcPort);
-				cmds.append(")\n");
-			}
-
-			if (FlatteningService.getFlattener().getTempLocation() != null) {
-				cmds.append("dnp.rpc.settemplocation(\"");
-				cmds.append(FlatteningService.getFlattener().getTempLocation().toString()
-						.replaceAll("\\\\", "\\\\\\\\"));
-				cmds.append("\")\n");
-			}
 		}
 		if (event.getParameter(VIEW_NAME_PARAM) != null && !"".equals(event.getParameter(VIEW_NAME_PARAM))) {
 			String viewName = event.getParameter(VIEW_NAME_PARAM);
