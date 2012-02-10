@@ -133,9 +133,9 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW, DEFAULT_IMAGEEXPLORER_PLAYBACKVIEW);
 		store.setDefault(PreferenceConstants.IMAGEEXPLORER_PLAYBACKRATE,DEFAULT_IMAGEEXPLORER_PLAYBACKRATE);
 		
-		store.setDefault(PreferenceConstants.ANALYSIS_RPC_SERVER_PORT,DEFAULT_ANALYSIS_RPC_SERVER_PORT);
-		store.setDefault(PreferenceConstants.ANALYSIS_RPC_TEMP_FILE_LOCATION,DEFAULT_ANALYSIS_RPC_TEMP_FILE_LOCATION);
-		store.setDefault(PreferenceConstants.RMI_SERVER_PORT,DEFAULT_RMI_SERVER_PORT);
+		store.setDefault(PreferenceConstants.ANALYSIS_RPC_SERVER_PORT, DEFAULT_ANALYSIS_RPC_SERVER_PORT);
+		store.setDefault(PreferenceConstants.ANALYSIS_RPC_TEMP_FILE_LOCATION, DEFAULT_ANALYSIS_RPC_TEMP_FILE_LOCATION);
+		store.setDefault(PreferenceConstants.RMI_SERVER_PORT, DEFAULT_RMI_SERVER_PORT);
 		
 		store.setDefault(PreferenceConstants.PRINTSETTINGS_PRINTER_NAME,DEFAULT_PRINTSETTINGS_PRINTNAME);
 		store.setDefault(PreferenceConstants.PRINTSETTINGS_SCALE,DEFAULT_PRINTSETTINGS_SCALE);
