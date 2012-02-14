@@ -17,6 +17,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.preference;
 
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
@@ -60,6 +61,11 @@ public class AnalysisRpcAndRmiPreferencePage extends FieldEditorPreferencePage i
 				+ "These are automatically used by scisoftpy. The environment variables are: \n"
 				+ "Analysis RPC Port: SCISOFT_RPC_PORT\n" + "RMI Port: SCISOFT_RMI_PORT\n"
 				+ "Temporary File Location: SCISOFT_RPC_TEMP\n", getFieldEditorParent()));
+
+		addField(new BooleanFieldEditor(
+				PreferenceConstants.ANALYSIS_RPC_RMI_INJECT_VARIABLES,
+				"Add above variables automatically to PyDev's Interpretters",
+				getFieldEditorParent()));
 
 	}
 
@@ -119,5 +125,15 @@ public class AnalysisRpcAndRmiPreferencePage extends FieldEditorPreferencePage i
 	 */
 	public static int getRmiPort() {
 		return AnalysisRCPActivator.getDefault().getPreferenceStore().getInt(PreferenceConstants.RMI_SERVER_PORT);
+	}
+
+	/**
+	 * Retrieve whether SDA should inject into PyDev's IInterpretterInfos the variables
+	 * configured within this page.
+	 * 
+	 * @return true for automatic insertion
+	 */
+	public static boolean isInjectVariablesAutomaticallyIntoPyDev() {
+		return AnalysisRCPActivator.getDefault().getPreferenceStore().getBoolean(PreferenceConstants.ANALYSIS_RPC_RMI_INJECT_VARIABLES);
 	}
 }

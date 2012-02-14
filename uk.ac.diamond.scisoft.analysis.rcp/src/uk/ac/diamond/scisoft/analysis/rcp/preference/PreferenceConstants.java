@@ -83,6 +83,9 @@ public class PreferenceConstants {
 	// RMI preferences
 	public static final String RMI_SERVER_PORT = "rmi.server.port";
 	
+	// Analysis RPC and RMI shared preferences
+	public static final String ANALYSIS_RPC_RMI_INJECT_VARIABLES = "analysisrpcrmi.injectvariables";
+
 	// Print Settings preferences
 	public static final String PRINTSETTINGS_PRINTER_NAME = "printsettings.printername";
 	public static final String PRINTSETTINGS_ORIENTATION = "printsettings.orientation";

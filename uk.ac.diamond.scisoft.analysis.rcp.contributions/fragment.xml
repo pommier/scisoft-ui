@@ -1512,4 +1512,10 @@
             supportsArgument="false">
       </variable>
    </extension>
+   <extension
+         point="org.python.pydev.pydev_interpreter_observer">
+      <interpreter_observer
+            class="uk.ac.diamond.scisoft.analysis.rcp.variables.InjectVariablesInPyDevInterpretterInfo">
+      </interpreter_observer>
+   </extension>
 </fragment>
