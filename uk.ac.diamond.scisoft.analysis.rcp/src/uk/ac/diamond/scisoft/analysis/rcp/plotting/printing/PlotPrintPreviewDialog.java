@@ -194,12 +194,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 		for (int i = 0; i < printerList.length; i++) {
 			comboPrinterName.add(printerList[i].name);
 		}
-		for (int i = 0; i < comboPrinterName.getItemCount(); i++) {
-			if (settings.getPrinterData().name.equals(comboPrinterName.getItem(i))) {
-				comboPrinterName.select(i);
-				break;
-			}
-		}
+		comboPrinterName.select(getPreferencePrinterName());
 		comboPrinterName.addSelectionListener(printerNameSelection);
 		
 		Composite scaleComposite = new Composite(previewComposite, SWT.BORDER);
@@ -212,12 +207,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 		for (int i = 0; i < scaleList.length; i++) {
 			comboScale.add(scaleList[i].getName());
 		}
-		for (int i = 0; i < comboScale.getItemCount(); i++) {
-			if (settings.getScale().getName().equals(comboScale.getItem(i))) {
-				comboScale.select(i);
-				break;
-			}
-		}
+		comboScale.select(getPreferencePrintScale());
 		comboScale.addSelectionListener(scaleSelection);
 
 		Composite resolutionComposite = new Composite(previewComposite, SWT.BORDER);
@@ -231,12 +221,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 		for (int i = 0; i < resolutionList.length; i++) {
 			comboResolution.add(resolutionList[i].getName());
 		}
-		for (int i = 0; i < comboResolution.getItemCount(); i++) {
-			if (settings.getResolution().getName() == String.valueOf(comboResolution.getItem(i))) {
-				comboResolution.select(i);
-				break;
-			}
-		}
+		comboResolution.select(getPreferencePrintResolution());
 		comboResolution.addSelectionListener(resolutionSelection);
 
 		// TODO orientation button disabled: works for preview not for data sent to printer
@@ -248,12 +233,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 //		comboOrientation = new Combo(orientationComposite, SWT.READ_ONLY);
 //		comboOrientation.add(portraitText);
 //		comboOrientation.add(landscapeText);
-//		for (int i = 0; i < comboOrientation.getItemCount(); i++) {
-//			if (settings.getOrientation().getName().equals(comboOrientation.getItem(i))) {
-//				comboOrientation.select(i);
-//				break;
-//			}
-//		}
+//		comboOrientation.select(getPreferencePrintOrientation());
 //		comboOrientation.addSelectionListener(orientationSelection);
 
 		canvas = new Canvas(shell, SWT.BORDER);
@@ -296,6 +276,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			selectPrinter(comboPrinterName.getSelectionIndex());
+			setPrinterNamePreference(comboPrinterName.getSelectionIndex());
 		}
 	};
 
@@ -309,6 +290,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			selectScale(comboScale.getSelectionIndex());
+			setScalePreference(comboScale.getSelectionIndex());
 		}
 	};
 
@@ -344,6 +326,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			selectResolution(comboResolution.getSelectionIndex());
+			setResolutionPreference(comboResolution.getSelectionIndex());
 		}
 	};
 
@@ -375,6 +358,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			selectOrientation(comboOrientation.getSelectionIndex());
+			setOrientationPreference(comboOrientation.getSelectionIndex());
 		}
 	};
 
@@ -464,6 +448,58 @@ public class PlotPrintPreviewDialog extends Dialog {
 				}
 			}
 		});
+	}
+	
+	private int getPreferencePrinterName() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.PRINTSETTINGS_PRINTER_NAME)
+				? preferenceStore.getDefaultInt(PreferenceConstants.PRINTSETTINGS_PRINTER_NAME)
+				: preferenceStore.getInt(PreferenceConstants.PRINTSETTINGS_PRINTER_NAME);
+	}
+	
+	private int getPreferencePrintScale() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.PRINTSETTINGS_SCALE)
+				? preferenceStore.getDefaultInt(PreferenceConstants.PRINTSETTINGS_SCALE)
+				: preferenceStore.getInt(PreferenceConstants.PRINTSETTINGS_SCALE);
+	}
+	
+	private int getPreferencePrintResolution() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.PRINTSETTINGS_RESOLUTION)
+				? preferenceStore.getDefaultInt(PreferenceConstants.PRINTSETTINGS_RESOLUTION)
+				: preferenceStore.getInt(PreferenceConstants.PRINTSETTINGS_RESOLUTION);
+	}
+	
+	private int getPreferencePrintOrientation() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.PRINTSETTINGS_ORIENTATION)
+				? preferenceStore.getDefaultInt(PreferenceConstants.PRINTSETTINGS_ORIENTATION)
+				: preferenceStore.getInt(PreferenceConstants.PRINTSETTINGS_ORIENTATION);
+	}
+
+	private void setPrinterNamePreference(int value) {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		settings.setPrinterData(Printer.getPrinterList()[value]);
+		preferenceStore.setValue(PreferenceConstants.PRINTSETTINGS_PRINTER_NAME, value);
+	}
+	
+	private void setScalePreference(int value) {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		settings.setScale(Scale.values()[value]);
+		preferenceStore.setValue(PreferenceConstants.PRINTSETTINGS_SCALE, value);
+	}
+	
+	private void setResolutionPreference(int value) {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		settings.setResolution(Resolution.values()[value]);
+		preferenceStore.setValue(PreferenceConstants.PRINTSETTINGS_RESOLUTION, value);
+	}
+	
+	private void setOrientationPreference(int value) {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		settings.setOrientation(Orientation.values()[value]);
+		preferenceStore.setValue(PreferenceConstants.PRINTSETTINGS_ORIENTATION, value);
 	}
 	
 	private void paint(Event e, Orientation orientation) {
