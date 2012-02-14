@@ -338,7 +338,7 @@ public class JythonCreator implements IStartup {
 			// Pydev doesn't allow two different interpreters to be configured for the same
 			// executable path so in some contexts the executable is the unique identifier (as it is here)
 			set.add(executable);
-			man.setInfos(new IInterpreterInfo[] {info},set, monitor);
+			man.setInfos(new IInterpreterInfo[] {info}, set, monitor);
 
 			logger.debug("Finished the Jython interpreter setup");
 		}
