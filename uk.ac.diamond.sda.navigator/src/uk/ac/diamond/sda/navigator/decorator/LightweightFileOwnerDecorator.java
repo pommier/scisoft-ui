@@ -93,7 +93,7 @@ public class LightweightFileOwnerDecorator extends LabelProvider implements ILig
 				}
 				
 			} catch (IOException e) {
-				logger.error("ERROR: could not get file owner:",e.getMessage());
+				logger.warn("WARNING: could not get file owner:",e.getMessage());
 			}
 		}
 		return owner;
