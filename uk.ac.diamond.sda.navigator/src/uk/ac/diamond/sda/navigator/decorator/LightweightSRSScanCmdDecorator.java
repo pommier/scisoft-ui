@@ -73,18 +73,23 @@ public class LightweightSRSScanCmdDecorator extends LabelProvider implements ILi
 				srsMetaDataLoader(ifile.getLocation().toString());
 
 				try {
-					decorator = metaData.getScanCommand();
-					if(decorator==null){
+					if(metaData!=null){
+						decorator = metaData.getScanCommand();
+						if(decorator==null){
+							decorator=" * Scan Command: N/A";
+							decoration.addSuffix(decorator);
+						}else{
+							if (decorator.length() > 100) // restrict to 100 characters
+								decorator = decorator.substring(0, 100) + "...";
+							decorator = " * " + decorator;
+							decoration.addSuffix(decorator);
+						}
+					} else {
 						decorator=" * Scan Command: N/A";
 						decoration.addSuffix(decorator);
-					}else{
-						if (decorator.length() > 100) // restrict to 100 characters
-							decorator = decorator.substring(0, 100) + "...";
-						decorator = " * " + decorator;
-						decoration.addSuffix(decorator);
+						logger.warn("Could not read metadata from file {}",ifile.getFullPath());
 					}
 				}catch (Exception e) {
-					logger.warn("Could not read metadata from file {}",ifile.getFullPath());
 					logger.error("Could not read metadata from {}: ", e);
 				}
 			}
