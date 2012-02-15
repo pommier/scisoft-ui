@@ -486,7 +486,6 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 		table.setMenu(headerMenu);
 
-		// TODO? table menu
 		final Menu tableMenu = null;
 		table.addListener(SWT.MenuDetect, new Listener() {
 			@Override
@@ -651,7 +650,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				name = currentDatasetSelection.getFirstElement().getName();
 				int i = name.indexOf(":");
 				if (i >= 0) {
-					name = name.substring(i);
+					name = name.substring(i+1);
 				}
 				node = null;
 			}
@@ -883,9 +882,21 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	 * @return data selection
 	 */
 	public static DatasetSelection createSelection(InspectorType itype, boolean extend, List<ILazyDataset> datasets, List<ILazyDataset> metavalues, List<List<AxisSelection>> axisSelectionLists) {
-
 		AggregateDataset allData = new AggregateDataset(extend, datasets.toArray(new ILazyDataset[0]));
-		AggregateDataset allMeta = new AggregateDataset(extend, metavalues.toArray(new ILazyDataset[0]));
+		ILazyDataset[] mvs = metavalues.toArray(new ILazyDataset[0]);
+		ILazyDataset mv = mvs[0];
+		ILazyDataset allMeta;
+		if (mv instanceof AbstractDataset && mv.getRank() == 1) { // concatenate 1D meta-values
+			AbstractDataset[] mva = new AbstractDataset[mvs.length];
+			for (int i = 0; i < mvs.length; i++) {
+				ILazyDataset m = mvs[i]; 
+				mva[i] = (m instanceof AbstractDataset) ? (AbstractDataset) m : DatasetUtils.convertToAbstractDataset(m);
+			}
+			allMeta = DatasetUtils.concatenate(mva, 0);
+			allMeta.setName(mv.getName());
+		} else {
+			allMeta = new AggregateDataset(extend, mvs);
+		}
 		List<AxisSelection> newAxes = new ArrayList<AxisSelection>();
 		if (extend) { // extra entries as aggregate datasets can have extra dimension
 			for (List<AxisSelection> asl : axisSelectionLists) {
