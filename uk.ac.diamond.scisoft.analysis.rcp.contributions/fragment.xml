@@ -1096,6 +1096,66 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
             name="SDA">
       </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.PreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.preferencePage"
+            name="Dataset Viewing">
+      </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.PlotViewPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.plotViewPreferencePage"
+            name="Plot View">
+      </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.ImageExplorerPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.imageExplorerPreferencePage"
+            name="Image Explorer View">
+      </page>      
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.SidePlotterPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.sidePlotterPreferencePage"
+            name="Side Plotter">
+      </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.GridScanPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.gridScanPreferencePage"
+            name="Grid Scan">
+      </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.DiffractionViewerPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.diffractionViewerPreferencePage"
+            name="Diffraction Viewer">
+      </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.Fitting1DPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.fitting1DPreferencePage"
+            name="Fitting 1D">
+      </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.AnalysisRpcAndRmiPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.analysisRpcAndRmiPreferencePage"
+            name="Analysis RPC and RMI">
+      </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.PrintSettingsPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.printSettingsPreferencePage"
+            name="Plot Printing Settings">
+      </page>
+      <!-- page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.LabelDecorationsPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.preferences.labelDecorationsPreferencePage"
+            name="Label Decorations">
+      </page-->
    </extension>
    <extension
          point="uk.ac.diamond.scisoft.analysis.rcp.sidePlot">
@@ -1233,70 +1293,6 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.editors.CompareFilesEditor"
             name="Compare">
       </editor>
-   </extension>
-
-   <extension
-         point="org.eclipse.ui.preferencePages">
-      <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.PreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.preferencePage"
-            name="Dataset Viewing">
-      </page>
-      <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.PlotViewPreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.plotViewPreferencePage"
-            name="Plot View">
-      </page>
-      <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.ImageExplorerPreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.imageExplorerPreferencePage"
-            name="Image Explorer View">
-      </page>      
-      <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.SidePlotterPreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.sidePlotterPreferencePage"
-            name="Side Plotter">
-      </page>
-      <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.GridScanPreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.gridScanPreferencePage"
-            name="Grid Scan">
-      </page>
-      <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.DiffractionViewerPreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.diffractionViewerPreferencePage"
-            name="Diffraction Viewer">
-      </page>
-      <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.Fitting1DPreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.fitting1DPreferencePage"
-            name="Fitting 1D">
-      </page>
-      <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.AnalysisRpcAndRmiPreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.analysisRpcAndRmiPreferencePage"
-            name="Analysis RPC and RMI">
-      </page>
-      <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.PrintSettingsPreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.printSettingsPreferencePage"
-            name="Plot Printing Settings">
-      </page>
-      <!-- page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.LabelDecorationsPreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.preferences.labelDecorationsPreferencePage"
-            name="Label Decorations">
-      </page-->
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
