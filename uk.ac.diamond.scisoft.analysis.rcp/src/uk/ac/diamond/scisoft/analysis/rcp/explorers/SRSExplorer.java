@@ -17,6 +17,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.explorers;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -90,14 +91,9 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 		// viewer.setInput(getEditorSite());
 
 		listener = new ISelectionChangedListener() {
-			
 			@Override
 			public void selectionChanged(SelectionChangedEvent arg0) {
-				ILazyDataset d = getActiveData();
-				if (d == null)
-					return;
-				DatasetSelection datasetSelection = new DatasetSelection(getAxes(d), d);
-				setSelection(datasetSelection);
+				selectItemSelection();
 			}
 		};
 
@@ -118,46 +114,6 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 
 	public TableViewer getViewer() {
 		return viewer;
-	}
-
-	private List<AxisSelection> getAxes(ILazyDataset d) {
-		List<AxisSelection> axes = new ArrayList<AxisSelection>();
-
-		int[] shape = d.getShape();
-
-		for (int j = 0; j < shape.length; j++) {
-			final int len = shape[j];
-			AxisSelection axisSelection = new AxisSelection(len, j);
-			axes.add(axisSelection);
-
-			AbstractDataset autoAxis = AbstractDataset.arange(len, AbstractDataset.INT32);
-			autoAxis.setName(AbstractExplorer.DIM_PREFIX + (j+1));
-			AxisChoice newChoice = new AxisChoice(autoAxis);
-			newChoice.setAxisNumber(j);
-			axisSelection.addChoice(newChoice, 0);
-
-			for (int i = 0, imax = data.size(); i < imax; i++) {
-				ILazyDataset ldataset = data.getLazyDataset(i);
-				if (ldataset.equals(d))
-					continue;
-				if (ArrayUtils.contains(ldataset.getShape(), len)) {
-					newChoice = new AxisChoice(ldataset);
-					newChoice.setAxisNumber(j);
-					axisSelection.addChoice(newChoice, i + 1);
-				}
-			}
-		}
-
-		return axes;
-	}
-
-	private ILazyDataset getActiveData() {
-		ISelection selection = viewer.getSelection();
-		Object obj = ((IStructuredSelection) selection).getFirstElement();
-		if (obj == null) {
-			return data.getLazyDataset(0);
-		}
-		return (ILazyDataset) obj;
 	}
 
 	private class ViewContentProvider implements IStructuredContentProvider {
@@ -286,12 +242,49 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 					}
 				});
 			}
-			ILazyDataset d = getActiveData();
-			if (d == null)
-				return;
-			DatasetSelection datasetSelection = new DatasetSelection(getAxes(d), d);
-			setSelection(datasetSelection);
+
+			selectItemSelection();
 		}
+	}
+
+	private ILazyDataset getActiveData() {
+		ISelection selection = viewer.getSelection();
+		Object obj = ((IStructuredSelection) selection).getFirstElement();
+		if (obj == null) {
+			return data.getLazyDataset(0);
+		}
+		return (ILazyDataset) obj;
+	}
+
+	private List<AxisSelection> getAxes(ILazyDataset d) {
+		List<AxisSelection> axes = new ArrayList<AxisSelection>();
+	
+		int[] shape = d.getShape();
+	
+		for (int j = 0; j < shape.length; j++) {
+			final int len = shape[j];
+			AxisSelection axisSelection = new AxisSelection(len, j);
+			axes.add(axisSelection);
+	
+			AbstractDataset autoAxis = AbstractDataset.arange(len, AbstractDataset.INT32);
+			autoAxis.setName(AbstractExplorer.DIM_PREFIX + (j+1));
+			AxisChoice newChoice = new AxisChoice(autoAxis);
+			newChoice.setAxisNumber(j);
+			axisSelection.addChoice(newChoice, 0);
+	
+			for (int i = 0, imax = data.size(); i < imax; i++) {
+				ILazyDataset ldataset = data.getLazyDataset(i);
+				if (ldataset.equals(d))
+					continue;
+				if (ArrayUtils.contains(ldataset.getShape(), len)) {
+					newChoice = new AxisChoice(ldataset);
+					newChoice.setAxisNumber(j);
+					axisSelection.addChoice(newChoice, i + 1);
+				}
+			}
+		}
+	
+		return axes;
 	}
 
 	public void selectItemSelection() {
@@ -305,6 +298,15 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 	private void addMenu(IMetaData meta) {
 		// create context menu and handling
 		if (meta != null) {
+			Collection<String> names = null;
+			try {
+				names = meta.getMetaNames();
+			} catch (Exception e1) {
+				return;
+			}
+			if (names == null) {
+				return;
+			}
 			try {
 				Menu context = new Menu(viewer.getControl());
 				metaNames = new ArrayList<String>();
