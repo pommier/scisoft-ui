@@ -47,11 +47,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.coords.SectorCoords;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.function.Centroid;
-import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataBeanException;
-import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AxisValues;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
@@ -1482,32 +1477,6 @@ public class SectorProfile extends SidePlotProfile {
 	}
 
 	@Override
-	DataBean getPlottingData(int profileNr) {
-		DataBean dBean = null;
-		
-		if (roiData != null && roiData.getProfileData().length > profileNr) {
-			dBean = new DataBean(GuiPlotMode.ONED);
-			DataSetWithAxisInformation axisData = new DataSetWithAxisInformation();
-			AxisMapBean axisMapBean = new AxisMapBean(AxisMapBean.DIRECT);
-
-			dBean.addAxis(AxisMapBean.XAXIS, roiData.getXAxis(profileNr).toDataset());
-			axisMapBean.setAxisID(new String[] {AxisMapBean.XAXIS});
-			axisData.setData(roiData.getProfileData(profileNr));
-			axisData.setAxisMap(axisMapBean);
-
-			try {
-				dBean.addData(axisData);
-			} catch (DataBeanException e) {
-				logger.debug("Could not add data to bean");
-				e.printStackTrace();
-				dBean = null;
-			}
-		}
-		return dBean;
-	}
-	
-	
-	@Override
 	public void generateMenuActions(IMenuManager manager,final IWorkbenchPartSite site) {
 		final String fullPlotID = "uk.ac.diamond.scisoft.analysis.rcp.plotView";
 		
@@ -1552,7 +1521,5 @@ public class SectorProfile extends SidePlotProfile {
 		pushAzimuthPlottingDataPlot2.setToolTipText("Push azimuth datasets to plot 2");
 		manager.add(pushRadialPlottingDataPlot2);
 		manager.add(pushAzimuthPlottingDataPlot2);	
-		
-		
 	}
 }

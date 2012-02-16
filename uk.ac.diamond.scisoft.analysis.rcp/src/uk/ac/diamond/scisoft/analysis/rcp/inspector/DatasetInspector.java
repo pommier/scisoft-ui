@@ -401,7 +401,7 @@ public class DatasetInspector extends Composite {
 				if (cData == null)
 					return;
 
-				if( cInspectionTab != null){
+				if (cInspectionTab != null) {
 					cInspectionTab.stopInspection();
 				}
 				CTabItem item = plotTabFolder.getSelection();
@@ -685,7 +685,10 @@ public class DatasetInspector extends Composite {
 			for (int j = 0; j < imap.length; j++) {
 				props[j] = slices.get(imap[j]);
 			}
-			slicers.get(i).createAxisSlicer(n, p, axis, props);
+			
+			slicers.get(i).createAxisSlicer();
+			slicers.get(i).setParameters(n, p, axis, props, true);
+
 		}
 		parent.pack();
 		parent.setSize(parent.computeSize(SWT.DEFAULT, SWT.DEFAULT));

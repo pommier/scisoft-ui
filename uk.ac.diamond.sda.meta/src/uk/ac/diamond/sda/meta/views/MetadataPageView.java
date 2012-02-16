@@ -236,6 +236,8 @@ public class MetadataPageView extends ViewPart implements ISelectionListener,
 	}
 
 	private void updatePath(final String filePath) {
+		if (filePath == null)
+			return;
 		final Job metaJob = new Job("Extra Meta Data " + filePath) {
 
 			@Override

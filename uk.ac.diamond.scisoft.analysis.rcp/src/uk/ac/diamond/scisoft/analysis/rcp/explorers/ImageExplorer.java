@@ -18,6 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.explorers;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -92,14 +93,9 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 		// viewer.setInput(getEditorSite());
 
 		listener = new ISelectionChangedListener() {
-			
 			@Override
 			public void selectionChanged(SelectionChangedEvent arg0) {
-				ILazyDataset d = getActiveData();
-				if (d == null)
-					return;
-				DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, getAxes(d), d);
-				setSelection(datasetSelection);
+				selectItemSelection();
 			}
 		};
 
@@ -120,57 +116,6 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 
 	public TableViewer getViewer() {
 		return viewer;
-	}
-
-	private List<AxisSelection> getAxes(ILazyDataset d) {
-		List<AxisSelection> axes = new ArrayList<AxisSelection>();
-
-		int[] shape = d.getShape();
-
-		for (int j = 0; j < shape.length; j++) {
-			final int len = shape[j];
-			AxisSelection axisSelection = new AxisSelection(len, j);
-			axes.add(axisSelection);
-
-			AbstractDataset autoAxis = AbstractDataset.arange(len, AbstractDataset.INT32);
-			autoAxis.setName(AbstractExplorer.DIM_PREFIX + (j+1));
-			AxisChoice newChoice = new AxisChoice(autoAxis);
-			newChoice.setAxisNumber(j);
-			axisSelection.addChoice(newChoice, 0);
-
-			for (int i = 0, imax = data.size(); i < imax; i++) {
-				ILazyDataset ldataset = data.getLazyDataset(i);
-				if (ldataset.equals(d))
-					continue;
-				if (ArrayUtils.contains(ldataset.getShape(), len)) {
-					newChoice = new AxisChoice(ldataset);
-					newChoice.setAxisNumber(j);
-					axisSelection.addChoice(newChoice, i + 1);
-				}
-			}
-		}
-
-		return axes;
-	}
-
-	private ILazyDataset getActiveData() {
-		ISelection selection = viewer.getSelection();
-		Object obj = ((IStructuredSelection) selection).getFirstElement();
-		ILazyDataset d;
-		if (obj == null) {
-			d = data.getLazyDataset(0);
-		} else if (obj instanceof ILazyDataset) {
-			d = (ILazyDataset) obj;
-		} else
-			return null;
-
-		if (d.getRank() > 2)
-			return null;
-
-		if (d.getRank() == 1) {
-			d.setShape(1, d.getShape()[0]);
-		}
-		return d;
 	}
 
 	private class ViewContentProvider implements IStructuredContentProvider {
@@ -299,21 +244,69 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 					}
 				});
 			}
-			ILazyDataset d = getActiveData();
-			if (d == null)
-				return;
 
-			d = d.clone();
-			d.setName(new File(fileName).getName() + ":" + d.getName());
-			DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, getAxes(d), d);
-			setSelection(datasetSelection);
+			selectItemSelection();
 		}
+	}
+
+	private ILazyDataset getActiveData() {
+		ISelection selection = viewer.getSelection();
+		Object obj = ((IStructuredSelection) selection).getFirstElement();
+		ILazyDataset d;
+		if (obj == null) {
+			d = data.getLazyDataset(0);
+		} else if (obj instanceof ILazyDataset) {
+			d = (ILazyDataset) obj;
+		} else
+			return null;
+	
+		if (d.getRank() > 2)
+			return null;
+	
+		if (d.getRank() == 1) {
+			d.setShape(1, d.getShape()[0]);
+		}
+		return d;
+	}
+
+	private List<AxisSelection> getAxes(ILazyDataset d) {
+		List<AxisSelection> axes = new ArrayList<AxisSelection>();
+	
+		int[] shape = d.getShape();
+	
+		for (int j = 0; j < shape.length; j++) {
+			final int len = shape[j];
+			AxisSelection axisSelection = new AxisSelection(len, j);
+			axes.add(axisSelection);
+	
+			AbstractDataset autoAxis = AbstractDataset.arange(len, AbstractDataset.INT32);
+			autoAxis.setName(AbstractExplorer.DIM_PREFIX + (j+1));
+			AxisChoice newChoice = new AxisChoice(autoAxis);
+			newChoice.setAxisNumber(j);
+			axisSelection.addChoice(newChoice, 0);
+	
+			for (int i = 0, imax = data.size(); i < imax; i++) {
+				ILazyDataset ldataset = data.getLazyDataset(i);
+				if (ldataset.equals(d))
+					continue;
+				if (ArrayUtils.contains(ldataset.getShape(), len)) {
+					newChoice = new AxisChoice(ldataset);
+					newChoice.setAxisNumber(j);
+					axisSelection.addChoice(newChoice, i + 1);
+				}
+			}
+		}
+	
+		return axes;
 	}
 
 	public void selectItemSelection() {
 		ILazyDataset d = getActiveData();
 		if (d == null)
 			return;
+
+		d = d.clone();
+		d.setName(new File(fileName).getName() + ":" + d.getName());
 		DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, getAxes(d), d);
 		setSelection(datasetSelection);
 	}
@@ -321,10 +314,19 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 	private void addMenu(IMetaData meta) {
 		// create context menu and handling
 		if (meta != null) {
+			Collection<String> names = null;
+			try {
+				names = meta.getMetaNames();
+			} catch (Exception e1) {
+				return;
+			}
+			if (names == null) {
+				return;
+			}
 			try {
 				Menu context = new Menu(viewer.getControl());
 				metaNames = new ArrayList<String>();
-				for (String n : meta.getMetaNames()) {
+				for (String n : names) {
 					try {
 						String v = meta.getMetaValue(n).toString();
 						Double.parseDouble(v);

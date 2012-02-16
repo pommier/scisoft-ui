@@ -836,184 +836,6 @@
                </dynamic>
             </menu>
          </menuContribution>
-         <!-- Menu Contribution of Save, Copy and Print buttons using the command extensions: commented until all actions are changed into commands -->
-         <!--menuContribution
-              locationURI="toolbar:uk.ac.diamond.scisoft.analysis.rcp.plotViewDP">
-              <command
-                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotSaveGraphAction"
-                    icon="icons/picture_save.png"
-                    style="push">
-              </command>
-              <command
-                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotCopyGraphAction"
-                    icon="icons/copy_edit_on.gif"
-                    style="push">
-              </command>
-              <command
-                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphAction"
-                    icon="icons/printer.png"
-                    style="pulldown">
-              </command>
-        </menuContribution>
-        <menuContribution locationURI="menu:uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphAction">
-           <command 
-                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale10Action" 
-                    label="Print 10 %" 
-                    style="push">
-           </command>
-           <command
-                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale25Action"
-                 label="Print 25 %"
-                 style="push">
-           </command>
-           <command
-                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale33Action"
-                 label="Print 33 %"
-                 style="push">
-           </command>
-           <command
-                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale50Action"
-                 label="Print 50 %"
-                 style="push">
-           </command>
-           <command
-                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale66Action"
-                 label="Print 66 %"
-                 style="push">
-           </command>
-           <command
-                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale75Action"
-                 label="Print 75 %"
-                 style="push">
-           </command>
-           <command
-                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale100Action"
-                 label="Print 100 %"
-                 style="push">
-           </command>
-        </menuContribution>
-        <menuContribution
-              locationURI="menu:uk.ac.diamond.scisoft.analysis.rcp.plotViewDP">
-           <command
-                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotSaveGraphAction"
-                 icon="icons/picture_save.png"
-                 style="push">
-           </command>
-           <command
-                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotCopyGraphAction"
-                 icon="icons/copy_edit_on.gif"
-                 style="push">
-           </command>
-           <menu
-                 icon="icons/printer.png"
-                 label="Print the plotting">
-              <command
-                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale10Action"
-                    label="Print 10 %"
-                    style="push">
-              </command>
-              <command
-                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale25Action"
-                    label="Print 25 %"
-                    style="push">
-              </command>
-              <command
-                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale33Action"
-                    label="Print 33 %"
-                    style="push">
-              </command>
-              <command
-                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale50Action"
-                    label="Print 50 %"
-                    style="push">
-              </command>
-              <command
-                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale66Action"
-                    label="Print 66 %"
-                    style="push">
-              </command>
-              <command
-                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale75Action"
-                    label="Print 75 %"
-                    style="push">
-              </command>
-              <command
-                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale100Action"
-                    label="Print 100 %"
-                    style="push">
-              </command>
-           </menu>
-        </menuContribution>
-        <menuContribution
-              locationURI="toolbar:uk.ac.diamond.scisoft.analysis.rcp.plotViewMultiple">
-           <command
-                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotSaveGraphAction"
-                 icon="icons/picture_save.png"
-                 style="push">
-           </command>
-           <command
-                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotCopyGraphAction"
-                 icon="icons/copy_edit_on.gif"
-                 style="push">
-           </command>
-           <command
-                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphAction"
-                 icon="icons/printer.png"
-                 style="push">
-           </command>
-        </menuContribution>
-        <menuContribution
-              locationURI="menu:uk.ac.diamond.scisoft.analysis.rcp.plotViewMultiple">
-           <command
-                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotSaveGraphAction"
-                 icon="icons/picture_save.png"
-                 style="push">
-           </command>
-           <command
-                 commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotCopyGraphAction"
-                 icon="icons/copy_edit_on.gif"
-                 style="push">
-           </command>
-           <menu
-                 icon="icons/printer.png"
-                 label="Print the plotting">
-              <command
-                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale10Action"
-                    label="Print 10 %"
-                    style="push">
-              </command>
-              <command
-                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale25Action"
-                    label="Print 25 %"
-                    style="push">
-              </command>
-              <command
-                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale33Action"
-                    label="Print 33 %"
-                    style="push">
-              </command>
-              <command
-                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale50Action"
-                    label="Print 50 %"
-                    style="push">
-              </command>
-              <command
-                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale66Action"
-                    label="Print 66 %"
-                    style="push">
-              </command>
-              <command
-                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale75Action"
-                    label="Print 75 %"
-                    style="push">
-              </command>
-              <command
-                    commandId="uk.ac.diamond.scisoft.analysis.rcp.PlotPrintGraphWithScale100Action"
-                    label="Print 100 %"
-                    style="push">
-              </command>
-           </menu>
-        </menuContribution-->
         <menuContribution
             locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions">
            <menu
@@ -1096,6 +918,66 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
             name="SDA">
       </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.PreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.preferencePage"
+            name="Dataset Viewing">
+      </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.PlotViewPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.plotViewPreferencePage"
+            name="Plot View">
+      </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.ImageExplorerPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.imageExplorerPreferencePage"
+            name="Image Explorer View">
+      </page>      
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.SidePlotterPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.sidePlotterPreferencePage"
+            name="Side Plotter">
+      </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.GridScanPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.gridScanPreferencePage"
+            name="Grid Scan">
+      </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.DiffractionViewerPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.diffractionViewerPreferencePage"
+            name="Diffraction Viewer">
+      </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.Fitting1DPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.fitting1DPreferencePage"
+            name="Fitting 1D">
+      </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.AnalysisRpcAndRmiPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.analysisRpcAndRmiPreferencePage"
+            name="Analysis RPC and RMI">
+      </page>
+      <page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.PrintSettingsPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.printSettingsPreferencePage"
+            name="Plot Printing Settings">
+      </page>
+      <!-- page
+            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
+            class="uk.ac.diamond.scisoft.analysis.rcp.preference.LabelDecorationsPreferencePage"
+            id="uk.ac.diamond.scisoft.analysis.rcp.preferences.labelDecorationsPreferencePage"
+            name="Label Decorations">
+      </page-->
    </extension>
    <extension
          point="uk.ac.diamond.scisoft.analysis.rcp.sidePlot">
@@ -1233,70 +1115,6 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.editors.CompareFilesEditor"
             name="Compare">
       </editor>
-   </extension>
-
-   <extension
-         point="org.eclipse.ui.preferencePages">
-      <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.PreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.preferencePage"
-            name="Dataset Viewing">
-      </page>
-      <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.PlotViewPreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.plotViewPreferencePage"
-            name="Plot View">
-      </page>
-      <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.ImageExplorerPreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.imageExplorerPreferencePage"
-            name="Image Explorer View">
-      </page>      
-      <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.SidePlotterPreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.sidePlotterPreferencePage"
-            name="Side Plotter">
-      </page>
-      <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.GridScanPreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.gridScanPreferencePage"
-            name="Grid Scan">
-      </page>
-      <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.DiffractionViewerPreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.diffractionViewerPreferencePage"
-            name="Diffraction Viewer">
-      </page>
-      <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.Fitting1DPreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.fitting1DPreferencePage"
-            name="Fitting 1D">
-      </page>
-      <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.AnalysisRpcAndRmiPreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.analysisRpcAndRmiPreferencePage"
-            name="Analysis RPC and RMI">
-      </page>
-      <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.PrintSettingsPreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.printSettingsPreferencePage"
-            name="Plot Printing Settings">
-      </page>
-      <!-- page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.LabelDecorationsPreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.preferences.labelDecorationsPreferencePage"
-            name="Label Decorations">
-      </page-->
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">

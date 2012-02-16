@@ -242,9 +242,7 @@ class PlotTab extends ATab {
 		if (daxes != null)
 			populateCombos();
 
-		// TODO line stack button
 		if (itype == InspectorType.LINESTACK) {
-//			new Label(holder, SWT.NONE).setText("In 3D");
 			final Button b = new Button(holder, SWT.CHECK);
 			b.setText("In 3D");
 			b.setToolTipText("Check to plot stack of lines in 3D");

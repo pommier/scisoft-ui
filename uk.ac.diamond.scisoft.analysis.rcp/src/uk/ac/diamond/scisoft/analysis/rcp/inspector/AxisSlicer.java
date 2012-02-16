@@ -93,14 +93,9 @@ public class AxisSlicer {
 
 	/**
 	 * Create the GUI components for a slicer
-	 * @param name
-	 * @param property slice
-	 * @param axis dataset for axis values
-	 * @param properties slices that dataset depends on
 	 */
-	public void createAxisSlicer(String name, SliceProperty property, ILazyDataset axis, SliceProperty[] properties) {
+	public void createAxisSlicer() {
 		if (label != null) {
-			setParameters(name, property, axis, properties, true);
 			return;
 		}
 		label  = new Label(composite, SWT.NONE);
@@ -183,7 +178,6 @@ public class AxisSlicer {
 			}
 		});
 		reset.setToolTipText("Reset slice");
-		setParameters(name, property, axis, properties, true);
 	}
 
 	/**
