@@ -16,6 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -24,12 +25,14 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.part.ViewPart;
 import org.slf4j.Logger;
@@ -51,6 +54,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay1DConsumer;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.OverlayProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.AreaSelectEvent;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
+import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.AbstractPlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotBean;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotView;
@@ -78,6 +83,25 @@ public class DerivativeViewer extends SidePlot implements Overlay1DConsumer, Plo
 	private DataSetPlotter    plotter;
 	private IPlotUI           plotUI;
 
+	private Composite parent;
+	private Action first;
+	private Action second;
+	private Action third;
+	private IAction showLeg;
+	private Action sendToPlotView;
+	private Action saveGraph;
+	private Action printGraph;
+	private Action copyGraph;
+	private String printButtonText = ResourceProperties.getResourceString("PRINT_BUTTON");
+	private String printToolTipText = ResourceProperties.getResourceString("PRINT_TOOLTIP");
+	private String printImagePath = ResourceProperties.getResourceString("PRINT_IMAGE_PATH");
+	private String copyButtonText = ResourceProperties.getResourceString("COPY_BUTTON");
+	private String copyToolTipText = ResourceProperties.getResourceString("COPY_TOOLTIP");
+	private String copyImagePath = ResourceProperties.getResourceString("COPY_IMAGE_PATH");
+	private String saveButtonText = ResourceProperties.getResourceString("SAVE_BUTTON");
+	private String saveToolTipText = ResourceProperties.getResourceString("SAVE_TOOLTIP");
+	private String saveImagePath = ResourceProperties.getResourceString("SAVE_IMAGE_PATH");
+
 	public DerivativeViewer() {
 		super();
 	}
@@ -98,8 +122,8 @@ public class DerivativeViewer extends SidePlot implements Overlay1DConsumer, Plo
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		
-		parent.setLayout(new FillLayout());
+		this.parent = parent;
+		this.parent.setLayout(new FillLayout());
 		
 		final Composite main = new Composite(parent, SWT.NONE);
 		GridLayout gl_main = new GridLayout(1, false);
@@ -116,7 +140,6 @@ public class DerivativeViewer extends SidePlot implements Overlay1DConsumer, Plo
 		plotter = new DataSetPlotter(PlottingMode.ONED, peakPlotter);
 		plotter.setAxisModes(AxisMode.CUSTOM, AxisMode.LINEAR, AxisMode.LINEAR);
 		
-		
 	}
 	
 	
@@ -126,12 +149,21 @@ public class DerivativeViewer extends SidePlot implements Overlay1DConsumer, Plo
 	@Override
 	public void generateToolActions(IToolBarManager manager) {
 				
- 		createDerivativeActions(manager);
-
-		//manager.add(StaticScanPlotView.getOpenStaticPlotAction(this));
-		final IAction showLeg = Plot1DUIAdapter.createShowLegend(plotter);
-		showLeg.setChecked(true);
+ 		createDerivativeActions();
+ 		createExportActions();
+ 		createExtraActions();
+ 		manager.add(first);
+		manager.add(second);
+		manager.add(third);
+		manager.add(new Separator(getClass().getName()+printButtonText));
+		manager.add(saveGraph);
+		manager.add(copyGraph);
+		manager.add(printGraph);
+		manager.add(new Separator(getClass().getName()+"extraActions"));
+		manager.add(sendToPlotView);
 		manager.add(showLeg);
+ 		
+		//manager.add(StaticScanPlotView.getOpenStaticPlotAction(this));
 
 	}
 
@@ -272,28 +304,14 @@ public class DerivativeViewer extends SidePlot implements Overlay1DConsumer, Plo
 	
 	@Override
 	public void generateMenuActions(IMenuManager manager, IWorkbenchPartSite site) {
- 		final DerivativeViewer viewer = this;
- 		
- 		final Action action = new Action() {
-			@Override
-			public void run() {
-				try {
-					EclipseUtils.getActivePage().showView("uk.ac.diamond.scisoft.analysis.rcp.plotView2");
-					SDAPlotter.plot("Plot 2", viewer.getXValues(), viewer.getYValues().toArray(new AbstractDataset[0]));
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					logger.error("TODO put description of error here", e);
-				}
-			}
-
-		};
-		action.setToolTipText("Send the results of the derivative to a seperate plot view");
-		final org.eclipse.swt.graphics.Image icon = SWTResourceManager.getImage(StaticScanPlotView.class,"/icons/chart_curve_add.png");
-		final ImageDescriptor d = ImageDescriptor.createFromImage(icon);
-		action.setImageDescriptor(d);
-		action.setText("Send derivative to Plot 2");
-		manager.add(action);
-		
+		createExportActions();
+ 		createExtraActions();
+		manager.add(new Separator(getClass().getName()+printButtonText));
+		manager.add(saveGraph);
+		manager.add(copyGraph);
+		manager.add(printGraph);
+		manager.add(new Separator(getClass().getName()+"extraActions"));
+		manager.add(sendToPlotView);
 	}
 	@Override
 	public void removeFromHistory() {
@@ -329,10 +347,10 @@ public class DerivativeViewer extends SidePlot implements Overlay1DConsumer, Plo
 	
 	
 
-	private void createDerivativeActions(IToolBarManager manager) {
+	private void createDerivativeActions() {
 		
 		final CheckableActionGroup group = new CheckableActionGroup();
-		final Action first = new Action("First Derivative", IAction.AS_CHECK_BOX) {
+		first = new Action("First Derivative", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
 				updatePlotInternal(1);
@@ -341,10 +359,8 @@ public class DerivativeViewer extends SidePlot implements Overlay1DConsumer, Plo
 		group.add(first);
 		first.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/First-Derivative.png"));
 		first.setChecked(true);
-		manager.add(first);
 		
-		
-		final Action second = new Action("Second Derivative", IAction.AS_CHECK_BOX) {
+		second = new Action("Second Derivative", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
 				updatePlotInternal(2);
@@ -352,9 +368,8 @@ public class DerivativeViewer extends SidePlot implements Overlay1DConsumer, Plo
 		};
 		second.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/Second-Derivative.png"));
 		group.add(second);
-		manager.add(second);
 		
-		final Action third = new Action("Third Derivative", IAction.AS_CHECK_BOX) {
+		third = new Action("Third Derivative", IAction.AS_CHECK_BOX) {
 			@Override
 			public void run() {
 				updatePlotInternal(3);
@@ -362,9 +377,90 @@ public class DerivativeViewer extends SidePlot implements Overlay1DConsumer, Plo
 		};
 		third.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/Third-Derivative.png"));
 		group.add(third);
-		manager.add(third);
-		
+	}
+	
+	private void createExportActions(){
+		saveGraph = new Action() {
+			
+			// Cache file name otherwise they have to keep
+			// choosing the folder.
+			private String filename;
+			
+			@Override
+			public void run() {
+				
+				FileDialog dialog = new FileDialog (parent.getShell(), SWT.SAVE);
+				
+				String [] filterExtensions = new String [] {"*.jpg;*.JPG;*.jpeg;*.JPEG;*.png;*.PNG", "*.ps;*.eps","*.svg;*.SVG"};
+				if (filename!=null) {
+					dialog.setFilterPath((new File(filename)).getParent());
+				} else {
+					String filterPath = "/";
+					String platform = SWT.getPlatform();
+					if (platform.equals("win32") || platform.equals("wpf")) {
+						filterPath = "c:\\";
+					}
+					dialog.setFilterPath (filterPath);
+				}
+				dialog.setFilterNames (PlotExportUtil.FILE_TYPES);
+				dialog.setFilterExtensions (filterExtensions);
+				filename = dialog.open();
+				if (filename == null)
+					return;
 
+				plotter.saveGraph(filename, PlotExportUtil.FILE_TYPES[dialog.getFilterIndex()]);
+			}
+		};
+		saveGraph.setText(saveButtonText);
+		saveGraph.setToolTipText(saveToolTipText);
+		saveGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(saveImagePath));
+		
+		copyGraph = new Action() {
+			@Override
+			public void run() {
+				plotter.copyGraph();
+			}
+		};
+		copyGraph.setText(copyButtonText);
+		copyGraph.setToolTipText(copyToolTipText);
+		copyGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(copyImagePath));
+		
+		printGraph = new Action() {
+			@Override
+			public void run() {
+				plotter.printGraph();
+			}
+		};
+		
+		printGraph.setText(printButtonText);
+		printGraph.setToolTipText(printToolTipText);
+		printGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(printImagePath));
+	}
+
+	private void createExtraActions() {
+		showLeg = Plot1DUIAdapter.createShowLegend(plotter);
+		showLeg.setChecked(true);
+		
+		final DerivativeViewer viewer = this;
+ 		
+ 		sendToPlotView = new Action() {
+			@Override
+			public void run() {
+				try {
+					EclipseUtils.getActivePage().showView("uk.ac.diamond.scisoft.analysis.rcp.plotView2");
+					SDAPlotter.plot("Plot 2", viewer.getXValues(), viewer.getYValues().toArray(new AbstractDataset[0]));
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					logger.error("TODO put description of error here", e);
+				}
+			}
+
+		};
+		sendToPlotView.setToolTipText("Send the results of the derivative to a separate plot view");
+		final org.eclipse.swt.graphics.Image icon = SWTResourceManager.getImage(StaticScanPlotView.class,"/icons/chart_curve_add.png");
+		final ImageDescriptor d = ImageDescriptor.createFromImage(icon);
+		sendToPlotView.setImageDescriptor(d);
+		sendToPlotView.setText("Send derivative to Plot 2");
 	}
 
 	protected void updatePlotInternal(final int derivative) {
