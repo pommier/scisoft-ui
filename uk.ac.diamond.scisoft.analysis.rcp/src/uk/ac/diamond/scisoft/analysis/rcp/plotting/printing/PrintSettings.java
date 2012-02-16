@@ -57,16 +57,18 @@ public class PrintSettings {
 	 * @author Kenneth Evans, Jr.
 	 */
 	public static enum Orientation {
-		PORTRAIT("Portrait"), LANDSCAPE("Landscape");
+		PORTRAIT("Portrait", 1), LANDSCAPE("Landscape", 2);
 		private final String name;
+		private final int value;
 
 		/**
 		 * Orientation constructor.
 		 * 
 		 * @param name
 		 */
-		Orientation(String name) {
+		Orientation(String name, int value) {
 			this.name = name;
+			this.value = value;
 		}
 
 		/**
@@ -76,6 +78,15 @@ public class PrintSettings {
 		 */
 		public String getName() {
 			return name;
+		}
+		
+		/**
+		 * Get the value.
+		 * 
+		 * @return value
+		 */
+		public int getValue() {
+			return value;
 		}
 	}
 	

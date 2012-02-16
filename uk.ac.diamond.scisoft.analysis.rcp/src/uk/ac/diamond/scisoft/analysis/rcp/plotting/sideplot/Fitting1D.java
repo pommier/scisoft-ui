@@ -17,6 +17,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
 import java.awt.Color;
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -57,6 +59,7 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MenuItem;
@@ -110,8 +113,10 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay1DProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.OverlayProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROITableViewer;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.AreaSelectEvent;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceInitializer;
+import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 
 public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionListener, ICellEditorListener,
 		ISelectionChangedListener {
@@ -161,6 +166,19 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 
 	private String BUTTON_FITTING_UUID;
 	private String REFITTING_UUID;
+
+	private Action saveGraph;
+	private Action copyGraph;
+	private Action printGraph;
+	protected String printButtonText = ResourceProperties.getResourceString("PRINT_BUTTON");
+	protected String printToolTipText = ResourceProperties.getResourceString("PRINT_TOOLTIP");
+	protected String printImagePath = ResourceProperties.getResourceString("PRINT_IMAGE_PATH");
+	protected String copyButtonText = ResourceProperties.getResourceString("COPY_BUTTON");
+	protected String copyToolTipText = ResourceProperties.getResourceString("COPY_TOOLTIP");
+	protected String copyImagePath = ResourceProperties.getResourceString("COPY_IMAGE_PATH");
+	protected String saveButtonText = ResourceProperties.getResourceString("SAVE_BUTTON");
+	protected String saveToolTipText = ResourceProperties.getResourceString("SAVE_TOOLTIP");
+	protected String saveImagePath = ResourceProperties.getResourceString("SAVE_IMAGE_PATH");
 
 	@Override
 	public void registerProvider(OverlayProvider provider) {
@@ -357,6 +375,8 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 		addPropertyListeners();
 		setupInitialValues();
 
+		createActions(parent);
+
 		parent.getShell().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
@@ -374,6 +394,65 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 		action.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/SidePlot-PeakFit.png"));
 
 		return action;
+	}
+
+	private void createActions(final Composite parent){
+		saveGraph = new Action() {
+			
+			// Cache file name otherwise they have to keep
+			// choosing the folder.
+			private String filename;
+			
+			@Override
+			public void run() {
+				
+				FileDialog dialog = new FileDialog (parent.getShell(), SWT.SAVE);
+				
+				String [] filterExtensions = new String [] {"*.jpg;*.JPG;*.jpeg;*.JPEG;*.png;*.PNG", "*.ps;*.eps","*.svg;*.SVG"};
+				if (filename!=null) {
+					dialog.setFilterPath((new File(filename)).getParent());
+				} else {
+					String filterPath = "/";
+					String platform = SWT.getPlatform();
+					if (platform.equals("win32") || platform.equals("wpf")) {
+						filterPath = "c:\\";
+					}
+					dialog.setFilterPath (filterPath);
+				}
+				dialog.setFilterNames (PlotExportUtil.FILE_TYPES);
+				dialog.setFilterExtensions (filterExtensions);
+				filename = dialog.open();
+				if (filename == null)
+					return;
+
+				fittedPlot.saveGraph(filename, PlotExportUtil.FILE_TYPES[dialog.getFilterIndex()]);
+			}
+		};
+		saveGraph.setText(saveButtonText);
+		saveGraph.setToolTipText(saveToolTipText);
+		saveGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(saveImagePath));
+		
+		copyGraph = new Action() {
+			@Override
+			public void run() {
+				fittedPlot.copyGraph();
+			}
+		};
+		copyGraph.setText(copyButtonText);
+		copyGraph.setToolTipText(copyToolTipText);
+		copyGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(copyImagePath));
+		
+		printGraph = new Action() {
+			@Override
+			public void run() {
+				fittedPlot.printGraph();
+			}
+		};
+		
+		printGraph.setText(printButtonText);
+		printGraph.setToolTipText(printToolTipText);
+		printGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(printImagePath));
+
 	}
 
 	@Override
@@ -1308,7 +1387,10 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 
 	@Override
 	public void generateToolActions(IToolBarManager manager) {
-		// not going to be implemented
+		manager.add(new Separator(getClass().getName()+printButtonText));
+		manager.add(saveGraph);
+		manager.add(copyGraph);
+		manager.add(printGraph);
 	}
 }
 
@@ -1328,6 +1410,18 @@ class PlotFittedPeaks implements Overlay1DConsumer {
 		peakPlotter.setLayout(new FillLayout());
 		plotter = new DataSetPlotter(PlottingMode.ONED, peakPlotter);
 		plotter.setAxisModes(AxisMode.CUSTOM, AxisMode.LINEAR, AxisMode.LINEAR);
+	}
+
+	public void saveGraph(String filename, String fileType) {
+		plotter.saveGraph(filename, fileType);
+	}
+
+	public void copyGraph() {
+		plotter.copyGraph();
+	}
+
+	public void printGraph() {
+		plotter.printGraph();
 	}
 
 	public void plotDataSets(DoubleDataset measuredData, DoubleDataset fittedData, AxisValues xAxis) {

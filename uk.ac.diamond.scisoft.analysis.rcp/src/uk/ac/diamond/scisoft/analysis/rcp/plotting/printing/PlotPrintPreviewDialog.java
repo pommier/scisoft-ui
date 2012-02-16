@@ -121,7 +121,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 		} else {
 			this.settings = new PrintSettings();
 		}
-		this.printer = new Printer(settings.getPrinterData());
+		this.printer = new Printer(this.settings.getPrinterData());
 		// We put the image creation into a thread and display a busy kind of indicator while the thread is
 		// running
 		Runnable createImage = new CreateImage(viewerApp, device, legendTable, this.settings.getPrinterData(), this.settings.getResolution().getValue());
@@ -367,9 +367,11 @@ public class PlotPrintPreviewDialog extends Dialog {
 		switch (orientationNum){
 		case 0:
 			settings.setOrientation(Orientation.PORTRAIT);
+			settings.getPrinterData().orientation = Orientation.PORTRAIT.getValue();
 			break;
 		case 1:
 			settings.setOrientation(Orientation.LANDSCAPE);
+			settings.getPrinterData().orientation = Orientation.LANDSCAPE.getValue();
 			break;
 		}
 		canvas.redraw();
