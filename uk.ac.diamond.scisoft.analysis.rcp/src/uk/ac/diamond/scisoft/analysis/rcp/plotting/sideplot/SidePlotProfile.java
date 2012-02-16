@@ -42,7 +42,10 @@ import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.function.Downsample;
 import uk.ac.diamond.scisoft.analysis.dataset.function.DownsampleMode;
+import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
+import uk.ac.diamond.scisoft.analysis.plotserver.DataBeanException;
+import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
@@ -104,6 +107,7 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 	protected boolean isBulkUpdate = false; // this is set true when updating many widgets' selection
 
 	protected BooleanDataset mask;
+	protected BooleanDataset subMask;
 
 	protected InteractiveQueue roiQueue = null;
 
@@ -753,8 +757,28 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 	/**
 	 * @return Returns all plotting data as data bean for plotting in another plot view
 	 */
-	DataBean getPlottingData(@SuppressWarnings("unused") int profileNr) {
-		return null;
+	DataBean getPlottingData(int profileNr) {
+		DataBean dBean = null;
+		
+		if (roiData != null && roiData.getProfileData().length > profileNr) {
+			dBean = new DataBean(GuiPlotMode.ONED);
+			DataSetWithAxisInformation axisData = new DataSetWithAxisInformation();
+			AxisMapBean axisMapBean = new AxisMapBean(AxisMapBean.DIRECT);
+
+			dBean.addAxis(AxisMapBean.XAXIS, roiData.getXAxis(profileNr).toDataset());
+			axisMapBean.setAxisID(new String[] {AxisMapBean.XAXIS});
+			axisData.setData(roiData.getProfileData(profileNr));
+			axisData.setAxisMap(axisMapBean);
+
+			try {
+				dBean.addData(axisData);
+			} catch (DataBeanException e) {
+				logger.debug("Could not add data to bean");
+				e.printStackTrace();
+				dBean = null;
+			}
+		}
+		return dBean;
 	}
 
 	@Override

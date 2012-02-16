@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -38,6 +39,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IWorkbenchPartSite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -975,5 +977,50 @@ public class BoxProfile extends SidePlotProfile {
 		}
 	}
 
+	@Override
+	public void generateMenuActions(IMenuManager manager,final IWorkbenchPartSite site) {
+		final String fullPlotID = "uk.ac.diamond.scisoft.analysis.rcp.plotView";
+		
+		Action pushMajorPlottingDataPlot1 = new Action() {
+			@Override
+			public void run() {
+					pushPlottingData(site, fullPlotID+"1",0);
 
+			}
+		};
+		pushMajorPlottingDataPlot1.setText("Push major profiles to plot 1");
+		pushMajorPlottingDataPlot1.setToolTipText("Push major profiles to plot 1");
+		Action pushMinorPlottingDataPlot1 = new Action() {
+			@Override
+			public void run() {
+					pushPlottingData(site, fullPlotID+"1",1);
+
+			}
+		};
+		pushMinorPlottingDataPlot1.setText("Push minor profiles to plot 1");
+		pushMinorPlottingDataPlot1.setToolTipText("Push minor profiles to plot 1");
+		manager.add(pushMajorPlottingDataPlot1);
+		manager.add(pushMinorPlottingDataPlot1);	
+		
+		Action pushMajorPlottingDataPlot2 = new Action() {
+			@Override
+			public void run() {
+					pushPlottingData(site, fullPlotID+"2",0);
+
+			}
+		};
+		pushMajorPlottingDataPlot2.setText("Push major profiles to plot 2");
+		pushMajorPlottingDataPlot2.setToolTipText("Push major profiles to plot 2");
+		Action pushMinorPlottingDataPlot2 = new Action() {
+			@Override
+			public void run() {
+					pushPlottingData(site, fullPlotID+"2",1);
+
+			}
+		};
+		pushMinorPlottingDataPlot2.setText("Push minor profiles to plot 2");
+		pushMinorPlottingDataPlot2.setToolTipText("Push minor profiles to plot 2");
+		manager.add(pushMajorPlottingDataPlot2);
+		manager.add(pushMinorPlottingDataPlot2);	
+	}
 }
