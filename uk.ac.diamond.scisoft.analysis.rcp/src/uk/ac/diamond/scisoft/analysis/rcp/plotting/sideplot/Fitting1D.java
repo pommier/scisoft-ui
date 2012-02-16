@@ -170,15 +170,15 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 	private Action saveGraph;
 	private Action copyGraph;
 	private Action printGraph;
-	protected String printButtonText = ResourceProperties.getResourceString("PRINT_BUTTON");
-	protected String printToolTipText = ResourceProperties.getResourceString("PRINT_TOOLTIP");
-	protected String printImagePath = ResourceProperties.getResourceString("PRINT_IMAGE_PATH");
-	protected String copyButtonText = ResourceProperties.getResourceString("COPY_BUTTON");
-	protected String copyToolTipText = ResourceProperties.getResourceString("COPY_TOOLTIP");
-	protected String copyImagePath = ResourceProperties.getResourceString("COPY_IMAGE_PATH");
-	protected String saveButtonText = ResourceProperties.getResourceString("SAVE_BUTTON");
-	protected String saveToolTipText = ResourceProperties.getResourceString("SAVE_TOOLTIP");
-	protected String saveImagePath = ResourceProperties.getResourceString("SAVE_IMAGE_PATH");
+	private String printButtonText = ResourceProperties.getResourceString("PRINT_BUTTON");
+	private String printToolTipText = ResourceProperties.getResourceString("PRINT_TOOLTIP");
+	private String printImagePath = ResourceProperties.getResourceString("PRINT_IMAGE_PATH");
+	private String copyButtonText = ResourceProperties.getResourceString("COPY_BUTTON");
+	private String copyToolTipText = ResourceProperties.getResourceString("COPY_TOOLTIP");
+	private String copyImagePath = ResourceProperties.getResourceString("COPY_IMAGE_PATH");
+	private String saveButtonText = ResourceProperties.getResourceString("SAVE_BUTTON");
+	private String saveToolTipText = ResourceProperties.getResourceString("SAVE_TOOLTIP");
+	private String saveImagePath = ResourceProperties.getResourceString("SAVE_IMAGE_PATH");
 
 	@Override
 	public void registerProvider(OverlayProvider provider) {
@@ -375,7 +375,7 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 		addPropertyListeners();
 		setupInitialValues();
 
-		createActions(parent);
+		createExportActions(parent);
 
 		parent.getShell().getDisplay().asyncExec(new Runnable() {
 			@Override
@@ -396,7 +396,7 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 		return action;
 	}
 
-	private void createActions(final Composite parent){
+	private void createExportActions(final Composite parent){
 		saveGraph = new Action() {
 			
 			// Cache file name otherwise they have to keep
