@@ -17,6 +17,7 @@
 package uk.ac.diamond.scisoft.views;
 
 import java.io.File;
+import java.net.InetAddress;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -24,7 +25,6 @@ import javax.mail.internet.MimeMessage;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -48,12 +48,9 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.UIJob;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamSource;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.mail.javamail.MimeMailMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 
@@ -169,7 +166,20 @@ public class FeedbackView extends ViewPart {
 							}
 							String from = fromvalue;
 							String subject = SDA_FEEDBACK;
-							String messageBody = messageText.getText() + "\n\n\n" + SystemInformation.getSystemString();
+							StringBuilder messageBody = new StringBuilder();
+							messageBody.append("Message from : "+ System.getProperty("user.name", "Unknown User")+"\n");
+							String computerName = "Unknown";
+							try {
+								computerName = InetAddress.getLocalHost().getHostName();
+							} finally {
+								
+							}
+							messageBody.append("Machine is   : "+computerName+"\n");
+							String versionNumber = System.getProperty("sda.version", "Unknown");
+							messageBody.append("Version is   : "+versionNumber+"\n");
+							messageBody.append(messageText.getText());
+							messageBody.append("\n\n\n");
+							messageBody.append(SystemInformation.getSystemString());
 
 							File logpath = new File(System.getProperty("user.home"), "sdalog.html");
 							
@@ -178,7 +188,7 @@ public class FeedbackView extends ViewPart {
 								logAttachment = new FileSystemResource(logpath);
 							} 
 							
-							sendMail(mailserver, from, MAIL_TO, subject, messageBody, "log.html", logAttachment, monitor);
+							sendMail(mailserver, from, MAIL_TO, subject, messageBody.toString(), "log.html", logAttachment, monitor);
 						} catch (Exception e) {
 							return Status.CANCEL_STATUS;
 						}
