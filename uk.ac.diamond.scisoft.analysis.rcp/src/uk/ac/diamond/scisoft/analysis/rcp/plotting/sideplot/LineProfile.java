@@ -17,10 +17,14 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
 import java.awt.Color;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -33,10 +37,12 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IWorkbenchPartSite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +65,9 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.LinearROITableViewer;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIDataList;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
+import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROIList;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
@@ -73,6 +81,23 @@ public class LineProfile extends SidePlotProfile {
 	private SidePlotter1D lpPlotter;
 
 	private static final double lineStep = 0.5;
+
+	private Action addtoHistory;
+	private Action removefromHistory;
+	private Action saveGraph;
+	private Action copyGraph;
+	private Action printGraph;
+	private String printButtonText = ResourceProperties.getResourceString("PRINT_BUTTON");
+	private String printToolTipText = ResourceProperties.getResourceString("PRINT_TOOLTIP");
+	private String printImagePath = ResourceProperties.getResourceString("PRINT_IMAGE_PATH");
+	private String copyButtonText = ResourceProperties.getResourceString("COPY_BUTTON");
+	private String copyToolTipText = ResourceProperties.getResourceString("COPY_TOOLTIP");
+	private String copyImagePath = ResourceProperties.getResourceString("COPY_IMAGE_PATH");
+	private String saveButtonText = ResourceProperties.getResourceString("SAVE_BUTTON");
+	private String saveToolTipText = ResourceProperties.getResourceString("SAVE_TOOLTIP");
+	private String saveImagePath = ResourceProperties.getResourceString("SAVE_IMAGE_PATH");
+
+	private Composite parent;
 
 	/**
 	 * possible handle states
@@ -117,7 +142,8 @@ public class LineProfile extends SidePlotProfile {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		container = new Composite(parent, SWT.NONE);
+		this.parent = parent;
+		container = new Composite(this.parent, SWT.NONE);
 		container.setLayout(new FillLayout());
 
 		final SashForm ss = new SashForm(container, SWT.VERTICAL);
@@ -880,5 +906,114 @@ public class LineProfile extends SidePlotProfile {
 		    lpPlotter.popGraphFromHistory();
 		    lpPlotter.refresh(true);
 		}	
+	}
+
+	@Override
+	public void generateToolActions(IToolBarManager manager) {
+		createExportActions();
+		createExtraActions();
+		manager.add(new Separator(getClass().getName()+printButtonText));
+		manager.add(saveGraph);
+		manager.add(copyGraph);
+		manager.add(printGraph);
+		manager.add(new Separator(getClass().getName()+"extraActions"));
+		manager.add(addtoHistory);
+		manager.add(removefromHistory);	
+	}
+	
+	@Override
+	public void generateMenuActions(IMenuManager manager, final IWorkbenchPartSite site) {
+		createExportActions();
+		createExtraActions();
+
+		manager.add(new Separator(getClass().getName()+printButtonText));
+		manager.add(saveGraph);
+		manager.add(copyGraph);
+		manager.add(printGraph);
+		manager.add(new Separator(getClass().getName()+"extraActions"));
+		manager.add(addtoHistory);
+		manager.add(removefromHistory);
+	}
+
+	private void createExportActions(){
+		saveGraph = new Action() {
+			
+			// Cache file name otherwise they have to keep
+			// choosing the folder.
+			private String filename;
+			
+			@Override
+			public void run() {
+				
+				FileDialog dialog = new FileDialog (parent.getShell(), SWT.SAVE);
+				
+				String [] filterExtensions = new String [] {"*.jpg;*.JPG;*.jpeg;*.JPEG;*.png;*.PNG", "*.ps;*.eps","*.svg;*.SVG"};
+				if (filename!=null) {
+					dialog.setFilterPath((new File(filename)).getParent());
+				} else {
+					String filterPath = "/";
+					String platform = SWT.getPlatform();
+					if (platform.equals("win32") || platform.equals("wpf")) {
+						filterPath = "c:\\";
+					}
+					dialog.setFilterPath (filterPath);
+				}
+				dialog.setFilterNames (PlotExportUtil.FILE_TYPES);
+				dialog.setFilterExtensions (filterExtensions);
+				filename = dialog.open();
+				if (filename == null)
+					return;
+
+				lpPlotter.saveGraph(filename, PlotExportUtil.FILE_TYPES[dialog.getFilterIndex()]);
+			}
+		};
+		saveGraph.setText(saveButtonText);
+		saveGraph.setToolTipText(saveToolTipText);
+		saveGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(saveImagePath));
+		
+		copyGraph = new Action() {
+			@Override
+			public void run() {
+				lpPlotter.copyGraph();
+			}
+		};
+		copyGraph.setText(copyButtonText);
+		copyGraph.setToolTipText(copyToolTipText);
+		copyGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(copyImagePath));
+		
+		printGraph = new Action() {
+			@Override
+			public void run() {
+				lpPlotter.printGraph();
+			}
+		};
+		
+		printGraph.setText(printButtonText);
+		printGraph.setToolTipText(printToolTipText);
+		printGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(printImagePath));
+
+	}
+	
+	private void createExtraActions(){
+		addtoHistory = new Action() {
+			@Override
+			public void run() {
+				addToHistory();
+			}
+		};
+		addtoHistory.setText("Add current profiles to history");
+		addtoHistory.setToolTipText("Add the current profiles to the plot history");
+		addtoHistory.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/basket_put.png"));
+
+		removefromHistory = new Action() {
+			@Override
+			public void run() {
+				removeFromHistory();
+			}
+		};
+		removefromHistory.setText("Remove last profiles from history");
+		removefromHistory.setToolTipText("Remove the last profiles from the plot history");
+		removefromHistory.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/basket_remove.png"));
+
 	}
 }
