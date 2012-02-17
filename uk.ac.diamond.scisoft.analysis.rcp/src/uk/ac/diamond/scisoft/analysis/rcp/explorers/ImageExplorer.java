@@ -49,6 +49,7 @@ import org.eclipse.ui.PlatformUI;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
+import uk.ac.diamond.scisoft.analysis.io.AbstractFileLoader;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
@@ -306,7 +307,7 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 			return;
 
 		d = d.clone();
-		d.setName(new File(fileName).getName() + ":" + d.getName());
+		d.setName(new File(fileName).getName() + AbstractFileLoader.FILEPATH_DATASET_SEPARATOR + d.getName());
 		DatasetSelection datasetSelection = new DatasetSelection(InspectorType.IMAGE, getAxes(d), d);
 		setSelection(datasetSelection);
 	}

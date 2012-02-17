@@ -84,6 +84,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
+import uk.ac.diamond.scisoft.analysis.io.AbstractFileLoader;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.io.Utils;
@@ -648,7 +649,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				node = name.substring(0, name.lastIndexOf(HDF5Node.SEPARATOR)+1);
 			} else {
 				name = currentDatasetSelection.getFirstElement().getName();
-				int i = name.indexOf(":");
+				int i = name.indexOf(AbstractFileLoader.FILEPATH_DATASET_SEPARATOR);
 				if (i >= 0) {
 					name = name.substring(i+1);
 				}
