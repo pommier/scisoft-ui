@@ -34,6 +34,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
@@ -123,6 +124,8 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 
 	transient private static final Logger logger = LoggerFactory.getLogger(Fitting1D.class);
 
+	private Composite parent;
+	
 	private final FittedPeakList fittedPeakList = new FittedPeakList();
 	private FittedPeakTableViewer fittedPeakTable;
 	private PlotFittedPeaks fittedPlot;
@@ -167,6 +170,7 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 	private String BUTTON_FITTING_UUID;
 	private String REFITTING_UUID;
 
+	private IAction showLeg;	
 	private Action saveGraph;
 	private Action copyGraph;
 	private Action printGraph;
@@ -285,10 +289,10 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 	 */
 	@Override
 	public void createPartControl(final Composite parent) {
+		this.parent = parent;
+		this.parent.setLayout(new FillLayout());
 
-		parent.setLayout(new FillLayout());
-
-		container = new Composite(parent, SWT.NONE);
+		container = new Composite(this.parent, SWT.NONE);
 		container.setLayout(new GridLayout(1, false));
 
 		// GUI creation and layout
@@ -375,9 +379,7 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 		addPropertyListeners();
 		setupInitialValues();
 
-		createExportActions(parent);
-
-		parent.getShell().getDisplay().asyncExec(new Runnable() {
+		this.parent.getShell().getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				parent.layout();
@@ -396,7 +398,7 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 		return action;
 	}
 
-	private void createExportActions(final Composite parent){
+	private void createExportActions(){
 		saveGraph = new Action() {
 			
 			// Cache file name otherwise they have to keep
@@ -453,6 +455,12 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 		printGraph.setToolTipText(printToolTipText);
 		printGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(printImagePath));
 
+	}
+
+	private void createExtraActions() {
+		showLeg = PlotFittedPeaks.createShowLegend();
+		showLeg.setChecked(true);
+		
 	}
 
 	@Override
@@ -1369,12 +1377,19 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 
 	@Override
 	public void generateMenuActions(IMenuManager manager, final IWorkbenchPartSite site) {
+		createExportActions();
+		manager.add(new Separator(getClass().getName()+printButtonText));
+		manager.add(saveGraph);
+		manager.add(copyGraph);
+		manager.add(printGraph);
+		manager.add(new Separator(getClass().getName()+"extraActions"));
+		
 		Action fitting1dmenu = new Action() {
 			@Override
 			public void run() {
 				IHandlerService handler = (IHandlerService) site.getService(IHandlerService.class);
 				try {
-					handler.executeCommand("uk.ac.diamond.scisoft.analysis.rcp.preferences.Fitting1DPreferencePage",
+					handler.executeCommand("uk.ac.diamond.scisoft.analysis.rcp.Fitting1DSettings",
 							null);
 				} catch (Exception e) {
 					logger.error(e.getMessage());
@@ -1387,10 +1402,14 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 
 	@Override
 	public void generateToolActions(IToolBarManager manager) {
+		createExportActions();
+		createExtraActions();
 		manager.add(new Separator(getClass().getName()+printButtonText));
 		manager.add(saveGraph);
 		manager.add(copyGraph);
 		manager.add(printGraph);
+		manager.add(new Separator(getClass().getName()+"extraActions"));
+		manager.add(showLeg);
 	}
 }
 
@@ -1398,7 +1417,7 @@ class PlotFittedPeaks implements Overlay1DConsumer {
 
 	transient private static final Logger logger = LoggerFactory.getLogger(PlotFittedPeaks.class);
 
-	private DataSetPlotter plotter;
+	private static DataSetPlotter plotter;
 	private Overlay1DProvider sideProvider;
 	private List<Integer> sidePrimID;
 	private int sideID;
@@ -1410,6 +1429,10 @@ class PlotFittedPeaks implements Overlay1DConsumer {
 		peakPlotter.setLayout(new FillLayout());
 		plotter = new DataSetPlotter(PlottingMode.ONED, peakPlotter);
 		plotter.setAxisModes(AxisMode.CUSTOM, AxisMode.LINEAR, AxisMode.LINEAR);
+	}
+
+	public static IAction createShowLegend() {
+		return Plot1DUIAdapter.createShowLegend(plotter);
 	}
 
 	public void saveGraph(String filename, String fileType) {
