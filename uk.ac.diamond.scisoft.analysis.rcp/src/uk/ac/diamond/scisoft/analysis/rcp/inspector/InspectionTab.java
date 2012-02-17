@@ -890,20 +890,25 @@ class PlotTab extends ATab {
 
 	}
 
-	public boolean isExplorerNull() {
+	private boolean isExplorerNull() {
 		if (explorerName == null || explorer == null) {
-			try {
-				explorer = (ImageExplorerView) site.getPage().showView(ImageExplorerView.ID,
-						null, IWorkbenchPage.VIEW_CREATE);
-				if (explorer != null) {
-					explorerName = explorer.getPlotViewName();
-				} else {
-					explorerName = null;
+			site.getShell().getDisplay().syncExec(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						explorer = (ImageExplorerView) site.getPage().showView(ImageExplorerView.ID, null,
+								IWorkbenchPage.VIEW_CREATE);
+						if (explorer != null) {
+							explorerName = explorer.getPlotViewName();
+						} else {
+							explorerName = null;
+						}
+					} catch (PartInitException e) {
+						logger.error("Cannot find image explorer view");
+						e.printStackTrace();
+					}
 				}
-			} catch (PartInitException e) {
-				logger.error("Cannot find image explorer view");
-				e.printStackTrace();
-			}
+			});
 		}
 
 		return explorerName == null;
@@ -939,30 +944,43 @@ class PlotTab extends ATab {
 			int start = subSlice.getStart() == null ? 0 : subSlice.getStart();
 			subSlices[sliceAxis].setStop(start+1);
 			setInspectionRunning();
+			boolean memoryOK = true;
 			for (int i = 0; i < nimages; i++) {
-				subSlices[sliceAxis].setPosition(start + i);
-				AbstractDataset slicedData = sliceData(monitor, subSlices);
-				if (slicedData == null)
-					return;
+				try {
+					subSlices[sliceAxis].setPosition(start + i);
+					AbstractDataset slicedData = sliceData(monitor, subSlices);
+					if (slicedData == null)
+						return;
 
-				AbstractDataset reorderedData = DatasetUtils.transpose(slicedData, order);
+					AbstractDataset reorderedData = DatasetUtils.transpose(slicedData, order);
 
-				reorderedData.setName(slicedData.getName());
-				reorderedData.squeeze();
-				if (reorderedData.getSize() < 1)
-					return;
+					reorderedData.setName(slicedData.getName());
+					reorderedData.squeeze();
+					if (reorderedData.getSize() < 1)
+						return;
 
-				reorderedData.setName(dataset.getName() + "." + i);
-				if (!canContinueInspection()) {
-					return;
+					reorderedData.setName(dataset.getName() + "." + i);
+					if (!canContinueInspection()) {
+						return;
+					}
+
+					if (explorer.isStopped()) {
+						stopInspection();
+						return;
+					}
+
+					SDAPlotter.plotImageToGrid(explorerName, reorderedData, true);
+					if (!memoryOK)
+						logger.warn("... memory reduction successful");
+					memoryOK = true;
+				} catch (OutOfMemoryError e) {
+					if (!memoryOK) // only allow one GC per slice
+						throw e;
+					memoryOK = false;
+					logger.warn("Ran out of memory: attempting to reduce memory used...");
+					System.gc();
+					i--;  // try again after memory
 				}
-
-				if (explorer.isStopped()) {
-					stopInspection();
-					return;
-				}
-
-				SDAPlotter.plotImageToGrid(explorerName, reorderedData, true);
 			}
 		} catch (Exception e) {
 			logger.warn("Problem with sending data to image explorer", e);
