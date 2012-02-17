@@ -46,9 +46,9 @@ public class VariableInjectionPluginTest {
 		Set<String> hashSet = new HashSet<String>();
 		hashSet.addAll(Arrays.asList(envVariables));
 		
-		Assert.assertTrue("SCISOFT_RPC_PORT", hashSet.contains("SCISOFT_RPC_PORT=$(scisoft_rpc_port)"));
-		Assert.assertTrue("SCISOFT_RMI_PORT", hashSet.contains("SCISOFT_RMI_PORT=$(scisoft_rmi_port)"));
-		Assert.assertTrue("SCISOFT_RPC_TEMP", hashSet.contains("SCISOFT_RPC_TEMP=$(scisoft_rpc_temp)"));
+		Assert.assertTrue("SCISOFT_RPC_PORT", hashSet.contains("SCISOFT_RPC_PORT=${scisoft_rpc_port}"));
+		Assert.assertTrue("SCISOFT_RMI_PORT", hashSet.contains("SCISOFT_RMI_PORT=${scisoft_rmi_port}"));
+		Assert.assertTrue("SCISOFT_RPC_TEMP", hashSet.contains("SCISOFT_RPC_TEMP=${scisoft_rpc_temp}"));
 	}
 	
 	@Test

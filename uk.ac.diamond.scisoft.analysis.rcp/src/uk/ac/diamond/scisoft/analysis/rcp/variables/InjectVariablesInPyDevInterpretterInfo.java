@@ -42,9 +42,9 @@ public class InjectVariablesInPyDevInterpretterInfo implements IInterpreterObser
 	
 	private Map<String, String> entriesToAdd = new HashMap<String, String>();
 	{
-		entriesToAdd.put("SCISOFT_RPC_PORT", "$(scisoft_rpc_port)");
-		entriesToAdd.put("SCISOFT_RMI_PORT", "$(scisoft_rmi_port)");
-		entriesToAdd.put("SCISOFT_RPC_TEMP", "$(scisoft_rpc_temp)");
+		entriesToAdd.put("SCISOFT_RPC_PORT", "${scisoft_rpc_port}");
+		entriesToAdd.put("SCISOFT_RMI_PORT", "${scisoft_rmi_port}");
+		entriesToAdd.put("SCISOFT_RPC_TEMP", "${scisoft_rpc_temp}");
 	}
 	
 	/**
