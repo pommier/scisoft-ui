@@ -26,7 +26,7 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
 
 public class Fitting1DPreferenceHandler extends AbstractHandler implements IHandler {
 
-	private static final String FITTING1D_PAGE_ID = "uk.ac.diamond.scisoft.analysis.rcp.fitting1dPreferencePage";
+	private static final String FITTING1D_PAGE_ID = "uk.ac.diamond.scisoft.analysis.rcp.fitting1DPreferencePage";
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
