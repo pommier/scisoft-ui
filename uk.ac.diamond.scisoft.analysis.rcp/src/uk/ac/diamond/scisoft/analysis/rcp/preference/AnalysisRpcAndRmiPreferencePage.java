@@ -53,16 +53,13 @@ public class AnalysisRpcAndRmiPreferencePage extends FieldEditorPreferencePage i
 		addField(new IntegerFieldEditor(PreferenceConstants.RMI_SERVER_PORT,
 				"RMI Port: (0 for auto, requires restart)", getFieldEditorParent()));
 
-		int runningRmiPort = RMIServerProvider.getInstance().getPort();
-		int runningRpcPort = AnalysisRpcServerProvider.getInstance().getPort();
 		addField(new LabelFieldEditor("The currently in use ports are:\n" + "- Analysis RPC: "
 				+ AnalysisRpcServerProvider.getInstance().getPort() + "\n" + "- RMI: "
 				+ RMIServerProvider.getInstance().getPort() + "\n" + "\n"
 				+ "SDA automatically passes the parameters on this page using environment variables \n"
 				+ "which are set up in the PyDev Interpreter Info preference pages. \n"
 				+ "These are automatically used by scisoftpy. The environment variables are: \n"
-				+ "Analysis RPC Port: SCISOFT_RPC_PORT (currently " + runningRpcPort + ")\n"
-				+ "RMI Port: SCISOFT_RMI_PORT (currently " + runningRmiPort + ")\n"
+				+ "Analysis RPC Port: SCISOFT_RPC_PORT\n" + "RMI Port: SCISOFT_RMI_PORT\n"
 				+ "Temporary File Location: SCISOFT_RPC_TEMP\n", getFieldEditorParent()));
 
 		addField(new BooleanFieldEditor(
