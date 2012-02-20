@@ -4,7 +4,7 @@ Bundle-Name: Polling
 Bundle-SymbolicName: uk.ac.diamond.scisoft.analysis.polling;singleton:=true
 Bundle-Version: 1.1.0.qualifier
 Bundle-Activator: uk.ac.diamond.scisoft.analysis.polling.Activator
-Bundle-Vendor: Diamond Light Source Ltd.
+Bundle-Vendor: Diamond Light Source
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  uk.ac.diamond.sda.polling;bundle-version="1.0.0",

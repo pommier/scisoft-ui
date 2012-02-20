@@ -5,7 +5,7 @@ Bundle-Name: Rcp Plug-in
 Bundle-SymbolicName: uk.ac.diamond.scisoft.analysis.rcp;singleton:=true
 Bundle-Version: 1.1.0.qualifier
 Bundle-Activator: uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator
-Bundle-Vendor: Diamond Light Source Ltd.
+Bundle-Vendor: Diamond Light Source
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.resources;bundle-version="3.5.1",
