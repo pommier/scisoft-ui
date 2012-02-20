@@ -17,11 +17,17 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
 import java.awt.Color;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -34,12 +40,16 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IWorkbenchPartSite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.swtdesigner.SWTResourceManager;
 
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
@@ -50,6 +60,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DAppearance;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DGraphTable;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotColorUtility;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotException;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DropDownAction;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.OverlayType;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.Plot1DStyles;
@@ -61,11 +72,15 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.RectangularROIData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.RectangularROIHandler;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.RectangularROITableViewer;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
 import uk.ac.diamond.scisoft.analysis.rcp.queue.InteractiveJobAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
+import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
+import uk.ac.diamond.scisoft.analysis.rcp.views.plot.StaticScanPlotView;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROIList;
+import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 public class BoxProfile extends SidePlotProfile {
 
@@ -74,6 +89,36 @@ public class BoxProfile extends SidePlotProfile {
 	private DataSetPlotter majPlotter;
 	private DataSetPlotter minPlotter;
 
+	private Composite parent;
+	private DropDownAction saveGraph;
+	private DropDownAction copyGraph;
+	private DropDownAction printGraph;
+	private Action saveMin;
+	private Action saveMaj;
+	private Action copyMin;
+	private Action copyMaj;
+	private Action printMaj;
+	private Action printMin;
+	private MenuManager saveMenu;
+	private MenuManager copyMenu;
+	private MenuManager printMenu;
+	private DropDownAction pushPlottingData;
+	private Action pushMajorPlottingDataPlot1;
+	private Action pushMajorPlottingDataPlot2;
+	private Action pushMinorPlottingDataPlot1;
+	private Action pushMinorPlottingDataPlot2;
+	private Action removefromHistory;
+	private Action addtoHistory;
+	private String printButtonText = ResourceProperties.getResourceString("PRINT_BUTTON");
+	private String printToolTipText = ResourceProperties.getResourceString("PRINT_TOOLTIP");
+	private String printImagePath = ResourceProperties.getResourceString("PRINT_IMAGE_PATH");
+	private String copyButtonText = ResourceProperties.getResourceString("COPY_BUTTON");
+	private String copyToolTipText = ResourceProperties.getResourceString("COPY_TOOLTIP");
+	private String copyImagePath = ResourceProperties.getResourceString("COPY_IMAGE_PATH");
+	private String saveButtonText = ResourceProperties.getResourceString("SAVE_BUTTON");
+	private String saveToolTipText = ResourceProperties.getResourceString("SAVE_TOOLTIP");
+	private String saveImagePath = ResourceProperties.getResourceString("SAVE_IMAGE_PATH");
+	
 	/**
 	 * possible handle states
 	 */
@@ -168,8 +213,9 @@ public class BoxProfile extends SidePlotProfile {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		super.createPartControl(parent);
-		container = new Composite(parent, SWT.NONE);
+		this.parent = parent;
+		super.createPartControl(this.parent);
+		container = new Composite(this.parent, SWT.NONE);
 		container.setLayout(new FillLayout());
 
 		final SashForm ss = new SashForm(container, SWT.VERTICAL);
@@ -975,5 +1021,221 @@ public class BoxProfile extends SidePlotProfile {
 		}
 	}
 
+	@Override
+	public void generateToolActions(IToolBarManager manager) {
+		createExportActions();
+		createHistoryActions();
+		createPushPlotActions();
+		
+		manager.add(new Separator(getClass().getName()+printButtonText));
+		manager.add(saveGraph);
+		manager.add(copyGraph);
+		manager.add(printGraph);
+		manager.add(new Separator(getClass().getName()+"pushHistoryActions"));
+		manager.add(addtoHistory);
+		manager.add(removefromHistory);
+		manager.add(new Separator(getClass().getName()+"pushPlotActions"));
+		manager.add(pushPlottingData);
+	}
+	
+	@Override
+	public void generateMenuActions(IMenuManager manager, final IWorkbenchPartSite site) {
+		createExportActions();
+		createHistoryActions();
+		createPushPlotActions();
+		
+		manager.add(new Separator(getClass().getName()+printButtonText));
+		saveMenu = new MenuManager(saveButtonText, AnalysisRCPActivator.getImageDescriptor(saveImagePath), saveButtonText);
+		saveMenu.add(saveMaj);
+		saveMenu.add(saveMin);
+		manager.add(saveMenu);
+		copyMenu = new MenuManager(copyButtonText, AnalysisRCPActivator.getImageDescriptor(copyImagePath), copyButtonText);
+		copyMenu.add(copyMaj);
+		copyMenu.add(copyMin);
+		manager.add(copyMenu);
+		printMenu = new MenuManager(printButtonText, AnalysisRCPActivator.getImageDescriptor(printImagePath), printButtonText);
+		printMenu.add(printMaj);
+		printMenu.add(printMin);
+		manager.add(printMenu);
+		manager.add(new Separator(getClass().getName()+"pushHistoryActions"));
+		manager.add(addtoHistory);
+		manager.add(removefromHistory);
+		manager.add(new Separator(getClass().getName()+"pushPlotActions"));
+		manager.add(pushMajorPlottingDataPlot1);
+		manager.add(pushMinorPlottingDataPlot1);
+		manager.add(pushMajorPlottingDataPlot2);
+		manager.add(pushMinorPlottingDataPlot2);
+	
+	}
+	
+	private void createExportActions(){
+		saveMaj = new Action("Save major profiles plot") {
+			private String filename;
+			@Override
+			public void run() {
+				FileDialog dialog = new FileDialog (parent.getShell(), SWT.SAVE);
+				String [] filterExtensions = new String [] {"*.jpg;*.JPG;*.jpeg;*.JPEG;*.png;*.PNG", "*.ps;*.eps","*.svg;*.SVG"};
+				if (filename!=null) {
+					dialog.setFilterPath((new File(filename)).getParent());
+				} else {
+					String filterPath = "/";
+					String platform = SWT.getPlatform();
+					if (platform.equals("win32") || platform.equals("wpf")) {
+						filterPath = "c:\\";
+					}
+					dialog.setFilterPath (filterPath);
+				}
+				dialog.setFilterNames (PlotExportUtil.FILE_TYPES);
+				dialog.setFilterExtensions (filterExtensions);
+				filename = dialog.open();
+				if (filename == null)
+					return;
+				majPlotter.saveGraph(filename, PlotExportUtil.FILE_TYPES[dialog.getFilterIndex()]);
+			}
+		};
+		saveMin = new Action("Save minor profiles plot") {
+			private String filename;
+			@Override
+			public void run() {
+				FileDialog dialog = new FileDialog (parent.getShell(), SWT.SAVE);
+				String [] filterExtensions = new String [] {"*.jpg;*.JPG;*.jpeg;*.JPEG;*.png;*.PNG", "*.ps;*.eps","*.svg;*.SVG"};
+				if (filename!=null) {
+					dialog.setFilterPath((new File(filename)).getParent());
+				} else {
+					String filterPath = "/";
+					String platform = SWT.getPlatform();
+					if (platform.equals("win32") || platform.equals("wpf")) {
+						filterPath = "c:\\";
+					}
+					dialog.setFilterPath (filterPath);
+				}
+				dialog.setFilterNames (PlotExportUtil.FILE_TYPES);
+				dialog.setFilterExtensions (filterExtensions);
+				filename = dialog.open();
+				if (filename == null)
+					return;
+				minPlotter.saveGraph(filename, PlotExportUtil.FILE_TYPES[dialog.getFilterIndex()]);
+			}
+		};
+		saveGraph = new DropDownAction();
+		saveGraph.setText(saveButtonText);
+		saveGraph.setToolTipText(saveToolTipText);
+		saveGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(saveImagePath));
+		saveGraph.add(saveMaj);
+		saveGraph.add(saveMin);
+		
+		copyMaj = new Action("Copy major profiles plot"){
+			@Override
+			public void run(){
+				majPlotter.copyGraph();
+			}
+		};
+		copyMin = new Action("Copy minor profiles plot") {
+			@Override
+			public void run() {
+				minPlotter.copyGraph();
+			}
+		};
+		copyGraph = new DropDownAction();
+		copyGraph.setText(copyButtonText);
+		copyGraph.setToolTipText(copyToolTipText);
+		copyGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(copyImagePath));
+		copyGraph.add(copyMaj);
+		copyGraph.add(copyMin);
+		
+		printMaj = new Action("Print major profiles plot"){
+			@Override
+			public void run(){
+				majPlotter.printGraph();
+			}
+		};
+		printMin = new Action("Print minor profiles plot") {
+			@Override
+			public void run() {
+				minPlotter.printGraph();
+			}
+		};
+		printGraph = new DropDownAction();
+		printGraph.setToolTipText(printToolTipText);
+		printGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(printImagePath));
+		printGraph.add(printMaj);
+		printGraph.add(printMin);
 
+	}
+	
+	private void createHistoryActions(){
+		addtoHistory = new Action() {
+			@Override
+			public void run() {
+				addToHistory();
+			}
+		};
+		addtoHistory.setText("Add current profiles to history");
+		addtoHistory.setToolTipText("Add the current profiles to the plot history");
+		addtoHistory.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/basket_put.png"));
+
+		removefromHistory = new Action() {
+			@Override
+			public void run() {
+				removeFromHistory();
+			}
+		};
+		removefromHistory.setText("Remove last profiles from history");
+		removefromHistory.setToolTipText("Remove the last profiles from the plot history");
+		removefromHistory.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/basket_remove.png"));
+	}
+
+	private void createPushPlotActions() {
+		final IWorkbenchPartSite site = EclipseUtils.getPage().getActivePart().getSite();
+		final String fullPlotID = "uk.ac.diamond.scisoft.analysis.rcp.plotView";
+		pushMajorPlottingDataPlot1 = new Action() {
+			@Override
+			public void run() {
+					pushPlottingData(site, fullPlotID+"1",0);
+			}
+		};
+		pushMajorPlottingDataPlot1.setText("Push major profiles to plot 1");
+		final org.eclipse.swt.graphics.Image icon = SWTResourceManager.getImage(StaticScanPlotView.class,"/icons/chart_curve_add.png");
+		final ImageDescriptor d = ImageDescriptor.createFromImage(icon);
+		pushMajorPlottingDataPlot1.setImageDescriptor(d);
+		pushMajorPlottingDataPlot1.setToolTipText("Push major profiles to plot 1");
+		
+		pushMajorPlottingDataPlot2 = new Action() {
+			@Override
+			public void run() {
+					pushPlottingData(site, fullPlotID+"2",0);
+			}
+		};
+		pushMajorPlottingDataPlot2.setText("Push major profiles to plot 2");
+		pushMajorPlottingDataPlot2.setImageDescriptor(d);
+		pushMajorPlottingDataPlot2.setToolTipText("Push major profiles to plot 2");
+		
+		pushMinorPlottingDataPlot1 = new Action() {
+			@Override
+			public void run() {
+					pushPlottingData(site, fullPlotID+"1",1);
+			}
+		};
+		pushMinorPlottingDataPlot1.setText("Push minor profiles to plot 1");
+		pushMinorPlottingDataPlot1.setImageDescriptor(d);
+		pushMinorPlottingDataPlot1.setToolTipText("Push minor profiles to plot 1");
+		
+		pushMinorPlottingDataPlot2 = new Action() {
+			@Override
+			public void run() {
+					pushPlottingData(site, fullPlotID+"2",1);
+			}
+		};
+		pushMinorPlottingDataPlot2.setText("Push minor profiles to plot 2");
+		pushMinorPlottingDataPlot2.setImageDescriptor(d);
+		pushMinorPlottingDataPlot2.setToolTipText("Push minor profiles to plot 2");
+		
+		pushPlottingData = new DropDownAction();
+		pushPlottingData.setToolTipText("Push plotting to plot 1 or 2");
+		pushPlottingData.setImageDescriptor(d);
+		pushPlottingData.add(pushMajorPlottingDataPlot1);
+		pushPlottingData.add(pushMajorPlottingDataPlot2);
+		pushPlottingData.add(pushMinorPlottingDataPlot1);
+		pushPlottingData.add(pushMinorPlottingDataPlot2);
+	}
 }
