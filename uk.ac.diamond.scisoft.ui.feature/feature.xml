@@ -3,7 +3,7 @@
       id="uk.ac.diamond.scisoft.ui.feature"
       label="scisoft ui"
       version="1.1.0.qualifier"
-      provider-name="Diamond Light Source Ltd.">
+      provider-name="Diamond Light Source">
 
    <description url="http://www.opengda.org/">
       This feature contains all the analysis functionality including all the ui elements, but none of the eclipse contributions.
