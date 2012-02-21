@@ -25,6 +25,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -45,6 +46,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.swtdesigner.SWTResourceManager;
 
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
@@ -68,9 +71,11 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
+import uk.ac.diamond.scisoft.analysis.rcp.views.plot.StaticScanPlotView;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROIList;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
+import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 /**
  * Composite to show line profiles of main plotter
@@ -82,6 +87,8 @@ public class LineProfile extends SidePlotProfile {
 
 	private static final double lineStep = 0.5;
 
+	private Action pushPlottingDataPlot1;
+	private Action pushPlottingDataPlot2;
 	private Action addtoHistory;
 	private Action removefromHistory;
 	private Action saveGraph;
@@ -911,28 +918,38 @@ public class LineProfile extends SidePlotProfile {
 	@Override
 	public void generateToolActions(IToolBarManager manager) {
 		createExportActions();
-		createExtraActions();
+		createHistoryActions();
+		createPushPlotActions();
+		
 		manager.add(new Separator(getClass().getName()+printButtonText));
 		manager.add(saveGraph);
 		manager.add(copyGraph);
 		manager.add(printGraph);
-		manager.add(new Separator(getClass().getName()+"extraActions"));
+		manager.add(new Separator(getClass().getName()+"historyActions"));
 		manager.add(addtoHistory);
-		manager.add(removefromHistory);	
+		manager.add(removefromHistory);
+		manager.add(new Separator(getClass().getName()+"pushPlotActions"));
+		manager.add(pushPlottingDataPlot1);
+		manager.add(pushPlottingDataPlot2);		
 	}
 	
 	@Override
 	public void generateMenuActions(IMenuManager manager, final IWorkbenchPartSite site) {
 		createExportActions();
-		createExtraActions();
-
+		createHistoryActions();
+		createPushPlotActions();
+		
 		manager.add(new Separator(getClass().getName()+printButtonText));
 		manager.add(saveGraph);
 		manager.add(copyGraph);
 		manager.add(printGraph);
-		manager.add(new Separator(getClass().getName()+"extraActions"));
+		manager.add(new Separator(getClass().getName()+"historyActions"));
 		manager.add(addtoHistory);
 		manager.add(removefromHistory);
+		manager.add(new Separator(getClass().getName()+"pushPlotActions"));
+		manager.add(pushPlottingDataPlot1);
+		manager.add(pushPlottingDataPlot2);
+	
 	}
 
 	private void createExportActions(){
@@ -994,7 +1011,7 @@ public class LineProfile extends SidePlotProfile {
 
 	}
 	
-	private void createExtraActions(){
+	private void createHistoryActions(){
 		addtoHistory = new Action() {
 			@Override
 			public void run() {
@@ -1014,6 +1031,32 @@ public class LineProfile extends SidePlotProfile {
 		removefromHistory.setText("Remove last profiles from history");
 		removefromHistory.setToolTipText("Remove the last profiles from the plot history");
 		removefromHistory.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/basket_remove.png"));
+	}
 
+	private void createPushPlotActions() {
+		final IWorkbenchPartSite site = EclipseUtils.getPage().getActivePart().getSite();
+		final String fullPlotID = "uk.ac.diamond.scisoft.analysis.rcp.plotView";
+		pushPlottingDataPlot1 = new Action() {
+			@Override
+			public void run() {
+					pushPlottingData(site, fullPlotID+"1",0);
+			}
+		};
+		pushPlottingDataPlot1.setText("Push line profiles to plot 1");
+		final org.eclipse.swt.graphics.Image icon = SWTResourceManager.getImage(StaticScanPlotView.class,"/icons/chart_curve_add.png");
+		final ImageDescriptor d = ImageDescriptor.createFromImage(icon);
+		pushPlottingDataPlot1.setImageDescriptor(d);
+		pushPlottingDataPlot1.setToolTipText("Push line profiles to plot 1");
+		
+		pushPlottingDataPlot2 = new Action() {
+			@Override
+			public void run() {
+					pushPlottingData(site, fullPlotID+"2",0);
+			}
+		};
+		pushPlottingDataPlot2.setText("Push line profiles to plot 2");
+		pushPlottingDataPlot2.setImageDescriptor(d);
+		pushPlottingDataPlot2.setToolTipText("Push line profiles to plot 2");
+		
 	}
 }
