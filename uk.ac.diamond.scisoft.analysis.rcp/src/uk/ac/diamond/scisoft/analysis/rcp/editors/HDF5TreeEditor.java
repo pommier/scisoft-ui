@@ -114,7 +114,6 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 		IWorkbenchPartSite site = getSite();
 		hdfxp = new HDF5TreeExplorer(parent, site, null);
 		if (!loadHDF5Tree()) {
-			
 			return;
 		}
 		site.setSelectionProvider(hdfxp);
