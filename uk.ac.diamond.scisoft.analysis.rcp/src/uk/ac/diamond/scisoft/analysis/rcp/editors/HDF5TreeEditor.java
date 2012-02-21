@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IReusableEditor;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.IWorkbenchPart;
@@ -48,7 +49,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorTy
 import uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 
-public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
+public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, IReusableEditor{
 
 	private HDF5TreeExplorer hdfxp;
 	private File file;
@@ -79,6 +80,14 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 		setSite(site);
 		setInput(input);
 	}
+	
+	/**
+	 * H5MultiEditor requires this to be public
+	 */
+    @Override
+	public void setInput(IEditorInput input) {
+        super.setInput(input);
+    }
 
 	protected boolean loadHDF5Tree() {
 		if (getHDF5Tree() != null)
