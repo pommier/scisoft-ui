@@ -57,6 +57,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DAppearance;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DGraphTable;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotColorUtility;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotException;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DropDownAction;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.OverlayType;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.Plot1DStyles;
@@ -87,6 +88,7 @@ public class LineProfile extends SidePlotProfile {
 
 	private static final double lineStep = 0.5;
 
+	private DropDownAction pushPlottingData;
 	private Action pushPlottingDataPlot1;
 	private Action pushPlottingDataPlot2;
 	private Action addtoHistory;
@@ -929,8 +931,7 @@ public class LineProfile extends SidePlotProfile {
 		manager.add(addtoHistory);
 		manager.add(removefromHistory);
 		manager.add(new Separator(getClass().getName()+"pushPlotActions"));
-		manager.add(pushPlottingDataPlot1);
-		manager.add(pushPlottingDataPlot2);		
+		manager.add(pushPlottingData);
 	}
 	
 	@Override
@@ -1058,5 +1059,11 @@ public class LineProfile extends SidePlotProfile {
 		pushPlottingDataPlot2.setImageDescriptor(d);
 		pushPlottingDataPlot2.setToolTipText("Push line profiles to plot 2");
 		
+		pushPlottingData = new DropDownAction();
+		pushPlottingData.setToolTipText("Push plotting to plot 1 or 2");
+		pushPlottingData.setImageDescriptor(d);
+		pushPlottingData.add(pushPlottingDataPlot1);
+		pushPlottingData.add(pushPlottingDataPlot2);
+
 	}
 }
