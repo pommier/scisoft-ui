@@ -247,8 +247,9 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 
 	@Override
 	public void loadFileAndDisplay(String fileName, IMonitor mon) throws Exception {
-		
-		HDF5File ltree = new HDF5Loader(fileName).loadTree(mon);
+		HDF5Loader l = new HDF5Loader(fileName);
+		l.setAsyncLoad(true);
+		HDF5File ltree = l.loadTree(mon);
 		if (ltree != null) {
 			holder = new DataHolder();
 			Map<String, ILazyDataset> map = HDF5Loader.createDatasetsMap(ltree.getGroup());
