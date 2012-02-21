@@ -19,19 +19,18 @@ package uk.ac.diamond.sda.navigator.decorator;
 import gda.analysis.io.ScanFileHolderException;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.jface.viewers.LabelProvider;
-
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.io.DataHolder;
+import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.StringDataset;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 
 public class LightweightNXSScanCmdDecorator extends LabelProvider implements ILightweightLabelDecorator {
@@ -93,61 +92,62 @@ public class LightweightNXSScanCmdDecorator extends LabelProvider implements ILi
 	public String[][] getMyHDF5TitleAndScanCmd(String fullpath) throws Exception{
 		return getHDF5TitleAndScanCmd(fullpath);
 	}
-	
+
+	private static final String scanCmdName = "scan_command";
+	private static final String titleName = "title";
+
 	private String[][] getHDF5TitleAndScanCmd(String fullpath) throws Exception {
-		String hdf5scanCommand = "";
-		String hdf5Title = "";
+		List<ILazyDataset> list = new HDF5Loader(fullpath).findDatasets(new String[] {scanCmdName, titleName}, 1, null);
 
-		DataHolder dataHolder= new HDF5Loader(fullpath).loadFile();
-
-		List<String> list = getAllRootEntries(dataHolder.getNames());
-		String[] scanCmd = new String[list.size()];
-		scanCmd=initStringArray(scanCmd);
-		String[] titles = new String[list.size()];
-		titles=initStringArray(titles);
-		
-		String[][] listScanCmdAndTitles = new String[2][list.size()];
-		int i=0;
-		for (Iterator<String> iterator = list.iterator(); iterator.hasNext();) {
-			String string = iterator.next();
-			// scan command
-			if (dataHolder.contains("/" + string + "/scan_command")) {
-				hdf5scanCommand = dataHolder.getDataset("/" + string + "/scan_command").toString();
-				scanCmd[i] = "\nScanCmd" + (i+1) + ": " + hdf5scanCommand;// display of the string on a new line
+		List<String> scans = new ArrayList<String>();
+		List<String> titles = new ArrayList<String>();
+		for (ILazyDataset d : list) {
+			if (d instanceof StringDataset) {
+				String n = d.getName();
+				if (n == null) {
+					continue;
+				}
+				if (n.contains(scanCmdName)) {
+					scans.add(d.toString());
+					if (scans.size() > titles.size() + 1)
+						titles.add(null); // bulk out list
+				} else if (n.contains(titleName)) {
+					titles.add(d.toString());
+					if (titles.size() > scans.size() + 1)
+						scans.add(null);
+				}
 			}
-			// title
-			if (dataHolder.contains("/" + string + "/title")) {
-				hdf5Title = dataHolder.getDataset("/" + string + "/title").toString();
-				titles[i] = "\nTitle" + (i+1) + ": " + hdf5Title;// display of the string on a new line
+		}
+
+		int s = scans.size();
+		int t = titles.size();
+		if (s != t) {
+			// correct size of lists
+//			logger.warn("Scans and titles not in sync!");
+			while (s < t) {
+				scans.add(null);
+				s++;
 			}
-			if (titles[i].length() > 100) // restrict to 100 characters
-				titles[i] = titles[i].substring(0, 100) + "...";
-			if (scanCmd[i].length() > 100) // restrict to 100 characters
-				scanCmd[i] = scanCmd[i].substring(0, 100) + "...";
-			
-			listScanCmdAndTitles[0][i] = titles[i];
-			listScanCmdAndTitles[1][i] = scanCmd[i];
-			i++;
+			while (t < s) {
+				titles.add(null);
+				t++;
+			}
 		}
 
-		return listScanCmdAndTitles;
-
-	}
-	
-	private String[] initStringArray(String[] array){
-		for (int i = 0; i < array.length; i++) {
-			array[i]="";
+		String[][] results = new String[2][s];
+		for (int i = 0; i < s; i++) {
+			String str = scans.get(i);
+			if (str != null && str.length() > 100) { // restrict to 100 characters
+				str = str.substring(0,  100) + "...";
+			}
+			results[0][i] = str == null ? "" : "\nScanCmd" + (i+1) + ": " + str;
+			str = titles.get(i);
+			if (str != null && str.length() > 100) { // restrict to 100 characters
+				str = str.substring(0,  100) + "...";
+			}
+			results[1][i] = str == null ? "" : "\nTitle" + (i+1) + ": " + str;
 		}
-		return array;
-	}
 
-	private List<String> getAllRootEntries(String[] oldFullPaths) {
-		List<String> list = new ArrayList<String>();
-		for (int i = 0; i < oldFullPaths.length; i++) {
-			String[] tmp = oldFullPaths[i].split("/");
-			if (!list.contains(tmp[1]))
-				list.add(tmp[1]);
-		}
-		return list;
+		return results;
 	}
 }
