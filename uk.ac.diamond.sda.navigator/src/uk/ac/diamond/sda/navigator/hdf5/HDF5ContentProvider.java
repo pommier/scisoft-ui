@@ -49,7 +49,7 @@ import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.Tree;
 import uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode;
 
-public class HDF5ContentProvider implements ITreeContentProvider, IResourceChangeListener, IResourceDeltaVisitor {
+public class HDF5ContentProvider implements ITreeContentProvider {
 	private StructuredViewer viewer;
 	private String DELIMITER = "/";
 	public static final String H5_EXT = "h5"; //$NON-NLS-1$
@@ -65,7 +65,6 @@ public class HDF5ContentProvider implements ITreeContentProvider, IResourceChang
 	private static final Logger logger = LoggerFactory.getLogger(HDF5ContentProvider.class);
 
 	public HDF5ContentProvider() {
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(this, IResourceChangeEvent.POST_CHANGE);
 	}
 
 	@SuppressWarnings("unused")
@@ -125,7 +124,6 @@ public class HDF5ContentProvider implements ITreeContentProvider, IResourceChang
 	@Override
 	public void dispose() {
 		cachedModelMap.clear();
-		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
 	}
 
 	@Override
@@ -135,43 +133,6 @@ public class HDF5ContentProvider implements ITreeContentProvider, IResourceChang
 		}
 
 		viewer = (StructuredViewer) aViewer;
-	}
-
-	@Override
-	public void resourceChanged(IResourceChangeEvent event) {
-		IResourceDelta delta = event.getDelta();
-		try {
-			delta.accept(this);
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public boolean visit(IResourceDelta delta) throws CoreException {
-		IResource source = delta.getResource();
-		switch (source.getType()) {
-		case IResource.ROOT:
-		case IResource.PROJECT:
-		case IResource.FOLDER:
-			return true;
-		case IResource.FILE:
-			final IFile file = (IFile) source;
-			if (H5_EXT.equals(file.getFileExtension())||HDF5_EXT.equals(file.getFileExtension())||NXS_EXT.equals(file.getFileExtension())) {
-
-				loadHDF5Data(file);
-				new UIJob("Update HDF5 Model in CommonViewer") { //$NON-NLS-1$
-					@Override
-					public IStatus runInUIThread(IProgressMonitor monitor) {
-						if (viewer != null && !viewer.getControl().isDisposed())
-							viewer.refresh(file);
-						return Status.OK_STATUS;
-					}
-				}.schedule();
-			}
-			return false;
-		}
-		return false;
 	}
 
 	private void loadHDF5Data(IFile file) {
