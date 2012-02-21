@@ -75,6 +75,8 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 
 	private boolean isOldGDA = false; // true if file has NXentry/program_name < GDAVERSION
 
+	private HDF5Loader loader = null;
+
 	public HDF5TreeExplorer(Composite parent, IWorkbenchPartSite partSite, ISelectionChangedListener valueSelect) {
 		super(parent, partSite, valueSelect);
 
@@ -221,6 +223,9 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 
 	@Override
 	public void dispose() {
+		if (loader != null)
+			loader.stopAsyncLoading();
+
 		cListeners.clear();
 		super.dispose();
 	}
@@ -247,9 +252,9 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 
 	@Override
 	public void loadFileAndDisplay(String fileName, IMonitor mon) throws Exception {
-		HDF5Loader l = new HDF5Loader(fileName);
-		l.setAsyncLoad(true);
-		HDF5File ltree = l.loadTree(mon);
+		loader = new HDF5Loader(fileName);
+		loader.setAsyncLoad(true);
+		HDF5File ltree = loader.loadTree(mon);
 		if (ltree != null) {
 			holder = new DataHolder();
 			Map<String, ILazyDataset> map = HDF5Loader.createDatasetsMap(ltree.getGroup());
