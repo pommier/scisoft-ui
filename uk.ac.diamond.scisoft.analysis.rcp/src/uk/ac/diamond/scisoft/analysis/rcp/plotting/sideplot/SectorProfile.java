@@ -17,12 +17,17 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
 import java.awt.Color;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -36,6 +41,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
@@ -44,9 +50,16 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.swtdesigner.SWTResourceManager;
+
 import uk.ac.diamond.scisoft.analysis.coords.SectorCoords;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.function.Centroid;
+import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
+import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
+import uk.ac.diamond.scisoft.analysis.plotserver.DataBeanException;
+import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AxisValues;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
@@ -55,6 +68,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DAppearance;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DGraphTable;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotColorUtility;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotException;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DropDownAction;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.OverlayType;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.Plot1DStyles;
@@ -66,11 +80,15 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.SectorROIData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.SectorROIHandler;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.SectorROITableViewer;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
 import uk.ac.diamond.scisoft.analysis.rcp.queue.InteractiveJobAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
+import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
+import uk.ac.diamond.scisoft.analysis.rcp.views.plot.StaticScanPlotView;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.scisoft.analysis.roi.SectorROI;
 import uk.ac.diamond.scisoft.analysis.roi.SectorROIList;
+import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 public class SectorProfile extends SidePlotProfile {
 
@@ -78,6 +96,37 @@ public class SectorProfile extends SidePlotProfile {
 
 	private DataSetPlotter radPlotter;
 	private DataSetPlotter aziPlotter;
+
+	private Composite parent;
+
+	private Action saveRad;
+	private Action saveAzi;
+	private Action copyRad;
+	private Action copyAzi;
+	private Action printRad;
+	private Action printAzi;
+	private Action addtoHistory;
+	private Action removefromHistory;
+	private Action pushRadialPlottingDataPlot1;
+	private Action pushAzimuthPlottingDataPlot1;
+	private Action pushRadialPlottingDataPlot2;
+	private Action pushAzimuthPlottingDataPlot2;
+	private DropDownAction saveGraph;
+	private DropDownAction copyGraph;
+	private DropDownAction printGraph;
+	private DropDownAction pushPlottingData;
+	private MenuManager saveMenu;
+	private MenuManager copyMenu;
+	private MenuManager printMenu;
+	private String printButtonText = ResourceProperties.getResourceString("PRINT_BUTTON");
+	private String printToolTipText = ResourceProperties.getResourceString("PRINT_TOOLTIP");
+	private String printImagePath = ResourceProperties.getResourceString("PRINT_IMAGE_PATH");
+	private String copyButtonText = ResourceProperties.getResourceString("COPY_BUTTON");
+	private String copyToolTipText = ResourceProperties.getResourceString("COPY_TOOLTIP");
+	private String copyImagePath = ResourceProperties.getResourceString("COPY_IMAGE_PATH");
+	private String saveButtonText = ResourceProperties.getResourceString("SAVE_BUTTON");
+	private String saveToolTipText = ResourceProperties.getResourceString("SAVE_TOOLTIP");
+	private String saveImagePath = ResourceProperties.getResourceString("SAVE_IMAGE_PATH");
 
 	/**
 	 * possible handle states
@@ -186,8 +235,9 @@ public class SectorProfile extends SidePlotProfile {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		super.createPartControl(parent);
-		container = new Composite(parent, SWT.NONE);
+		this.parent = parent;
+		super.createPartControl(this.parent);
+		container = new Composite(this.parent, SWT.NONE);
 		container.setLayout(new FillLayout());
 
 		final SashForm ss = new SashForm(container, SWT.VERTICAL);
@@ -1477,10 +1527,200 @@ public class SectorProfile extends SidePlotProfile {
 	}
 
 	@Override
-	public void generateMenuActions(IMenuManager manager,final IWorkbenchPartSite site) {
-		final String fullPlotID = "uk.ac.diamond.scisoft.analysis.rcp.plotView";
+	DataBean getPlottingData(int profileNr) {
+		DataBean dBean = null;
 		
-		Action pushRadialPlottingDataPlot1 = new Action() {
+		if (roiData != null && roiData.getProfileData().length > profileNr) {
+			dBean = new DataBean(GuiPlotMode.ONED);
+			DataSetWithAxisInformation axisData = new DataSetWithAxisInformation();
+			AxisMapBean axisMapBean = new AxisMapBean(AxisMapBean.DIRECT);
+
+			dBean.addAxis(AxisMapBean.XAXIS, roiData.getXAxis(profileNr).toDataset());
+			axisMapBean.setAxisID(new String[] {AxisMapBean.XAXIS});
+			axisData.setData(roiData.getProfileData(profileNr));
+			axisData.setAxisMap(axisMapBean);
+
+			try {
+				dBean.addData(axisData);
+			} catch (DataBeanException e) {
+				logger.debug("Could not add data to bean");
+				e.printStackTrace();
+				dBean = null;
+			}
+		}
+		return dBean;
+	}
+	
+	@Override
+	public void generateToolActions(IToolBarManager manager) {
+		createExportActions();
+		createHistoryActions();
+		createPushPlotActions();
+		
+		manager.add(new Separator(getClass().getName()+printButtonText));
+		manager.add(saveGraph);
+		manager.add(copyGraph);
+		manager.add(printGraph);
+		manager.add(new Separator(getClass().getName()+"pushHistoryActions"));
+		manager.add(addtoHistory);
+		manager.add(removefromHistory);
+		manager.add(new Separator(getClass().getName()+"pushPlotActions"));
+		manager.add(pushPlottingData);
+	}
+	
+	@Override
+	public void generateMenuActions(IMenuManager manager,final IWorkbenchPartSite site) {
+		createExportActions();
+		createHistoryActions();
+		createPushPlotActions();
+		
+		manager.add(new Separator(getClass().getName()+printButtonText));
+		saveMenu = new MenuManager(saveButtonText, AnalysisRCPActivator.getImageDescriptor(saveImagePath), saveButtonText);
+		saveMenu.add(saveRad);
+		saveMenu.add(saveAzi);
+		manager.add(saveMenu);
+		copyMenu = new MenuManager(copyButtonText, AnalysisRCPActivator.getImageDescriptor(copyImagePath), copyButtonText);
+		copyMenu.add(copyRad);
+		copyMenu.add(copyAzi);
+		manager.add(copyMenu);
+		printMenu = new MenuManager(printButtonText, AnalysisRCPActivator.getImageDescriptor(printImagePath), printButtonText);
+		printMenu.add(printRad);
+		printMenu.add(printAzi);
+		manager.add(printMenu);
+		manager.add(new Separator(getClass().getName()+"pushHistoryActions"));
+		manager.add(addtoHistory);
+		manager.add(removefromHistory);
+		manager.add(new Separator(getClass().getName()+"pushPlotActions"));
+		manager.add(pushRadialPlottingDataPlot1);
+		manager.add(pushAzimuthPlottingDataPlot1);	
+		manager.add(pushRadialPlottingDataPlot2);
+		manager.add(pushAzimuthPlottingDataPlot2);	
+
+	}
+		
+	private void createExportActions(){
+		saveRad = new Action("Save radial datasets plot") {
+			private String filename;
+			@Override
+			public void run() {
+				FileDialog dialog = new FileDialog (parent.getShell(), SWT.SAVE);
+				String [] filterExtensions = new String [] {"*.jpg;*.JPG;*.jpeg;*.JPEG;*.png;*.PNG", "*.ps;*.eps","*.svg;*.SVG"};
+				if (filename!=null) {
+					dialog.setFilterPath((new File(filename)).getParent());
+				} else {
+					String filterPath = "/";
+					String platform = SWT.getPlatform();
+					if (platform.equals("win32") || platform.equals("wpf")) {
+						filterPath = "c:\\";
+					}
+					dialog.setFilterPath (filterPath);
+				}
+				dialog.setFilterNames (PlotExportUtil.FILE_TYPES);
+				dialog.setFilterExtensions (filterExtensions);
+				filename = dialog.open();
+				if (filename == null)
+					return;
+				radPlotter.saveGraph(filename, PlotExportUtil.FILE_TYPES[dialog.getFilterIndex()]);
+			}
+		};
+		saveAzi = new Action("Save azimuth datasets plot") {
+			private String filename;
+			@Override
+			public void run() {
+				FileDialog dialog = new FileDialog (parent.getShell(), SWT.SAVE);
+				String [] filterExtensions = new String [] {"*.jpg;*.JPG;*.jpeg;*.JPEG;*.png;*.PNG", "*.ps;*.eps","*.svg;*.SVG"};
+				if (filename!=null) {
+					dialog.setFilterPath((new File(filename)).getParent());
+				} else {
+					String filterPath = "/";
+					String platform = SWT.getPlatform();
+					if (platform.equals("win32") || platform.equals("wpf")) {
+						filterPath = "c:\\";
+					}
+					dialog.setFilterPath (filterPath);
+				}
+				dialog.setFilterNames (PlotExportUtil.FILE_TYPES);
+				dialog.setFilterExtensions (filterExtensions);
+				filename = dialog.open();
+				if (filename == null)
+					return;
+				aziPlotter.saveGraph(filename, PlotExportUtil.FILE_TYPES[dialog.getFilterIndex()]);
+			}
+		};
+		saveGraph = new DropDownAction();
+		saveGraph.setText(saveButtonText);
+		saveGraph.setToolTipText(saveToolTipText);
+		saveGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(saveImagePath));
+		saveGraph.add(saveRad);
+		saveGraph.add(saveAzi);
+		
+		copyRad = new Action("Copy radial datasets plot"){
+			@Override
+			public void run(){
+				radPlotter.copyGraph();
+			}
+		};
+		copyAzi = new Action("Copy azimuth datasets plot") {
+			@Override
+			public void run() {
+				aziPlotter.copyGraph();
+			}
+		};
+		copyGraph = new DropDownAction();
+		copyGraph.setText(copyButtonText);
+		copyGraph.setToolTipText(copyToolTipText);
+		copyGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(copyImagePath));
+		copyGraph.add(copyRad);
+		copyGraph.add(copyAzi);
+		
+		printRad = new Action("Print radial datasets plot"){
+			@Override
+			public void run(){
+				radPlotter.printGraph();
+			}
+		};
+		printAzi = new Action("Print azimuth datasets plot") {
+			@Override
+			public void run() {
+				aziPlotter.printGraph();
+			}
+		};
+		printGraph = new DropDownAction();
+		printGraph.setToolTipText(printToolTipText);
+		printGraph.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(printImagePath));
+		printGraph.add(printRad);
+		printGraph.add(printAzi);
+
+	}
+	
+	private void createHistoryActions(){
+		addtoHistory = new Action() {
+			@Override
+			public void run() {
+				addToHistory();
+			}
+		};
+		addtoHistory.setText("Add current profiles to history");
+		addtoHistory.setToolTipText("Adds the current profiles to the plot history");
+		addtoHistory.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/basket_put.png"));
+
+		removefromHistory = new Action() {
+			@Override
+			public void run() {
+				removeFromHistory();
+			}
+		};
+		removefromHistory.setText("Remove last profiles from history");
+		removefromHistory.setToolTipText("Remove the last profiles from the plot history");
+		removefromHistory.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/basket_remove.png"));
+	}
+
+	private void createPushPlotActions() {
+		final String fullPlotID = "uk.ac.diamond.scisoft.analysis.rcp.plotView";
+		final IWorkbenchPartSite site = EclipseUtils.getPage().getActivePart().getSite();
+		final org.eclipse.swt.graphics.Image icon = SWTResourceManager.getImage(StaticScanPlotView.class,"/icons/chart_curve_add.png");
+		final ImageDescriptor d = ImageDescriptor.createFromImage(icon);
+		pushRadialPlottingDataPlot1 = new Action() {
 			@Override
 			public void run() {
 					pushPlottingData(site, fullPlotID+"1",0);
@@ -1488,8 +1728,9 @@ public class SectorProfile extends SidePlotProfile {
 			}
 		};
 		pushRadialPlottingDataPlot1.setText("Push radial datasets to plot 1");
+		pushRadialPlottingDataPlot1.setImageDescriptor(d);
 		pushRadialPlottingDataPlot1.setToolTipText("Push radial datasets to plot 1");
-		Action pushAzimuthPlottingDataPlot1 = new Action() {
+		pushAzimuthPlottingDataPlot1 = new Action() {
 			@Override
 			public void run() {
 					pushPlottingData(site, fullPlotID+"1",1);
@@ -1497,11 +1738,9 @@ public class SectorProfile extends SidePlotProfile {
 			}
 		};
 		pushAzimuthPlottingDataPlot1.setText("Push azimuth datasets to plot 1");
+		pushAzimuthPlottingDataPlot1.setImageDescriptor(d);
 		pushAzimuthPlottingDataPlot1.setToolTipText("Push azimuth datasets to plot 1");
-		manager.add(pushRadialPlottingDataPlot1);
-		manager.add(pushAzimuthPlottingDataPlot1);	
-		
-		Action pushRadialPlottingDataPlot2 = new Action() {
+		pushRadialPlottingDataPlot2 = new Action() {
 			@Override
 			public void run() {
 					pushPlottingData(site, fullPlotID+"2",0);
@@ -1509,8 +1748,9 @@ public class SectorProfile extends SidePlotProfile {
 			}
 		};
 		pushRadialPlottingDataPlot2.setText("Push radial datasets to plot 2");
+		pushRadialPlottingDataPlot2.setImageDescriptor(d);
 		pushRadialPlottingDataPlot2.setToolTipText("Push radial datasets to plot 2");
-		Action pushAzimuthPlottingDataPlot2 = new Action() {
+		pushAzimuthPlottingDataPlot2 = new Action() {
 			@Override
 			public void run() {
 					pushPlottingData(site, fullPlotID+"2",1);
@@ -1518,8 +1758,15 @@ public class SectorProfile extends SidePlotProfile {
 			}
 		};
 		pushAzimuthPlottingDataPlot2.setText("Push azimuth datasets to plot 2");
+		pushAzimuthPlottingDataPlot2.setImageDescriptor(d);
 		pushAzimuthPlottingDataPlot2.setToolTipText("Push azimuth datasets to plot 2");
-		manager.add(pushRadialPlottingDataPlot2);
-		manager.add(pushAzimuthPlottingDataPlot2);	
+		
+		pushPlottingData = new DropDownAction();
+		pushPlottingData.setToolTipText("Push plotting to plot 1 or 2");
+		pushPlottingData.setImageDescriptor(d);
+		pushPlottingData.add(pushRadialPlottingDataPlot1);
+		pushPlottingData.add(pushAzimuthPlottingDataPlot1);
+		pushPlottingData.add(pushRadialPlottingDataPlot2);
+		pushPlottingData.add(pushAzimuthPlottingDataPlot2);
 	}
 }
