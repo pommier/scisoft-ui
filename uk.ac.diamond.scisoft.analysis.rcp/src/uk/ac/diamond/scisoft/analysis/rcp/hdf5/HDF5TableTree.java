@@ -16,8 +16,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.hdf5;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 
 import org.eclipse.jface.viewers.ILabelProviderListener;
@@ -486,31 +484,4 @@ class HDF5LabelProvider implements ITableLabelProvider {
 	public void removeListener(ILabelProviderListener listener) {
 	}
 	
-}
-
-/**
- * Class to act as a filter for nodes of tree
- */
-class TreeFilter {
-	Collection<String> unwantedNodeNames;
-
-	/**
-	 * Constructor that needs an array of the names of unwanted nodes
-	 *
-	 * @param names
-	 */
-	public TreeFilter(String[] names) {
-		unwantedNodeNames = new HashSet<String>();
-
-		for (String n: names)
-			unwantedNodeNames.add(n);
-	}
-
-	/**
-	 * @param node
-	 * @return true if node is not of those unwanted
-	 */
-	public boolean select(String node) {
-		return !unwantedNodeNames.contains(node);
-	}
 }
