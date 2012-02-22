@@ -161,7 +161,7 @@
          </triggerPoints>
          <possibleChildren>
             <or>
-               <instanceof value="uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode"/>
+               <instanceof value="uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink"/>
             </or>
          </possibleChildren>
          <actionProvider
@@ -169,38 +169,6 @@
                id="uk.ac.diamond.sda.navigator.actions.HDF5OpenProvider"/>
       </navigatorContent>
    </extension>
-   <!-- Declare a content extension that renders the contents of a .nxs file -->
-   <!--extension
-         point="org.eclipse.ui.navigator.navigatorContent">
-      <navigatorContent 
-         id="uk.ac.diamond.sda.navigator.nexusContent"
-         name="Nexus File Contents"
-         contentProvider="uk.ac.diamond.sda.navigator.nexus.NexusContentProvider"
-         labelProvider="uk.ac.diamond.sda.navigator.nexus.NexusLabelProvider"
-         activeByDefault="true"
-         icon="icons/prop_ps.gif"
-         priority="normal" >
-         <triggerPoints>
-            <or>
-               <and>
-                  <instanceof value="org.eclipse.core.resources.IResource"/>
-                  <test
-                     forcePluginActivation="true"
-                     property="org.eclipse.core.resources.extension"
-                     value="nxs"/>
-               </and>
-            </or>
-         </triggerPoints>
-         <possibleChildren>
-            <or>
-               <instanceof value="uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode"/>
-            </or>
-         </possibleChildren>
-         <actionProvider
-               class="uk.ac.diamond.sda.navigator.actions.HDF5ActionProvider"
-               id="uk.ac.diamond.sda.navigator.actions.HDF5OpenProvider"/>
-      </navigatorContent>
-   </extension-->
    <!-- Declare a content extension that renders the contents of a .dat file -->
    <extension
          point="org.eclipse.ui.navigator.navigatorContent">
@@ -378,7 +346,7 @@
             state="true">
          <enablement>
             <objectClass
-                  name="uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode">
+               name="uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink">
             </objectClass>
          </enablement>
          <description>
