@@ -20,7 +20,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-import uk.ac.diamond.scisoft.analysis.AnalysisRpcServerProvider;
+import uk.ac.diamond.scisoft.analysis.AnalysisRpcClientProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotWindowManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotWindow;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.multiview.MultiPlotViewTestBase.ThreadRunner.ThreadRunnable;
@@ -41,7 +41,7 @@ public class PlotWindowManagerRPCPluginTest extends PlotWindowManagerPluginTestA
 			@Override
 			public String openView(IWorkbenchPage page, String viewName) {
 				try {
-					return (String) AnalysisRpcServerProvider.getInstance().request(PlotWindow.RPC_SERVICE_NAME,
+					return (String) AnalysisRpcClientProvider.getInstance().request(PlotWindow.RPC_SERVICE_NAME,
 							"openView", null, viewName);
 				} catch (AnalysisRpcException e) {
 					throw new RuntimeException(e);
@@ -51,7 +51,7 @@ public class PlotWindowManagerRPCPluginTest extends PlotWindowManagerPluginTestA
 			@Override
 			public String openDuplicateView(IWorkbenchPage page, String viewName) {
 				try {
-					return (String) AnalysisRpcServerProvider.getInstance().request(PlotWindow.RPC_SERVICE_NAME,
+					return (String) AnalysisRpcClientProvider.getInstance().request(PlotWindow.RPC_SERVICE_NAME,
 							"openDuplicateView", null, viewName);
 				} catch (AnalysisRpcException e) {
 					throw new RuntimeException(e);
@@ -61,7 +61,7 @@ public class PlotWindowManagerRPCPluginTest extends PlotWindowManagerPluginTestA
 			@Override
 			public String[] getOpenViews() {
 				try {
-					return (String[]) AnalysisRpcServerProvider.getInstance().request(PlotWindow.RPC_SERVICE_NAME,
+					return (String[]) AnalysisRpcClientProvider.getInstance().request(PlotWindow.RPC_SERVICE_NAME,
 							"getOpenViews");
 				} catch (AnalysisRpcException e) {
 					throw new RuntimeException(e);
