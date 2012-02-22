@@ -16,9 +16,11 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.PlatformUI;
@@ -28,10 +30,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
+import uk.ac.diamond.scisoft.analysis.AnalysisRpcServerProvider;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.PlotService;
 import uk.ac.diamond.scisoft.analysis.PlotServiceProvider;
+import uk.ac.diamond.scisoft.analysis.PythonHelper;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
@@ -124,5 +128,30 @@ abstract public class RcpPlottingTestBase {
 		// give everything a chance to catch up, should return immediately if there is nothing to do
 		EclipseUtils.delay(5000, true);
 	}
+	
+	public static String getScriptPath(String file) throws Exception {
+		URL script = FileLocator.toFileURL(FileLocator.find(new URL("platform:/plugin/uk.ac.diamond.scisoft.python/test/scisoftpy/" + file)));
+		return script.getPath();
+	}
+	
+	public static String getScisoftPyPath() throws Exception {
+		URL src = FileLocator.toFileURL(FileLocator.find(new URL("platform:/plugin/uk.ac.diamond.scisoft.python/src")));
+		return src.getPath();
+	}
+	
+	public static String[] makeEnv() {
+		int port = AnalysisRpcServerProvider.getInstance().getPort();
+		Assert.assertFalse(port == 0); // Server must be started ok by now, otherwise the script won't successfully connect to anything
+		String[] envp = new String[] { "SCISOFT_RPC_PORT=" + port };
+		return envp;
+	}
+	
+	public static void runPythonFile(String file, boolean failOnAnyOutput) throws Exception {
+		PythonHelper.runPythonFile(getScriptPath(file), new String[] {getScisoftPyPath()}, makeEnv(), failOnAnyOutput);
+	}
 
+	public static void runPythonFileBackground(String file) throws Exception {
+		PythonHelper.runPythonFileBackground(getScriptPath(file), new String[] {getScisoftPyPath()}, makeEnv());
+	}
+	
 }

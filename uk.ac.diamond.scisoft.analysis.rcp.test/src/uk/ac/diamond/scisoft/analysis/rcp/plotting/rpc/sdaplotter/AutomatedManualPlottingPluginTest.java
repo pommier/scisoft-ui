@@ -21,7 +21,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
-import uk.ac.diamond.scisoft.analysis.PythonHelper;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.RcpPlottingTestBase;
 
 /**
@@ -35,7 +34,7 @@ public class AutomatedManualPlottingPluginTest extends RcpPlottingTestBase {
 	public void testManualPlotTestOverRpcPython() throws Exception {
 		// Launch the AnalysisRpc server that receives our requests and sends them back to us
 		Assert.assertTrue(ArrayUtils.indexOf(PlotServerProvider.getPlotServer().getGuiNames(), "Plot 1 RPC Python") == -1);
-		PythonHelper.runPythonFile("../uk.ac.diamond.scisoft.python/test/scisoftpy/manual_plot_test_over_rpc.py", true);
+		runPythonFile("manual_plot_test_over_rpc.py", true);
 		Assert.assertTrue(ArrayUtils.indexOf(PlotServerProvider.getPlotServer().getGuiNames(), "Plot 1 RPC Python") != -1);
 	}
 
@@ -43,7 +42,7 @@ public class AutomatedManualPlottingPluginTest extends RcpPlottingTestBase {
 	public void testManualPlotTestPython() throws Exception {
 		// Launch the AnalysisRpc server that receives our requests and sends them back to us
 		Assert.assertTrue(ArrayUtils.indexOf(PlotServerProvider.getPlotServer().getGuiNames(), "Plot 1 DNP Python") == -1);
-		PythonHelper.runPythonFile("../uk.ac.diamond.scisoft.python/test/scisoftpy/manual_plot_test.py", true);
+		runPythonFile("manual_plot_test.py", true);
 		Assert.assertTrue(ArrayUtils.indexOf(PlotServerProvider.getPlotServer().getGuiNames(), "Plot 1 DNP Python") != -1);
 	}
 

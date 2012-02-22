@@ -25,7 +25,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
-import uk.ac.diamond.scisoft.analysis.PythonHelper;
 import uk.ac.diamond.scisoft.analysis.PythonHelper.PythonRunInfo;
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
@@ -72,8 +71,7 @@ public class AllPyPlotMethodsPluginTest extends RcpPlottingTestBase {
 		redirectPlotter = new ReDirectOverRpcPlotterImpl();
 
 		// Launch the AnalysisRpc server that receives our requests and sends them back to us
-		pythonRunInfo = PythonHelper
-				.runPythonFileBackground("../uk.ac.diamond.scisoft.python/test/scisoftpy/loopback.py");
+		runPythonFileBackground("loopback.py");
 	}
 
 	public AllPyPlotMethodsPluginTest() {
