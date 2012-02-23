@@ -16,7 +16,7 @@
            Invoke the tests
          ==================================================================== -->
 
-    <target name="junit-tests" depends="toolCheck, guess-and-set-ncsa-hdf-context, set-test-base">
+    <target name="junit-tests" depends="toolCheck, set-ncsa-hdf-context-SDA-else-GDA, set-test-base">
         <property name="test.libs.location" value="${plugins.dir}/uk.ac.gda.libs" />  <!-- required by JythonInterpreterUtils in uk.ac.diamond.scisoft.analysis.rcp -->
         <junit-call description="${ant.project.name} Java JUnit tests" maxmemory="1024m">
             <formatter type="xml" />
