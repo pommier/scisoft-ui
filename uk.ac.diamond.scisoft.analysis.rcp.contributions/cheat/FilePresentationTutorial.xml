@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet title="Presenting a File's Contents">
+	<intro>
+		<description>
+			Once opened, the contents of your data file is presented in the editor area. The editors
+			opened allow you to examine your data. The editor area can hold many opened files which
+			can be switched between using the tabs at the top of the area. Each editor's presentation
+			of a file's content will differ according to the type of data file format.
+		</description>
+	</intro>
+	<item title="Images">
+		<description>
+			Image file formats will be shown in a table with a row per image and columns containing
+			an image name (possibly defaulting to "image-01", etc), maximum and minimum pixel values
+			and the storage class of each pixel value.
+		</description>
+	</item>
+	<item title="ASCII-based Text Files">
+		<description>
+			Certain column-based ASCII files are also shown in the same way: each column in the file
+			is represented by a row in a table.
+		</description>
+	</item>
+	<item title="HDF5/NeXus Files">
+		<description>
+			HDF5 and NeXus files are displayed as hierarchical trees where branches are indicated
+			by right-pointing triangles. Clicking on the triangles expand the tree and show
+			further branches.
+		</description>
+	</item>
+	<!--
+	<item title="">
+		<description>
+		</description>
+	</item>
+	-->
+</cheatsheet>

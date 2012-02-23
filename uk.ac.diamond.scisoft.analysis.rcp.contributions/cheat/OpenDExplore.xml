@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet title="Opening the Data Exploration Perspective">
+	<intro>
+		<description>
+			<b>DExplore</b>, the data exploration perspective, contains tools to access and present
+			data files, and examine and visualize their contents.
+		</description>
+	</intro>
+	<item title="Open Data Exploration Perspective">
+		<command required="true"
+			serialization="org.eclipse.ui.perspectives.showPerspective(org.eclipse.ui.perspectives.showPerspective.perspectiveId=uk.ac.diamond.scisoft.dataexplorationperspective)"/>
+		<description>
+			To inspect data effectively, the <b>DExplore</b> perspective is the best perspective to
+			use, change to this now. Select Window->Open Perspective->DExplore in the menu bar at
+			the top of the workbench. This step changes the perspective to set up the Eclipse
+			workbench for data exploration. You can click the "Click to Perform" button to have
+			the data exploration perspective opened automatically.
+		</description>
+	</item>
+	<!--
+	<item title="">
+		<description>
+		</description>
+	</item>
+	-->
+</cheatsheet>
