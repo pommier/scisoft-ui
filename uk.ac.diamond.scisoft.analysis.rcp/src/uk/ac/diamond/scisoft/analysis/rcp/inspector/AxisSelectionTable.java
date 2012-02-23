@@ -140,11 +140,8 @@ public class AxisSelectionTable extends Composite {
 			}
 		}
 		axesSelector.refresh();
-		for (TableColumn tCol : asColumns) {
-			if (tCol.getWidth() > 0) {
-				tCol.pack();
-			}
-		}
+
+		getParent().layout();
 	}
 
 	/**

@@ -21,6 +21,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -360,7 +361,7 @@ public class DatasetInspector extends Composite {
 		plotTabFolder.setLayoutData(gd);
 		plotTabFolder.setLayout(new FillLayout());
 		{
-			inspectionTabs = new HashMap<InspectorType, InspectionTab>();
+			inspectionTabs = new LinkedHashMap<InspectorType, InspectionTab>();
 			inspectionTabs.put(InspectorType.LINE, new PlotTab(site, InspectorType.LINE,
 					"1D plot", new String[] { "x-axis" }));
 			inspectionTabs.put(InspectorType.LINESTACK, new PlotTab(site, InspectorType.LINESTACK,
@@ -375,16 +376,16 @@ public class DatasetInspector extends Composite {
 					"2D multiple images", new String[] { "x-axis", "y-axis", "images" }));
 			inspectionTabs.put(InspectorType.VOLUME, new PlotTab(site, InspectorType.VOLUME,
 					"3D volume",  new String[] { "x-axis", "y-axis", "z-axis" }));
-			inspectionTabs.put(InspectorType.DATA1D, new DataTab(site, InspectorType.DATA1D,
-					"1D data", new String[] { "row" }));
-			inspectionTabs.put(InspectorType.DATA2D, new DataTab(site, InspectorType.DATA2D,
-					"2D data", new String[] { "column", "row" }));
 			inspectionTabs.put(InspectorType.POINTS1D, new ScatterTab(site, InspectorType.POINTS1D,
 					"1D scatter plot", new String[] { "x-coord" }));
 			inspectionTabs.put(InspectorType.POINTS2D, new ScatterTab(site, InspectorType.POINTS2D,
 					"2D scatter plot", new String[] { "x-coord", "y-coord" }));
 			inspectionTabs.put(InspectorType.POINTS3D, new ScatterTab(site, InspectorType.POINTS3D,
 					"3D scatter plot", new String[] { "x-coord", "y-coord", "z-coord" }));
+			inspectionTabs.put(InspectorType.DATA1D, new DataTab(site, InspectorType.DATA1D,
+					"1D data", new String[] { "row" }));
+			inspectionTabs.put(InspectorType.DATA2D, new DataTab(site, InspectorType.DATA2D,
+					"2D data", new String[] { "column", "row" }));
 
 			for (InspectorType t : InspectorType.values()) {
 				final InspectionTab tab = inspectionTabs.get(t);

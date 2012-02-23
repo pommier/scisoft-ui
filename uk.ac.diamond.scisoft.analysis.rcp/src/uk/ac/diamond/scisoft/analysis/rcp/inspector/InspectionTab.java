@@ -381,15 +381,14 @@ class PlotTab extends ATab {
 		return sAxes;
 	}
 
-	final protected HashMap<Integer, String> getSelectedComboAxisNames() { // get selected axes to be added into combos
+	// get selected axes to add into combos
+	final protected HashMap<Integer, String> getSelectedComboAxisNames() {
 		HashMap<Integer, String> sAxes = new HashMap<Integer, String>();
 		if (daxes != null) {
 			for (int i = 0, imax = daxes.size(); i < imax; i++) {
 				AxisSelection s = daxes.get(i);
 				String n = s.getSelectedName();
-				//TODO: We need more elaborate selection criteria to disable unsupported multidimensional axis
-				//      selection in image, surface and volume plots
-				if (n != null) {// && s.getSelectedAxis().getSize() > 1) {
+				if (n != null) {
 					sAxes.put(i, n);
 				} else {
 					logger.warn("No axis selection available in {}", s);
@@ -979,7 +978,7 @@ class PlotTab extends ATab {
 					memoryOK = false;
 					logger.warn("Ran out of memory: attempting to reduce memory used...");
 					System.gc();
-					i--;  // try again after memory
+					i--;  // try again after memory reduction
 				}
 			}
 		} catch (Exception e) {
@@ -1152,9 +1151,10 @@ class DataTab extends PlotTab {
  * Scatter point plots
  */
 class ScatterTab extends PlotTab {
-	private final int POINTSIZE = 4;
-	final private static String CONSTANT = "constant";
-	final private static String DATA = "data";
+	private static final int POINTSIZE = 4;
+	private static final String CONSTANT = "constant";
+	private static final String DATA = "data";
+	private boolean useData; // true if we want to use dataset values for size of points
 
 	public ScatterTab(IWorkbenchPartSite partSite, InspectorType type, String title, String[] axisNames) {
 		super(partSite, type, title, axisNames);
@@ -1376,6 +1376,8 @@ class ScatterTab extends PlotTab {
 		if (dataset == null)
 			return;
 
+		useData = !CONSTANT.equals(paxes.get(0).getName());
+
 		Slice[] slices = new Slice[sliceProperties.size()];
 		for (int i = 0; i < slices.length; i++) {
 			slices[i] = sliceProperties.get(i).getValue();
@@ -1388,7 +1390,6 @@ class ScatterTab extends PlotTab {
 		if (slicedAxes == null)
 			return;
 
-		boolean useData = !CONSTANT.equals(paxes.get(0).getName());
 
 		AbstractDataset reorderedData = slicedAndReorderData(monitor, slices, order);
 		if (reorderedData == null)

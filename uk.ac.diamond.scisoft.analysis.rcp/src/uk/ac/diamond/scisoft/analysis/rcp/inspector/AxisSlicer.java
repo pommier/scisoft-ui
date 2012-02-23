@@ -282,6 +282,7 @@ public class AxisSlicer {
 		size.setEnabled(mode);
 		this.reset.setEnabled(resetable);
 		setVisible(true);
+		composite.layout();
 	}
 
 	/**
