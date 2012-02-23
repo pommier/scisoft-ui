@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet title="Dataset Inspector Introduction">
+	<intro>
+		<description>
+			This tutorial will show you how to use the dataset inspector.
+		</description>
+	</intro>
+	<item title="Introduction">
+		<description>
+			The <b>Dataset Inspector</b> view comprises three parts. It divides its pane vertically
+			and further divides the top part horizontally: the top parts are a <b>Data axes
+			selection</b> table and a <b>Inspection tab folder</b> containing a number of examination
+			options; and the bottom part holds a set of <b>Dataset slicing</b> user interface
+			elements.
+			<br/><br/>
+			Begin reading the text above the axes selection table. This shows the inspected dataset
+			that you selected earlier in the editor area. In some cases, a default dataset is
+			automatically selected for your convenience. The text shows the name, the number of
+			dimensions (or rank) and the dimension lengths of the chosen dataset.
+			<br/><br/>
+			Dataset Inspector is designed to cope with multi-dimensional datasets which are held
+			hyper-rectangular arrays. Typically, these datasets are reduced in rank before any
+			inspection. This is done by selecting a subset which is specified by <b>slicing</b>
+			the dataset. With a 1-D dataset, a slice needs a start position, a stop position and a
+			step size - the positions are the index values in the (linear) array that represent the
+			dataset. Similarly, with a N-D dataset, the positions are sets of N index values and
+			the step is the strides taken in each dimension.
+		</description>
+	</item>
+	<item title="Data axes selection">
+		<description>
+			Each dimension in the inspected dataset can be mapped to an axis dataset so that
+			plotting along that dimension has abscissae given by that dataset. There is always a
+			index dataset for each dimension that runs from 0 to L-1 where L is the length of the
+			dimension and it is named "dim:x" where x is the dimension number.
+			<br/><br/>
+			Some file formats stored a number of datasets which can be used as axis datasets. In
+			more complex scenarios, those datasets can be multi-dimensional too. In this case,
+			appropriate slices of those datasets are taken to use as axis datasets and this is
+			indicated by the suffix of ":x" where x is the dimension number of the axis dataset
+			from which slice is taken.
+			<br/><br/>
+			Each row in the axes selection table shows those axis datasets available for that
+			dimension and allows a choice to be made of which to use further on. 
+		</description>
+	</item>
+	<item title="Dataset slicing">
+		<description>
+			An alternative way to specify a slice is to use the number of steps taken in each
+			dimension instead of a stop position. The <b>Dataset slicing</b> part uses this way of
+			selecting a slice. The part has a header row that labels the user interface elements
+			and N rows of elements. These elements are the name of the axis dataset mapped to the
+			dimension, a slider bar to show the extent of the slice and move the start position,
+			the start value derived from the start position and the axis dataset, the number of
+			steps in the slice, the step size and a reset button.
+		</description>
+	</item>
+	<item title="Inspection tab folder">
+		<description>
+			The <b>Inspection tab folder</b> contains many visualization and examination options
+			that allow you to inspect the dataset.
+			<br/><br/>
+			<b>1D plot</b>
+			<br/>
+			This is a single line plotter. The line is plotted in the <b>Dataset Plot</b> pane.
+			The tab has a combo-box to allow you to choose which dimension, as referenced by
+			the axis dataset name, to use for the x-axis.
+			<br/><br/>
+			<b>1D stack plot</b>
+			<br/>
+			This is a multiple lines plotter. The lines are plotted with different colours in
+			the <b>Dataset Plot</b> pane. The tab has two combo-boxes to allow you to choose
+			which dimensions, as referenced by the axis dataset names, to use for x and
+			z axes. The z-axis comes into play when the <b>In 3D</b> option is checked and also
+			it specifies how the lines are selected. This is a maximum of 100 lines that can be
+			plotted. The slicing is shows this fact by setting the number of steps in the
+			dimension used as the z-axis to that limit.
+			<br/><br/>
+			<b>2D image</b>
+			<br/>
+			This is single image plotter. The image is shown in the <b>Dataset Plot</b> pane.
+			The tab has two combo-boxes to allow you to choose which dimensions, as referenced
+			by the axis dataset names, to use for x and y axes.
+			<br/><br/>
+			<b>2D surface</b>
+			<br/>
+			This is a 2D surface plotter. The surface is shown in the <b>Dataset Plot</b> pane.
+			The tab has two combo-boxes to allow you to choose which dimensions, as referenced
+			by the axis dataset names, to use for x and y axes.
+			<br/><br/>
+			<b>2D multiple images</b>
+			<br/>
+			This is a multiple images plotter. The images is shown in the <b>Dataset Plot</b>
+			pane. The tab has three combo-boxes to allow you to choose which dimensions, as
+			referenced by the axis dataset names, to use for x, y and images axes. This is
+			a maximum of 7 images that can be shown. The slicing is shows this fact by setting
+			the number of steps in the dimension used as the images-axis to that limit.
+			<br/><br/>
+			<b>2D image explorer</b>
+			<br/>
+			This is a multiple images explorer. The images is shown in the <b>ImageExplorer
+			View</b> pane. The tab has three combo-boxes to allow you to choose which dimensions,
+			as referenced by the axis dataset names, to use for x, y and images axes.
+			<br/><br/>
+			<b>3D volume</b>
+			<br/>
+			This is a volume renderer. The images is shown in the <b>Remote Volume View</b>
+			pane. The tab has three combo-boxes to allow you to choose which dimensions, as
+			referenced by the axis dataset names, to use for x, y and z axes.
+			<br/><br/>
+			<b>1D scatter plot</b>
+			<br/>
+			This is a 1D points plotter. The points are plotted in the <b>Dataset Plot</b> pane.
+			The tab has two combo-boxes to allow you to choose whether the size of each point
+			is constant or dependent on the dataset values and which dimension, as referenced
+			by the axis dataset name, to use for the x-axis. The y coordinates of the points
+			are determined by values of the inspected dataset.
+			<br/><br/>
+			<b>2D scatter plot</b>
+			<br/>
+			This is a 2D points plotter. The points are plotted in the <b>Dataset Plot</b> pane.
+			The tab has three combo-boxes to allow you to choose whether the size of each point
+			is constant or dependent on the dataset value and which dimensions, as referenced
+			by the axis dataset names, to use for x and y axes.
+			<br/><br/>
+			<b>3D scatter plot</b>
+			<br/>
+			This is a 3D points plotter. The points are plotted in the <b>Dataset Plot</b> pane.
+			The tab has four combo-boxes to allow you to choose whether the size of each point
+			is constant or dependent on the dataset value and which dimensions, as referenced
+			by the axis dataset names, to use for x, y and z axes.
+			<br/><br/>
+			<b>1D data</b>
+			<br/>
+			This is a 1D table viewer. The values are shown in the <b>Dataset table</b> pane.
+			The tab has a combo-box to allow you to choose which dimension, as referenced by
+			the axis dataset name, to use for rows.
+			<br/><br/>
+			<b>2D data</b>
+			<br/>
+			This is a 2D table viewer. The values are shown in the <b>Dataset table</b> pane.
+			The tab has two combo-boxes to allow you to choose which dimensions, as referenced by
+			the axis dataset name, to use for columns and rows.
+		</description>
+	</item>
+</cheatsheet>

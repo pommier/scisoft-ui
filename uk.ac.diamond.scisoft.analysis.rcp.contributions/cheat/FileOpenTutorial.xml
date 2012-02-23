@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet title="Opening a File">
+	<intro>
+		<description>
+			There are several ways to access your data.
+		</description>
+	</intro>
+	<item title="Using File > Open File">
+		<description>
+			The simplest and unstructured way to access your data is to use the File > Open File...
+			menu item. This opens the file selected in the "Open File" dialogue box in the editor
+			area which lies right of the leftmost pane.
+		</description>
+	</item>
+	<item title="Project Explorer">
+		<description>
+			Other ways to access your data are contained in the two tabs in the leftmost pane:
+			<b>Project Explorer</b> and <b>File Navigator</b>. The former allows you to create
+			projects using File > New > Project... menu, selecting Data > Data Project and then
+			filling the dialogue to create a project with a title and a folder that links to the
+			given directory. Try doing this with, for example, <b>/dls/sci-scratch/ExampleData</b>.
+			Note that no files are copied into that project. Also a right-button click in the
+			explorer will allow access to the New menu item too.
+		</description>
+	</item>
+	<item title="File Navigator">
+		<description>
+			The file navigator allows you to browse your computer's file system and navigate to the
+			files of interest.
+		</description>
+	</item>
+	<item title="Access Your Data">
+		<description>
+			In both tabs, single (left-button) mouse clicks select a file. Any metadata held in the
+			file contents and supported by SDA will be display in the metadata view pane situated in
+			the bottom right-hand corner. Double clicking on a file will open that file in the
+			editor area.
+		</description>
+	</item>
+	<!--
+	<item title="">
+		<description>
+		</description>
+	</item>
+	-->
+</cheatsheet>

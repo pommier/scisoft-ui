@@ -164,12 +164,6 @@
       </perspective>
       <perspective
             class="uk.ac.diamond.scisoft.analysis.rcp.DataExplorationPerspective"
-            icon="icons/chart_curve.png"
-            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.perspective1"
-            name="Data Explorer">
-      </perspective>
-      <perspective
-            class="uk.ac.diamond.scisoft.analysis.rcp.DataExplorationPerspective"
             icon="icons/dexplore.png"
             id="uk.ac.diamond.scisoft.dataexplorationperspective"
             name="DExplore">
@@ -1015,13 +1009,6 @@
            </menu>
         </menuContribution-->
         <menuContribution
-            locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions">
-           <menu
-                 id="uk.ac.diamond.scisoft.explorer.group"
-                 label="SDA">
-           </menu>
-        </menuContribution>
-        <menuContribution
             locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?before=additions">
            <command
                  commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.openImageGridView"
@@ -1037,6 +1024,13 @@
                     </and>
               </visibleWhen>
            </command>
+        </menuContribution>
+        <menuContribution
+            locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions">
+           <menu
+                 id="uk.ac.diamond.scisoft.explorer.group"
+                 label="SDA">
+           </menu>
         </menuContribution>
         <menuContribution
             locationURI="popup:uk.ac.diamond.scisoft.explorer.group">
@@ -1438,6 +1432,20 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.contributions.divabeamCalibration"
             name="Beam Centre Calibration">
       </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.divatutorial"
+            composite="false"
+            contentFile="cheat/DiffractionViewerLookAtDifractionData.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.divalookatdata"
+            name="DIVA - Look at diffraction data">
+      </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.divatutorial"
+            composite="false"
+            contentFile="cheat/DiffractionViewerLookAtSpotProfiles.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.divaspotprofile"
+            name="DIVA - Look at Spot Profiles">
+      </cheatsheet>
       <category
             id="uk.ac.diamond.scisoft.analysis.rcp.pythoncategory"
             name="Python/Jython Scripting">
@@ -1457,36 +1465,50 @@
             name="b) Jython Basic Project Tutorial">
       </cheatsheet>
       <category
-            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.DataExplorerCategory"
-            name="Data Explorer Examples">
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.DExploreCategory"
+            name="Data Exploration Tutorials">
       </category>
       <cheatsheet
-            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.DataExplorerCategory"
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.DExploreCategory"
+            composite="true"
+            contentFile="cheat/DExploreIntro.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.DExploreCheatSheet"
+            name="Using DExplore">
+      </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.DExploreCategory"
+            composite="false"
+            contentFile="cheat/FileOpenTutorial.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.FileOpenCheatSheet"
+            name="Using File Open">
+      </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.DExploreCategory"
+            composite="false"
+            contentFile="cheat/FilePresentationTutorial.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.FileEditorCheatSheet"
+            name="Using File Editors">
+      </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.DExploreCategory"
             composite="false"
             contentFile="cheat/LookingAtSRSScansWithPilatusImages.xml"
             id="uk.ac.diamond.scisoft.analysis.rcp.contributions.SRSWithPilatusCheatsheet"
             name="SRS Data Files with Pilatus Images">
       </cheatsheet>
       <cheatsheet
-            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.DataExplorerCategory"
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.DExploreCategory"
             composite="false"
             contentFile="cheat/LookingAtNeXusScans.xml"
             id="uk.ac.diamond.scisoft.analysis.rcp.contributions.NeXusScansCheatsheet"
             name="NeXus Data Files">
       </cheatsheet>
       <cheatsheet
-            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.divatutorial"
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.DExploreCategory"
             composite="false"
-            contentFile="cheat/DiffractionViewerLookAtDifractionData.xml"
-            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.divalookatdata"
-            name="DIVA - Look at diffraction data">
-      </cheatsheet>
-      <cheatsheet
-            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.divatutorial"
-            composite="false"
-            contentFile="cheat/DiffractionViewerLookAtSpotProfiles.xml"
-            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.divaspotprofile"
-            name="DIVA - Look at Spot Profiles">
+            contentFile="cheat/InspectorIntro.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.InspectorCheatSheet"
+            name="Dataset Inspector Introduction">
       </cheatsheet>
    </extension>
 </fragment>
