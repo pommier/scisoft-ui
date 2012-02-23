@@ -16,7 +16,7 @@
            Invoke the tests
          ==================================================================== -->
 
-    <target name="junit-tests" depends="toolCheck, set-test-base">
+    <target name="junit-tests" depends="toolCheck, guess-and-set-ncsa-hdf-context, set-test-base">
         <property name="test.libs.location" value="${plugins.dir}/uk.ac.gda.libs" />  <!-- required by JythonInterpreterUtils in uk.ac.diamond.scisoft.analysis.rcp -->
         <junit-call description="${ant.project.name} Java JUnit tests" maxmemory="1024m">
             <formatter type="xml" />
@@ -25,7 +25,7 @@
                 <pathelement location="${jythonjar.loc}" />
                 <pathelement location="${GDA-plugin.basedir}/bin" />
                 <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.analysis/bin" />
-            	<pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.analysis/jars/*" />
+                <pathelement location="${workspace.git.loc}/scisoft/scisoft-core.git/uk.ac.diamond.scisoft.analysis/jars/*" />
                 <pathelement location="${workspace.git.loc}/scisoft/scisoft-ui.git/uk.ac.diamond.scisoft.analysis.rcp/bin" />
                 <pathelement location="${workspace.git.loc}/gda-common.git/uk.ac.gda.common/bin" />
                 <pathelement location="${workspace.git.loc}/gda-common-rcp.git/uk.ac.gda.common.rcp/bin" />
@@ -35,7 +35,7 @@
                 <pathelement location="${workspace.git.loc}/scisoft/scisoft-cbflib.git/uk.ac.diamond.CBFlib/bin" />
                 <pathelement location="${workspace.git.loc}/scisoft/scisoft-cbflib.git/uk.ac.diamond.CBFlib/jars/*" />
                 <pathelement location="${workspace.loc}/tp/plugins/*" />
-                <pathelement location="${workspace.git.loc}/scisoft/scisoft-hdf.git/ncsa.hdf/jars/*" />
+                ${ncsa.hdf.classpath}
             </classpath>
             <batchtest todir="@{report.dir}">
                 <fileset dir="${GDA-plugin.basedir}/src">
