@@ -79,10 +79,8 @@ public class HDF5ContentProvider implements ITreeContentProvider {
 		
 		int count = 0;
 		Iterator<String> iter = pNode.getAttributeNameIterator();
-		if(pNode.getNumberOfAttributes()>1)
-			children = new Object[pNode.getNumberOfAttributes()-1];
-		else
-			children = new Object[pNode.getNumberOfAttributes()];
+		children = new Object[HDF5TableTree.countChildren(parent, treeFilter)];
+
 		while (iter.hasNext()) {
 			String name = iter.next();
 			if (treeFilter.select(name)) {
@@ -92,7 +90,6 @@ public class HDF5ContentProvider implements ITreeContentProvider {
 			}
 		}
 		if (pNode instanceof HDF5Group) {
-			children = new Object[HDF5TableTree.countChildren(parent, treeFilter)];
 			for (HDF5NodeLink link : (HDF5Group) pNode) {
 				if (link.isDestinationAGroup()) {
 					String name = link.getName();
