@@ -64,7 +64,6 @@ public class HDF5ContentProvider implements ITreeContentProvider {
 				children = new Object[pNode.getNumberOfNodelinks()];
 				int count = 0;
 				for (HDF5NodeLink link : pNode) {
-					link.setFullFilename(hdf5File.getFilename());
 					children[count] = link;
 					count++;
 				}
@@ -94,7 +93,6 @@ public class HDF5ContentProvider implements ITreeContentProvider {
 				if (link.isDestinationAGroup()) {
 					String name = link.getName();
 					if (treeFilter.select(name)) {
-						link.setFullFilename(hdf5File.getFilename());
 						children[count] = link;
 						count++;
 					}
@@ -104,7 +102,6 @@ public class HDF5ContentProvider implements ITreeContentProvider {
 				if (link.isDestinationADataset()) {
 					String name = link.getName();
 					if (treeFilter.select(name)) {
-						link.setFullFilename(hdf5File.getFilename());
 						children[count] = link;
 						count++;
 					}

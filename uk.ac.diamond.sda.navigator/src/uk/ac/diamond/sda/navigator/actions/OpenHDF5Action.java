@@ -76,7 +76,7 @@ public class OpenHDF5Action extends Action {
 	 */
 	@Override
 	public void run() {
-		final String path = link.getFullFilename();
+		final String path = link.getFile().getFilename();
 		IFileStore fileStore = EFS.getLocalFileSystem().getStore(new Path("/"));
 		fileStore = fileStore.getFileStore(new Path(path));
 //		final IResource res = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
