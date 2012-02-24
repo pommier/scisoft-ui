@@ -31,7 +31,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
-import org.eclipse.ui.IReusableEditor;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.IWorkbenchPart;
@@ -46,10 +45,9 @@ import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5TreeExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
-import uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
 
-public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, IReusableEditor{
+public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 
 	private HDF5TreeExplorer hdfxp;
 	private File file;
@@ -80,14 +78,6 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 		setSite(site);
 		setInput(input);
 	}
-	
-	/**
-	 * H5MultiEditor requires this to be public
-	 */
-    @Override
-	public void setInput(IEditorInput input) {
-        super.setInput(input);
-    }
 
 	protected boolean loadHDF5Tree() {
 		if (getHDF5Tree() != null)
@@ -123,6 +113,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 		IWorkbenchPartSite site = getSite();
 		hdfxp = new HDF5TreeExplorer(parent, site, null);
 		if (!loadHDF5Tree()) {
+			
 			return;
 		}
 		site.setSelectionProvider(hdfxp);
@@ -197,12 +188,12 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 					if (!selection.isEmpty()) {
 						final IStructuredSelection structuredSelection = (IStructuredSelection) selection;
 						final Object element = structuredSelection.getFirstElement();
-						if (element instanceof TreeNode) {
-							TreeNode hdf5Data = (TreeNode) element;
-							String filename = hdf5Data.getFile().getName();
+						if (element instanceof HDF5NodeLink) {
+							HDF5NodeLink link = (HDF5NodeLink) element;
+							String filename = link.getFile().getName();
 							//update only the relevant hdf5editor
 							if(filename.equals(getSite().getPart().getTitle()))
-								update(part, hdf5Data, structuredSelection);
+								update(part, link, structuredSelection);
 						}
 					}
 
@@ -223,7 +214,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 		selectionService.removeSelectionListener(selectionListener);
 	}
 
-	public void update(final IWorkbenchPart original, final TreeNode treeData, IStructuredSelection structuredSelection) {
+	public void update(final IWorkbenchPart original, final HDF5NodeLink link, IStructuredSelection structuredSelection) {
 
 		// Make Display to wait until current focus event is finish, and then execute new focus event
 		Display.getDefault().asyncExec(new Runnable() {
@@ -270,7 +261,6 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 			
 			//hdfxp.getTableTree().getViewer().setSelection(structuredSelection);
 			
-			HDF5NodeLink link = ((HDF5NodeLink) treeData.getData());
 			hdfxp.selectHDF5Node(link, InspectorType.LINE);
 		} catch (Exception e) {
 			logger.error("Error processing selection: {}", e.getMessage());

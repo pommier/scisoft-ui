@@ -16,7 +16,6 @@
             id="uk.ac.diamond.sda.navigator.view"
             name="SDA Navigator"/>
       <view
-            allowMultiple="true"
             category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.sda.navigator.views.FileView"
             icon="icons/folder.png"
@@ -162,7 +161,7 @@
          </triggerPoints>
          <possibleChildren>
             <or>
-               <instanceof value="uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode"/>
+               <instanceof value="uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink"/>
             </or>
          </possibleChildren>
          <actionProvider
@@ -170,38 +169,6 @@
                id="uk.ac.diamond.sda.navigator.actions.HDF5OpenProvider"/>
       </navigatorContent>
    </extension>
-   <!-- Declare a content extension that renders the contents of a .nxs file -->
-   <!--extension
-         point="org.eclipse.ui.navigator.navigatorContent">
-      <navigatorContent 
-         id="uk.ac.diamond.sda.navigator.nexusContent"
-         name="Nexus File Contents"
-         contentProvider="uk.ac.diamond.sda.navigator.nexus.NexusContentProvider"
-         labelProvider="uk.ac.diamond.sda.navigator.nexus.NexusLabelProvider"
-         activeByDefault="true"
-         icon="icons/prop_ps.gif"
-         priority="normal" >
-         <triggerPoints>
-            <or>
-               <and>
-                  <instanceof value="org.eclipse.core.resources.IResource"/>
-                  <test
-                     forcePluginActivation="true"
-                     property="org.eclipse.core.resources.extension"
-                     value="nxs"/>
-               </and>
-            </or>
-         </triggerPoints>
-         <possibleChildren>
-            <or>
-               <instanceof value="uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode"/>
-            </or>
-         </possibleChildren>
-         <actionProvider
-               class="uk.ac.diamond.sda.navigator.actions.HDF5ActionProvider"
-               id="uk.ac.diamond.sda.navigator.actions.HDF5OpenProvider"/>
-      </navigatorContent>
-   </extension-->
    <!-- Declare a content extension that renders the contents of a .dat file -->
    <extension
          point="org.eclipse.ui.navigator.navigatorContent">
@@ -379,7 +346,7 @@
             state="true">
          <enablement>
             <objectClass
-                  name="uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode">
+               name="uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink">
             </objectClass>
          </enablement>
          <description>
@@ -397,13 +364,7 @@
                label="Open"
                style="push">
          </command>
-         <command
-               commandId="uk.ac.diamond.sda.navigator.openCommand"
-               icon="icons/folder_go.png"
-               label="Monitor"
-               style="push">
-         </command>
-          <separator
+         <separator
                name="uk.ac.diamond.sda.navigator.separator1"
                visible="true">
          </separator>
@@ -411,20 +372,6 @@
                commandId="uk.ac.diamond.scisoft.analysis.rcp.contributions.openImageGridView"
                label="Open in Image Grid"
                style="push">
-         </command>
-         <command
-               commandId="uk.ac.diamond.sda.navigator.createProject"
-               icon="icons/newprj_wiz.gif"
-               label="Create link to data"
-               style="push"
-               tooltip="Create data link, creates a new project if necessary">
-         </command>
-         <command
-               commandId="uk.ac.diamond.sda.navigator.createMonitorWorkflow"
-               icon="icons/Project-workflow.png"
-               label="Create workflow to monitor directory"
-               style="push"
-               tooltip="Create a workflow to monitor this resource">
          </command>
          <separator
                name="uk.ac.diamond.sda.navigator.separator2"
@@ -482,21 +429,6 @@
             defaultHandler="uk.ac.diamond.sda.navigator.views.RefreshHandler"
             id="uk.ac.diamond.sda.navigator.refresh"
             name="Refresh">
-      </command>
-      <command
-            defaultHandler="uk.ac.diamond.sda.navigator.views.CreateProjectHandler"
-            id="uk.ac.diamond.sda.navigator.createProject"
-            name="Create Project">
-      </command>
-      <command
-            defaultHandler="uk.ac.diamond.sda.navigator.views.OpenFileNavigatorHandler"
-            id="uk.ac.diamond.sda.navigator.newFileView"
-            name="Open file navigator">
-      </command>
-      <command
-            defaultHandler="uk.ac.diamond.sda.navigator.views.CreateMonitorWorkflowHandler"
-            id="uk.ac.diamond.sda.navigator.createMonitorWorkflow"
-            name="Create workflow">
       </command>
    </extension>
    <extension
