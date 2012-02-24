@@ -20,6 +20,7 @@ Import-Package: com.isencia.passerelle.workbench.model.editor.ui.editor,
  org.dawb.common.ui.views,
  org.dawb.passerelle.common.project,
  org.dawb.passerelle.common.utils,
+ org.eclipse.core.filesystem,
  org.eclipse.jface.text,
  org.eclipse.ui.texteditor,
  org.slf4j,
@@ -35,4 +36,4 @@ Import-Package: com.isencia.passerelle.workbench.model.editor.ui.editor,
  uk.ac.gda.ui.content
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-Vendor: Diamond Light Source
+Bundle-Vendor: Diamond Light Source Ltd.
