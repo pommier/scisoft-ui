@@ -12,6 +12,9 @@
  */
 package uk.ac.diamond.sda.meta.views;
 
+import java.io.Serializable;
+import java.util.Collection;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -125,7 +128,8 @@ public class HeaderTableView extends ViewPart{
 				@Override
 				public Object[] getElements(Object inputElement) {
 					try {
-						return meta.getMetaNames().toArray(new Object[meta.getMetaNames().size()]);
+						Collection<String> names = meta == null ? null : meta.getMetaNames();
+						return names == null ? new Object[]{""} : names.toArray(new Object[names.size()]);
 					} catch (Exception e) {
 						return new Object[]{""};
 					}
@@ -160,7 +164,8 @@ public class HeaderTableView extends ViewPart{
 			if (column==0) return element.toString();
 			if (column==1)
 				try {
-					return meta.getMetaValue(element.toString()).toString();
+					Serializable value = meta == null ? null : meta.getMetaValue(element.toString());
+					return value == null ? "" : value.toString();
 				} catch (Exception ignored) {
 					// Null allowed
 				}
