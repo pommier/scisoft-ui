@@ -16,9 +16,10 @@
 
 package uk.ac.diamond.sda.navigator.actions;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.filesystem.EFS; 
+import org.eclipse.core.filesystem.IFileStore;
+
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -75,17 +76,22 @@ public class OpenHDF5Action extends Action {
 	 */
 	@Override
 	public void run() {
-		try {
-			if (isEnabled()) {
-				final String path = link.getResourceFilename();
-				final IResource res = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
-				IDE.openEditor(page, (IFile)res);
-				//EclipseUtils.openEditor((IFile)res);
+		final String path = link.getFullFilename();
+		IFileStore fileStore = EFS.getLocalFileSystem().getStore(new Path("/"));
+		fileStore = fileStore.getFileStore(new Path(path));
+//		final IResource res = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
+//		IDE.openEditor(page, (IFile)res);
+//		EclipseUtils.openEditor((IFile)res);
+		if (!fileStore.fetchInfo().isDirectory() && fileStore.fetchInfo().exists()) {
+			try {
+				if (isEnabled()) {
+					IDE.openEditorOnFileStore(page, fileStore);
+				}
+			} catch (PartInitException e) {
+				NavigatorRCPActivator.logError(0, "Could not open HDF5 Editor!", e); //$NON-NLS-1$
+				MessageDialog.openError(Display.getDefault().getActiveShell(), "Error Opening HDF5 Editor", //$NON-NLS-1$
+						"Could not open HDF5 Editor!"); //$NON-NLS-1$
 			}
-		} catch (PartInitException e) {
-			NavigatorRCPActivator.logError(0, "Could not open HDF5 Editor!", e); //$NON-NLS-1$
-			MessageDialog.openError(Display.getDefault().getActiveShell(), "Error Opening HDF5 Editor", //$NON-NLS-1$
-					"Could not open HDF5 Editor!"); //$NON-NLS-1$
 		}
 	}
 }
