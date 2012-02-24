@@ -190,10 +190,9 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener {
 						final Object element = structuredSelection.getFirstElement();
 						if (element instanceof HDF5NodeLink) {
 							HDF5NodeLink link = (HDF5NodeLink) element;
-							String[] tmp = link.getResourceFilename().split("/");
-							String filename="";
-							if (tmp.length>0)
-								filename = tmp[tmp.length-1];
+							String filename = "";
+							if(link.getFile()!=null)
+								filename = link.getFile().getName();
 							//update only the relevant hdf5editor
 							if(filename.equals(getSite().getPart().getTitle()))
 								update(part, link, structuredSelection);

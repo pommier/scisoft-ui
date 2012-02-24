@@ -17,8 +17,6 @@
 package uk.ac.diamond.sda.navigator.actions;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -49,7 +47,7 @@ public class OpenHDF5Action extends Action {
 	public OpenHDF5Action(IWorkbenchPage p, ISelectionProvider selectionProvider) {
 		setText("Open HDF5 Editor"); //$NON-NLS-1$
 		page = p;
-		provider = selectionProvider;
+		provider = selectionProvider;		
 	}
 
 	/*
@@ -77,10 +75,9 @@ public class OpenHDF5Action extends Action {
 	public void run() {
 		try {
 			if (isEnabled()) {
-				final String path = link.getResourceFilename();
-				final IResource res = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
-				IDE.openEditor(page, (IFile)res);
-				//EclipseUtils.openEditor((IFile)res);
+				IFile hdf5File = link.getFile();
+				IDE.openEditor(page, hdf5File);
+
 			}
 		} catch (PartInitException e) {
 			NavigatorRCPActivator.logError(0, "Could not open HDF5 Editor!", e); //$NON-NLS-1$
