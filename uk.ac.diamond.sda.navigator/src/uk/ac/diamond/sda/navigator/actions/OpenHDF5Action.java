@@ -27,13 +27,14 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.ide.IDE;
 
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
+import uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode;
 import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 
 public class OpenHDF5Action extends Action {
 
 	private IWorkbenchPage page;
-	private HDF5NodeLink link;
+	@SuppressWarnings("rawtypes")
+	private TreeNode data;
 	private ISelectionProvider provider;
 
 	/**
@@ -54,13 +55,14 @@ public class OpenHDF5Action extends Action {
 	 * (non-Javadoc)
 	 * @see org.eclipse.jface.action.Action#isEnabled()
 	 */
+	@SuppressWarnings("rawtypes")
 	@Override
 	public boolean isEnabled() {
 		ISelection selection = provider.getSelection();
 		if (!selection.isEmpty()) {
 			IStructuredSelection sSelection = (IStructuredSelection) selection;
-			if (sSelection.size() == 1 && sSelection.getFirstElement() instanceof HDF5NodeLink) {
-				link = ((HDF5NodeLink) sSelection.getFirstElement());
+			if (sSelection.size() == 1 && sSelection.getFirstElement() instanceof TreeNode) {
+				data = ((TreeNode) sSelection.getFirstElement());
 				return true;
 			}
 		}
@@ -75,7 +77,7 @@ public class OpenHDF5Action extends Action {
 	public void run() {
 		try {
 			if (isEnabled()) {
-				IFile hdf5File = link.getFile();
+				IFile hdf5File = data.getFile();
 				IDE.openEditor(page, hdf5File);
 
 			}
