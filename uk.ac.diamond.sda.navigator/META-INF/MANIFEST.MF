@@ -15,7 +15,6 @@ Bundle-Activator: uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator
 Import-Package: gda.analysis.io,
  org.dawb.common.services,
  org.dawb.common.ui.views,
- org.eclipse.core.filesystem,
  org.eclipse.jface.text,
  org.eclipse.ui.texteditor,
  org.slf4j,
