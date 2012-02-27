@@ -34,15 +34,15 @@ import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5TableTree;
 import uk.ac.diamond.scisoft.analysis.rcp.hdf5.TreeFilter;
 import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 
-
 public class HDF5ContentProvider implements ITreeContentProvider {
 	private TreeFilter treeFilter;
 	public static final String H5_EXT = "h5"; //$NON-NLS-1$
 	public static final String HDF5_EXT = "hdf5"; //$NON-NLS-1$
 	public static final String NXS_EXT = "nxs"; //$NON-NLS-1$
-	private HDF5File hdf5File;
+	private HDF5Loader loader;
 	private String fileName;
 	private IFile modelFile;
+	private HDF5File hdf5Tree;
 	private static final Object[] NO_CHILDREN = new Object[0];
 	private static final Logger logger = LoggerFactory.getLogger(HDF5ContentProvider.class);
 
@@ -59,7 +59,7 @@ public class HDF5ContentProvider implements ITreeContentProvider {
 		
 			if (H5_EXT.equals(modelFile.getFileExtension())||HDF5_EXT.equals(modelFile.getFileExtension())||NXS_EXT.equals(modelFile.getFileExtension())) {
 				loadHDF5Data(modelFile);
-				HDF5Group pNode = hdf5File.getGroup();
+				HDF5Group pNode = hdf5Tree.getGroup();
 
 				children = new Object[pNode.getNumberOfNodelinks()];
 				int count = 0;
@@ -159,7 +159,9 @@ public class HDF5ContentProvider implements ITreeContentProvider {
 	private void loadHDF5Data(IFile file) {
 		fileName = file.getLocation().toString();
 		try {
-			hdf5File = new HDF5Loader(fileName).loadTree();
+			loader = new HDF5Loader(fileName);
+			loader.setAsyncLoad(true);
+			hdf5Tree = loader.loadTree(null);
 		} catch (Exception e) {
 			logger.warn("Could not load NeXus file {}", fileName);
 		}
