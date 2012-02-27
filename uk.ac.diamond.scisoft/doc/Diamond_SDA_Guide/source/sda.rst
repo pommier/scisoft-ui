@@ -5,10 +5,28 @@ SDA is bundled with Pydev - an Eclipse-based Python development environment. Thi
 describes how to install SDA and setup Pydev and also how to use "scisoftpy" - the Diamond
 Scientific Software Python package.
 
+Minimum requirements
+--------------------
+
+The SDA workbench needs the following to run properly:
+
+* 2 gigahertz (GHz) 32-bit (x86) or 64-bit (x64) processor (dual core preferable)
+* 4 gigabyte (GB) of system memory
+* 1 GB of available disk space
+* NVidia GPU with at least 128MB of graphic memory
+* DVD-ROM drive
+* Internet access (fees may apply)
+
 Setup on Ubuntu 10.04 LTS
 -------------------------
 
-First make sure that the repos are up to date ::
+You first need to make sure that the GPU is the default hardware device (instead of the integrated 
+video unit provided by the motherboard) used by the OS. 
+
+This can be set up in the BIOS settings : the BIOS settings menu can be accessed by pressing F12 during 
+the startup screen of the machine. In the video menu, check that all the options are set to their maximum.
+
+Once the OS is started, make sure that the repos are up to date ::
 
 	sudo apt-get update
 
@@ -57,7 +75,10 @@ Instructions are given in that file.
 Setup on DLS Redhat 5 machines
 ------------------------------
 
-First use module to load up everything you need ::
+Like on Ubuntu machines, you need to make sure that the advanced GPU is used for the display. This 
+is done by setting it up in the BIOS settings (F12 during startup screen).
+
+Once the OS is started, use module to load up everything you need ::
 
 	module load scipy
 	module load sda/0.8
@@ -104,7 +125,15 @@ Then you should be able to use ::
 Setup on Windows machines
 -------------------------
 
-First get a good install of python, we suggest getting a full install from  ::
+First make sure the GPU is the default option used for the display. Go to ::
+
+	Control Panel > Appearance and Personalization > GPU Control Panel
+
+'GPU Control Panel', if the GPU is an NVidia, would be called 'NVidia Control Panel'. Go in the 3D 
+global settings, check that the preferred graphics processor is set on the 'GPU processor' instead 
+than on 'integrated graphics' or 'auto-select'. Click on 'Apply'.
+
+Once this is done, get a good install of python, we suggest getting a full install from  ::
 
 	https://www.enthought.com/products/epd.php
 
