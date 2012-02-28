@@ -33,7 +33,7 @@ public class HDF5LabelProviderTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(HDF5LabelProviderTest.class);
 	private HDF5File hdf5File = null;
-	private String fileName = System.getProperty("NXSNavigatorTestFile");
+	private String fileName = "/testFiles/2.nxs";
 
 	private void loadHDF5Data() {
 		try {
@@ -48,6 +48,7 @@ public class HDF5LabelProviderTest {
 		loadHDF5Data();
 		HDF5NodeLink hdf5nodelink = hdf5File.findNodeLink("/entry1/scan_command");
 		HDF5Node node = hdf5nodelink.getDestination();
+		logger.debug(node.toString());
 		assertEquals(HDF5LabelProvider.getNodeLinkData(node).trim(),
 				"scan DCMFPitch -0.12 0.12 0.0040 counter 1.0 BPM1IN");
 

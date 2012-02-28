@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 public class LightweightNXSScanCmdDecoratorTest {
 	
-	private String nxsFileName = System.getProperty("NXSNavigatorTestFile");
+	private String nxsFileName = "/testFiles/2.nxs";
 	
 	private static final Logger logger = LoggerFactory.getLogger(LightweightNXSScanCmdDecoratorTest.class);
 	
