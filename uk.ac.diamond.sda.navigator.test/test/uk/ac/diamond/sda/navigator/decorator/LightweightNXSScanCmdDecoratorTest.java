@@ -26,22 +26,21 @@ import org.slf4j.LoggerFactory;
 
 public class LightweightNXSScanCmdDecoratorTest {
 	
-	private String nxsFileName = "/testFiles/2.nxs";
+	private String nxsFileName = "testFiles/2.nxs";
 	
 	private static final Logger logger = LoggerFactory.getLogger(LightweightNXSScanCmdDecoratorTest.class);
+	private String[][] listTitlesAndScanCmd;
 	
 	@Test
 	public void testGetHDF5TitleAndScanCmd(){
 		LightweightNXSScanCmdDecorator scd = new LightweightNXSScanCmdDecorator();
 		
 		try {
-			String[][] listTitlesAndScanCmd = scd.getMyHDF5TitleAndScanCmd(nxsFileName);
-			assertEquals(listTitlesAndScanCmd[0][0],"");
-			assertEquals(listTitlesAndScanCmd[1][0],"\nScanCmd1: [scan DCMFPitch -0.12 0.12 0.0040 counter 1.0 BPM1IN]");
+			listTitlesAndScanCmd = scd.getMyHDF5TitleAndScanCmd(nxsFileName);
 		} catch (Exception e) {
 			logger.error("Could not load NXS Title/ScanCmd: ", e);
 		}
-		
-	
+		assertEquals(listTitlesAndScanCmd[0][0],"\nScanCmd1: [scan DCMFPitch -0.12 0.12 0.0040 counter 1.0 BPM1IN]");
+		assertEquals(listTitlesAndScanCmd[1][0],"");
 	}
 }
