@@ -966,6 +966,9 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 					avalues.add(ad);
 				}
 
+				if (avalues.size() == 0)
+					continue;
+
 				// consume list for choice
 				ILazyDataset allAxis = new AggregateDataset(extend, avalues.toArray(new ILazyDataset[0]));
 
