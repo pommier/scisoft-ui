@@ -113,8 +113,6 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 	private List<String> filesToLoad = null;
 	private List<String> history = new ArrayList<String>();
 	private int historyPointer = -1;
-	private int colourMapChoice = 0;
-	private float histogramThreshold = 0.98f;
 	private String currentDir = null;
 	private ImagePlayBack playback = null;
 	private ExecutorService execSvc = null;
@@ -184,8 +182,6 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 
 	@Override
 	public void createPartControl(Composite parent) {
-		colourMapChoice = getPreferenceColourMapChoice();
-		histogramThreshold = getPreferenceHistogramScaling() / 100.0f;
 		plotViewName = getViewSite().getRegisteredName();
 		plotServer.addIObserver(this);
 		setPartName(plotViewName);
@@ -375,7 +371,7 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 		}
 		playback.addFile((String) bean.get(GuiParameters.FILENAME));
 		SWTGridEntry entry = new SWTGridEntry((String) bean.get(GuiParameters.FILENAME), null, canvas,
-				colourMapChoice, histogramThreshold);
+				getPreferenceColourMapChoice(), getPreferenceAutoscalingLo()/100., getPreferenceAutoscalingHi()/100.);
 		Integer xPos = (Integer) bean.get(GuiParameters.IMAGEGRIDXPOS);
 		Integer yPos = (Integer) bean.get(GuiParameters.IMAGEGRIDYPOS);
 		if (xPos != null && yPos != null)
@@ -544,8 +540,8 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 				Iterator<GridImageEntry> iter = entries.iterator();
 				while (iter.hasNext()) {
 					GridImageEntry entry = iter.next();
-					SWTGridEntry gridEntry = new SWTGridEntry(entry.getFilename(), null, canvas, colourMapChoice,
-							histogramThreshold);
+					SWTGridEntry gridEntry = new SWTGridEntry(entry.getFilename(), null, canvas, getPreferenceColourMapChoice(),
+							getPreferenceAutoscalingLo()/100., getPreferenceAutoscalingHi()/100.);
 					imageGrid.addEntry(gridEntry, entry.getGridColumnPos(), entry.getGridRowPos());
 				}
 			}
@@ -829,11 +825,18 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 				: preferenceStore.getInt(PreferenceConstants.IMAGEEXPLORER_PLAYBACKRATE);
 	}
 
-	private int getPreferenceHistogramScaling() {
+	private int getPreferenceAutoscalingLo() {
 		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		return preferenceStore.isDefault(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALETHRESHOLD)
-				? preferenceStore.getDefaultInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALETHRESHOLD)
-				: preferenceStore.getInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALETHRESHOLD);
+		return preferenceStore.isDefault(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALELOTHRESHOLD)
+				? preferenceStore.getDefaultInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALELOTHRESHOLD)
+				: preferenceStore.getInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALELOTHRESHOLD);
+	}
+
+	private int getPreferenceAutoscalingHi() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALEHITHRESHOLD)
+				? preferenceStore.getDefaultInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALEHITHRESHOLD)
+				: preferenceStore.getInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALEHITHRESHOLD);
 	}
 
 	/**

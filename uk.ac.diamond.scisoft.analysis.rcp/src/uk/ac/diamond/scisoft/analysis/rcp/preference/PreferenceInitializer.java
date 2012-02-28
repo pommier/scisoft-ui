@@ -37,7 +37,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	private static final int DEFAULT_COLOURMAP_CHOICE = 1;
 	private static final int DEFAULT_CAMERA_PROJECTION = 0;
 	private static final int DEFAULT_IMAGEXPLORER_COLOURMAP_CHOICE = 0;
-	private static final int DEFAULT_IMAGEEXPLORER_HISTOGRAM_SCALE = 98;
+	private static final int DEFAULT_IMAGEEXPLORER_HISTOGRAM_SCALE_LO = 0;
+	private static final int DEFAULT_IMAGEEXPLORER_HISTOGRAM_SCALE_HI = 98;
 	private static final int DEFAULT_IMAGEEXPLORER_TIMEDEAY = 1000;
 	private static final String DEFAULT_IMAGEEXPLORER_PLAYBACKVIEW = "Live Plot";
 	private static final int DEFAULT_IMAGEEXPLORER_PLAYBACKRATE = 1;
@@ -129,7 +130,8 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.PLOT_VIEWER_MULTI1D_CAMERA_PROJ, DEFAULT_CAMERA_PROJECTION);
 		
 		store.setDefault(PreferenceConstants.IMAGEEXPLORER_COLOURMAP, DEFAULT_IMAGEXPLORER_COLOURMAP_CHOICE);
-		store.setDefault(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALETHRESHOLD, DEFAULT_IMAGEEXPLORER_HISTOGRAM_SCALE);
+		store.setDefault(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALELOTHRESHOLD, DEFAULT_IMAGEEXPLORER_HISTOGRAM_SCALE_LO);
+		store.setDefault(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALEHITHRESHOLD, DEFAULT_IMAGEEXPLORER_HISTOGRAM_SCALE_HI);
 		store.setDefault(PreferenceConstants.IMAGEEXPLORER_TIMEDELAYBETWEENIMAGES, DEFAULT_IMAGEEXPLORER_TIMEDEAY);
 		store.setDefault(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW, DEFAULT_IMAGEEXPLORER_PLAYBACKVIEW);
 		store.setDefault(PreferenceConstants.IMAGEEXPLORER_PLAYBACKRATE,DEFAULT_IMAGEEXPLORER_PLAYBACKRATE);

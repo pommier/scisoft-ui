@@ -57,7 +57,8 @@ public class PreferenceConstants {
 	public static final String PLOT_VIEWER_PLOT2D_SHOWSCROLLBAR = "plotView.plot2DshowScrollbar";
 	// image explorer preferences
 	public static final String IMAGEEXPLORER_COLOURMAP = "imageExplorer.colourMap";
-	public static final String IMAGEEXPLORER_HISTOGRAMAUTOSCALETHRESHOLD = "imageExplorer.autoscaleThreshold";
+	public static final String IMAGEEXPLORER_HISTOGRAMAUTOSCALELOTHRESHOLD = "imageExplorer.autoscaleLoThreshold";
+	public static final String IMAGEEXPLORER_HISTOGRAMAUTOSCALEHITHRESHOLD = "imageExplorer.autoscaleHiThreshold";
 	public static final String IMAGEEXPLORER_TIMEDELAYBETWEENIMAGES = "imageExplorer.timeDelay";
 	public static final String IMAGEEXPLORER_PLAYBACKVIEW = "imageExplorer.playbackView";
 	public static final String IMAGEEXPLORER_PLAYBACKRATE = "imageExplorer.playbackRate";

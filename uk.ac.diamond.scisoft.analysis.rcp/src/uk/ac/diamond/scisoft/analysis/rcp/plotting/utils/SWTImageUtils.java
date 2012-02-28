@@ -30,8 +30,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.AbstractMapFunc
  */
 public class SWTImageUtils {
 
-	
-	static private ImageData createImageFromRGBADataSet(RGBDataset rgbdata, long maxv)
+	static private ImageData createImageFromRGBADataset(RGBDataset rgbdata, long minv, long maxv)
 	{
 		ImageData img;
 		final IndexIterator iter = rgbdata.getIterator(true);
@@ -39,52 +38,54 @@ public class SWTImageUtils {
 		final int[] shape = rgbdata.getShape();
 		final int height = shape[0];
 		final int width = shape.length == 1 ? 1 : shape[1]; // allow 1D datasets to be saved
+		long delta = maxv - minv;
+		short off = (short) minv;
 
 		short[] data = rgbdata.getData();
-		if (maxv < 32) { // 555
+		if (delta < 32) { // 555
 			img = new ImageData(width, height, 16, new PaletteData(0x7c00, 0x03e0, 0x001f));
-
 			while (iter.hasNext()) {
 				final int n = iter.index;
-				final int rgb = ((data[n] & 0x1f) << 10) | ((data[n + 1] & 0x1f) << 5) | (data[n + 2] & 0x1f);
+				final int rgb = (((data[n] - off) & 0x1f) << 10) | (((data[n + 1] - off) & 0x1f) << 5) | ((data[n + 2] - off)& 0x1f);
 				img.setPixel(pos[1], pos[0], rgb);
 			}
-		} else if (maxv < 64) { // 565
+		} else if (delta < 64) { // 565
 			img = new ImageData(width, height, 16, new PaletteData(0xf800, 0x07e0, 0x001f));
 
 			while (iter.hasNext()) {
 				final int n = iter.index;
-				final int rgb = (((data[n] >> 1) & 0x1f) << 10) | ((data[n + 1] & 0x3f) << 5) | ((data[n + 2] >> 1) & 0x1f);
+				final int rgb = ((((data[n] - off) >> 1) & 0x1f) << 10) | (((data[n + 1] - off) & 0x3f) << 5) | (((data[n + 2] - off) >> 1) & 0x1f);
 				img.setPixel(pos[1], pos[0], rgb);
 			}
-		} else if (maxv < 256) { // 888
+		} else if (delta < 256) { // 888
 			img = new ImageData(width, height, 24, new PaletteData(0xff0000, 0x00ff00, 0x0000ff));
 
 			while (iter.hasNext()) {
 				final int n = iter.index;
-				final int rgb = ((data[n] & 0xff) << 16) | ((data[n + 1] & 0xff) << 8) | (data[n + 2] & 0xff);
+				final int rgb = (((data[n] - off) & 0xff) << 16) | (((data[n + 1] - off) & 0xff) << 8) | ((data[n + 2] - off) & 0xff);
 				img.setPixel(pos[1], pos[0], rgb);
 			}
 		} else {
 			int shift = 0;
-			while (maxv >= 256) {
+			while (delta >= 256) {
 				shift++;
-				maxv >>= 2;
+				delta >>= 1;
 			}
 
 			img = new ImageData(width, height, 24, new PaletteData(0xff0000, 0x00ff00, 0x0000ff));
 
 			while (iter.hasNext()) {
 				final int n = iter.index;
-				final int rgb = (((data[n] >> shift) & 0xff) << 16) | (((data[n + 1] >> shift) & 0xff) << 8) | ((data[n + 2] >> shift) & 0xff);
+				final int rgb = ((((data[n] - off) >> shift) & 0xff) << 16) | ((((data[n + 1] - off) >> shift) & 0xff) << 8) | (((data[n + 2] - off) >> shift) & 0xff);
 				img.setPixel(pos[1], pos[0], rgb);
 			}
 		}
 		return img;
 	}
 	
-	static private ImageData createImageFromDataSet(AbstractDataset a, 
-													long maxv,
+	static private ImageData createImageFromDataset(AbstractDataset a,
+													double minv,
+													double maxv,
 													AbstractMapFunction redFunc,
 													AbstractMapFunction greenFunc,
 													AbstractMapFunction blueFunc,
@@ -99,8 +100,9 @@ public class SWTImageUtils {
 		final IndexIterator iter = a.getIterator(true);
 		final int[] pos = iter.getPos();
 		img = new ImageData(width, height, 24, new PaletteData(0xff0000, 0x00ff00, 0x0000ff));
+		double delta = maxv - minv;
 		while (iter.hasNext()) {
-			double value = a.getElementDoubleAbs(iter.index) / maxv;
+			double value = (a.getElementDoubleAbs(iter.index) - minv)/delta;
 			final int red = (inverseRed ? (255-redFunc.mapToByte(value)) : redFunc.mapToByte(value));
 			final int green = (inverseGreen ? (255-greenFunc.mapToByte(value)) : greenFunc.mapToByte(value));
 			final int blue = (inverseBlue ? (255-blueFunc.mapToByte(value)) : blueFunc.mapToByte(value));
@@ -132,13 +134,38 @@ public class SWTImageUtils {
 											boolean inverseRed,
 											boolean inverseGreen,
 											boolean inverseBlue) {
+		return createImageData(a, 0, max, redFunc, greenFunc, blueFunc, inverseRed, inverseGreen, inverseBlue);
+	}
+
+	/**
+	 * Create SWT ImageData from a dataset
+	 * <p>
+	 * The input dataset can be a RGB dataset in which case the mapping functions
+	 * and inversion flags are ignored.
+	 * @param a dataset
+	 * @param min minimum value of dataset
+	 * @param max maximum value of dataset
+	 * @param redFunc
+	 * @param greenFunc
+	 * @param blueFunc
+	 * @param inverseRed
+	 * @param inverseGreen
+	 * @param inverseBlue
+	 * @return an ImageData object for SWT
+	 */
+	static public ImageData createImageData(AbstractDataset a, Number min, Number max,
+											AbstractMapFunction redFunc,
+											AbstractMapFunction greenFunc,
+											AbstractMapFunction blueFunc,
+											boolean inverseRed,
+											boolean inverseGreen,
+											boolean inverseBlue) {
 		ImageData img;
-		long maxv = max.longValue();
 
 		if (a instanceof RGBDataset) {
-			img = createImageFromRGBADataSet((RGBDataset)a, maxv);
+			img = createImageFromRGBADataset((RGBDataset)a, min.longValue(), max.longValue());
 		} else {
-			img = createImageFromDataSet(a, maxv,redFunc,greenFunc,blueFunc,
+			img = createImageFromDataset(a, min.doubleValue(), max.doubleValue(),redFunc,greenFunc,blueFunc,
 										 inverseRed,inverseGreen,inverseBlue);
 		}
 

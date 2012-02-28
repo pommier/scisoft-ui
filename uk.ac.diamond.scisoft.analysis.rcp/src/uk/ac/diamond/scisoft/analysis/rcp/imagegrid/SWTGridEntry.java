@@ -45,7 +45,8 @@ public class SWTGridEntry extends AbstractGridEntry {
 
 	// Adding in some logging to help with getting this running
 	private static final Logger logger = LoggerFactory.getLogger(SWTGridEntry.class);
-	private float minimumThreshold = 0.98f;
+	private double loThreshold = 0.0f;
+	private double hiThreshold = 0.98f;
 	private static Color green = null;
 	private static Color red = null;
 	private static Color blue = null;
@@ -69,11 +70,12 @@ public class SWTGridEntry extends AbstractGridEntry {
 	}
 
 	public SWTGridEntry(String filename, Object additional, Canvas canvas,
-			            int colourMapChoice, float threshold) {
+			            int colourMapChoice, double loThreshold, double hiThreshold) {
 		this(filename,additional);
 		this.canvas = canvas;
 		this.colourMapChoice = colourMapChoice;
-		this.minimumThreshold = threshold;
+		this.loThreshold = loThreshold;
+		this.hiThreshold = hiThreshold;
 	}
 	
 	@Override
@@ -152,21 +154,111 @@ public class SWTGridEntry extends AbstractGridEntry {
 				final int[] shape = ds.getShape();
 				try {
 					if (shape.length == 2) {
-						double max;
-						if (ds instanceof RGBDataset) {
-							double temp;
-							max = Stats.quantile(((RGBDataset) ds).createRedDataset(AbstractDataset.INT16),
-									minimumThreshold);
-							temp = Stats.quantile(((RGBDataset) ds).createGreenDataset(AbstractDataset.INT16),
-									minimumThreshold);
-							if (max < temp)
-								max = temp;
-							temp = Stats.quantile(((RGBDataset) ds).createBlueDataset(AbstractDataset.INT16),
-									minimumThreshold);
-							if (max < temp)
-								max = temp;
+						double[] m;
+						if (hiThreshold < 1) {
+							if (loThreshold > 0) {
+								if (ds instanceof RGBDataset) {
+									RGBDataset rgb = (RGBDataset) ds;
+									m = Stats.quantile(rgb.createRedDataset(AbstractDataset.INT16), loThreshold, hiThreshold);
+									double[] t = Stats.quantile(rgb.createGreenDataset(AbstractDataset.INT16), loThreshold, hiThreshold);
+									if (m[0] > t[0])
+										m[0] = t[0];
+									if (m[1] < t[1])
+										m[1] = t[1];
+									t = Stats.quantile(rgb.createBlueDataset(AbstractDataset.INT16), loThreshold, hiThreshold);
+									if (m[0] > t[0])
+										m[0] = t[0];
+									if (m[1] < t[1])
+										m[1] = t[1];
+								} else {
+									m = Stats.quantile(ds, loThreshold, hiThreshold);
+								}
+							} else {
+								if (ds instanceof RGBDataset) {
+									RGBDataset rgb = (RGBDataset) ds;
+									AbstractDataset c = rgb.createRedDataset(AbstractDataset.INT16);
+									double min = c.min().doubleValue();
+									double max = Stats.quantile(c, hiThreshold);
+									double t;
+
+									c = rgb.createGreenDataset(AbstractDataset.INT16);
+									t = c.min().doubleValue();
+									if (min > t)
+										min = t;
+									t = Stats.quantile(c, hiThreshold);
+									if (max < t)
+										max = t;
+
+									c = rgb.createBlueDataset(AbstractDataset.INT16);
+									t = c.min().doubleValue();
+									if (min > t)
+										min = t;
+									t = Stats.quantile(c, hiThreshold);
+									if (max < t)
+										max = t;
+
+									m = new double[] {min, max};
+								} else {
+									m = new double[] {ds.min().doubleValue(), Stats.quantile(ds, hiThreshold)};
+								}
+							}
 						} else {
-							max = Stats.quantile(ds, minimumThreshold);
+							if (loThreshold > 0) {
+								if (ds instanceof RGBDataset) {
+									RGBDataset rgb = (RGBDataset) ds;
+									AbstractDataset c = rgb.createRedDataset(AbstractDataset.INT16);
+									double min = Stats.quantile(c, loThreshold);
+									double max = c.max().doubleValue();
+									double t;
+
+									c = rgb.createGreenDataset(AbstractDataset.INT16);
+									t = Stats.quantile(c, loThreshold);
+									if (min > t)
+										min = t;
+									t = c.max().doubleValue();
+									if (max < t)
+										max = t;
+
+									c = rgb.createBlueDataset(AbstractDataset.INT16);
+									t = Stats.quantile(c, loThreshold);
+									if (min > t)
+										min = t;
+									t = c.max().doubleValue();
+									if (max < t)
+										max = t;
+									m = new double[] {min, max};
+								} else {
+									m = new double[] {Stats.quantile(ds, loThreshold), ds.max().doubleValue()};
+								}
+							} else {
+								if (ds instanceof RGBDataset) {
+									RGBDataset rgb = (RGBDataset) ds;
+									AbstractDataset c = rgb.createRedDataset(AbstractDataset.INT16);
+									double min = c.min().doubleValue();
+									double max = c.max().doubleValue();
+									double t;
+
+									c = rgb.createGreenDataset(AbstractDataset.INT16);
+									t = c.min().doubleValue();
+									if (min > t)
+										min = t;
+									t = c.max().doubleValue();
+									if (max < t)
+										max = t;
+
+									c = rgb.createBlueDataset(AbstractDataset.INT16);
+									t = c.min().doubleValue();
+									if (min > t)
+										min = t;
+									t = c.max().doubleValue();
+									if (max < t)
+										max = t;
+									m = new double[] {min, max};
+									
+								} else {
+									m = new double[] {ds.min().doubleValue(), ds.max().doubleValue()};
+								}
+							}
 						}
 						int redSelect = GlobalColourMaps.colourSelectList.get(colourMapChoice * 4);
 						int greenSelect = GlobalColourMaps.colourSelectList.get(colourMapChoice * 4 + 1);
@@ -174,7 +266,7 @@ public class SWTGridEntry extends AbstractGridEntry {
 						AbstractMapFunction redFunc = GlobalColourMaps.mappingFunctions.get(Math.abs(redSelect));
 						AbstractMapFunction greenFunc = GlobalColourMaps.mappingFunctions.get(Math.abs(greenSelect));
 						AbstractMapFunction blueFunc = GlobalColourMaps.mappingFunctions.get(Math.abs(blueSelect));
-						ImageData imgD = SWTImageUtils.createImageData(ds, max, redFunc, greenFunc, blueFunc,
+						ImageData imgD = SWTImageUtils.createImageData(ds, m[0], m[1], redFunc, greenFunc, blueFunc,
 								(redSelect < 0), (greenSelect < 0), (blueSelect < 0));
 						gridImage = new Image(canvas.getDisplay(), imgD);
 						imageDim = new Dimension(shape[1], shape[0]);

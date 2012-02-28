@@ -22,6 +22,8 @@ import java.util.List;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
@@ -42,7 +44,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView;
 public class ImageExplorerPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
 	private Combo cmbColourMap;
-	private Spinner spnAutoThreshold;
+	private Spinner spnAutoLoThreshold;
+	private Spinner spnAutoHiThreshold;
 	private Spinner spnWaitTime;
 	private Spinner spnSkipImages;
 	private Combo cmbDisplayViews;
@@ -72,15 +75,38 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 		cmbColourMap.setLayoutData(gdc);
 		for (int i = 0; i < GlobalColourMaps.colourMapNames.length; i++)
 			cmbColourMap.add(GlobalColourMaps.colourMapNames[i]);		
-		Label lblThreshold = new Label(comp,SWT.LEFT);
-		lblThreshold.setText("Histogram autoscale threshold (in %)");
-		spnAutoThreshold = new Spinner(comp,SWT.RIGHT);
-		spnAutoThreshold.setMaximum(100);
-		spnAutoThreshold.setMinimum(0);
-		spnAutoThreshold.setIncrement(1);
+		Label lblLThreshold = new Label(comp,SWT.LEFT);
+		lblLThreshold.setText("Auto-contrast lower threshold (in %)");
+		spnAutoLoThreshold = new Spinner(comp,SWT.RIGHT);
+		spnAutoLoThreshold.setMaximum(99);
+		spnAutoLoThreshold.setMinimum(0);
+		spnAutoLoThreshold.setIncrement(1);
+		spnAutoLoThreshold.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int l = spnAutoLoThreshold.getSelection();
+				spnAutoHiThreshold.setMinimum(l+1);
+			}
+		});
 		gdc = new GridData();
 		gdc.horizontalSpan = 2;
-		spnAutoThreshold.setLayoutData(gdc);
+		spnAutoLoThreshold.setLayoutData(gdc);
+		Label lblHThreshold = new Label(comp,SWT.LEFT);
+		lblHThreshold.setText("Auto-contrast upper threshold (in %)");
+		spnAutoHiThreshold = new Spinner(comp,SWT.RIGHT);
+		spnAutoHiThreshold.setMaximum(100);
+		spnAutoHiThreshold.setMinimum(1);
+		spnAutoHiThreshold.setIncrement(1);
+		spnAutoLoThreshold.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int h = spnAutoHiThreshold.getSelection();
+				spnAutoLoThreshold.setMaximum(h-1);
+			}
+		});
+		gdc = new GridData();
+		gdc.horizontalSpan = 2;
+		spnAutoHiThreshold.setLayoutData(gdc);
 		Label lblWaitTime = new Label(comp,SWT.LEFT);
 		lblWaitTime.setText("Time delay for next image in play mode");
 		spnWaitTime = new Spinner(comp,SWT.RIGHT);
@@ -106,7 +132,7 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 		Label lblImages = new Label(comp,SWT.LEFT);
 		lblImages.setText("image");
 		initializePage();
-		
+
 		return comp;
 	}
 	@Override
@@ -127,7 +153,8 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 	
 	private void initializePage() {
 		cmbColourMap.select(getColourMapChoicePreference());
-		spnAutoThreshold.setSelection(getHistogramScalePreference());
+		spnAutoLoThreshold.setSelection(getAutoscaleLoPreference());
+		spnAutoHiThreshold.setSelection(getAutoscaleHiPreference());
 		spnWaitTime.setSelection(getTimeDelayPreference());
 		spnSkipImages.setSelection(getPlaybackRatePreference());
 		String viewName = getPlaybackViewPreference();
@@ -140,15 +167,17 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 	
 	private void storePreferences() {
 		setColourMapChoicePreference(cmbColourMap.getSelectionIndex());
-		setHistogramScalePreference(spnAutoThreshold.getSelection());
+		setAutoscaleLoPreference(spnAutoLoThreshold.getSelection());
+		setAutoscaleHiPreference(spnAutoHiThreshold.getSelection());
 		setTimeDelayPreference(spnWaitTime.getSelection());
 		setPlaybackViewPreference(cmbDisplayViews.getItem(cmbDisplayViews.getSelectionIndex()));
 		setPlaybackRatePreference(spnSkipImages.getSelection());
 	}
-	
+
 	private void loadDefaultPreferences() {
 		cmbColourMap.select(getDefaultColourMapChoicePreference());
-		spnAutoThreshold.setSelection(getDefaultHistogramScalePreference());
+		spnAutoLoThreshold.setSelection(getDefaultAutoscaleLoPreference());
+		spnAutoHiThreshold.setSelection(getDefaultAutoscaleHiPreference());
 		spnWaitTime.setSelection(getDefaultTimeDelayPreference());
 		spnSkipImages.setSelection(getDefaultPlaybackRatePreference());
 		String viewName = getDefaultPlaybackViewPreference();
@@ -158,13 +187,17 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 				cmbDisplayViews.select(i);
 		}
 	} 	
-	
+
 	public int getDefaultColourMapChoicePreference() {
 		return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_COLOURMAP);
 	}		
+
+	public int getDefaultAutoscaleLoPreference() {
+		return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALELOTHRESHOLD);
+	}
 	
-	public int getDefaultHistogramScalePreference() {
-		return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALETHRESHOLD);
+	public int getDefaultAutoscaleHiPreference() {
+		return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALEHITHRESHOLD);
 	}
 	
 	public int getDefaultTimeDelayPreference() {
@@ -186,11 +219,18 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 		return getPreferenceStore().getInt(PreferenceConstants.IMAGEEXPLORER_COLOURMAP);
 	}	
 
-	public int getHistogramScalePreference() {
-		if (getPreferenceStore().isDefault(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALETHRESHOLD)){
-			return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALETHRESHOLD);
+	public int getAutoscaleLoPreference() {
+		if (getPreferenceStore().isDefault(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALELOTHRESHOLD)){
+			return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALELOTHRESHOLD);
 		}
-		return getPreferenceStore().getInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALETHRESHOLD);		
+		return getPreferenceStore().getInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALELOTHRESHOLD);		
+	}
+	
+	public int getAutoscaleHiPreference() {
+		if (getPreferenceStore().isDefault(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALEHITHRESHOLD)){
+			return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALEHITHRESHOLD);
+		}
+		return getPreferenceStore().getInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALEHITHRESHOLD);		
 	}
 	
 	public int getTimeDelayPreference() {
@@ -216,10 +256,14 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 	
 	public void setColourMapChoicePreference(int value) {
 		getPreferenceStore().setValue(PreferenceConstants.IMAGEEXPLORER_COLOURMAP, value);
-	}		
+	}
 	
-	public void setHistogramScalePreference(int value) {
-		getPreferenceStore().setValue(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALETHRESHOLD, value);
+	public void setAutoscaleLoPreference(int value) {
+		getPreferenceStore().setValue(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALELOTHRESHOLD, value);
+	}
+	
+	public void setAutoscaleHiPreference(int value) {
+		getPreferenceStore().setValue(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALEHITHRESHOLD, value);
 	}
 	
 	public void setTimeDelayPreference(int value) {
