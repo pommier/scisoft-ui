@@ -33,7 +33,7 @@ public class HDF5LabelProviderTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(HDF5LabelProviderTest.class);
 	private HDF5File hdf5File = null;
-	private String fileName = "/testFiles/2.nxs";
+	private String fileName = "testFiles/2.nxs";
 
 	private void loadHDF5Data() {
 		try {
