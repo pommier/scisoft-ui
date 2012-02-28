@@ -355,10 +355,11 @@ public class HistogramChartPlot1D extends DataSet3DPlot1D {
 		globalXmax = -1.0;
 		globalRealXmin = Float.MAX_VALUE;
 		globalRealXmax = -Float.MAX_VALUE;
-		IDataset histoSet = datasets.get(datasets.size()-1);
-		globalYmin = Math.min(globalYmin, histoSet.min().doubleValue());
-		globalYmax = Math.max(globalYmax, histoSet.max().doubleValue());
-		globalXmax = Math.max(globalXmax,histoSet.getShape()[0]);
+		for (IDataset d : datasets) {
+			globalYmin = Math.min(globalYmin, d.min().doubleValue());
+			globalYmax = Math.max(globalYmax, d.max().doubleValue());
+			globalXmax = Math.max(globalXmax, d.getShape()[0]);
+		}
 		if (axisValues != null)
 		{
 			globalRealXmin = Math.min(globalRealXmin, axisValues.getMinValue());
