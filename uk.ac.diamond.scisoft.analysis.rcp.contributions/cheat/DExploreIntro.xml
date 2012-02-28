@@ -2,8 +2,8 @@
 <compositeCheatsheet name="DExplore Introduction">
 	<taskGroup name="DExplore Introduction">
 		<intro>
-			This tutorial will show you how to use the data exploration, <b>DExplore</b>,
-			perspective.
+			This introduction will show you how to use some basic features of the data exploration,
+			<b>DExplore</b>, perspective.
 		</intro>
 		<onCompletion>
 			Congratulations, you have completed the tutorial and now know how to use the data
@@ -48,10 +48,33 @@
 			</onCompletion>
 		</task>
 	</taskGroup>
-	<!--
-	<item title="">
-		<description>
-		</description>
-	</item>
-	-->
+	<taskGroup name="DExplore Advanced Use">
+		<intro>
+			This tutorial will show you how to use advanced features of the data exploration,
+			<b>DExplore</b>, perspective.
+		</intro>
+		<onCompletion>
+			Congratulations, you have completed the tutorial and now know how to expertly use the
+			data exploration perspective.
+		</onCompletion>
+		<task kind="cheatsheet" name="Accessing Multiple Files In Your Data" skip="true">
+			<param name="id" value="uk.ac.diamond.scisoft.analysis.rcp.contributions.MultipleFileOpenCheatSheet"/>
+			<intro>
+				This tutorial explains how to open multiple files to compare equivalent datasets.
+			</intro>
+			<onCompletion>
+				Congratulations, you have successfully open a set of files in the editor area.
+			</onCompletion>
+		</task>
+		<task kind="cheatsheet" name="Comparing Multiple Files" skip="true">
+			<param name="id" value="uk.ac.diamond.scisoft.analysis.rcp.contributions.CompareFilesCheatSheet"/>
+			<intro>
+				In the previous step, you opened a set of files for comparison. This tutorial
+				explains how to use the compare files editor.
+			</intro>
+			<onCompletion>
+				Congratulations, you have compared datasets from multiple files.
+			</onCompletion>
+		</task>
+	</taskGroup>
 </compositeCheatsheet>

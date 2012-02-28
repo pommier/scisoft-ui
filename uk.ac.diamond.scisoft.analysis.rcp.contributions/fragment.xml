@@ -1510,5 +1510,19 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.contributions.InspectorCheatSheet"
             name="Dataset Inspector Introduction">
       </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.DExploreCategory"
+            composite="false"
+            contentFile="cheat/MultipleFileOpenTutorial.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.MultipleFileOpenCheatSheet"
+            name="Opening Multiple Files">
+      </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.DExploreCategory"
+            composite="false"
+            contentFile="cheat/CompareFilesIntro.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.CompareFilesCheatSheet"
+            name="Compare Files Editor Introduction">
+      </cheatsheet>
    </extension>
 </fragment>
