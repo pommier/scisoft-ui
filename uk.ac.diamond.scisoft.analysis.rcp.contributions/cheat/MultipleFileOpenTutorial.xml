@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet title="Opening Multiple Files for Comparison">
+	<intro>
+		<description>
+			A set of files can be open at once for comparison.
+		</description>
+	</intro>
+	<item title="Project Explorer">
+		<description>
+			In the <b>Project Explorer</b>, multiple files can be selected in the usual graphical
+			manner by shift-clicking a range of entries and/or control-clicking individual entries.
+			Once satisfied with the selection, right-click to bring up the context menu and select
+			SDA > Compare files.
+		</description>
+	</item>
+	<item title="File Navigator">
+		<description>
+			<b>File Navigator</b> allows you to do the same as the project explorer with the only
+			difference being in the context menu where you simply select Compare files.
+		</description>
+	</item>
+	<item title="Compare Files Editor">
+		<description>
+			Both opening methods bring up a <b>Compare Files</b> editor. This editor is introduced
+			in the next part.
+		</description>
+	</item>
+</cheatsheet>
