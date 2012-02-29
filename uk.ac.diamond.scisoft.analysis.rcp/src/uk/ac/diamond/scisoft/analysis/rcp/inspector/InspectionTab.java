@@ -252,9 +252,9 @@ class PlotTab extends ATab {
 				public void widgetSelected(SelectionEvent e) {
 					plotStackIn3D = b.getSelection();
 
-					if (paxes != null) {
+					if (paxes != null) { // signal a replot without a slice reset
 						PlotAxisProperty p = paxes.get(0);
-						p.setName(p.getName());
+						p.fire(new PropertyChangeEvent(p, PlotAxisProperty.plotUpdate, p.getName(), p.getName()));
 					}
 				}
 			});
