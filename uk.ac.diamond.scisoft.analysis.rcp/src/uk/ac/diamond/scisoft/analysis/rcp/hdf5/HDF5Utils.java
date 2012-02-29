@@ -304,8 +304,8 @@ public class HDF5Utils {
 	private static final String NXENTRY = "NXentry";
 	private static final String NXPROGRAM = "program_name";
 	private static final String GDAVERSIONSTRING = "GDA ";
-	private static final int GDAMAJOR = 8;
-	private static final int GDAMINOR = 20;
+//	private static final int GDAMAJOR = 8;
+//	private static final int GDAMINOR = 20;
 
 	/**
 	 * Analyses an HDF5 file to see if it is likely to be the old type of nexus file.
@@ -340,14 +340,15 @@ public class HDF5Utils {
 						HDF5Dataset d = g.getDataset(NXPROGRAM);
 						if (d.isString()) {
 							String s = d.getString().trim();
-							int i = s.indexOf(GDAVERSIONSTRING);
-							if (i >= 0) {
-								String v = s.substring(i+4, s.lastIndexOf("."));
-								int j = v.indexOf(".");
-								int maj = Integer.parseInt(v.substring(0, j));
-								int min = Integer.parseInt(v.substring(j+1, v.length()));
-								return maj < GDAMAJOR || (maj == GDAMAJOR && min < GDAMINOR);
-							}
+							return s.contains(GDAVERSIONSTRING); // as there's no current plans to change, just check for GDA 
+//							int i = s.indexOf(GDAVERSIONSTRING);
+//							if (i >= 0) {
+//								String v = s.substring(i+4, s.lastIndexOf("."));
+//								int j = v.indexOf(".");
+//								int maj = Integer.parseInt(v.substring(0, j));
+//								int min = Integer.parseInt(v.substring(j+1, v.length()));
+//								return maj <= GDAMAJOR || (maj == GDAMAJOR && min < GDAMINOR);
+//							}
 						}
 					}
 				}
