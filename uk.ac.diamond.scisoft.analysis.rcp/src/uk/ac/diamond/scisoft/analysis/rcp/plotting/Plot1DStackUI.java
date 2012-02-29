@@ -393,9 +393,9 @@ public class Plot1DStackUI extends AbstractPlotUI {
 	
 	private int getCameraPerspectiveChoice() {
 		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEWER_MULTI1D_CAMERA_PROJ) ? 
-				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEWER_MULTI1D_CAMERA_PROJ)
-				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEWER_MULTI1D_CAMERA_PROJ);
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_MULTI1D_CAMERA_PROJ) ? 
+				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_MULTI1D_CAMERA_PROJ)
+				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_MULTI1D_CAMERA_PROJ);
 	}	
 	
 }

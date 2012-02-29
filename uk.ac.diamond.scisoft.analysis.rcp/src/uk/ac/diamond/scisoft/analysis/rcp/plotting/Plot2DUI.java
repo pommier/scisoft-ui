@@ -598,9 +598,9 @@ public class Plot2DUI extends AbstractPlotUI {
 
 	private boolean getPreferenceScrollBars() {
 		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEWER_PLOT2D_SHOWSCROLLBAR) ? 
-				preferenceStore.getDefaultBoolean(PreferenceConstants.PLOT_VIEWER_PLOT2D_SHOWSCROLLBAR)
-				: preferenceStore.getBoolean(PreferenceConstants.PLOT_VIEWER_PLOT2D_SHOWSCROLLBAR);		
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_SHOWSCROLLBAR) ? 
+				preferenceStore.getDefaultBoolean(PreferenceConstants.PLOT_VIEW_PLOT2D_SHOWSCROLLBAR)
+				: preferenceStore.getBoolean(PreferenceConstants.PLOT_VIEW_PLOT2D_SHOWSCROLLBAR);		
 	}
 	
 	private int getPreferenceColourScaleChoice() {
@@ -610,11 +610,11 @@ public class Plot2DUI extends AbstractPlotUI {
 		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
 		if (histogramView != null) {
 			String pName =  histogramView.getPartName();
-			if (!preferenceStore.isDefault(pName+"."+PreferenceConstants.PLOT_VIEWER_PLOT2D_SCALING))
-				return preferenceStore.getInt(pName+"."+PreferenceConstants.PLOT_VIEWER_PLOT2D_SCALING); 	
+			if (!preferenceStore.isDefault(pName+"."+PreferenceConstants.PLOT_VIEW_PLOT2D_SCALING))
+				return preferenceStore.getInt(pName+"."+PreferenceConstants.PLOT_VIEW_PLOT2D_SCALING); 	
 		} 
-		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEWER_PLOT2D_SCALING) ? 
-			   preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEWER_PLOT2D_SCALING)
-			   : preferenceStore.getInt(PreferenceConstants.PLOT_VIEWER_PLOT2D_SCALING);
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_SCALING) ? 
+			   preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOT2D_SCALING)
+			   : preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOT2D_SCALING);
 	}	
 }

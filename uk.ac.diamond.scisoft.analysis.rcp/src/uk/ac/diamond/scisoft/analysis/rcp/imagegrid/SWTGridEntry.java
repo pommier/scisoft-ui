@@ -45,8 +45,8 @@ public class SWTGridEntry extends AbstractGridEntry {
 
 	// Adding in some logging to help with getting this running
 	private static final Logger logger = LoggerFactory.getLogger(SWTGridEntry.class);
-	private double loThreshold = 0.0f;
-	private double hiThreshold = 0.98f;
+	private double loThreshold = 0.0;
+	private double hiThreshold = 0.98;
 	private static Color green = null;
 	private static Color red = null;
 	private static Color blue = null;

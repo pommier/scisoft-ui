@@ -371,7 +371,7 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 		}
 		playback.addFile((String) bean.get(GuiParameters.FILENAME));
 		SWTGridEntry entry = new SWTGridEntry((String) bean.get(GuiParameters.FILENAME), null, canvas,
-				getPreferenceColourMapChoice(), getPreferenceAutoscalingLo()/100., getPreferenceAutoscalingHi()/100.);
+				getPreferenceColourMapChoice(), getPreferenceAutoContrastLo(), getPreferenceAutoContrastHi());
 		Integer xPos = (Integer) bean.get(GuiParameters.IMAGEGRIDXPOS);
 		Integer yPos = (Integer) bean.get(GuiParameters.IMAGEGRIDYPOS);
 		if (xPos != null && yPos != null)
@@ -541,7 +541,7 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 				while (iter.hasNext()) {
 					GridImageEntry entry = iter.next();
 					SWTGridEntry gridEntry = new SWTGridEntry(entry.getFilename(), null, canvas, getPreferenceColourMapChoice(),
-							getPreferenceAutoscalingLo()/100., getPreferenceAutoscalingHi()/100.);
+							getPreferenceAutoContrastLo(), getPreferenceAutoContrastHi());
 					imageGrid.addEntry(gridEntry, entry.getGridColumnPos(), entry.getGridRowPos());
 				}
 			}
@@ -825,18 +825,20 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 				: preferenceStore.getInt(PreferenceConstants.IMAGEEXPLORER_PLAYBACKRATE);
 	}
 
-	private int getPreferenceAutoscalingLo() {
+	private double getPreferenceAutoContrastLo() {
 		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		return preferenceStore.isDefault(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALELOTHRESHOLD)
-				? preferenceStore.getDefaultInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALELOTHRESHOLD)
-				: preferenceStore.getInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALELOTHRESHOLD);
+		int v = preferenceStore.isDefault(PreferenceConstants.IMAGEEXPLORER_AUTOCONTRAST_LOTHRESHOLD)
+				? preferenceStore.getDefaultInt(PreferenceConstants.IMAGEEXPLORER_AUTOCONTRAST_LOTHRESHOLD)
+				: preferenceStore.getInt(PreferenceConstants.IMAGEEXPLORER_AUTOCONTRAST_LOTHRESHOLD);
+		return v/100.0;
 	}
 
-	private int getPreferenceAutoscalingHi() {
+	private double getPreferenceAutoContrastHi() {
 		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		return preferenceStore.isDefault(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALEHITHRESHOLD)
-				? preferenceStore.getDefaultInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALEHITHRESHOLD)
-				: preferenceStore.getInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALEHITHRESHOLD);
+		int v = preferenceStore.isDefault(PreferenceConstants.IMAGEEXPLORER_AUTOCONTRAST_HITHRESHOLD)
+				? preferenceStore.getDefaultInt(PreferenceConstants.IMAGEEXPLORER_AUTOCONTRAST_HITHRESHOLD)
+				: preferenceStore.getInt(PreferenceConstants.IMAGEEXPLORER_AUTOCONTRAST_HITHRESHOLD);
+				return v/100.0;
 	}
 
 	/**

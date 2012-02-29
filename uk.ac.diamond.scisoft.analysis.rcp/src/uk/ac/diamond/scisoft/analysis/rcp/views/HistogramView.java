@@ -103,7 +103,6 @@ public class HistogramView extends ViewPart implements SelectionListener,
 	protected AxisValues xAxis = null;
 	protected Composite parent;
 	protected int histogramSize = 128;
-	protected static final double MINIMUMPIXELTHRESHOLD = 0.01; // as factor
 
 	private static final int SLIDERSECTIONS = 1000; // Number of discrete points the sliders for max and min sliders have
 	protected AbstractDataset data = null;
@@ -147,7 +146,7 @@ public class HistogramView extends ViewPart implements SelectionListener,
 	private MaxMin currentMaxMin;
 	private Map<Integer, MaxMin> cachedMaxMin;
 
-	private boolean autoHistogram = true;
+	private boolean autoContrast = true;
 	private boolean lockRange = false;
 	private boolean useLog = false;
 	private String id;
@@ -186,8 +185,7 @@ public class HistogramView extends ViewPart implements SelectionListener,
 		}
 	}
 	
-	protected void buildToolbar()
-	{
+	protected void buildToolbar() {
 		IActionBars toolBar = getViewSite().getActionBars();		
 		histogramUI = new HistogramUI(this,toolBar,histogramPlotter);
 		histogramUI.addIObserver(this);
@@ -665,33 +663,32 @@ public class HistogramView extends ViewPart implements SelectionListener,
 		updateChannelGraphs();
 		histogramPlotter.refresh(true);
 	}
-	
+
 	private void autoRangeHistogram() {
 		histogramPlotter.clearZoomHistory();
-		double max;
-		if (autoHistogram && data.getRank() == 2) {
+		double[] m;
+		if (autoContrast && data.getRank() == 2) {
 			try {
 				final int[] shape = data.getShape();
 				if (shape[0] > 512 && shape[1] > 512) {
 					int yReduce = (int) Math.ceil(shape[0] / 512.0);
 					int xReduce = (int) Math.ceil(shape[1] / 512.0);
 					Downsample sample = new Downsample(DownsampleMode.MAXIMUM, xReduce, yReduce);
-					max = Stats.quantile(sample.value(data).get(0), 1.0 - MINIMUMPIXELTHRESHOLD);
+					m = Stats.quantile(sample.value(data).get(0), getPreferenceAutoContrastLo(), getPreferenceAutoContrastHi());
 				} else
-					max = Stats.quantile(data, 1.0 - MINIMUMPIXELTHRESHOLD);
+					m = Stats.quantile(data, getPreferenceAutoContrastLo(), getPreferenceAutoContrastHi());
 			} catch (Exception e) {
-				max = data.max().doubleValue();
+				m = new double[] {data.min().doubleValue(), data.max().doubleValue()};
 			}
 		} else {
-			max = data.max().doubleValue();
+			m = new double[] {data.min().doubleValue(), data.max().doubleValue()};
 		}
-		double min = data.min().doubleValue();
 		
-		if (Double.compare(max, min) <= 0)
-			max = min + MINIMUMPIXELTHRESHOLD;
+		if (Double.compare(m[1], m[0]) <= 0)
+			m[1] = m[0] + PreferenceConstants.MINIMUM_CONTRAST_DELTA/100.0;
 
-		currentMaxMin.max = max;
-		currentMaxMin.min = min;
+		currentMaxMin.max = m[1];
+		currentMaxMin.min = m[0];
 	}
 
 	public void createInitialHistogram() {
@@ -708,7 +705,7 @@ public class HistogramView extends ViewPart implements SelectionListener,
 			currentMaxMin.max = oldMM.max;
 			currentMaxMin.min = oldMM.min;
 		} else {
-			if (autoHistogram || Double.isNaN(currentMaxMin.max) || Double.isNaN(currentMaxMin.min))
+			if (autoContrast || Double.isNaN(currentMaxMin.max) || Double.isNaN(currentMaxMin.min))
 				autoRangeHistogram();
 		}
 
@@ -818,8 +815,8 @@ public class HistogramView extends ViewPart implements SelectionListener,
 		String pName = getPartName();
 		Integer setting = colourSettings.get(pName);
 		if (setting != null)
-			preferenceStore.setValue(pName+"."+PreferenceConstants.PLOT_VIEWER_PLOT2D_COLOURMAP, setting);
-		preferenceStore.setValue(pName+"."+PreferenceConstants.PLOT_VIEWER_PLOT2D_SCALING, (useLog ? 1 : 0));
+			preferenceStore.setValue(pName+"."+PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP, setting);
+		preferenceStore.setValue(pName+"."+PreferenceConstants.PLOT_VIEW_PLOT2D_SCALING, (useLog ? 1 : 0));
 		deleteIObservers();
 	    if (histogramPlotter != null)
 		   histogramPlotter.cleanUp();
@@ -848,8 +845,8 @@ public class HistogramView extends ViewPart implements SelectionListener,
 		super.dispose();
 	}
 
-	public void setAutoHistogramScaling(boolean checked) {
-		autoHistogram = checked;
+	public void setAutoContrastScaling(boolean checked) {
+		autoContrast = checked;
 		if (hasData()) {
 			spnRangeStart.setEnabled(!checked);
 			spnRangeStop.setEnabled(!checked);
@@ -883,21 +880,37 @@ public class HistogramView extends ViewPart implements SelectionListener,
 	private int getPreferenceColourMapChoice() {
 		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
 		// try to retrieve setting from last session
-		int i = preferenceStore.getInt(getPartName()+"."+PreferenceConstants.PLOT_VIEWER_PLOT2D_COLOURMAP); 
+		int i = preferenceStore.getInt(getPartName()+"."+PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP); 
 		if (i != 0)
 			return i;
-		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEWER_PLOT2D_COLOURMAP) ? 
-				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEWER_PLOT2D_COLOURMAP)
-				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEWER_PLOT2D_COLOURMAP);
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP) ? 
+				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP)
+				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP);
 	}
 
 	private boolean getPreferenceColourMapExpertMode() {
 		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
 		// try to retrieve setting from last session
-		if (preferenceStore.getBoolean(getPartName()+"."+PreferenceConstants.PLOT_VIEWER_PLOT2D_CMAP_EXPERT))
+		if (preferenceStore.getBoolean(getPartName()+"."+PreferenceConstants.PLOT_VIEW_PLOT2D_CMAP_EXPERT))
 			return true;
-		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEWER_PLOT2D_CMAP_EXPERT) ? 
-				preferenceStore.getDefaultBoolean(PreferenceConstants.PLOT_VIEWER_PLOT2D_CMAP_EXPERT)
-				: preferenceStore.getBoolean(PreferenceConstants.PLOT_VIEWER_PLOT2D_CMAP_EXPERT);
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_CMAP_EXPERT) ? 
+				preferenceStore.getDefaultBoolean(PreferenceConstants.PLOT_VIEW_PLOT2D_CMAP_EXPERT)
+				: preferenceStore.getBoolean(PreferenceConstants.PLOT_VIEW_PLOT2D_CMAP_EXPERT);
+	}
+
+	private double getPreferenceAutoContrastLo() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		int v = preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST_LOTHRESHOLD) ?
+				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST_LOTHRESHOLD)
+				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST_LOTHRESHOLD);
+		return v/100.0;
+	}
+
+	private double getPreferenceAutoContrastHi() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		int v = preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST_HITHRESHOLD) ?
+				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST_HITHRESHOLD)
+				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST_HITHRESHOLD);
+		return v/100.0;
 	}
 }
