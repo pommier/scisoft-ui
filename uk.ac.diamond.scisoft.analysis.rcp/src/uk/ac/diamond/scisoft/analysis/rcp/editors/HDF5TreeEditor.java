@@ -122,7 +122,6 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 		IWorkbenchPartSite site = getSite();
 		hdfxp = new HDF5TreeExplorer(parent, site, null);
 		if (!loadHDF5Tree()) {
-			
 			return;
 		}
 		site.setSelectionProvider(hdfxp);
@@ -292,7 +291,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 	 * This is used on the workflow perspective to show selected value in the tree.
 	 */
 	@Override
-    public Object getAdapter(final Class clazz) {
+    public Object getAdapter(@SuppressWarnings("rawtypes") final Class clazz) {
 		
 		if (clazz == IContentProvider.class) {
 			return new HDF5ValuePage();
