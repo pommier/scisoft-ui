@@ -491,8 +491,10 @@ public class DatasetInspector extends Composite {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				cInspectionTab.stopInspection();
-				axisSelector.refresh();
-				updateSlicers(true);
+				if (evt.getPropertyName() != PlotAxisProperty.plotUpdate) {
+					axisSelector.refresh();
+					updateSlicers(true);
+				}
 				sliceDataAndView();
 			}
 		};
