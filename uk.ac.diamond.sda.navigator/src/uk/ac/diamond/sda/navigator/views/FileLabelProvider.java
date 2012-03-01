@@ -39,7 +39,7 @@ public class FileLabelProvider extends ColumnLabelProvider {
 
 	public FileLabelProvider(final int column) throws Exception {
 		this.columnIndex = column;
-		this.dateFormat  = new SimpleDateFormat("dd/MM/yyyy hh:mm");
+		this.dateFormat  = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 		this.service = (IFileIconService)ServiceManager.getService(IFileIconService.class);
 
 	}
