@@ -17,6 +17,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
 import java.awt.Color;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -1010,25 +1011,40 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 	}
 
 	private void setThreshold() {
-		Double threshold = (Double) data.getMetadata("NXdetector:pixel_overload");
-		if (threshold != null) {
+		IMetaData md = data.getMetadata();
+		if (md != null) {
 			if (mainPlotter instanceof DataSetPlotter) {
-				((DataSetPlotter) mainPlotter).setOverloadThreshold(threshold);
-				diffViewMetadata.setThreshold(threshold);
+				try {
+					Serializable s = md.getMetaValue("NXdetector:pixel_overload");
+					Double threshold = null;
+
+					if (s instanceof String) {
+						threshold = Double.valueOf((String) s);
+					} else if (s instanceof Number) {
+						threshold = ((Number) s).doubleValue();
+					}
+
+					if (threshold != null) {
+						((DataSetPlotter) mainPlotter).setOverloadThreshold(threshold);
+						diffViewMetadata.setThreshold(threshold);
+					}
+					return;
+				} catch (Exception e) {
+				}
 			}
-		} else {
-			IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-			double thresholdFromPrefs;
-			if (preferenceStore.isDefault(PreferenceConstants.DIFFRACTION_VIEWER_PIXELOVERLOAD_THRESHOLD))
-				thresholdFromPrefs = preferenceStore
-						.getDefaultDouble(PreferenceConstants.DIFFRACTION_VIEWER_PIXELOVERLOAD_THRESHOLD);
-			else
-				thresholdFromPrefs = preferenceStore
-						.getDouble(PreferenceConstants.DIFFRACTION_VIEWER_PIXELOVERLOAD_THRESHOLD);
-			if (mainPlotter instanceof DataSetPlotter) {
-				((DataSetPlotter) mainPlotter).setOverloadThreshold(thresholdFromPrefs);
-				diffViewMetadata.setThreshold(thresholdFromPrefs);
-			}
+		}
+
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		double thresholdFromPrefs;
+		if (preferenceStore.isDefault(PreferenceConstants.DIFFRACTION_VIEWER_PIXELOVERLOAD_THRESHOLD))
+			thresholdFromPrefs = preferenceStore
+					.getDefaultDouble(PreferenceConstants.DIFFRACTION_VIEWER_PIXELOVERLOAD_THRESHOLD);
+		else
+			thresholdFromPrefs = preferenceStore
+					.getDouble(PreferenceConstants.DIFFRACTION_VIEWER_PIXELOVERLOAD_THRESHOLD);
+		if (mainPlotter instanceof DataSetPlotter) {
+			((DataSetPlotter) mainPlotter).setOverloadThreshold(thresholdFromPrefs);
+			diffViewMetadata.setThreshold(thresholdFromPrefs);
 		}
 	}
 
