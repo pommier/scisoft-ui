@@ -126,7 +126,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 		}
 		site.setSelectionProvider(hdfxp);
 		setPartName(file.getName());
-		registerSelectionListener();
+//		registerSelectionListener();
 	}
 
 	@Override
@@ -158,7 +158,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 	@Override
 	public void dispose() {
 		file = null;
-		unregisterSelectionListener();
+//		unregisterSelectionListener();
 		if (hdfxp != null)
 			hdfxp.dispose();
 		super.dispose();
