@@ -1,3 +1,19 @@
+/*
+ * Copyright 2012 Diamond Light Source Ltd.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.ac.diamond.sda.meta.preferences;
 
 import java.util.Map;
@@ -25,8 +41,7 @@ import org.eclipse.ui.progress.UIJob;
 import uk.ac.diamond.sda.meta.Activator;
 import uk.ac.diamond.sda.meta.utils.MapUtils;
 
-public class MetadataAssociationPreferences extends PreferencePage implements
-		IWorkbenchPreferencePage {
+public class MetadataAssociationPreferences extends PreferencePage implements IWorkbenchPreferencePage {
 
 	private List fileAssociations;
 	private Text txtFileType;
@@ -38,22 +53,16 @@ public class MetadataAssociationPreferences extends PreferencePage implements
 	public MetadataAssociationPreferences() {
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
-	 */
+	@Override
 	public void init(IWorkbench workbench) {
 		setPreferenceStore(Activator.getDefault().getPreferenceStore());
 		getCurrentSetting();
 	}
 
 	private void getCurrentSetting() {
-		mapOfFileAssociations = MapUtils.getMap(getPreferenceStore()
-				.getString(PreferenceConstants.defaultMetadataAssociation));
-		defaultView = getPreferenceStore().getString(
-				PreferenceConstants.defaultPage);
+		mapOfFileAssociations = MapUtils.getMap(getPreferenceStore().getString(
+				PreferenceConstants.defaultMetadataAssociation));
+		defaultView = getPreferenceStore().getString(PreferenceConstants.defaultPage);
 	}
 
 	@Override
@@ -72,8 +81,7 @@ public class MetadataAssociationPreferences extends PreferencePage implements
 		Group gpfileAssociationTable = new Group(comp, SWT.NONE);
 		gpfileAssociationTable.setText("File Associations");
 		gpfileAssociationTable.setLayout(new GridLayout(1, false));
-		gpfileAssociationTable.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
-				true, true));
+		gpfileAssociationTable.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		GridData data = new GridData(GridData.FILL_BOTH);
 		fileAssociations = new List(gpfileAssociationTable, SWT.BORDER);
@@ -90,8 +98,7 @@ public class MetadataAssociationPreferences extends PreferencePage implements
 		Group gpFileAssociationDetails = new Group(comp, SWT.NONE);
 		gpFileAssociationDetails.setText("Association Details");
 		gpFileAssociationDetails.setLayout(new GridLayout(2, false));
-		gpFileAssociationDetails.setLayoutData(new GridData(SWT.FILL, SWT.TOP,
-				true, true));
+		gpFileAssociationDetails.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
 
 		new Label(gpFileAssociationDetails, SWT.NONE).setText("File: ");
 		txtFileType = new Text(gpFileAssociationDetails, SWT.READ_ONLY);
@@ -100,12 +107,11 @@ public class MetadataAssociationPreferences extends PreferencePage implements
 
 		new Label(gpFileAssociationDetails, SWT.NONE).setText("Association: ");
 		txtFileAssociation = new Text(gpFileAssociationDetails, SWT.NONE);
-		txtFileAssociation.setBackground(gpFileAssociationDetails
-				.getBackground());
+		txtFileAssociation.setBackground(gpFileAssociationDetails.getBackground());
 		txtFileAssociation.setLayoutData(data);
 
 		updateFileAssociationList();
-		
+
 		return comp;
 	}
 
@@ -141,16 +147,17 @@ public class MetadataAssociationPreferences extends PreferencePage implements
 		updateLists.schedule();
 	}
 
-
 	@Override
 	protected void performDefaults() {
 		super.performDefaults();
-		mapOfFileAssociations = MapUtils.getMap(getPreferenceStore().getDefaultString(PreferenceConstants.defaultMetadataAssociation));
+		mapOfFileAssociations = MapUtils.getMap(getPreferenceStore().getDefaultString(
+				PreferenceConstants.defaultMetadataAssociation));
 		defaultView = getPreferenceStore().getDefaultString(PreferenceConstants.defaultPage);
 		updateFileAssociationList();
-		
-		//setDefaults
-		getPreferenceStore().setValue(PreferenceConstants.defaultMetadataAssociation, MapUtils.getString(mapOfFileAssociations));
+
+		// setDefaults
+		getPreferenceStore().setValue(PreferenceConstants.defaultMetadataAssociation,
+				MapUtils.getString(mapOfFileAssociations));
 		getPreferenceStore().setValue(PreferenceConstants.defaultPage, defaultView);
 	}
 
