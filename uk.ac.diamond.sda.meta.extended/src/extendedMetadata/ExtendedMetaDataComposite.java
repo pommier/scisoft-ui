@@ -35,7 +35,7 @@ import org.apache.commons.io.FileUtils;
 import uk.ac.diamond.scisoft.analysis.io.IExtendedMetadata;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.sda.meta.page.IMetadataPage;
-import uk.ac.diamond.sda.meta.views.HeaderTableView;
+import uk.ac.diamond.sda.meta.views.MetadataTableView;
 
 public class ExtendedMetaDataComposite implements IMetadataPage {
 
@@ -48,7 +48,7 @@ public class ExtendedMetaDataComposite implements IMetadataPage {
 	private Text creator;
 	private Text fileName;
 	private Text creation;
-	private HeaderTableView view;
+	private MetadataTableView view;
 	private static SimpleDateFormat dateformat = new SimpleDateFormat("dd-MMM-yyyy 'at' HH:mm:ss");
 
 	public ExtendedMetaDataComposite() {
@@ -144,7 +144,7 @@ public class ExtendedMetaDataComposite implements IMetadataPage {
 
 		// Composite tableComp = new Composite(comp, SWT.NONE);
 
-		view = new HeaderTableView();
+		view = new MetadataTableView();
 		view.createPartControl(comp);
 
 		return comp;

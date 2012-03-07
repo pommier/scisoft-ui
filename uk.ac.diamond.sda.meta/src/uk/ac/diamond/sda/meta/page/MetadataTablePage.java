@@ -20,14 +20,14 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
-import uk.ac.diamond.sda.meta.views.HeaderTableView;
+import uk.ac.diamond.sda.meta.views.MetadataTableView;
 
-public class HeaderTablePage implements IMetadataPage {
+public class MetadataTablePage implements IMetadataPage {
 
 	private Composite control;
-	HeaderTableView view = null;
+	MetadataTableView view = null;
 
-	public HeaderTablePage() {
+	public MetadataTablePage() {
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class HeaderTablePage implements IMetadataPage {
 
 		this.control = new Composite(parent, SWT.NONE);
 		control.setLayout(new GridLayout(1, false));
-		view = new HeaderTableView();
+		view = new MetadataTableView();
 		view.createPartControl(control);
 		return control;
 	}

@@ -163,7 +163,7 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 
 	private void doDefaultBehaviour() {
 		String currentAssociatedView;
-		if (metatdataPageAssociation != null && metatdataPageAssociation.containsKey(meta.getClass().toString())) {
+		if (metatdataPageAssociation != null && meta!=null && metatdataPageAssociation.containsKey(meta.getClass().toString())) {
 			currentAssociatedView = metatdataPageAssociation.get(meta.getClass().toString());
 			if (actionRegistary.containsKey(currentAssociatedView))
 				actionRegistary.get(currentAssociatedView).run();

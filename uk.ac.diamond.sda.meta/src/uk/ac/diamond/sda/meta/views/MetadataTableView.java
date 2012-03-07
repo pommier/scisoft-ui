@@ -40,11 +40,11 @@ import uk.ac.diamond.scisoft.analysis.io.IMetaData;
  * @author suchet + gerring
  * 
  */
-public class HeaderTableView extends ViewPart {
+public class MetadataTableView extends ViewPart {
 
 	public static final String ID = "fable.imageviewer.views.HeaderView";
 
-	private static final Logger logger = LoggerFactory.getLogger(HeaderTableView.class);
+	private static final Logger logger = LoggerFactory.getLogger(MetadataTableView.class);
 
 	private IMetaData meta;
 	private TableViewer table;
@@ -52,7 +52,7 @@ public class HeaderTableView extends ViewPart {
 	/**
 	 * 
 	 */
-	public HeaderTableView() {
+	public MetadataTableView() {
 	}
 
 	@Override
