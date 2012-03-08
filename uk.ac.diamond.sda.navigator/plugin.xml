@@ -442,7 +442,6 @@
             name="Refresh">
       </command>
       <command
-            defaultHandler="uk.ac.diamond.sda.navigator.actions.ReUseEditorHandler"
             id="uk.ac.diamond.sda.navigator.ReUseEditor"
             name="Re-use Editor">
             <state class="org.eclipse.jface.commands.ToggleState"
@@ -469,5 +468,12 @@
             id="uk.ac.diamond.sda.navigator.project.explorer.decorators.cheatsheet"
             name="Project Explorer File Decorators">
       </cheatsheet>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="uk.ac.diamond.sda.navigator.actions.ReUseEditorHandler"
+            commandId="uk.ac.diamond.sda.navigator.ReUseEditor">
+      </handler>
    </extension>
 </plugin>

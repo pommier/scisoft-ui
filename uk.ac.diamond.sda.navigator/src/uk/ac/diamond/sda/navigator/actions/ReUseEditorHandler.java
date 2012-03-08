@@ -23,8 +23,6 @@ import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.State;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.menus.IMenuStateIds;
 import org.eclipse.ui.PlatformUI;
@@ -39,18 +37,16 @@ import org.eclipse.ui.internal.IPreferenceConstants;
  * Enables the user to set on/off the re-use editor functionality
  */
 @SuppressWarnings("restriction")
-public class ReUseEditorHandler extends AbstractHandler implements IElementUpdater, IPreferenceChangeListener {
+public class ReUseEditorHandler extends AbstractHandler implements IElementUpdater {
 
 	public static String ID = "uk.ac.diamond.sda.navigator.MultipleEditor";
 	private State state;
 
 	@Override
 	public final Object execute(ExecutionEvent event) throws ExecutionException {
-		ICommandService commandService = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
 
 		// update toggled state
 		state = event.getCommand().getState(IMenuStateIds.STYLE);
-
 		boolean currentState = (Boolean) state.getValue();
 		boolean newState = !currentState;
 		state.setValue(newState);
@@ -62,6 +58,7 @@ public class ReUseEditorHandler extends AbstractHandler implements IElementUpdat
 		else
 			store.setValue(IPreferenceConstants.REUSE_EDITORS, 10);
 
+		ICommandService commandService = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
 		commandService.refreshElements(event.getCommand().getId(), null);
 
 		return null;
@@ -75,22 +72,5 @@ public class ReUseEditorHandler extends AbstractHandler implements IElementUpdat
 		State state = command.getState(IMenuStateIds.STYLE);
 		if (state != null)
 			element.setChecked((Boolean) state.getValue());
-
 	}
-
-	private boolean reuseEditors = false;
-
-	//not working
-	@Override
-	public void preferenceChange(PreferenceChangeEvent event) {
-		if (event.getKey().equals(IPreferenceConstants.REUSE_EDITORS_BOOLEAN)) {
-			ScopedPreferenceStore store = new ScopedPreferenceStore(InstanceScope.INSTANCE, "org.eclipse.ui.workbench");
-
-			reuseEditors = store.getBoolean(IPreferenceConstants.REUSE_EDITORS_BOOLEAN);
-			System.out.println(reuseEditors);
-			state.setValue(reuseEditors);
-
-		}
-	}
-
 }
