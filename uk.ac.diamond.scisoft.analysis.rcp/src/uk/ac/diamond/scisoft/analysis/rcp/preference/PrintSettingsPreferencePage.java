@@ -44,7 +44,6 @@ public class PrintSettingsPreferencePage extends PreferencePage implements IWork
 	private Combo orientationCombo;
 	private Combo resolutionCombo;
 	private PrintSettings settings;
-	private Printer printer;
 	
 	public PrintSettingsPreferencePage() {
 	}
@@ -81,8 +80,8 @@ public class PrintSettingsPreferencePage extends PreferencePage implements IWork
 		if(settings == null){
 			settings = new PrintSettings();
 		}
-		printer = new Printer(settings.getPrinterData());
-		PrinterData[] printerList = printer.getPrinterList();
+
+		PrinterData[] printerList = Printer.getPrinterList();
 		for (int i = 0; i < printerList.length; i++) {
 			printerListCombo.add(printerList[i].name);
 		}
@@ -108,7 +107,7 @@ public class PrintSettingsPreferencePage extends PreferencePage implements IWork
 		Label orientationLabel = new Label(printSettingsGroup, SWT.LEFT);
 		orientationLabel.setText("Orientation: ");
 		orientationCombo = new Combo(printSettingsGroup, SWT.RIGHT|SWT.READ_ONLY);
-		orientationCombo.setEnabled(false); //not yet fully functional
+	//	orientationCombo.setEnabled(false); //not yet fully functional
 		orientationCombo.setToolTipText("Not yet fully functional");
 		Orientation[] orientationList = Orientation.values();
 		for (int i = 0; i < orientationList.length; i++) {
