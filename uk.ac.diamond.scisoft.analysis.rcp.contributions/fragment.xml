@@ -69,6 +69,15 @@
             category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
             icon="icons/chart_curve.png"
+            id="uk.ac.diamond.scisoft.analysis.rcp.plotViewShifts"
+            name="Shifts"
+            restorable="true">
+      </view>
+      <view
+            allowMultiple="false"
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            icon="icons/chart_curve.png"
             id="uk.ac.diamond.scisoft.analysis.rcp.livePlotView"
             name="Live Plot"
             restorable="true">
@@ -1045,6 +1054,9 @@
          </ViewRegister>
          <ViewRegister
          	ViewName="Live Plot">
+         </ViewRegister>
+         <ViewRegister
+         	ViewName="Shifts">
          </ViewRegister>
    </extension>
    <extension

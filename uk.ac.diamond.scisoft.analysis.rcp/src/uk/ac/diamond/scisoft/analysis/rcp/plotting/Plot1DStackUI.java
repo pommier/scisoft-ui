@@ -190,9 +190,8 @@ public class Plot1DStackUI extends AbstractPlotUI {
 			}
 			
 			//we set the plot/file name
-			String title = page.getActivePart().getTitle();
-			if(!title.equals("Dataset Inspector")&&!title.equals("Dataset Plot"))
-				mainPlotter.setTitle(title);
+			String title = page.getActiveEditor().getTitle();
+			mainPlotter.setTitle(title);
 	
 			parent.getDisplay().asyncExec(new Runnable() {
 				@Override

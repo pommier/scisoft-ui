@@ -33,6 +33,7 @@ import org.eclipse.jface.action.StatusLineContributionItem;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
@@ -350,14 +351,17 @@ public class Plot1DUIComplete extends Plot1DUIAdapter {
 				e.printStackTrace();
 			}
 			
-			//we set the plot/file name
-			String title = page.getActivePart().getTitle();
-			if(!title.equals("Dataset Inspector")&&!title.equals("Dataset Plot"))
-				plotter.setTitle(title);
+			final String title = page.getActiveEditor().getTitle();
 			
 			parent.getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
+					//we set the plot/file name
+					String perspective = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getPerspective().getId();
+					// except for peema perspective
+					if(!perspective.equals("uk.ac.diamond.scisoft.peema.rcp.perspective"))
+						plotter.setTitle(title);
+					
 					plotter.refresh(true);
 					plotter.updateAllAppearance();
 					getSidePlotView().processPlotUpdate();
