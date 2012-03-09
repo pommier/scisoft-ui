@@ -426,9 +426,8 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 					e.printStackTrace();
 				}
 				//set the title/filename of plot
-				String title = page.getActivePart().getTitle();
-				if(!title.equals("Dataset Inspector")&&!title.equals("Dataset Plot"))
-					mainPlotter.setTitle(title);
+				String title = page.getActiveEditor().getTitle();
+				mainPlotter.setTitle(title);
 				
 				dataWindowView.setData(datasets.get(0),xAxis,yAxis);
 				parent.getDisplay().asyncExec(new Runnable() {
