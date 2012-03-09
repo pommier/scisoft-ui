@@ -351,17 +351,13 @@ public class Plot1DUIComplete extends Plot1DUIAdapter {
 				e.printStackTrace();
 			}
 			
+			//we set the plot/file name
 			final String title = page.getActiveEditor().getTitle();
+			plotter.setTitle(title);
 			
 			parent.getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					//we set the plot/file name
-					String perspective = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getPerspective().getId();
-					// except for peema perspective
-					if(!perspective.equals("uk.ac.diamond.scisoft.peema.rcp.perspective"))
-						plotter.setTitle(title);
-					
 					plotter.refresh(true);
 					plotter.updateAllAppearance();
 					getSidePlotView().processPlotUpdate();
