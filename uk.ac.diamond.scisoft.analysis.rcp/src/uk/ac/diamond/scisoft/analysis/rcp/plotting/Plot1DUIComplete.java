@@ -351,9 +351,8 @@ public class Plot1DUIComplete extends Plot1DUIAdapter {
 			}
 			
 			//we set the plot/file name
-			String title = page.getActivePart().getTitle();
-			if(!title.equals("Dataset Inspector")&&!title.equals("Dataset Plot"))
-				plotter.setTitle(title);
+			final String title = page.getActiveEditor().getTitle();
+			plotter.setTitle(title);
 			
 			parent.getDisplay().asyncExec(new Runnable() {
 				@Override
