@@ -24,73 +24,55 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.navigator.IDescriptionProvider;
 
-import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Attribute;
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Dataset;
-import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
+import uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.Tree;
+import uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode;
 
 /**
- * Provides a label and icon for objects of type {@HDF5NodeLink}.
+ * Provides a label and icon for objects of type {@link Tree}.
  */
-public class HDF5LabelProvider extends LabelProvider implements ILabelProvider, ILabelDecorator, IDescriptionProvider {
+public class HDF5LabelProvider extends LabelProvider implements ILabelProvider, IDescriptionProvider, ILabelDecorator {
 	
 	public static final String ID = "uk.ac.diamond.sda.navigator.hdf5Decorator";
 	
 	@Override
-	public Image getImage(Object element) {	
-		if (element instanceof HDF5Attribute) {
-			return  new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/hdf5/dataset.gif"));
-		}		
-		HDF5NodeLink link = (HDF5NodeLink) element;
-		HDF5Node node = link.getDestination();
-		if (node instanceof HDF5Dataset) {
-			HDF5Dataset dataset = (HDF5Dataset) node;
-			if (dataset.isString()) {
-				return new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/hdf5/text.gif"));
+	public Image getImage(Object element) {
+		TreeNode data = (TreeNode) element;
+		HDF5Node node = ((HDF5NodeLink) data.getData()).getDestination();
+		
+		String[] str = node.toString().split("\n");
+		for (int i = 0; i < str.length; i++) {
+			if (str[0].contains("@NX")) {
+				return  new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/hdf5/folderopen.gif"));
 			}
-			ILazyDataset data = dataset.getDataset();
-			// data
-			if (data instanceof AbstractDataset) {
+			else if(str[i].contains("@target")||(str[i].contains("shape"))){
 				return  new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/hdf5/dataset.gif"));
-			} else {
-				return new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/hdf5/dataset.gif"));
-			}				
+			}
 		}
-		return  new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/hdf5/folderopen.gif"));
+		return  new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/hdf5/text.gif"));
 	}
 
 	@Override
 	public String getText(Object element) {
-		return (element instanceof HDF5Attribute)==true ? ((HDF5Attribute) element).getName()+" ":((HDF5NodeLink) element).getName()+" ";
-	}
-
-	@Override
-	public String getDescription(Object element) {
-		String msg = "";
 		if (element instanceof IFile) {
 			IFile file = (IFile) element;
 			return file.getName() + " " + file.getFullPath();
 		}
-		if (element instanceof HDF5Attribute) {
-			HDF5Attribute attr = (HDF5Attribute) element;
-			// name
-			msg = attr.getName();
-			return msg;
+		if (element instanceof TreeNode) {
+			TreeNode data = (TreeNode) element;
+			return ((HDF5NodeLink) data.getData()).getName();
 		}
-		assert element instanceof HDF5NodeLink : "Not an attribute or a link";
-		HDF5NodeLink link = (HDF5NodeLink) element;
-		HDF5Node node = link.getDestination();
-		msg = link.getName();
-		if (node instanceof HDF5Dataset) {
-			HDF5Dataset dataset = (HDF5Dataset) node;
-			if (!dataset.isSupported()) {
-				return "Not supported";
-			}
+		return null;
+	}
+
+	@Override
+	public String getDescription(Object element) {
+		if (element instanceof TreeNode) {
+			TreeNode data = (TreeNode) element;
+			return "Property: " + ((HDF5NodeLink) data.getData()).getName();
 		}
-		return msg;
+		return null;
 	}
 
 	@Override
@@ -100,65 +82,36 @@ public class HDF5LabelProvider extends LabelProvider implements ILabelProvider, 
 
 	@Override
 	public String decorateText(String label, Object element) {
+		TreeNode data = (TreeNode) element;
+		HDF5Node node = ((HDF5NodeLink) data.getData()).getDestination();
+		return label + " " + getNodeLinkData(node);
+	}
 
-		if (element instanceof HDF5Attribute) {
-			HDF5Attribute attr = (HDF5Attribute) element;
-			// class
-			label += ("Attr ");
-			// dimensions
-			if (attr.getSize() > 1) {
-				for (int i : attr.getShape()) {
-					label += i + ", ";
-				}
-				if (label.length() > 2)
-					label += label.substring(0, label.length() - 2)+" ";
-			}
-			// type
-			label += attr.getTypeName()+" ";
-			// data
-			label += attr.getSize() == 1 ? attr.getFirstElement() +" " : attr.toString()+" ";
-			return label;
-		}
-		assert element instanceof HDF5NodeLink : "Not an attribute or a link";
-		HDF5NodeLink link = (HDF5NodeLink) element;
-		HDF5Node node = link.getDestination();
-		// class
-		HDF5Attribute attr = node.getAttribute(HDF5File.NXCLASS);
-		if(attr!=null)
-			label += attr.getFirstElement()+" ";
-		//label += attr.getFirstElement()+" ";
-		if (node instanceof HDF5Dataset) {
-			HDF5Dataset dataset = (HDF5Dataset) node;
-			// class
-			label+="SDS ";
-			if (dataset.isString()) {
-				label += dataset.getTypeName()+" ";
-				label += dataset.getString()+" ";
-				if (label.length() > 100) // restrict to 100 characters
-					label = label.substring(0, 100) + "...";
-				return label;
-			}
-			if (!dataset.isSupported()) {
-				return label+"Not supported";
-			}
-			ILazyDataset data = dataset.getDataset();
-			int[] shape = data.getShape();
-			// dimensions
-			for (int i : shape) {
-				label += i + ", ";
-			}
-			if (label.length() > 2)
-				label += label.substring(0, label.length()-2)+" ";
-			// type
-			label += dataset.getTypeName()+" ";
-			// data
-			if (data instanceof AbstractDataset) {
-				// show a single value
-				label += ((AbstractDataset) data).getString(0)+" ";
+	public static String getNodeLinkData(HDF5Node to) {
+		String strClass = "";
+		String strData = "";
+		String[] str = to.toString().split("\n");
+		for (int i = 0; i < str.length; i++) {
+			if (str[0].contains("@NX_class")) {
+				String[] temp = str[0].split("=");
+				strClass = temp[1].trim();
+				break; //no need to stay in the for loop
 			} else {
-				label += "Select to view";
+				if (str[i].contains("shape")) {
+					String[] temp = str[i].split("shape");
+					strData = strData + "shape " + temp[1].trim() + " ";
+				} else if (str[i].contains("@axis")) {
+					String[] temp = str[i].split("=");
+					strData = strData + "axis = " + temp[1].trim() + " ";
+				} else {
+					strData = strData + " " + str[i].trim() + " ";
+				}
 			}
 		}
-		return label;
+
+		if (strData.length() > 100) // restrict to 100 characters
+			strData = strData.substring(0, 100) + "...";
+		
+		return strClass + strData;
 	}
 }
