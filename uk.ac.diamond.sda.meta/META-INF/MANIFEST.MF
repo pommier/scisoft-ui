@@ -6,7 +6,7 @@ Bundle-Version: 1.1.0.qualifier
 Bundle-Activator: uk.ac.diamond.sda.meta.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- uk.ac.diamond.scisoft.analysis,
+ uk.ac.diamond.scisoft.analysis;bundle-version="[1.1.0,2.0.0)",
  uk.ac.gda.libs,
  uk.ac.gda.common.rcp;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
