@@ -1,3 +1,19 @@
+/*
+ * Copyright 2012 Diamond Light Source Ltd.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package uk.ac.diamond.sda.meta.page;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -21,9 +37,8 @@ import uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.sda.meta.Activator;
 
-public class DiffractionMetadataComposite implements IMetadataPage{
+public class DiffractionMetadataComposite implements IMetadataPage {
 
-	
 	private Text wavelength;
 	private Text phiStart;
 	private Text phiStop;
@@ -41,23 +56,21 @@ public class DiffractionMetadataComposite implements IMetadataPage{
 	private Button showBeam;
 	private Text xBeam;
 	private Text yBeam;
-	private Composite               content;
-	
-	public DiffractionMetadataComposite(){
-		
+	private Composite content;
+
+	public DiffractionMetadataComposite() {
+
 	}
 
-	
 	@Override
 	public Composite createComposite(Composite parent) {
-	
+
 		this.content = new Composite(parent, SWT.NONE);
 		content.setLayout(new GridLayout(1, true));
-		
+
 		ScrolledComposite scrComp = new ScrolledComposite(content, SWT.HORIZONTAL | SWT.VERTICAL);
 		scrComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		
 		Composite comp = new Composite(scrComp, SWT.FILL);
 		comp.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true));
 		comp.setLayout(new GridLayout(2, false));
@@ -173,7 +186,7 @@ public class DiffractionMetadataComposite implements IMetadataPage{
 			maxPxVal = new Text(detectorMetadata, SWT.READ_ONLY);
 			maxPxVal.setBackground(detectorMetadata.getBackground());
 		}
-		new Label(detectorMetadata, SWT.NONE);
+		new Label(detectorMetadata, SWT.NONE).setText("");
 		{
 			Label lblMinPxVal = new Label(detectorMetadata, SWT.NONE);
 			lblMinPxVal.setText("Minimum Value");
@@ -183,7 +196,7 @@ public class DiffractionMetadataComposite implements IMetadataPage{
 			minPxVal = new Text(detectorMetadata, SWT.READ_ONLY);
 			minPxVal.setBackground(detectorMetadata.getBackground());
 		}
-		new Label(detectorMetadata, SWT.NONE);
+		new Label(detectorMetadata, SWT.NONE).setText("");
 		{
 			Label lblMeanPxVal = new Label(detectorMetadata, SWT.NONE);
 			lblMeanPxVal.setText("Mean Value");
@@ -193,7 +206,7 @@ public class DiffractionMetadataComposite implements IMetadataPage{
 			meanPxVal = new Text(detectorMetadata, SWT.READ_ONLY);
 			meanPxVal.setBackground(detectorMetadata.getBackground());
 		}
-		new Label(detectorMetadata, SWT.NONE);
+		new Label(detectorMetadata, SWT.NONE).setText("");
 		{
 			Label lblThreashold = new Label(detectorMetadata, SWT.NONE);
 			lblThreashold.setText("Overload Value");
@@ -203,8 +216,8 @@ public class DiffractionMetadataComposite implements IMetadataPage{
 			overload = new Text(detectorMetadata, SWT.READ_ONLY);
 			overload.setBackground(detectorMetadata.getBackground());
 		}
-		
-		new Label(detectorMetadata, SWT.NONE);
+
+		new Label(detectorMetadata, SWT.NONE).setText("");
 		{
 			Group grpBeamCentreControls = new Group(comp, SWT.NONE);
 			grpBeamCentreControls.setLayout(new GridLayout(2, false));
@@ -214,13 +227,13 @@ public class DiffractionMetadataComposite implements IMetadataPage{
 				Composite beamCentreControls = new Composite(grpBeamCentreControls, SWT.NONE);
 				beamCentreControls.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
 				beamCentreControls.setLayout(new GridLayout(3, false));
-				new Label(beamCentreControls, SWT.NONE);
+				new Label(beamCentreControls, SWT.NONE).setText("");
 				{
 					Button upBeam = new Button(beamCentreControls, SWT.NONE);
 					upBeam.setImage(Activator.getImageDescriptor("/icons/arrow_up.png").createImage());
 					upBeam.setEnabled(false);
 				}
-				new Label(beamCentreControls, SWT.NONE);
+				new Label(beamCentreControls, SWT.NONE).setText("");
 				{
 					Button leftBeam = new Button(beamCentreControls, SWT.NONE);
 
@@ -230,8 +243,7 @@ public class DiffractionMetadataComposite implements IMetadataPage{
 				{
 					showBeam = new Button(beamCentreControls, SWT.TOGGLE);
 					showBeam.setToolTipText("Show beam centre");
-					showBeam.setImage(Activator.getImageDescriptor("icons/asterisk_yellow.png")
-							.createImage());
+					showBeam.setImage(Activator.getImageDescriptor("icons/asterisk_yellow.png").createImage());
 					showBeam.setEnabled(false);
 				}
 				{
@@ -239,13 +251,13 @@ public class DiffractionMetadataComposite implements IMetadataPage{
 					rightBeam.setImage(Activator.getImageDescriptor("/icons/arrow_right.png").createImage());
 					rightBeam.setEnabled(false);
 				}
-				new Label(beamCentreControls, SWT.NONE);
+				new Label(beamCentreControls, SWT.NONE).setText("");
 				{
 					Button downBeam = new Button(beamCentreControls, SWT.NONE);
 					downBeam.setImage(Activator.getImageDescriptor("/icons/arrow_down.png").createImage());
 					downBeam.setEnabled(false);
 				}
-				new Label(beamCentreControls, SWT.NONE);
+				new Label(beamCentreControls, SWT.NONE).setText("");
 
 				Composite beamSpinners = new Composite(grpBeamCentreControls, SWT.FILL);
 				beamSpinners.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
@@ -268,23 +280,23 @@ public class DiffractionMetadataComposite implements IMetadataPage{
 		scrComp.setContent(comp);
 		final Point controlsSize = comp.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 		comp.setSize(controlsSize);
-		
+
 		return content;
 	}
 
-
 	private void updateGUI(final IDiffractionMetadata meta) {
 		UIJob update = new UIJob("Updating metadata GUI") {
-		
+
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
-				
+
 				DetectorProperties detprop = meta.getDetector2DProperties();
 				DiffractionCrystalEnvironment diffenv = meta.getDiffractionCrystalEnvironment();
 				wavelength.setText(String.valueOf(diffenv.getWavelength()));
 				phiStart.setText(String.valueOf(diffenv.getPhiStart()));
-				phiStop.setText(String.valueOf(diffenv.getPhiStart()+diffenv.getPhiRange()));
-				phiRange.setText(String.valueOf(diffenv.getPhiRange()));;
+				phiStop.setText(String.valueOf(diffenv.getPhiStart() + diffenv.getPhiRange()));
+				phiRange.setText(String.valueOf(diffenv.getPhiRange()));
+
 				distanceToDetector.setText(String.valueOf(detprop.getOrigin().z));
 				detectorSizeX.setText(String.valueOf(detprop.getDetectorSizeH()));
 				detectorSizeY.setText(String.valueOf(detprop.getDetectorSizeV()));
@@ -296,8 +308,8 @@ public class DiffractionMetadataComposite implements IMetadataPage{
 				meanPxVal.setText(String.valueOf("N/A"));
 				overload.setText(String.valueOf("N/A"));
 				int[] beam = detprop.pixelCoords(detprop.getBeamPosition());
-				xBeam.setText(String.valueOf(beam[0]*detprop.getHPxSize()));
-				yBeam.setText(String.valueOf(beam[1]*detprop.getVPxSize()));
+				xBeam.setText(String.valueOf(beam[0] * detprop.getHPxSize()));
+				yBeam.setText(String.valueOf(beam[1] * detprop.getVPxSize()));
 				return Status.OK_STATUS;
 			}
 		};
@@ -306,33 +318,33 @@ public class DiffractionMetadataComposite implements IMetadataPage{
 
 //	@Override
 //	public void update(Object source, Object arg) {
-//		if(source instanceof IMetadataProvider){
+//		if (source instanceof IMetadataProvider) {
 //			IMetaData localMetadata;
 //			try {
-//				localMetadata = ((IMetadataProvider)source).getMetadata();
-//				if(localMetadata instanceof IDiffractionMetadata){
-//					updateGUI((IDiffractionMetadata)localMetadata);
-//				}else{
+//				localMetadata = ((IMetadataProvider) source).getMetadata();
+//				if (localMetadata instanceof IDiffractionMetadata) {
+//					updateGUI((IDiffractionMetadata) localMetadata);
+//				} else {
 //					clearGUI();
 //				}
 //			} catch (Exception e) {
-//				logger.error("Could not get metadata",e);
+//				logger.error("Could not get metadata", e);
 //			}
-//			
+//
 //		}
 //	}
 
-	
 	private void clearGUI() {
 		UIJob update = new UIJob("Updating metadata GUI") {
-			
+
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
-				
+
 				wavelength.setText("");
 				phiStart.setText("");
 				phiStop.setText("");
-				phiRange.setText("");;
+				phiRange.setText("");
+
 				distanceToDetector.setText("");
 				detectorSizeX.setText("");
 				detectorSizeY.setText("");
@@ -350,16 +362,15 @@ public class DiffractionMetadataComposite implements IMetadataPage{
 		};
 		update.schedule();
 	}
-	
 
 	@Override
 	public void setMetaData(IMetaData metadata) {
-		if(metadata instanceof IDiffractionMetadata){
-			updateGUI((IDiffractionMetadata)metadata);
-		}if(metadata ==null){
+		if (metadata instanceof IDiffractionMetadata) {
+			updateGUI((IDiffractionMetadata) metadata);
+		}
+		if (metadata == null) {
 			clearGUI();
 		}
 	}
-
 
 }

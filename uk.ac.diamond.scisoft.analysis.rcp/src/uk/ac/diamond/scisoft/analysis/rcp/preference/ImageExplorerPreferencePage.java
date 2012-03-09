@@ -22,6 +22,8 @@ import java.util.List;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
@@ -42,11 +44,12 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView;
 public class ImageExplorerPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
 	private Combo cmbColourMap;
-	private Spinner spnAutoThreshold;
+	private Spinner spnAutoLoThreshold;
+	private Spinner spnAutoHiThreshold;
 	private Spinner spnWaitTime;
 	private Spinner spnSkipImages;
 	private Combo cmbDisplayViews;
-	
+
 	public ImageExplorerPreferencePage() {
 	}
 
@@ -57,181 +60,233 @@ public class ImageExplorerPreferencePage extends PreferencePage implements IWork
 	public ImageExplorerPreferencePage(String title, ImageDescriptor image) {
 		super(title, image);
 	}
-	
+
 	@Override
 	protected Control createContents(Composite parent) {
 		Composite comp = new Composite(parent, SWT.NONE);
 		comp.setLayout(new GridLayout(3, false));
-		GridData gdc = new GridData(SWT.FILL, SWT.FILL, true, true);
-		comp.setLayoutData(gdc);
-		Label lblColourMap = new Label(comp,SWT.LEFT);
+		GridData gdc;
+
+		Label lblColourMap = new Label(comp, SWT.LEFT);
 		lblColourMap.setText("Default colour mapping");
-		cmbColourMap = new Combo(comp, SWT.RIGHT|SWT.READ_ONLY);
+		cmbColourMap = new Combo(comp, SWT.RIGHT | SWT.READ_ONLY);
 		gdc = new GridData();
 		gdc.horizontalSpan = 2;
 		cmbColourMap.setLayoutData(gdc);
 		for (int i = 0; i < GlobalColourMaps.colourMapNames.length; i++)
-			cmbColourMap.add(GlobalColourMaps.colourMapNames[i]);		
-		Label lblThreshold = new Label(comp,SWT.LEFT);
-		lblThreshold.setText("Histogram autoscale threshold (in %)");
-		spnAutoThreshold = new Spinner(comp,SWT.RIGHT);
-		spnAutoThreshold.setMaximum(100);
-		spnAutoThreshold.setMinimum(0);
-		spnAutoThreshold.setIncrement(1);
+			cmbColourMap.add(GlobalColourMaps.colourMapNames[i]);
+
+		Label lblLThreshold = new Label(comp, SWT.LEFT);
+		lblLThreshold.setText("Auto-contrast lower threshold (in %)");
+		spnAutoLoThreshold = new Spinner(comp, SWT.RIGHT);
+		spnAutoLoThreshold.setMinimum(0);
+		spnAutoLoThreshold.setMaximum(99);
+		spnAutoLoThreshold.setIncrement(1);
+		spnAutoLoThreshold.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int l = spnAutoLoThreshold.getSelection() + PreferenceConstants.MINIMUM_CONTRAST_DELTA;
+				if (spnAutoHiThreshold.getSelection() < l)
+					spnAutoHiThreshold.setSelection(l);
+				spnAutoHiThreshold.setMinimum(l);
+			}
+		});
 		gdc = new GridData();
 		gdc.horizontalSpan = 2;
-		spnAutoThreshold.setLayoutData(gdc);
-		Label lblWaitTime = new Label(comp,SWT.LEFT);
+		spnAutoLoThreshold.setLayoutData(gdc);
+
+		Label lblHThreshold = new Label(comp, SWT.LEFT);
+		lblHThreshold.setText("Auto-contrast upper threshold (in %)");
+		spnAutoHiThreshold = new Spinner(comp, SWT.RIGHT);
+		spnAutoHiThreshold.setMinimum(1);
+		spnAutoHiThreshold.setMaximum(100);
+		spnAutoHiThreshold.setIncrement(1);
+		spnAutoHiThreshold.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int h = spnAutoHiThreshold.getSelection() - PreferenceConstants.MINIMUM_CONTRAST_DELTA;
+				if (spnAutoLoThreshold.getSelection() > h)
+					spnAutoLoThreshold.setSelection(h);
+				spnAutoLoThreshold.setMaximum(h);
+			}
+		});
+		gdc = new GridData();
+		gdc.horizontalSpan = 2;
+		spnAutoHiThreshold.setLayoutData(gdc);
+
+		Label lblWaitTime = new Label(comp, SWT.LEFT);
 		lblWaitTime.setText("Time delay for next image in play mode");
-		spnWaitTime = new Spinner(comp,SWT.RIGHT);
+		spnWaitTime = new Spinner(comp, SWT.RIGHT);
 		spnWaitTime.setMinimum(150);
 		spnWaitTime.setMaximum(15000);
 		spnWaitTime.setIncrement(50);
-		Label lblUnits = new Label(comp,SWT.LEFT);
+		Label lblUnits = new Label(comp, SWT.LEFT);
 		lblUnits.setText("in ms");
-		Label lblPlayback = new Label(comp,SWT.LEFT);
+
+		Label lblPlayback = new Label(comp, SWT.LEFT);
 		lblPlayback.setText("View to use for playback");
-		cmbDisplayViews = new Combo(comp,SWT.RIGHT|SWT.READ_ONLY);
-		cmbDisplayViews.setLayoutData(gdc);
+		cmbDisplayViews = new Combo(comp, SWT.RIGHT | SWT.READ_ONLY);
 		List<String> views = ImageExplorerView.getRegisteredViews();
 		for (String s : views) {
 			cmbDisplayViews.add(s);
 		}
-		Label lblSkipImages = new Label(comp,SWT.LEFT);
+		gdc = new GridData();
+		gdc.horizontalSpan = 2;
+		cmbDisplayViews.setLayoutData(gdc);
+
+		Label lblSkipImages = new Label(comp, SWT.LEFT);
 		lblSkipImages.setText("Playback every");
-		spnSkipImages = new Spinner(comp,SWT.RIGHT);
+		spnSkipImages = new Spinner(comp, SWT.RIGHT);
 		spnSkipImages.setMinimum(1);
 		spnSkipImages.setMaximum(100);
 		spnSkipImages.setIncrement(1);
-		Label lblImages = new Label(comp,SWT.LEFT);
+		Label lblImages = new Label(comp, SWT.LEFT);
 		lblImages.setText("image");
 		initializePage();
-		
+
+		parent.layout();
 		return comp;
 	}
+
 	@Override
 	public void init(IWorkbench workbench) {
 		setPreferenceStore(AnalysisRCPActivator.getDefault().getPreferenceStore());
 	}
-	
+
 	@Override
 	public boolean performOk() {
 		storePreferences();
 		return true;
 	}
-	
+
 	@Override
 	protected void performDefaults() {
 		loadDefaultPreferences();
-	}	
-	
+	}
+
 	private void initializePage() {
 		cmbColourMap.select(getColourMapChoicePreference());
-		spnAutoThreshold.setSelection(getHistogramScalePreference());
+		spnAutoLoThreshold.setSelection(getAutoContrastLoPreference());
+		spnAutoHiThreshold.setSelection(getAutoContrastHiPreference());
 		spnWaitTime.setSelection(getTimeDelayPreference());
 		spnSkipImages.setSelection(getPlaybackRatePreference());
 		String viewName = getPlaybackViewPreference();
-		for (int i = 0; i < cmbDisplayViews.getItems().length; i++)
-		{
+		for (int i = 0; i < cmbDisplayViews.getItems().length; i++) {
 			if (cmbDisplayViews.getItems()[i].equals(viewName))
 				cmbDisplayViews.select(i);
 		}
-	} 
-	
+	}
+
 	private void storePreferences() {
 		setColourMapChoicePreference(cmbColourMap.getSelectionIndex());
-		setHistogramScalePreference(spnAutoThreshold.getSelection());
+		setAutoContrastLoPreference(spnAutoLoThreshold.getSelection());
+		setAutoContrastHiPreference(spnAutoHiThreshold.getSelection());
 		setTimeDelayPreference(spnWaitTime.getSelection());
 		setPlaybackViewPreference(cmbDisplayViews.getItem(cmbDisplayViews.getSelectionIndex()));
 		setPlaybackRatePreference(spnSkipImages.getSelection());
 	}
-	
+
 	private void loadDefaultPreferences() {
 		cmbColourMap.select(getDefaultColourMapChoicePreference());
-		spnAutoThreshold.setSelection(getDefaultHistogramScalePreference());
+		spnAutoLoThreshold.setSelection(getDefaultAutoContrastLoPreference());
+		spnAutoHiThreshold.setSelection(getDefaultAutoContrastHiPreference());
 		spnWaitTime.setSelection(getDefaultTimeDelayPreference());
 		spnSkipImages.setSelection(getDefaultPlaybackRatePreference());
 		String viewName = getDefaultPlaybackViewPreference();
-		for (int i = 0; i < cmbDisplayViews.getItems().length; i++)
-		{
+		for (int i = 0; i < cmbDisplayViews.getItems().length; i++) {
 			if (cmbDisplayViews.getItems()[i].equals(viewName))
 				cmbDisplayViews.select(i);
 		}
-	} 	
-	
-	public int getDefaultColourMapChoicePreference() {
-		return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_COLOURMAP);
-	}		
-	
-	public int getDefaultHistogramScalePreference() {
-		return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALETHRESHOLD);
 	}
-	
-	public int getDefaultTimeDelayPreference() {
+
+	private int getDefaultColourMapChoicePreference() {
+		return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_COLOURMAP);
+	}
+
+	private int getDefaultAutoContrastLoPreference() {
+		return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_AUTOCONTRAST_LOTHRESHOLD);
+	}
+
+	private int getDefaultAutoContrastHiPreference() {
+		return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_AUTOCONTRAST_HITHRESHOLD);
+	}
+
+	private int getDefaultTimeDelayPreference() {
 		return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_TIMEDELAYBETWEENIMAGES);
 	}
-	
-	public String getDefaultPlaybackViewPreference() {
+
+	private String getDefaultPlaybackViewPreference() {
 		return getPreferenceStore().getDefaultString(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW);
 	}
-	
-	public int getDefaultPlaybackRatePreference() {
+
+	private int getDefaultPlaybackRatePreference() {
 		return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_PLAYBACKRATE);
 	}
-	
-	public int getColourMapChoicePreference() {
-		if (getPreferenceStore().isDefault(PreferenceConstants.IMAGEEXPLORER_COLOURMAP)){
+
+	private int getColourMapChoicePreference() {
+		if (getPreferenceStore().isDefault(PreferenceConstants.IMAGEEXPLORER_COLOURMAP)) {
 			return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_COLOURMAP);
 		}
 		return getPreferenceStore().getInt(PreferenceConstants.IMAGEEXPLORER_COLOURMAP);
-	}	
-
-	public int getHistogramScalePreference() {
-		if (getPreferenceStore().isDefault(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALETHRESHOLD)){
-			return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALETHRESHOLD);
-		}
-		return getPreferenceStore().getInt(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALETHRESHOLD);		
 	}
-	
-	public int getTimeDelayPreference() {
+
+	private int getAutoContrastLoPreference() {
+		if (getPreferenceStore().isDefault(PreferenceConstants.IMAGEEXPLORER_AUTOCONTRAST_LOTHRESHOLD)) {
+			return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_AUTOCONTRAST_LOTHRESHOLD);
+		}
+		return getPreferenceStore().getInt(PreferenceConstants.IMAGEEXPLORER_AUTOCONTRAST_LOTHRESHOLD);
+	}
+
+	private int getAutoContrastHiPreference() {
+		if (getPreferenceStore().isDefault(PreferenceConstants.IMAGEEXPLORER_AUTOCONTRAST_HITHRESHOLD)) {
+			return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_AUTOCONTRAST_HITHRESHOLD);
+		}
+		return getPreferenceStore().getInt(PreferenceConstants.IMAGEEXPLORER_AUTOCONTRAST_HITHRESHOLD);
+	}
+
+	private int getTimeDelayPreference() {
 		if (getPreferenceStore().isDefault(PreferenceConstants.IMAGEEXPLORER_TIMEDELAYBETWEENIMAGES)) {
 			return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_TIMEDELAYBETWEENIMAGES);
 		}
 		return getPreferenceStore().getInt(PreferenceConstants.IMAGEEXPLORER_TIMEDELAYBETWEENIMAGES);
 	}
-	
-	public int getPlaybackRatePreference() {
+
+	private int getPlaybackRatePreference() {
 		if (getPreferenceStore().isDefault(PreferenceConstants.IMAGEEXPLORER_PLAYBACKRATE)) {
 			return getPreferenceStore().getDefaultInt(PreferenceConstants.IMAGEEXPLORER_PLAYBACKRATE);
 		}
-		return getPreferenceStore().getInt(PreferenceConstants.IMAGEEXPLORER_PLAYBACKRATE);		
+		return getPreferenceStore().getInt(PreferenceConstants.IMAGEEXPLORER_PLAYBACKRATE);
 	}
-	
-	public String getPlaybackViewPreference() {
+
+	private String getPlaybackViewPreference() {
 		if (getPreferenceStore().isDefault(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW)) {
 			return getPreferenceStore().getDefaultString(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW);
 		}
 		return getPreferenceStore().getString(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW);
 	}
-	
-	public void setColourMapChoicePreference(int value) {
+
+	private void setColourMapChoicePreference(int value) {
 		getPreferenceStore().setValue(PreferenceConstants.IMAGEEXPLORER_COLOURMAP, value);
-	}		
-	
-	public void setHistogramScalePreference(int value) {
-		getPreferenceStore().setValue(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALETHRESHOLD, value);
 	}
-	
-	public void setTimeDelayPreference(int value) {
+
+	private void setAutoContrastLoPreference(int value) {
+		getPreferenceStore().setValue(PreferenceConstants.IMAGEEXPLORER_AUTOCONTRAST_LOTHRESHOLD, value);
+	}
+
+	private void setAutoContrastHiPreference(int value) {
+		getPreferenceStore().setValue(PreferenceConstants.IMAGEEXPLORER_AUTOCONTRAST_HITHRESHOLD, value);
+	}
+
+	private void setTimeDelayPreference(int value) {
 		getPreferenceStore().setValue(PreferenceConstants.IMAGEEXPLORER_TIMEDELAYBETWEENIMAGES, value);
 	}
-	
-	public void setPlaybackViewPreference(String newView) {
+
+	private void setPlaybackViewPreference(String newView) {
 		getPreferenceStore().setValue(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW, newView);
 	}
-	
-	public void setPlaybackRatePreference(int value) {
+
+	private void setPlaybackRatePreference(int value) {
 		getPreferenceStore().setValue(PreferenceConstants.IMAGEEXPLORER_PLAYBACKRATE, value);
 	}
-	
+
 }

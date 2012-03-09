@@ -42,6 +42,7 @@ public class AnalysisRCPActivator extends AbstractUIPlugin {
 	// The shared instance
 	private static AnalysisRCPActivator plugin;
 
+	@SuppressWarnings("rawtypes")
 	private ServiceTracker plotServerTracker;
 
 	/**
@@ -50,6 +51,7 @@ public class AnalysisRCPActivator extends AbstractUIPlugin {
 	public AnalysisRCPActivator() {
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);

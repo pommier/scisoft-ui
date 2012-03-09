@@ -31,7 +31,7 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
 /**
  * Run as junit plugin test
  */
-public class FileViewTest {
+public class FileViewPluginTest {
 	
 	private FileView fileView;
 

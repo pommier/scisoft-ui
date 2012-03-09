@@ -19,6 +19,8 @@ package uk.ac.diamond.scisoft.analysis.rcp.preference;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -27,6 +29,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
@@ -39,8 +42,10 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 	private Combo cmbColourScale;
 	private Combo cmbCameraPerspective;
 	private Button chkExpertMode;
-	private Button chkAutoHisto;
+	private Button chkAutoContrast;
 	private Button chkScrollbars;
+	private Spinner spnAutoLoThreshold;
+	private Spinner spnAutoHiThreshold;
 
 	public PlotViewPreferencePage() {
 	}
@@ -57,39 +62,77 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 	protected Control createContents(Composite parent) {
 		Composite comp = new Composite(parent, SWT.NONE);
 		comp.setLayout(new GridLayout(1, false));
-		GridData gdc = new GridData(SWT.FILL, SWT.FILL, true, true);
-		comp.setLayoutData(gdc);
+
 		Group plotMulti1DGroup = new Group(comp, SWT.NONE);
 		plotMulti1DGroup.setText("Plot 1DStack");
 		plotMulti1DGroup.setLayout(new GridLayout(2, false));
 		GridData gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		plotMulti1DGroup.setLayoutData(gd);
+
 		Label lblCameraType = new Label(plotMulti1DGroup, SWT.LEFT);
 		lblCameraType.setText("Camera projection: ");
-		cmbCameraPerspective = new Combo(plotMulti1DGroup, SWT.RIGHT|SWT.READ_ONLY);
+		cmbCameraPerspective = new Combo(plotMulti1DGroup, SWT.RIGHT | SWT.READ_ONLY);
 		cmbCameraPerspective.add("Orthographic");
 		cmbCameraPerspective.add("Perspective");
+
 		Group plot2DGroup = new Group(comp, SWT.NONE);
 		plot2DGroup.setText("Plot 2D");
 		plot2DGroup.setLayout(new GridLayout(2, false));
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		plot2DGroup.setLayoutData(gd);
+
 		Label lblColourMap = new Label(plot2DGroup, SWT.LEFT);
 		lblColourMap.setText("Default colour mapping");
-		cmbColourMap = new Combo(plot2DGroup, SWT.RIGHT|SWT.READ_ONLY);
+		cmbColourMap = new Combo(plot2DGroup, SWT.RIGHT | SWT.READ_ONLY);
 		for (int i = 0; i < GlobalColourMaps.colourMapNames.length; i++)
 			cmbColourMap.add(GlobalColourMaps.colourMapNames[i]);
+
 		Label lblExpertMode = new Label(plot2DGroup, SWT.LEFT);
-		lblExpertMode.setText("Default expert mode");
+		lblExpertMode.setText("Colour map expert mode");
 		chkExpertMode = new Button(plot2DGroup, SWT.CHECK | SWT.RIGHT);
+
 		Label lblAutoHisto = new Label(plot2DGroup, SWT.LEFT);
-		lblAutoHisto.setText("Auto histogram");
-		chkAutoHisto = new Button(plot2DGroup, SWT.CHECK | SWT.RIGHT);
+		lblAutoHisto.setText("Auto contrast");
+		chkAutoContrast = new Button(plot2DGroup, SWT.CHECK | SWT.RIGHT);
+
+		Label lblLThreshold = new Label(plot2DGroup, SWT.LEFT);
+		lblLThreshold.setText("Auto-contrast lower threshold (in %)");
+		spnAutoLoThreshold = new Spinner(plot2DGroup, SWT.RIGHT);
+		spnAutoLoThreshold.setMinimum(0);
+		spnAutoLoThreshold.setMaximum(99);
+		spnAutoLoThreshold.setIncrement(1);
+		spnAutoLoThreshold.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int l = spnAutoLoThreshold.getSelection() + PreferenceConstants.MINIMUM_CONTRAST_DELTA;
+				if (spnAutoHiThreshold.getSelection() < l)
+					spnAutoHiThreshold.setSelection(l);
+				spnAutoHiThreshold.setMinimum(l);
+			}
+		});
+
+		Label lblHThreshold = new Label(plot2DGroup, SWT.LEFT);
+		lblHThreshold.setText("Auto-contrast upper threshold (in %)");
+		spnAutoHiThreshold = new Spinner(plot2DGroup, SWT.RIGHT);
+		spnAutoHiThreshold.setMinimum(1);
+		spnAutoHiThreshold.setMaximum(100);
+		spnAutoHiThreshold.setIncrement(1);
+		spnAutoHiThreshold.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int h = spnAutoHiThreshold.getSelection() - PreferenceConstants.MINIMUM_CONTRAST_DELTA;
+				if (spnAutoLoThreshold.getSelection() > h)
+					spnAutoLoThreshold.setSelection(h);
+				spnAutoLoThreshold.setMaximum(h);
+			}
+		});
+
 		Label lblScaling = new Label(plot2DGroup, SWT.LEFT);
 		lblScaling.setText("Colour scaling");
-		cmbColourScale = new Combo(plot2DGroup, SWT.RIGHT|SWT.READ_ONLY);
+		cmbColourScale = new Combo(plot2DGroup, SWT.RIGHT | SWT.READ_ONLY);
 		cmbColourScale.add("Linear");
 		cmbColourScale.add("Logarithmic");
+
 		Label lblScrollbars = new Label(plot2DGroup, SWT.LEFT);
 		lblScrollbars.setText("Show scrollbars");
 		chkScrollbars = new Button(plot2DGroup, SWT.CHECK | SWT.RIGHT);
@@ -120,7 +163,9 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 	private void initializePage() {
 		cmbColourMap.select(getColourMapChoicePreference());
 		chkExpertMode.setSelection(getExpertModePreference());
-		chkAutoHisto.setSelection(getAutohistogramPreference());
+		chkAutoContrast.setSelection(getAutoContrastPreference());
+		spnAutoLoThreshold.setSelection(getAutoContrastLoPreference());
+		spnAutoHiThreshold.setSelection(getAutoContrastHiPreference());
 		cmbColourScale.select(getColourScaleChoicePreference());
 		cmbCameraPerspective.select(getPerspectivePreference());
 		chkScrollbars.setSelection(getScrollBarPreference());
@@ -132,7 +177,9 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 	private void loadDefaultPreferences() {
 		cmbColourMap.select(getDefaultColourMapChoicePreference());
 		chkExpertMode.setSelection(getDefaultExpertModePreference());
-		chkAutoHisto.setSelection(getDefaultAutohistogramPreference());
+		chkAutoContrast.setSelection(getDefaultAutoContrastPreference());
+		spnAutoLoThreshold.setSelection(getDefaultAutoContrastLoPreference());
+		spnAutoHiThreshold.setSelection(getDefaultAutoContrastHiPreference());
 		cmbColourScale.select(getDefautColourScaleChoicePreference());
 		cmbCameraPerspective.select(getDefaultPerspectivePreference());
 		chkScrollbars.setSelection(getDefaultScrollBarPreference());
@@ -144,99 +191,131 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 	private void storePreferences() {
 		setColourMapChoicePreference(cmbColourMap.getSelectionIndex());
 		setExpertModePreference(chkExpertMode.getSelection());
-		setAutohistogramPreference(chkAutoHisto.getSelection());
+		setAutoContrastPreference(chkAutoContrast.getSelection());
+		setAutoContrastLoPreference(spnAutoLoThreshold.getSelection());
+		setAutoContrastHiPreference(spnAutoHiThreshold.getSelection());
 		setColourScaleChoicePreference(cmbColourScale.getSelectionIndex());
 		setCameraPerspective(cmbCameraPerspective.getSelectionIndex());
 		setScrollBarPreference(chkScrollbars.getSelection());
 	}
 
-	public int getDefaultPerspectivePreference() {
-		return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEWER_MULTI1D_CAMERA_PROJ);
+	private int getDefaultPerspectivePreference() {
+		return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEW_MULTI1D_CAMERA_PROJ);
 	}
 
-	public int getDefaultColourMapChoicePreference() {
-		return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEWER_PLOT2D_COLOURMAP);
+	private int getDefaultColourMapChoicePreference() {
+		return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP);
 	}
 
-	public int getDefautColourScaleChoicePreference() {
-		return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEWER_PLOT2D_SCALING);
+	private int getDefautColourScaleChoicePreference() {
+		return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOT2D_SCALING);
 	}
 
-	public boolean getDefaultExpertModePreference() {
-		return getPreferenceStore().getDefaultBoolean(PreferenceConstants.PLOT_VIEWER_PLOT2D_CMAP_EXPERT);
+	private boolean getDefaultExpertModePreference() {
+		return getPreferenceStore().getDefaultBoolean(PreferenceConstants.PLOT_VIEW_PLOT2D_CMAP_EXPERT);
 	}
 
-	public boolean getDefaultAutohistogramPreference() {
-		return getPreferenceStore().getDefaultBoolean(PreferenceConstants.PLOT_VIEWER_PLOT2D_AUTOHISTO);
+	private boolean getDefaultAutoContrastPreference() {
+		return getPreferenceStore().getDefaultBoolean(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST);
 	}
 
-	public boolean getDefaultScrollBarPreference() {
-		return getPreferenceStore().getDefaultBoolean(PreferenceConstants.PLOT_VIEWER_PLOT2D_SHOWSCROLLBAR);
+	private int getDefaultAutoContrastLoPreference() {
+		return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST_LOTHRESHOLD);
 	}
 
-	public int getPerspectivePreference() {
-		if (getPreferenceStore().isDefault(PreferenceConstants.PLOT_VIEWER_MULTI1D_CAMERA_PROJ)) {
-			return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEWER_MULTI1D_CAMERA_PROJ);
+	private int getDefaultAutoContrastHiPreference() {
+		return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST_HITHRESHOLD);
+	}
+
+	private boolean getDefaultScrollBarPreference() {
+		return getPreferenceStore().getDefaultBoolean(PreferenceConstants.PLOT_VIEW_PLOT2D_SHOWSCROLLBAR);
+	}
+
+	private int getPerspectivePreference() {
+		if (getPreferenceStore().isDefault(PreferenceConstants.PLOT_VIEW_MULTI1D_CAMERA_PROJ)) {
+			return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEW_MULTI1D_CAMERA_PROJ);
 		}
-		return getPreferenceStore().getInt(PreferenceConstants.PLOT_VIEWER_MULTI1D_CAMERA_PROJ);
+		return getPreferenceStore().getInt(PreferenceConstants.PLOT_VIEW_MULTI1D_CAMERA_PROJ);
 	}
 
-	public int getColourMapChoicePreference() {
-		if (getPreferenceStore().isDefault(PreferenceConstants.PLOT_VIEWER_PLOT2D_COLOURMAP)) {
-			return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEWER_PLOT2D_COLOURMAP);
+	private int getColourMapChoicePreference() {
+		if (getPreferenceStore().isDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP)) {
+			return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP);
 		}
-		return getPreferenceStore().getInt(PreferenceConstants.PLOT_VIEWER_PLOT2D_COLOURMAP);
+		return getPreferenceStore().getInt(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP);
 	}
 
-	public boolean getExpertModePreference() {
-		if (getPreferenceStore().isDefault(PreferenceConstants.PLOT_VIEWER_PLOT2D_CMAP_EXPERT)) {
-			return getPreferenceStore().getDefaultBoolean(PreferenceConstants.PLOT_VIEWER_PLOT2D_CMAP_EXPERT);
+	private boolean getExpertModePreference() {
+		if (getPreferenceStore().isDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_CMAP_EXPERT)) {
+			return getPreferenceStore().getDefaultBoolean(PreferenceConstants.PLOT_VIEW_PLOT2D_CMAP_EXPERT);
 		}
-		return getPreferenceStore().getBoolean(PreferenceConstants.PLOT_VIEWER_PLOT2D_CMAP_EXPERT);
+		return getPreferenceStore().getBoolean(PreferenceConstants.PLOT_VIEW_PLOT2D_CMAP_EXPERT);
 	}
 
-	public boolean getAutohistogramPreference() {
-		if (getPreferenceStore().isDefault(PreferenceConstants.PLOT_VIEWER_PLOT2D_AUTOHISTO)) {
-			return getPreferenceStore().getDefaultBoolean(PreferenceConstants.PLOT_VIEWER_PLOT2D_AUTOHISTO);
+	private boolean getAutoContrastPreference() {
+		if (getPreferenceStore().isDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST)) {
+			return getPreferenceStore().getDefaultBoolean(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST);
 		}
-		return getPreferenceStore().getBoolean(PreferenceConstants.PLOT_VIEWER_PLOT2D_AUTOHISTO);
+		return getPreferenceStore().getBoolean(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST);
 	}
 
-	public int getColourScaleChoicePreference() {
-		if (getPreferenceStore().isDefault(PreferenceConstants.PLOT_VIEWER_PLOT2D_SCALING)) {
-			return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEWER_PLOT2D_SCALING);
+	private int getAutoContrastLoPreference() {
+		if (getPreferenceStore().isDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST_LOTHRESHOLD)) {
+			return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST_LOTHRESHOLD);
 		}
-		return getPreferenceStore().getInt(PreferenceConstants.PLOT_VIEWER_PLOT2D_SCALING);
+		return getPreferenceStore().getInt(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST_LOTHRESHOLD);
 	}
 
-	public boolean getScrollBarPreference() {
-		if (getPreferenceStore().isDefault(PreferenceConstants.PLOT_VIEWER_PLOT2D_SHOWSCROLLBAR)) {
-			return getPreferenceStore().getDefaultBoolean(PreferenceConstants.PLOT_VIEWER_PLOT2D_SHOWSCROLLBAR);
+	private int getAutoContrastHiPreference() {
+		if (getPreferenceStore().isDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST_HITHRESHOLD)) {
+			return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST_HITHRESHOLD);
 		}
-		return getPreferenceStore().getBoolean(PreferenceConstants.PLOT_VIEWER_PLOT2D_SHOWSCROLLBAR);
+		return getPreferenceStore().getInt(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST_HITHRESHOLD);
 	}
 
-	public void setColourMapChoicePreference(int value) {
-		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEWER_PLOT2D_COLOURMAP, value);
+	private int getColourScaleChoicePreference() {
+		if (getPreferenceStore().isDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_SCALING)) {
+			return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOT2D_SCALING);
+		}
+		return getPreferenceStore().getInt(PreferenceConstants.PLOT_VIEW_PLOT2D_SCALING);
 	}
 
-	public void setColourScaleChoicePreference(int value) {
-		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEWER_PLOT2D_SCALING, value);
+	private boolean getScrollBarPreference() {
+		if (getPreferenceStore().isDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_SHOWSCROLLBAR)) {
+			return getPreferenceStore().getDefaultBoolean(PreferenceConstants.PLOT_VIEW_PLOT2D_SHOWSCROLLBAR);
+		}
+		return getPreferenceStore().getBoolean(PreferenceConstants.PLOT_VIEW_PLOT2D_SHOWSCROLLBAR);
 	}
 
-	public void setExpertModePreference(boolean value) {
-		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEWER_PLOT2D_CMAP_EXPERT, value);
+	private void setColourMapChoicePreference(int value) {
+		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP, value);
 	}
 
-	public void setAutohistogramPreference(boolean value) {
-		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEWER_PLOT2D_AUTOHISTO, value);
+	private void setColourScaleChoicePreference(int value) {
+		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_SCALING, value);
 	}
 
-	public void setCameraPerspective(int value) {
-		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEWER_MULTI1D_CAMERA_PROJ, value);
+	private void setExpertModePreference(boolean value) {
+		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_CMAP_EXPERT, value);
 	}
 
-	public void setScrollBarPreference(boolean value) {
-		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEWER_PLOT2D_SHOWSCROLLBAR, value);
+	private void setAutoContrastPreference(boolean value) {
+		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST, value);
+	}
+
+	private void setAutoContrastLoPreference(int value) {
+		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST_LOTHRESHOLD, value);
+	}
+
+	private void setAutoContrastHiPreference(int value) {
+		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST_HITHRESHOLD, value);
+	}
+
+	private void setCameraPerspective(int value) {
+		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEW_MULTI1D_CAMERA_PROJ, value);
+	}
+
+	private void setScrollBarPreference(boolean value) {
+		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_SHOWSCROLLBAR, value);
 	}
 }

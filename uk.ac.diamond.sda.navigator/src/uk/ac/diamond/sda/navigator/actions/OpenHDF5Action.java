@@ -16,7 +16,10 @@
 
 package uk.ac.diamond.sda.navigator.actions;
 
-import org.eclipse.core.resources.IFile;
+import org.eclipse.core.filesystem.EFS; 
+import org.eclipse.core.filesystem.IFileStore;
+
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -27,14 +30,13 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.ide.IDE;
 
-import uk.ac.diamond.scisoft.analysis.rcp.navigator.treemodel.TreeNode;
+import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 
 public class OpenHDF5Action extends Action {
 
 	private IWorkbenchPage page;
-	@SuppressWarnings("rawtypes")
-	private TreeNode data;
+	private HDF5NodeLink link;
 	private ISelectionProvider provider;
 
 	/**
@@ -48,21 +50,20 @@ public class OpenHDF5Action extends Action {
 	public OpenHDF5Action(IWorkbenchPage p, ISelectionProvider selectionProvider) {
 		setText("Open HDF5 Editor"); //$NON-NLS-1$
 		page = p;
-		provider = selectionProvider;		
+		provider = selectionProvider;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * @see org.eclipse.jface.action.Action#isEnabled()
 	 */
-	@SuppressWarnings("rawtypes")
 	@Override
 	public boolean isEnabled() {
 		ISelection selection = provider.getSelection();
 		if (!selection.isEmpty()) {
 			IStructuredSelection sSelection = (IStructuredSelection) selection;
-			if (sSelection.size() == 1 && sSelection.getFirstElement() instanceof TreeNode) {
-				data = ((TreeNode) sSelection.getFirstElement());
+			if (sSelection.size() == 1 && sSelection.getFirstElement() instanceof HDF5NodeLink) {
+				link = ((HDF5NodeLink) sSelection.getFirstElement());
 				return true;
 			}
 		}
@@ -75,16 +76,22 @@ public class OpenHDF5Action extends Action {
 	 */
 	@Override
 	public void run() {
-		try {
-			if (isEnabled()) {
-				IFile hdf5File = data.getFile();
-				IDE.openEditor(page, hdf5File);
-
+		final String path = link.getFile().getFilename();
+		IFileStore fileStore = EFS.getLocalFileSystem().getStore(new Path("/"));
+		fileStore = fileStore.getFileStore(new Path(path));
+//		final IResource res = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
+//		IDE.openEditor(page, (IFile)res);
+//		EclipseUtils.openEditor((IFile)res);
+		if (!fileStore.fetchInfo().isDirectory() && fileStore.fetchInfo().exists()) {
+			try {
+				if (isEnabled()) {
+					IDE.openEditorOnFileStore(page, fileStore);
+				}
+			} catch (PartInitException e) {
+				NavigatorRCPActivator.logError(0, "Could not open HDF5 Editor!", e); //$NON-NLS-1$
+				MessageDialog.openError(Display.getDefault().getActiveShell(), "Error Opening HDF5 Editor", //$NON-NLS-1$
+						"Could not open HDF5 Editor!"); //$NON-NLS-1$
 			}
-		} catch (PartInitException e) {
-			NavigatorRCPActivator.logError(0, "Could not open HDF5 Editor!", e); //$NON-NLS-1$
-			MessageDialog.openError(Display.getDefault().getActiveShell(), "Error Opening HDF5 Editor", //$NON-NLS-1$
-					"Could not open HDF5 Editor!"); //$NON-NLS-1$
 		}
 	}
 }

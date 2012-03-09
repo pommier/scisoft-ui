@@ -101,18 +101,18 @@ public class HistogramUI extends AbstractPlotUI {
 			public void run()
 			{
 				if (!lockScale.isChecked()) {
-					histoView.setAutoHistogramScaling(autoScale.isChecked());
+					histoView.setAutoContrastScaling(autoScale.isChecked());
 					autoScaleSettings.put(histoView.getPartName(),autoScale.isChecked());
 					histoView.createInitialHistogram();
 				} else 
 					autoScale.setChecked(false);
 			}
 		};
-		autoScale.setText("Autohistogram");
-		autoScale.setToolTipText("Auto stretch histogram");
-		autoScale.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/computer_edit.png"));
-		autoScale.setChecked(getPreferenceAutohistoChoice());
-		histoView.setAutoHistogramScaling(autoScale.isChecked());
+		autoScale.setText("Autoscale contrast");
+		autoScale.setToolTipText("Automatically scale contrast");
+		autoScale.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/contrast_out.png"));
+		autoScale.setChecked(getPreferenceAutoConstrastChoice());
+		histoView.setAutoContrastScaling(autoScale.isChecked());
 		
 		lockScale = new Action("",IAction.AS_CHECK_BOX)
 		{
@@ -121,13 +121,13 @@ public class HistogramUI extends AbstractPlotUI {
 			{
 				histoView.setHistogramLock(lockScale.isChecked());
 				if (lockScale.isChecked()) {
-					histoView.setAutoHistogramScaling(false);
+					histoView.setAutoContrastScaling(false);
 					autoScale.setChecked(false);
 				}
 			}
 		};
-		lockScale.setText("Lock histogram");
-		lockScale.setToolTipText("Lock the histogram region for subsequent images");
+		lockScale.setText("Lock range");
+		lockScale.setToolTipText("Lock mapping range for subsequent images");
 		lockScale.setChecked(false);
 		lockScale.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/lock.png"));
 		
@@ -141,7 +141,7 @@ public class HistogramUI extends AbstractPlotUI {
 		};
 		showGraphLines.setText("Show channel graphs");
 		showGraphLines.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor("icons/chart_curve.png"));
-		showGraphLines.setToolTipText("Active/Deactivate channel graphs");
+		showGraphLines.setToolTipText("Active/deactivate colour channel graphs");
 		showGraphLines.setChecked(true);
 		
 		manager.add(activateZoom);
@@ -192,15 +192,15 @@ public class HistogramUI extends AbstractPlotUI {
 	}
 
 
-	private boolean getPreferenceAutohistoChoice() {
+	private boolean getPreferenceAutoConstrastChoice() {
 		if (histoView != null &&
 			autoScaleSettings.get(histoView.getPartName()) != null) {
 			return autoScaleSettings.get(histoView.getPartName());
 		}
 		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEWER_PLOT2D_AUTOHISTO) ? 
-				preferenceStore.getDefaultBoolean(PreferenceConstants.PLOT_VIEWER_PLOT2D_AUTOHISTO)
-				: preferenceStore.getBoolean(PreferenceConstants.PLOT_VIEWER_PLOT2D_AUTOHISTO);
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST) ? 
+				preferenceStore.getDefaultBoolean(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST)
+				: preferenceStore.getBoolean(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST);
 	}
 	
 }

@@ -25,6 +25,8 @@ import java.util.LinkedList;
 public class PlotAxisProperty extends InspectorProperty {
 	private final static String propName = "plotaxis";
 
+	public final static String plotUpdate = "plotupdate";
+
 	protected PlotAxis plotAxis;
 
 	@Override

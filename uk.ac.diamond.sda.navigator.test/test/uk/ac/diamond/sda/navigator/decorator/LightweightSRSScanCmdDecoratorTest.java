@@ -21,8 +21,6 @@ package uk.ac.diamond.sda.navigator.decorator;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.io.IExtendedMetadata;
 
@@ -30,15 +28,12 @@ import uk.ac.diamond.scisoft.analysis.io.IExtendedMetadata;
 
 public class LightweightSRSScanCmdDecoratorTest {
 	
-	private String srsFileName = System.getProperty("SRSNavigatorTestFile");
-	
-	private static final Logger logger = LoggerFactory.getLogger(LightweightSRSScanCmdDecoratorTest.class);
-	
+	private String srsFileName = "testFiles/230152.dat";
+		
 	@Test
 	public void testSRSMetaDataLoader(){
 		LightweightSRSScanCmdDecorator scd = new LightweightSRSScanCmdDecorator();
 		IExtendedMetadata metaData = scd.srsMyMetaDataLoader(srsFileName);
-		
 		assertEquals(metaData.getScanCommand(),"scan chi 90 -90 -1 Waittime 0.5");
 	}
 }

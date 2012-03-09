@@ -190,9 +190,8 @@ public class Plot1DStackUI extends AbstractPlotUI {
 			}
 			
 			//we set the plot/file name
-			String title = page.getActivePart().getTitle();
-			if(!title.equals("Dataset Inspector")&&!title.equals("Dataset Plot"))
-				mainPlotter.setTitle(title);
+			String title = page.getActiveEditor().getTitle();
+			mainPlotter.setTitle(title);
 	
 			parent.getDisplay().asyncExec(new Runnable() {
 				@Override
@@ -393,9 +392,9 @@ public class Plot1DStackUI extends AbstractPlotUI {
 	
 	private int getCameraPerspectiveChoice() {
 		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEWER_MULTI1D_CAMERA_PROJ) ? 
-				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEWER_MULTI1D_CAMERA_PROJ)
-				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEWER_MULTI1D_CAMERA_PROJ);
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_MULTI1D_CAMERA_PROJ) ? 
+				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_MULTI1D_CAMERA_PROJ)
+				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_MULTI1D_CAMERA_PROJ);
 	}	
 	
 }

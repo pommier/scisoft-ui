@@ -105,19 +105,15 @@ public class AxisSlicer {
 			public void widgetSelected(SelectionEvent e) {
 				if (slice == null)
 					return;
-				int start = slider.getValue();
-				Slice s = slice.getValue();
+				final int start = slider.getValue();
+				final Slice s = slice.getValue();
 				if (s.setPosition(start)) {
 					if (size != null)
 						size.setSelection(s.getNumSteps());
 				}
 				slice.setStart(start);
-				int max = s.getNumSteps(start, length);
-				if (size != null)
-					size.setMaximum(max);
-				if (value != null) {
+				if (value != null)
 					value.setText(adata.getString(start));
-				}
 				reset.setEnabled(true);
 			}
 		});
@@ -133,15 +129,25 @@ public class AxisSlicer {
 			public void widgetSelected(SelectionEvent e) {
 				if (slice == null)
 					return;
-				Slice s = slice.getValue();
-				Integer st = s.getStart();
+				final Slice s = slice.getValue();
+				final Integer st = s.getStart();
 				int start = st == null ? 0 : st;
-				int stop = start + size.getSelection()*s.getStep();
+				// check end
+				final int d = s.getStep();
+				final int n = size.getSelection();
+				int stop = start + (n-1)*d + 1;
+				if (stop > length) {
+					stop = length;
+					start = stop - 1 - (n-1)*d;
+					s.setStart(start);
+					if (slider != null)
+						slider.setValue(start);
+					if (value != null)
+						value.setText(String.format("%-20s", adata.getString(start)));
+				}
 				slice.setStop(stop);
 				if (slider != null)
-					slider.setThumb(s.getNumSteps()*s.getStep());
-				int max = s.getNumSteps(start, length);
-				size.setMaximum(max);
+					slider.setThumb(stop-start);
 				reset.setEnabled(true);
 			}
 		});
@@ -153,14 +159,23 @@ public class AxisSlicer {
 			public void widgetSelected(SelectionEvent e) {
 				if (slice == null)
 					return;
-				slice.setStep(step.getSelection());
-				Slice s = slice.getValue();
-				Integer st = s.getStart();
-				int start = st == null ? 0 : st;
+				final int d = step.getSelection();
+				final Slice s = slice.getValue();
+				final Integer st = s.getStart();
+				final int start = st == null ? 0 : st;
 				int n = s.getNumSteps();
-				size.setSelection(n);
-				slider.setThumb(n*s.getStep());
-				int max = s.getNumSteps(start, length);
+				int end = start + (n - 1)*d;
+				if (end > length) {
+					n = (length - start - 1)/d + 1;
+					end = start + (n - 1)*d;
+				}
+				if (size != null)
+					size.setSelection(n);
+				s.setStop(end+1);
+				slice.setStep(d);
+				if (slider != null)
+					slider.setThumb(end + 1 - start);
+				int max = s.getNumSteps(0, length);
 				size.setMaximum(max);
 				reset.setEnabled(true);
 			}
@@ -278,10 +293,11 @@ public class AxisSlicer {
 		}
 		size.setValues(l, 1, maxSize, 0, 1, 5 > maxSize ? maxSize : 5);
 		step.setValues(1, 1, length, 0, 1, 1);
-		step.setEnabled(mode); // TODO fix steps to one for time being
+		step.setEnabled(mode);
 		size.setEnabled(mode);
 		this.reset.setEnabled(resetable);
 		setVisible(true);
+		composite.layout();
 	}
 
 	/**

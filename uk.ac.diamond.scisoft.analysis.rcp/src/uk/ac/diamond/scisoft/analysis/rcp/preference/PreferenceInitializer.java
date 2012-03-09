@@ -18,8 +18,6 @@ package uk.ac.diamond.scisoft.analysis.rcp.preference;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.swt.printing.Printer;
-import org.eclipse.swt.printing.PrinterData;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 
@@ -37,17 +35,19 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	private static final int DEFAULT_COLOURMAP_CHOICE = 1;
 	private static final int DEFAULT_CAMERA_PROJECTION = 0;
 	private static final int DEFAULT_IMAGEXPLORER_COLOURMAP_CHOICE = 0;
-	private static final int DEFAULT_IMAGEEXPLORER_HISTOGRAM_SCALE = 98;
+	private static final int DEFAULT_IMAGEEXPLORER_CONTRAST_LO = 0;
+	private static final int DEFAULT_IMAGEEXPLORER_CONTRAST_HI = 98;
 	private static final int DEFAULT_IMAGEEXPLORER_TIMEDEAY = 1000;
 	private static final String DEFAULT_IMAGEEXPLORER_PLAYBACKVIEW = "Live Plot";
 	private static final int DEFAULT_IMAGEEXPLORER_PLAYBACKRATE = 1;
 	private static final boolean DEFAULT_COLOURMAP_EXPERT = false;
-	private static final boolean DEFAULT_AUTOHISTOGRAM = true;
+	private static final boolean DEFAULT_AUTOCONTRAST = true;
+	private static final int DEFAULT_AUTOCONTRAST_LO = 0;
+	private static final int DEFAULT_AUTOCONTRAST_HI = 99;
 	private static final int DEFAULT_COLOURSCALE_CHOICE = 0;
-	
 	private static final boolean DEFAULT_DIFFRACTION_VIEWER_AUTOSTOPPING = true;
 	private static final int DEFAULT_DIFFRACTION_VIEWER_STOPPING_THRESHOLD= 25;
-	
+
 	private static final String DEFAULT_STANDARD_NAME_LIST = "Cr2O3"+DELIMITER+"Silicon"+DELIMITER+"Bees Wax";
 	private static final String DEFAULT_STANDARD_NAME = "Cr2O3";
 	
@@ -66,29 +66,28 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	private static final int DEFAULT_FITTING_1D_THRESHOLD = 5;
 	private static final String DEFAULT_FITTING_1D_THRESHOLD_MEASURE = "Area";
 	private static final String DEFAULT_FITTING_1D_THRESHOLD_MEASURE_LIST = "Height"+DELIMITER+"Area";
-	public static final int DEFAULT_FITTING_1D_DECIMAL_PLACES = 2;
+	private static final int DEFAULT_FITTING_1D_DECIMAL_PLACES = 2;
 
-	public static final int DEFAULT_ANALYSIS_RPC_SERVER_PORT = 0;
-	public static final String DEFAULT_ANALYSIS_RPC_TEMP_FILE_LOCATION = "";
-	public static final int DEFAULT_RMI_SERVER_PORT = 0;
-	public static final boolean DEFAULT_ANALYSIS_RPC_RMI_INJECT_VARIABLES = true;
-	
-	public static final String DEFAULT_PRINTSETTINGS_PRINTNAME = "";
-	public static final Double DEFAULT_PRINTSETTINGS_SCALE = 0.5;
-	public static final int DEFAULT_PRINTSETTINGS_RESOLUTION = 2;
-	public static final String DEFAULT_PRINTSETTINGS_ORIENTATION = "Portrait";
-	
+	private static final int DEFAULT_ANALYSIS_RPC_SERVER_PORT = 0;
+	private static final String DEFAULT_ANALYSIS_RPC_TEMP_FILE_LOCATION = "";
+	private static final int DEFAULT_RMI_SERVER_PORT = 0;
+	private static final boolean DEFAULT_ANALYSIS_RPC_RMI_INJECT_VARIABLES = true;
+
+	private static final String DEFAULT_PRINTSETTINGS_PRINTNAME = "";
+	private static final Double DEFAULT_PRINTSETTINGS_SCALE = 0.5;
+	private static final int DEFAULT_PRINTSETTINGS_RESOLUTION = 2;
+	private static final String DEFAULT_PRINTSETTINGS_ORIENTATION = "Portrait";
 
 	@Override
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = AnalysisRCPActivator.getDefault().getPreferenceStore();
 		store.setDefault(PreferenceConstants.IGNORE_DATASET_FILTERS, false);
-		store.setDefault(PreferenceConstants.SHOW_XY_COLUMN,         false);
-		store.setDefault(PreferenceConstants.SHOW_DATA_SIZE,         false);
-		store.setDefault(PreferenceConstants.SHOW_DIMS,              false);
-		store.setDefault(PreferenceConstants.SHOW_SHAPE,             false);
-		store.setDefault(PreferenceConstants.DATA_FORMAT,            "#0.00");
-		store.setDefault(PreferenceConstants.PLAY_SPEED,             1500);
+		store.setDefault(PreferenceConstants.SHOW_XY_COLUMN, false);
+		store.setDefault(PreferenceConstants.SHOW_DATA_SIZE, false);
+		store.setDefault(PreferenceConstants.SHOW_DIMS, false);
+		store.setDefault(PreferenceConstants.SHOW_SHAPE, false);
+		store.setDefault(PreferenceConstants.DATA_FORMAT, "#0.00");
+		store.setDefault(PreferenceConstants.PLAY_SPEED, 1500);
 
 		store.setDefault(PreferenceConstants.SIDEPLOTTER1D_USE_LOG_Y, DEFAULT_SIDEPLOTTER1D_USE_LOG);
 
@@ -96,52 +95,55 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.GRIDSCAN_RESOLUTION_Y, DEFAULT_GRIDSCAN_RESOLUTION);
 		store.setDefault(PreferenceConstants.GRIDSCAN_BEAMLINE_POSX, DEFAULT_GRIDSCAN_BEAMLINE_POSITION);
 		store.setDefault(PreferenceConstants.GRIDSCAN_BEAMLINE_POSX, DEFAULT_GRIDSCAN_BEAMLINE_POSITION);
-		
+
 		store.setDefault(PreferenceConstants.DIFFRACTION_VIEWER_PEAK_TYPE, DEFAULT_DIFFRACTION_PEAK);
-		store.setDefault(PreferenceConstants.DIFFRACTION_VIEWER_MAX_PEAK_NUM, DEFAULT_MAX_NUM_PEAKS);		
+		store.setDefault(PreferenceConstants.DIFFRACTION_VIEWER_MAX_PEAK_NUM, DEFAULT_MAX_NUM_PEAKS);
 		store.setDefault(PreferenceConstants.DIFFRACTION_VIEWER_STANDARD_NAME, DEFAULT_STANDARD_NAME);
 		store.setDefault(PreferenceConstants.DIFFRACTION_VIEWER_STANDARD_NAME_LIST, DEFAULT_STANDARD_NAME_LIST);
-		store.setDefault(PreferenceConstants.DIFFRACTION_VIEWER_STANDARD_DISTANCES,DEFAULT_STANDARD_DISTANCES);
+		store.setDefault(PreferenceConstants.DIFFRACTION_VIEWER_STANDARD_DISTANCES, DEFAULT_STANDARD_DISTANCES);
 		store.setDefault(PreferenceConstants.DIFFRACTION_VIEWER_STANDARD_DISTANCES_LIST, DEFAULT_STANDARD_DISTANCES_LIST);
 		store.setDefault(PreferenceConstants.DIFFRACTION_VIEWER_PIXELOVERLOAD_THRESHOLD, DEFAULT_PIXELOVERLOAD_THRESHOLD);
-		store.setDefault(PreferenceConstants.DIFFRACTION_VIEWER_AUTOSTOPPING,DEFAULT_DIFFRACTION_VIEWER_AUTOSTOPPING);
-		store.setDefault(PreferenceConstants.DIFFRACTION_VIEWER_STOPPING_THRESHOLD,DEFAULT_DIFFRACTION_VIEWER_STOPPING_THRESHOLD);
-		
-		store.setDefault(PreferenceConstants.FITTING_1D_PEAKTYPE,DEFAULT_FITTING_1D_PEAKTYPE);
-		store.setDefault(PreferenceConstants.FITTING_1D_PEAKLIST,DEFAULT_FITTING_1D_PEAKLIST);
-		store.setDefault(PreferenceConstants.FITTING_1D_PEAK_NUM, DEFAULT_FITTING_1D_PEAK_NUM);
-		store.setDefault(PreferenceConstants.FITTING_1D_ALG_TYPE,DEFAULT_FITTING_1D_ALG_TYPE);
-		store.setDefault(PreferenceConstants.FITTING_1D_ALG_LIST,DEFAULT_FITTING_1D_ALG_LIST);
-		store.setDefault(PreferenceConstants.FITTING_1D_SMOOTHING_VALUE,DEFAULT_FITTING_1D_ALG_SMOOTHING);
-		store.setDefault(PreferenceConstants.FITTING_1D_ALG_ACCURACY,DEFAULT_FITTING_1D_ALG_ACCURACY);
-		store.setDefault(PreferenceConstants.FITTING_1D_AUTO_SMOOTHING, DEFAULT_FITTING_1D_AUTO_SMOOTHING);
-		store.setDefault(PreferenceConstants.FITTING_1D_AUTO_STOPPING,DEFAULT_FITTING_1D_AUTO_STOPPING);
-		store.setDefault(PreferenceConstants.FITTING_1D_THRESHOLD,DEFAULT_FITTING_1D_THRESHOLD);
-		store.setDefault(PreferenceConstants.FITTING_1D_THRESHOLD_MEASURE,DEFAULT_FITTING_1D_THRESHOLD_MEASURE);
-		store.setDefault(PreferenceConstants.FITTING_1D_THRESHOLD_MEASURE_LIST,DEFAULT_FITTING_1D_THRESHOLD_MEASURE_LIST);
-		store.setDefault(PreferenceConstants.FITTING_1D_DECIMAL_PLACES,DEFAULT_FITTING_1D_DECIMAL_PLACES);
+		store.setDefault(PreferenceConstants.DIFFRACTION_VIEWER_AUTOSTOPPING, DEFAULT_DIFFRACTION_VIEWER_AUTOSTOPPING);
+		store.setDefault(PreferenceConstants.DIFFRACTION_VIEWER_STOPPING_THRESHOLD, DEFAULT_DIFFRACTION_VIEWER_STOPPING_THRESHOLD);
 
-		store.setDefault(PreferenceConstants.PLOT_VIEWER_PLOT2D_COLOURMAP,DEFAULT_COLOURMAP_CHOICE);
-		store.setDefault(PreferenceConstants.PLOT_VIEWER_PLOT2D_CMAP_EXPERT,DEFAULT_COLOURMAP_EXPERT);
-		store.setDefault(PreferenceConstants.PLOT_VIEWER_PLOT2D_AUTOHISTO,DEFAULT_AUTOHISTOGRAM);
-		store.setDefault(PreferenceConstants.PLOT_VIEWER_PLOT2D_SCALING, DEFAULT_COLOURSCALE_CHOICE);
-		store.setDefault(PreferenceConstants.PLOT_VIEWER_PLOT2D_SHOWSCROLLBAR,DEFAULT_SHOW_SCROLLBARS);
-		store.setDefault(PreferenceConstants.PLOT_VIEWER_MULTI1D_CAMERA_PROJ, DEFAULT_CAMERA_PROJECTION);
-		
+		store.setDefault(PreferenceConstants.FITTING_1D_PEAKTYPE, DEFAULT_FITTING_1D_PEAKTYPE);
+		store.setDefault(PreferenceConstants.FITTING_1D_PEAKLIST, DEFAULT_FITTING_1D_PEAKLIST);
+		store.setDefault(PreferenceConstants.FITTING_1D_PEAK_NUM, DEFAULT_FITTING_1D_PEAK_NUM);
+		store.setDefault(PreferenceConstants.FITTING_1D_ALG_TYPE, DEFAULT_FITTING_1D_ALG_TYPE);
+		store.setDefault(PreferenceConstants.FITTING_1D_ALG_LIST, DEFAULT_FITTING_1D_ALG_LIST);
+		store.setDefault(PreferenceConstants.FITTING_1D_SMOOTHING_VALUE, DEFAULT_FITTING_1D_ALG_SMOOTHING);
+		store.setDefault(PreferenceConstants.FITTING_1D_ALG_ACCURACY, DEFAULT_FITTING_1D_ALG_ACCURACY);
+		store.setDefault(PreferenceConstants.FITTING_1D_AUTO_SMOOTHING, DEFAULT_FITTING_1D_AUTO_SMOOTHING);
+		store.setDefault(PreferenceConstants.FITTING_1D_AUTO_STOPPING, DEFAULT_FITTING_1D_AUTO_STOPPING);
+		store.setDefault(PreferenceConstants.FITTING_1D_THRESHOLD, DEFAULT_FITTING_1D_THRESHOLD);
+		store.setDefault(PreferenceConstants.FITTING_1D_THRESHOLD_MEASURE, DEFAULT_FITTING_1D_THRESHOLD_MEASURE);
+		store.setDefault(PreferenceConstants.FITTING_1D_THRESHOLD_MEASURE_LIST, DEFAULT_FITTING_1D_THRESHOLD_MEASURE_LIST);
+		store.setDefault(PreferenceConstants.FITTING_1D_DECIMAL_PLACES, DEFAULT_FITTING_1D_DECIMAL_PLACES);
+
+		store.setDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP, DEFAULT_COLOURMAP_CHOICE);
+		store.setDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_CMAP_EXPERT, DEFAULT_COLOURMAP_EXPERT);
+		store.setDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST, DEFAULT_AUTOCONTRAST);
+		store.setDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST_LOTHRESHOLD, DEFAULT_AUTOCONTRAST_LO);
+		store.setDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_AUTOCONTRAST_HITHRESHOLD, DEFAULT_AUTOCONTRAST_HI);
+		store.setDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_SCALING, DEFAULT_COLOURSCALE_CHOICE);
+		store.setDefault(PreferenceConstants.PLOT_VIEW_PLOT2D_SHOWSCROLLBAR, DEFAULT_SHOW_SCROLLBARS);
+		store.setDefault(PreferenceConstants.PLOT_VIEW_MULTI1D_CAMERA_PROJ, DEFAULT_CAMERA_PROJECTION);
+
 		store.setDefault(PreferenceConstants.IMAGEEXPLORER_COLOURMAP, DEFAULT_IMAGEXPLORER_COLOURMAP_CHOICE);
-		store.setDefault(PreferenceConstants.IMAGEEXPLORER_HISTOGRAMAUTOSCALETHRESHOLD, DEFAULT_IMAGEEXPLORER_HISTOGRAM_SCALE);
+		store.setDefault(PreferenceConstants.IMAGEEXPLORER_AUTOCONTRAST_LOTHRESHOLD, DEFAULT_IMAGEEXPLORER_CONTRAST_LO);
+		store.setDefault(PreferenceConstants.IMAGEEXPLORER_AUTOCONTRAST_HITHRESHOLD, DEFAULT_IMAGEEXPLORER_CONTRAST_HI);
 		store.setDefault(PreferenceConstants.IMAGEEXPLORER_TIMEDELAYBETWEENIMAGES, DEFAULT_IMAGEEXPLORER_TIMEDEAY);
 		store.setDefault(PreferenceConstants.IMAGEEXPLORER_PLAYBACKVIEW, DEFAULT_IMAGEEXPLORER_PLAYBACKVIEW);
-		store.setDefault(PreferenceConstants.IMAGEEXPLORER_PLAYBACKRATE,DEFAULT_IMAGEEXPLORER_PLAYBACKRATE);
-		
+		store.setDefault(PreferenceConstants.IMAGEEXPLORER_PLAYBACKRATE, DEFAULT_IMAGEEXPLORER_PLAYBACKRATE);
+
 		store.setDefault(PreferenceConstants.ANALYSIS_RPC_SERVER_PORT, DEFAULT_ANALYSIS_RPC_SERVER_PORT);
 		store.setDefault(PreferenceConstants.ANALYSIS_RPC_TEMP_FILE_LOCATION, DEFAULT_ANALYSIS_RPC_TEMP_FILE_LOCATION);
 		store.setDefault(PreferenceConstants.RMI_SERVER_PORT, DEFAULT_RMI_SERVER_PORT);
 		store.setDefault(PreferenceConstants.ANALYSIS_RPC_RMI_INJECT_VARIABLES, DEFAULT_ANALYSIS_RPC_RMI_INJECT_VARIABLES);
 
-		store.setDefault(PreferenceConstants.PRINTSETTINGS_PRINTER_NAME,DEFAULT_PRINTSETTINGS_PRINTNAME);
-		store.setDefault(PreferenceConstants.PRINTSETTINGS_SCALE,DEFAULT_PRINTSETTINGS_SCALE);
-		store.setDefault(PreferenceConstants.PRINTSETTINGS_RESOLUTION,DEFAULT_PRINTSETTINGS_RESOLUTION);
-		store.setDefault(PreferenceConstants.PRINTSETTINGS_ORIENTATION,DEFAULT_PRINTSETTINGS_ORIENTATION);
+		store.setDefault(PreferenceConstants.PRINTSETTINGS_PRINTER_NAME, DEFAULT_PRINTSETTINGS_PRINTNAME);
+		store.setDefault(PreferenceConstants.PRINTSETTINGS_SCALE, DEFAULT_PRINTSETTINGS_SCALE);
+		store.setDefault(PreferenceConstants.PRINTSETTINGS_RESOLUTION, DEFAULT_PRINTSETTINGS_RESOLUTION);
+		store.setDefault(PreferenceConstants.PRINTSETTINGS_ORIENTATION, DEFAULT_PRINTSETTINGS_ORIENTATION);
 	}
 }

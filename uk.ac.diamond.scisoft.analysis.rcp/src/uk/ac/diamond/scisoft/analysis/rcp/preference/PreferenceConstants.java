@@ -16,7 +16,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.preference;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.printing.PrintSettings;
 
 public class PreferenceConstants {
 
@@ -47,20 +46,31 @@ public class PreferenceConstants {
 	public static final String DIFFRACTION_VIEWER_STANDARD_NAME_LIST = "diffviewer.standardNameList";
 	public static final String DIFFRACTION_VIEWER_STANDARD_DISTANCES = "diffviewer.standardDistances";
 	public static final String DIFFRACTION_VIEWER_STANDARD_DISTANCES_LIST = "diffviewer.standardDistancesList";
-	public static final String DIFFRACTION_VIEWER_PIXELOVERLOAD_THRESHOLD = "diffViewer.pixelOverLoadThreshold";
-	// plot viewer preferences
-	public static final String PLOT_VIEWER_MULTI1D_CAMERA_PROJ = "plotView.multi1Dcamera";
-	public static final String PLOT_VIEWER_PLOT2D_COLOURMAP = "plotView.plot2DcolourMap";
-	public static final String PLOT_VIEWER_PLOT2D_SCALING = "plotView.plot2Dscaling";
-	public static final String PLOT_VIEWER_PLOT2D_CMAP_EXPERT = "plotView.plot2DcmapExpert";
-	public static final String PLOT_VIEWER_PLOT2D_AUTOHISTO = "plotView.plot2Dautohisto";
-	public static final String PLOT_VIEWER_PLOT2D_SHOWSCROLLBAR = "plotView.plot2DshowScrollbar";
+	public static final String DIFFRACTION_VIEWER_PIXELOVERLOAD_THRESHOLD = "diffviewer.pixelOverLoadThreshold";
+
+	// plot view preferences
+	public static final String PLOT_VIEW_MULTI1D_CAMERA_PROJ = "plotView.multi1Dcamera";
+	public static final String PLOT_VIEW_PLOT2D_COLOURMAP = "plotView.plot2DcolourMap";
+	public static final String PLOT_VIEW_PLOT2D_SCALING = "plotView.plot2Dscaling";
+	public static final String PLOT_VIEW_PLOT2D_CMAP_EXPERT = "plotView.plot2DcmapExpert";
+	public static final String PLOT_VIEW_PLOT2D_AUTOCONTRAST = "plotView.plot2DautoContrast";
+	public static final String PLOT_VIEW_PLOT2D_AUTOCONTRAST_LOTHRESHOLD = "plotView.autoContrastLoThreshold";
+	public static final String PLOT_VIEW_PLOT2D_AUTOCONTRAST_HITHRESHOLD = "plotView.autoContrastHiThreshold";
+	public static final String PLOT_VIEW_PLOT2D_SHOWSCROLLBAR = "plotView.plot2DshowScrollbar";
+
+	/**
+	 * Minimum difference in low and high contrast levels
+	 */
+	public static final int MINIMUM_CONTRAST_DELTA = 1;
+
 	// image explorer preferences
 	public static final String IMAGEEXPLORER_COLOURMAP = "imageExplorer.colourMap";
-	public static final String IMAGEEXPLORER_HISTOGRAMAUTOSCALETHRESHOLD = "imageExplorer.autoscaleThreshold";
+	public static final String IMAGEEXPLORER_AUTOCONTRAST_LOTHRESHOLD = "imageExplorer.autoContrastLoThreshold";
+	public static final String IMAGEEXPLORER_AUTOCONTRAST_HITHRESHOLD = "imageExplorer.autoContrastHiThreshold";
 	public static final String IMAGEEXPLORER_TIMEDELAYBETWEENIMAGES = "imageExplorer.timeDelay";
 	public static final String IMAGEEXPLORER_PLAYBACKVIEW = "imageExplorer.playbackView";
 	public static final String IMAGEEXPLORER_PLAYBACKRATE = "imageExplorer.playbackRate";
+
 	// Fitting 1D preferences
 	public static final String FITTING_1D_PEAKTYPE = "fitting1d.peak.type";
 	public static final String FITTING_1D_PEAKLIST = "fitting1d.peak.list";

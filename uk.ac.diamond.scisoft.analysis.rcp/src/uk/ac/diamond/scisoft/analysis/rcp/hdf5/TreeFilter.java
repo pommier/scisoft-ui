@@ -14,27 +14,34 @@
  * limitations under the License.
  */
 
-package uk.ac.diamond.sda.meta.page;
+package uk.ac.diamond.scisoft.analysis.rcp.hdf5;
 
-import org.eclipse.swt.widgets.Composite;
+import java.util.Collection;
+import java.util.HashSet;
 
-import uk.ac.diamond.scisoft.analysis.io.IMetaData;
-
-public interface IMetadataPage {
-
-	/**
-	 * This is a setter that will allow the page to process the metadata.
-	 * 
-	 * @param metadata
-	 */
-	public void setMetaData(IMetaData metadata);
+/**
+ * Class to act as a filter for nodes of tree
+ */
+public class TreeFilter {
+	Collection<String> unwantedNodeNames;
 
 	/**
-	 * Each IMetadata Page should be capable of returning a composite containing the GUI elements
-	 * 
-	 * @param parent
-	 * @return a composite containing a gui
+	 * Constructor that needs an array of the names of unwanted nodes
+	 *
+	 * @param names
 	 */
-	public Composite createComposite(Composite parent);
+	public TreeFilter(String[] names) {
+		unwantedNodeNames = new HashSet<String>();
 
+		for (String n: names)
+			unwantedNodeNames.add(n);
+	}
+
+	/**
+	 * @param node
+	 * @return true if node is not of those unwanted
+	 */
+	public boolean select(String node) {
+		return !unwantedNodeNames.contains(node);
+	}
 }

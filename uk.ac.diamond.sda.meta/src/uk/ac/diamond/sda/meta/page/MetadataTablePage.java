@@ -16,25 +16,33 @@
 
 package uk.ac.diamond.sda.meta.page;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.sda.meta.views.MetadataTableView;
 
-public interface IMetadataPage {
+public class MetadataTablePage implements IMetadataPage {
 
-	/**
-	 * This is a setter that will allow the page to process the metadata.
-	 * 
-	 * @param metadata
-	 */
-	public void setMetaData(IMetaData metadata);
+	private Composite control;
+	MetadataTableView view = null;
 
-	/**
-	 * Each IMetadata Page should be capable of returning a composite containing the GUI elements
-	 * 
-	 * @param parent
-	 * @return a composite containing a gui
-	 */
-	public Composite createComposite(Composite parent);
+	public MetadataTablePage() {
+	}
+
+	@Override
+	public Composite createComposite(Composite parent) {
+
+		this.control = new Composite(parent, SWT.NONE);
+		control.setLayout(new GridLayout(1, false));
+		view = new MetadataTableView();
+		view.createPartControl(control);
+		return control;
+	}
+
+	@Override
+	public void setMetaData(IMetaData metadata) {
+		view.setMeta(metadata);
+	}
 
 }

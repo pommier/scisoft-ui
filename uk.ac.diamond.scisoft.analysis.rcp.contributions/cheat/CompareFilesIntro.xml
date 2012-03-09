@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet title="Compare Files Editor Introduction">
+	<intro>
+		<description>
+			This tutorial will show you how to use the compare files editor.
+		</description>
+	</intro>
+	<item title="Introduction">
+		<description>
+			The purpose of the compare files editor is to enable the user selection of a dataset in
+			one file and compare that with the corresponding datasets in other files using the
+			dataset inspector. There are two parts to a compare files editor: the top part is a
+			table of the files selected earlier and the bottom part is a sub-editor opened at first
+			file.
+			<br/><br/>
+			The files table comprises three columns. The left column contains a check entry in each
+			row that indicates if the file should be used (if possible). Clicking on the entry will
+			toggle its usage state. When the check is not visible, the file will not be used. The
+			entry will also indicate with a <b>yellow</b> background if the file does not contains
+			the chosen dataset (when one has been chosen). The centre column shows the full file
+			name for the row. The right column is titled Value and starts by at zero for the first
+			file - it represents a per-file value.
+		</description>
+	</item>
+	<item title="Choosing a dataset">
+		<description>
+			You can choose a dataset in sub-editor in the same way as for a single file. Single or
+			double clicking a dataset will make the compare files editor search through its list of
+			files and search for a dataset of the same name. If no dataset is found in a file, a
+			yellow warning is shown. All datasets are aggregated together into a single dataset,
+			possible axes and the per-file values are sent to the dataset inspector. 
+		</description>
+	</item>
+	<item title="Choosing a metadata item for per-file values">
+		<description>
+			Right-clicking in the sub-editor can allow you to select per-file values from a file's
+			data or metadata items. The last column in the file table will show the selected
+			per-file values. In this case, the column heading switches to show that item's name and
+			any missing values are highlighted with a yellow background. A right-click on the column
+			title brings up a menu item to reset the values to row indices.
+		</description>
+	</item>
+	<item title="Adding more files">
+		<description>
+			The table supports the insertion of more files by the action of dragging from any source
+			of files and dropping them anywhere below the first row.
+		</description>
+	</item>
+</cheatsheet>
