@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Info
 Bundle-SymbolicName: uk.ac.diamond.scisoft.system.info
-Bundle-Version: 1.1.0.qualifier
+Bundle-Version: 1.2.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: uk.ac.diamond.scisoft.system.info
 Import-Package: org.slf4j
