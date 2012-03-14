@@ -486,7 +486,9 @@ public class PlotScatter3DUI extends AbstractPlotUI {
 					}					
 				}
 				//set the title/filename of plot
-				String title = page.getActiveEditor().getTitle();
+				String title = "";
+				if (page.getActiveEditor()!=null)
+					title = page.getActiveEditor().getTitle();
 				mainPlotter.setTitle(title);
 				
 				final HistogramDataUpdate histoUpdate = new

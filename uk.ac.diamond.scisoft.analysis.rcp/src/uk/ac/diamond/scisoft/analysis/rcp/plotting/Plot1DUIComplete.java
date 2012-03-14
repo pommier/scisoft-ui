@@ -351,7 +351,9 @@ public class Plot1DUIComplete extends Plot1DUIAdapter {
 			}
 			
 			//we set the plot/file name
-			final String title = page.getActiveEditor().getTitle();
+			String title = "";
+			if (page.getActiveEditor()!=null)
+				title = page.getActiveEditor().getTitle();
 			plotter.setTitle(title);
 			
 			parent.getDisplay().asyncExec(new Runnable() {
