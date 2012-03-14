@@ -201,7 +201,9 @@ public class PlotScatter2DUI extends Plot1DUIAdapter {
 			}
 			
 			//we set the plot/file name
-			String title = page.getActiveEditor().getTitle();
+			String title = "";
+			if(page.getActiveEditor()!=null)
+				title = page.getActiveEditor().getTitle();
 			mainPlotter.setTitle(title);
 			
 			parent.getDisplay().asyncExec(new Runnable() {
