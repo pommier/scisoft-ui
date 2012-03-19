@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright 2012 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,28 +16,22 @@
 
 package uk.ac.diamond.sda.navigator.actions;
 
-import java.util.Map;
-
 import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.State;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jface.menus.IMenuStateIds;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
-import org.eclipse.ui.commands.IElementUpdater;
-import org.eclipse.ui.menus.UIElement;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.internal.IPreferenceConstants;
 
 /**
- * Re-use Editor Command handler in the Project Explorer tool bar
- * Enables the user to set on/off the re-use editor functionality
+ * Re-use Editor Command handler in the Project Explorer tool bar Enables the user to set on/off the re-use editor
+ * functionality
  */
 @SuppressWarnings("restriction")
-public class ReUseEditorHandler extends AbstractHandler implements IElementUpdater {
+public class ReUseEditorHandler extends AbstractHandler {
 
 	public static String ID = "uk.ac.diamond.sda.navigator.MultipleEditor";
 	private State state;
@@ -46,7 +40,7 @@ public class ReUseEditorHandler extends AbstractHandler implements IElementUpdat
 	public final Object execute(ExecutionEvent event) throws ExecutionException {
 
 		// update toggled state
-		state = event.getCommand().getState(IMenuStateIds.STYLE);
+		state = event.getCommand().getState("org.eclipse.ui.commands.toggleState");
 		boolean currentState = (Boolean) state.getValue();
 		boolean newState = !currentState;
 		state.setValue(newState);
@@ -62,15 +56,5 @@ public class ReUseEditorHandler extends AbstractHandler implements IElementUpdat
 		commandService.refreshElements(event.getCommand().getId(), null);
 
 		return null;
-	}
-
-	@SuppressWarnings("rawtypes")
-	@Override
-	public void updateElement(UIElement element, Map parameters) {
-		ICommandService commandService = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
-		Command command = commandService.getCommand(ID);
-		State state = command.getState(IMenuStateIds.STYLE);
-		if (state != null)
-			element.setChecked((Boolean) state.getValue());
 	}
 }
