@@ -613,13 +613,11 @@ class PlotTab extends ATab {
 
 				// We need to reorder multidimensional axis values to match reorder data  
 				int[] reorderAxesDims = new int[imap.length];
-				int j = 0;
-				for (int i = 0; i < order.length; i++) {
+				for (int i = 0, j = 0; i < order.length && j < imap.length; i++) {
 					int idx = ArrayUtils.indexOf(imap, order[i]);
 					if (idx != ArrayUtils.INDEX_NOT_FOUND)
 						reorderAxesDims[j++] = idx;
 				}
-				assert j == imap.length : j;
 
 				ILazyDataset axesData = c.getValues();
 				Slice[] s = new Slice[imap.length];
@@ -794,7 +792,7 @@ class PlotTab extends ATab {
 				return;
 			}
 
-			AbstractDataset zaxis = slicedAxes.get(1);
+			AbstractDataset zaxis = make1DAxisSlice(slicedAxes, 1);
 			AbstractDataset xaxisarray = slicedAxes.get(0);
 
 			AbstractDataset[] xaxes = new AbstractDataset[lines];
