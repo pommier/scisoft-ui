@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -910,7 +909,6 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		int rank = shape.length;
 		AxisSelection as;
 		List<ILazyDataset> avalues = new ArrayList<ILazyDataset>();
-		final int off = extend ? 1 : 0;
 
 		// for each dimension,
 		for (int i = 0; i < rank; i++) {
@@ -934,7 +932,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 			for (int k = 0, kmax = ias.size(); k < kmax; k++) { // for each choice
 				avalues.clear();
 				final AxisChoice c = ias.getAxis(k);
-				int[] map = c.getIndexMapping();
+				final int[] map = c.getIndexMapping();
 				for (List<AxisSelection> asl : axisSelectionLists) { // for each file
 					AxisSelection a = asl.get(i);
 					if (a == null)
@@ -945,23 +943,6 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 						avalues.clear();
 						logger.warn("Missing data for choice {} in dim:{} ", ias.getName(k), i);
 						break;
-					}
-					if (extend && rank > 2 && ad.getRank() == 1) {
-						// expand 1D axis
-						int[] reps = Arrays.copyOfRange(shape, off, rank);
-						reps[i-off] = 1;
-						AbstractDataset axis = DatasetUtils.convertToAbstractDataset(ad);
-						int[] ns = new int[reps.length];
-						Arrays.fill(ns, 1);
-						ns[i-off] = ad.getSize();
-						axis.setShape(ns);
-						String name = ad.getName();
-						ad = DatasetUtils.tile(axis, reps);
-						ad.setName(name);
-						map = new int[reps.length];
-						for (int l = 0; l < map.length; l++) {
-							map[l] = l;
-						}
 					}
 					avalues.add(ad);
 				}
@@ -975,8 +956,9 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				AxisChoice nc = new AxisChoice(allAxis, c.getPrimary());
 				String name = ias.getName(k);
 				if (extend) {
-					if (allAxis.getRank() > 1) {
-						int[] nmap = new int[rank];
+					final int arank = allAxis.getRank();
+					if (arank > 1) {
+						int[] nmap = new int[arank]; // first entry is zero
 						for (int l = 0; l < map.length; l++) {
 							nmap[l+1] = map[l] + 1;
 						}
