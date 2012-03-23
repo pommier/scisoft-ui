@@ -420,7 +420,7 @@
                icon="icons/clone_el.gif"
                label="Re-use editor"
                style="toggle"
-               tooltip="Re-use editor">
+               tooltip="Enable/disable re-use editor">
          </command>
       </menuContribution>
    </extension>
@@ -443,6 +443,7 @@
       </command>
       <command
             defaultHandler="uk.ac.diamond.sda.navigator.actions.ReUseEditorHandler"
+            description="Enable/disable multi-editor use"
             id="uk.ac.diamond.sda.navigator.ReUseEditor"
             name="Re-use Editor">
             <state class="org.eclipse.ui.handlers.RegistryToggleState:true"
