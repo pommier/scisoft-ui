@@ -8,13 +8,13 @@
             name="Data Export"
             id="uk.ac.diamond.sda.Exporter">
       </category>
-      <view
+      <!--view
             name="SDA Exporter"
             icon="icons/sample.gif"
             category="uk.ac.diamond.sda.Exporter"
             class="uk.ac.diamond.sda.exporter.views.ExporterView"
             id="uk.ac.diamond.sda.exporter.rcp.views.ExporterView">
-      </view>
+      </view-->
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -24,7 +24,7 @@
             name="Export">
       </command>
    </extension>
-   <extension
+   <!--extension
          point="org.eclipse.ui.menus">
       <menuContribution
             locationURI="toolbar:org.eclipse.ui.navigator.ProjectExplorer?after=additions">
@@ -52,8 +52,8 @@
             </visibleWhen>
          </command>
       </menuContribution>
-   </extension>
-   <extension
+   </extension-->
+   <!--extension
          point="org.eclipse.ui.popupMenus">
       <objectContribution
             adaptable="true"
@@ -75,7 +75,7 @@
                tooltip="Convert to csv file in the same project location">
          </action>
       </objectContribution>
-   </extension>
+   </extension-->
    <extension
          point="org.eclipse.ui.exportWizards">
       <wizard
