@@ -110,7 +110,7 @@ public class CsvWriter {
 	 * 
 	 * @param dataFile
 	 * @param dataSetNames
-	 * @param delimeter
+	 * @param delimiter
 	 */
 	public static void createCSV(final IFile dataFile,
 			final Object[] dataSetNames, final String delimiter) {
