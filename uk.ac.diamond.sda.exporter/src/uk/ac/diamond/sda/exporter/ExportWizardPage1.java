@@ -62,6 +62,7 @@ public class ExportWizardPage1 extends WizardPage {
 	
 	private String delimiter="";
 	public Text delimiterText;
+	public Combo combo;
 
 	/**
 	 * Create the wizard.
@@ -78,6 +79,7 @@ public class ExportWizardPage1 extends WizardPage {
 	 * 
 	 * @param parent
 	 */
+	@Override
 	public void createControl(Composite parent) {
 
 		Composite container = new Composite(parent, SWT.NULL);
@@ -93,11 +95,11 @@ public class ExportWizardPage1 extends WizardPage {
 		convertLabel.setBounds(0, 0, 68, 17);
 		convertLabel.setText("Convert to");
 
-		Combo combo = new Combo(top, SWT.READ_ONLY);
-		combo.setItems(new String[] { "Simple ASCII output" });
+		combo = new Combo(top, SWT.READ_ONLY);
+		combo.setItems(new String[] { "Simple ASCII output", "ASCII output with subfolders" });
 		combo.setToolTipText("Convert to file type by file extension");
 		combo.setBounds(0, 0, 189, 29);
-		combo.select(0);
+		combo.select(1);
 
 		Label delimeterLabel = new Label(top, SWT.NONE);
 		delimeterLabel.setBounds(0, 0, 68, 17);
@@ -136,6 +138,7 @@ public class ExportWizardPage1 extends WizardPage {
 
 		// We populate the names later using a wizard task.
 		parent.getDisplay().asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					getDataSetNames();
@@ -149,6 +152,7 @@ public class ExportWizardPage1 extends WizardPage {
 	protected void getDataSetNames() throws Exception {
 
 		getContainer().run(true, true, new IRunnableWithProgress() {
+			@Override
 			public void run(IProgressMonitor monitor)
 					throws InvocationTargetException, InterruptedException {
 
@@ -196,6 +200,7 @@ public class ExportWizardPage1 extends WizardPage {
 	protected void setDataNames(String[] array) {
 		dataSetNames = array;
 		getContainer().getShell().getDisplay().asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				checkboxTableViewer.getTable().setEnabled(true);
 				checkboxTableViewer.refresh();

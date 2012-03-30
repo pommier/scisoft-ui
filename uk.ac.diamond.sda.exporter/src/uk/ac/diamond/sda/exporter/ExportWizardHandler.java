@@ -63,6 +63,7 @@ public class ExportWizardHandler extends AbstractHandler implements
 
 	}
 
+	@Override
 	public boolean isEnabled() {
 		final ISelection selection = EclipseUtils.getActivePage()
 				.getSelection();
@@ -75,6 +76,7 @@ public class ExportWizardHandler extends AbstractHandler implements
 		return false;
 	}
 
+	@Override
 	public boolean isHandled() {
 		return isEnabled();
 	}

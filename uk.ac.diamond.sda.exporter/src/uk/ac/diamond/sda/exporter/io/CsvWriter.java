@@ -93,7 +93,7 @@ public class CsvWriter {
 					+ "' was converted to '" + csv.getName()
 					+ "' and placed in the same folder and project.";
 			MessageDialog.openInformation(PlatformUI.getWorkbench()
-					.getActiveWorkbenchWindow().getShell(), "CVS Exported", message);
+					.getActiveWorkbenchWindow().getShell(), "CSV Exported", message);
 
 		} catch (Exception ne) {
 			final String message = "The file '" + dataFile.getName()
@@ -101,7 +101,7 @@ public class CsvWriter {
 			ErrorDialog.openError(PlatformUI.getWorkbench()
 					.getActiveWorkbenchWindow().getShell(),
 					"File Not Converted", ne.getMessage(), new Status(
-							IStatus.WARNING, "org.edna.workbench.actions", message, ne));
+							IStatus.WARNING, "uk.ac.diamond.sda.exporter", message, ne));
 		}
 	}
 
@@ -243,8 +243,14 @@ public class CsvWriter {
 				final String name = it.next();
 
 				final ILazyDataset set = sortedData.get(name);
-				final String value = (i < set.getSize()) ? String
-						.valueOf(((IDataset) set).getDouble(i)) : " ";
+				String value = "";
+				//(i < set.getSize()? String.valueOf(((IDataset) set).getDouble(i)) : " ";
+				if(i < set.getSize()){
+					if(set instanceof IDataset)
+						value = String.valueOf(((IDataset) set).getDouble(i));
+				}
+				else value = " ";
+				
 				contents.append(value);
 				if (it.hasNext())
 					contents.append(delimiter);

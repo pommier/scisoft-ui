@@ -21,6 +21,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWizard;
 
 import uk.ac.diamond.sda.exporter.io.CsvWriter;
+import uk.ac.diamond.sda.exporter.io.EDXDDataExtractor;
 
 public class ExportWizard extends Wizard implements IWorkbenchWizard {
 
@@ -44,8 +45,13 @@ public class ExportWizard extends Wizard implements IWorkbenchWizard {
 			return false;
 
 		String delimiter = convertWizardPage1.delimiterText.getText();
-		if(!delimiter.equals(""))
+		int conversionType = convertWizardPage1.combo.getSelectionIndex();
+		// save as CSV file
+		if(!delimiter.equals("") && conversionType == 0)
 			CsvWriter.createCSV(convertWizardPage1.getFile(), sel, delimiter);
+		// save as subfolder and dat files
+		if(!delimiter.equals("") && conversionType == 1)
+			EDXDDataExtractor.EDXDDataExtract(convertWizardPage1.getFile(), sel, delimiter);
 		else
 			return false;
 		return true;
