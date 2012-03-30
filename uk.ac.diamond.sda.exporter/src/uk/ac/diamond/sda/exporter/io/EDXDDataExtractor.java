@@ -69,6 +69,8 @@ public class EDXDDataExtractor {
 			final DataHolder dh = LoaderFactory.getData(dataFile.getLocation().toOSString());
 			// , new ProgressMonitorWrapper(monitor));
 
+			createDATFile(dh, "anewDATFile.dat");
+			
 			List<String> subFolders = StringUtils.getAllPathnames(dh.getNames(), "/");
 			for (Iterator<String> iterator = subFolders.iterator(); iterator.hasNext();) {
 				String name = iterator.next();
@@ -78,7 +80,7 @@ public class EDXDDataExtractor {
 				// We create the dat files
 				ILazyDataset iLazyDataset = dh.getLazyDataset(name);
 				if (iLazyDataset != null)
-					createDATFile(iLazyDataset);
+					createDATFile(dh, iLazyDataset.getName()+".dat");
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -110,9 +112,12 @@ public class EDXDDataExtractor {
 		}
 	}
 
-	private static void createDATFile(ILazyDataset dataset) {
+	private static void createDATFile(DataHolder dh, String filename) {
 		try {
-			logger.debug(dataset.getName());
+//			ASCIILazyDatasetSaver asciiWriter = new ASCIILazyDatasetSaver(filename);
+//			asciiWriter.saveFile(dh);
+			
+			//logger.debug(dataset.getName());
 		} catch (Exception e) {
 			logger.error("Error: " + e.getMessage());
 			e.printStackTrace();
