@@ -53,7 +53,7 @@ public class AsciiTextView extends ViewPart {
 	/**
 	 * 
 	 */
-	public static final String ID = "uk.ac.diamond.scisoft.analysis.rcp.results.navigator.AsciiTextView"; //$NON-NLS-1$
+	public static final String ID = "uk.ac.diamond.scisoft.analysis.rcp.views.AsciiTextView"; //$NON-NLS-1$
 	
 	private Text    text;
 	private boolean monitoringFile = false;
@@ -231,4 +231,11 @@ public class AsciiTextView extends ViewPart {
 			if (timer!=null) this.timer.cancel();
 		}
 	}
+
+	@Override
+	public void dispose() {
+		if (timer!=null) this.timer.cancel();
+		super.dispose();
+	}
+	
 }
