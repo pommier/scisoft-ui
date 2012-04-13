@@ -16,6 +16,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
+import gda.configuration.properties.LocalProperties;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -193,7 +195,7 @@ public class PlotDataTableDialog extends Dialog {
 		final FileDialog dialog = new FileDialog(shell, SWT.SAVE);
 		dialog.setFilterNames (new String [] {"Text Files", "All Files (*)"});
 		dialog.setFilterExtensions (new String [] {"*.txt;*.dat", "*"});
-		dialog.setFilterPath (System.getProperty("gda.data"));
+		dialog.setFilterPath (System.getProperty(LocalProperties.GDA_DATA));
 		final String name = (eventObj.getDataSet().getName()!=null&&!"".equals(eventObj.getDataSet().getName()))
 		                  ? eventObj.getDataSet().getName()
 		                  : "Export";

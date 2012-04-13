@@ -16,6 +16,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.views.plot;
 
+import gda.configuration.properties.LocalProperties;
+
 import java.awt.Color;
 import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
@@ -285,7 +287,7 @@ public class StaticScanPlotView extends ViewPart {
 					dialog = new FileDialog(sv.getSite().getShell(), SWT.SAVE);
 					dialog.setText("Save plot");
 					dialog.setFilterExtensions(new String[]{"*.xml"});
-					dialog.setFilterPath(System.getProperty("gda.data")); 
+					dialog.setFilterPath(System.getProperty(LocalProperties.GDA_DATA)); 
 				}
 				
 				String path = dialog.open();
@@ -322,7 +324,7 @@ public class StaticScanPlotView extends ViewPart {
 					dialog = new FileDialog(sv.getSite().getShell(), SWT.OPEN);
 					dialog.setText("Open a saved plot");
 					dialog.setFilterExtensions(new String[]{"*.xml"});
-					dialog.setFilterPath(System.getProperty("gda.data")); 
+					dialog.setFilterPath(System.getProperty(LocalProperties.GDA_DATA)); 
 				}
 				
 				String path = dialog.open();
