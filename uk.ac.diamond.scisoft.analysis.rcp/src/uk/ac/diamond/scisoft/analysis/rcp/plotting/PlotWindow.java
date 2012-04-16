@@ -20,6 +20,7 @@ import gda.observable.IObservable;
 import gda.observable.IObserver;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,6 +33,9 @@ import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.plot.AbstractPlottingSystem.ColorOption;
 import org.dawb.common.ui.plot.tool.IToolPageSystem;
+import org.dawb.common.ui.plot.trace.IImageTrace;
+import org.dawb.common.ui.plot.trace.ILineTrace;
+import org.dawb.common.ui.plot.trace.ITrace;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionItem;
@@ -171,7 +175,10 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
 			setup2DSurface();
 		} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
-			setupScatter2DPlot();
+			if(getDefaultPlottingSystemChoice()==0)
+				setupScatter2DPlot();
+			else
+				setupScatterPlotting2D();
 		} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
 			setupScatter3DPlot();
 		} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
@@ -291,17 +298,12 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	}
 
 	private void cleanUpFromOldMode(final boolean leaveSidePlotOpen) {
-		if(getDefaultPlottingSystemChoice() == 0){
-			isUpdatePlot = false;
-			mainPlotter.unregisterUI(plotUI);
-			if (plotUI != null) {
-				plotUI.deleteIObservers();
-				plotUI.deactivate(leaveSidePlotOpen);
-				removePreviousActions();
-			}
-		}else{
-			if(plottingSystem!=null)
-				plottingSystem.reset();
+		isUpdatePlot = false;
+		mainPlotter.unregisterUI(plotUI);
+		if (plotUI != null) {
+			plotUI.deleteIObservers();
+			plotUI.deactivate(leaveSidePlotOpen);
+			removePreviousActions();
 		}
 	}
 
@@ -439,7 +441,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	private void setupPlotting1D() {
 		if(!mainPlotter.isDisposed())
 			mainPlotter.cleanUp();
-		plotUI = new Plotting1DUIComplete(this, plottingSystem, parentComp, getPage(), name);
+		plotUI = new Plotting1DUI(plottingSystem);
 	}
 
 	//Datasetplotter
@@ -454,7 +456,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	private void setupPlotting2D() {
 		if(!mainPlotter.isDisposed())
 			mainPlotter.cleanUp();
-		plotUI = new Plotting2DUI(this, plottingSystem, getPage(), name);
+		plotUI = new Plotting2DUI(plottingSystem);
 	}
 
 	private void setupMulti2D() {
@@ -486,6 +488,13 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		bars.updateActionBars();
 	}
 
+	//Abstract plotting System
+	private void setupScatterPlotting2D() {
+		if(!mainPlotter.isDisposed())
+			mainPlotter.cleanUp();
+		plotUI = new PlottingScatter2DUI(plottingSystem);
+	}
+
 	private void setupScatter3DPlot() {
 		mainPlotter.setMode(PlottingMode.SCATTER3D);
 		plotUI = new PlotScatter3DUI(this, mainPlotter, parentComp, getPage(), bars, name);
@@ -497,35 +506,48 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	 * @param plotMode
 	 */
 	public void updatePlotMode(GuiPlotMode plotMode) {
-		if (plotMode.equals(GuiPlotMode.ONED) && mainPlotter.getMode() != PlottingMode.ONED) {
-			cleanUpFromOldMode(true);
-			if(getDefaultPlottingSystemChoice() == 0)
+		if(getDefaultPlottingSystemChoice() == 0){
+			if (plotMode.equals(GuiPlotMode.ONED) && mainPlotter.getMode() != PlottingMode.ONED) {
+				cleanUpFromOldMode(true);
 				setup1D();
-			else
-				setupPlotting1D();
-		} else if (plotMode.equals(GuiPlotMode.ONED_THREED) && mainPlotter.getMode() != PlottingMode.ONED_THREED) {
-			cleanUpFromOldMode(true);
-			setupMulti1DPlot();
-		} else if (plotMode.equals(GuiPlotMode.TWOD) && mainPlotter.getMode() != PlottingMode.TWOD) {
-			cleanUpFromOldMode(true);
-			if(getDefaultPlottingSystemChoice() == 0)
+			} else if (plotMode.equals(GuiPlotMode.ONED_THREED) && mainPlotter.getMode() != PlottingMode.ONED_THREED) {
+				cleanUpFromOldMode(true);
+				setupMulti1DPlot();
+			} else if (plotMode.equals(GuiPlotMode.TWOD) && mainPlotter.getMode() != PlottingMode.TWOD) {
+				cleanUpFromOldMode(true);
 				setup2D();
-			else
+			} else if (plotMode.equals(GuiPlotMode.SURF2D) && mainPlotter.getMode() != PlottingMode.SURF2D) {
+				cleanUpFromOldMode(true);
+				setup2DSurface();
+			} else if (plotMode.equals(GuiPlotMode.SCATTER2D) && mainPlotter.getMode() != PlottingMode.SCATTER2D) {
+				cleanUpFromOldMode(true);
+				setupScatter2DPlot();
+			} else if (plotMode.equals(GuiPlotMode.SCATTER3D) && mainPlotter.getMode() != PlottingMode.SCATTER3D) {
+				cleanUpFromOldMode(true);
+				setupScatter3DPlot();
+			} else if (plotMode.equals(GuiPlotMode.MULTI2D) && mainPlotter.getMode() != PlottingMode.MULTI2D) {
+				cleanUpFromOldMode(true);
+				setupMulti2D();
+			} else if (plotMode.equals(GuiPlotMode.EMPTY) && mainPlotter.getMode() != PlottingMode.EMPTY) {
+				clearPlot();
+			}
+		}
+		if(getDefaultPlottingSystemChoice() == 1){
+			if (plotMode.equals(GuiPlotMode.ONED) && getPlottingSystemMode() != PlottingMode.ONED) {
+				plottingSystem.reset();
+				plottingSystem.repaint();
+				setupPlotting1D();
+			} else if (plotMode.equals(GuiPlotMode.TWOD) && getPlottingSystemMode() != PlottingMode.TWOD) {
+				plottingSystem.reset();
+				plottingSystem.repaint();
 				setupPlotting2D();
-		} else if (plotMode.equals(GuiPlotMode.SURF2D) && mainPlotter.getMode() != PlottingMode.SURF2D) {
-			cleanUpFromOldMode(true);
-			setup2DSurface();
-		} else if (plotMode.equals(GuiPlotMode.SCATTER2D) && mainPlotter.getMode() != PlottingMode.SCATTER2D) {
-			cleanUpFromOldMode(true);
-			setupScatter2DPlot();
-		} else if (plotMode.equals(GuiPlotMode.SCATTER3D) && mainPlotter.getMode() != PlottingMode.SCATTER3D) {
-			cleanUpFromOldMode(true);
-			setupScatter3DPlot();
-		} else if (plotMode.equals(GuiPlotMode.MULTI2D) && mainPlotter.getMode() != PlottingMode.MULTI2D) {
-			cleanUpFromOldMode(true);
-			setupMulti2D();
-		} else if (plotMode.equals(GuiPlotMode.EMPTY) && mainPlotter.getMode() != PlottingMode.EMPTY) {
-			clearPlot();
+			} else if (plotMode.equals(GuiPlotMode.SCATTER2D) && getPlottingSystemMode() != PlottingMode.SCATTER2D) {
+				plottingSystem.reset();
+				plottingSystem.repaint();
+				setupScatterPlotting2D();
+			} else if (plotMode.equals(GuiPlotMode.EMPTY) && getPlottingSystemMode() != PlottingMode.EMPTY) {
+				clearPlot();
+			}
 		}
 	}
 
@@ -541,120 +563,183 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	}
 
 	private void updatePlotModeAsync(GuiPlotMode plotMode) {
-		if (plotMode.equals(GuiPlotMode.ONED) && mainPlotter.getMode() != PlottingMode.ONED) {
-			doBlock();
-			parentComp.getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						cleanUpFromOldMode(true);
-						if(getDefaultPlottingSystemChoice() == 0)
+		if(getDefaultPlottingSystemChoice()==0){
+			if (plotMode.equals(GuiPlotMode.ONED) && mainPlotter.getMode() != PlottingMode.ONED) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							cleanUpFromOldMode(true);
 							setup1D();
-						else
-							setupPlotting1D();
-					} finally {
-						undoBlock();
+						} finally {
+							undoBlock();
+						}
 					}
-				}
-			});
-		} else if (plotMode.equals(GuiPlotMode.ONED_THREED) && mainPlotter.getMode() != PlottingMode.ONED_THREED) {
-			doBlock();
-			parentComp.getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						cleanUpFromOldMode(true);
-						setupMulti1DPlot();
-					} finally {
-						undoBlock();
+				});
+			} else if (plotMode.equals(GuiPlotMode.ONED_THREED) && mainPlotter.getMode() != PlottingMode.ONED_THREED) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							cleanUpFromOldMode(true);
+							setupMulti1DPlot();
+						} finally {
+							undoBlock();
+						}
 					}
-				}
-			});
-		} else if (plotMode.equals(GuiPlotMode.TWOD) && mainPlotter.getMode() != PlottingMode.TWOD) {
-			doBlock();
-			parentComp.getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						cleanUpFromOldMode(true);
-						if(getDefaultPlottingSystemChoice()==0)
+				});
+			} else if (plotMode.equals(GuiPlotMode.TWOD) && mainPlotter.getMode() != PlottingMode.TWOD) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							cleanUpFromOldMode(true);
 							setup2D();
-						else
-							setupPlotting2D();
-					} finally {
-						undoBlock();
+						} finally {
+							undoBlock();
+						}
 					}
-				}
-			});
-		} else if (plotMode.equals(GuiPlotMode.SURF2D) && mainPlotter.getMode() != PlottingMode.SURF2D) {
-			doBlock();
-			parentComp.getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						cleanUpFromOldMode(true);
-						setup2DSurface();
-					} finally {
-						undoBlock();
+				});
+			} else if (plotMode.equals(GuiPlotMode.SURF2D) && mainPlotter.getMode() != PlottingMode.SURF2D) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							cleanUpFromOldMode(true);
+							setup2DSurface();
+						} finally {
+							undoBlock();
+						}
 					}
-				}
-			});
-		} else if (plotMode.equals(GuiPlotMode.SCATTER2D) && mainPlotter.getMode() != PlottingMode.SCATTER2D) {
-			doBlock();
-			parentComp.getDisplay().asyncExec(new Runnable() {
+				});
+			} else if (plotMode.equals(GuiPlotMode.SCATTER2D) && mainPlotter.getMode() != PlottingMode.SCATTER2D) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
 
-				@Override
-				public void run() {
-					try {
-						cleanUpFromOldMode(true);
-						setupScatter2DPlot();
-					} finally {
-						undoBlock();
+					@Override
+					public void run() {
+						try {
+							cleanUpFromOldMode(true);
+							setupScatter2DPlot();
+						} finally {
+							undoBlock();
+						}
 					}
-				}
-			});
-		} else if (plotMode.equals(GuiPlotMode.SCATTER3D) && mainPlotter.getMode() != PlottingMode.SCATTER3D) {
-			doBlock();
-			parentComp.getDisplay().asyncExec(new Runnable() {
+				});
+			} else if (plotMode.equals(GuiPlotMode.SCATTER3D) && mainPlotter.getMode() != PlottingMode.SCATTER3D) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
 
-				@Override
-				public void run() {
-					try {
-						cleanUpFromOldMode(true);
-						setupScatter3DPlot();
-					} finally {
-						undoBlock();
+					@Override
+					public void run() {
+						try {
+							cleanUpFromOldMode(true);
+							setupScatter3DPlot();
+						} finally {
+							undoBlock();
+						}
 					}
-				}
-			});
-		} else if (plotMode.equals(GuiPlotMode.MULTI2D) && mainPlotter.getMode() != PlottingMode.MULTI2D) {
-			doBlock();
-			parentComp.getDisplay().asyncExec(new Runnable() {
+				});
+			} else if (plotMode.equals(GuiPlotMode.MULTI2D) && mainPlotter.getMode() != PlottingMode.MULTI2D) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
 
-				@Override
-				public void run() {
-					try {
-						cleanUpFromOldMode(true);
-						setupMulti2D();
-					} finally {
-						undoBlock();
+					@Override
+					public void run() {
+						try {
+							cleanUpFromOldMode(true);
+							setupMulti2D();
+						} finally {
+							undoBlock();
+						}
 					}
-				}
-			});
-		} else if (plotMode.equals(GuiPlotMode.EMPTY) && mainPlotter.getMode() != PlottingMode.EMPTY) {
-			doBlock();
-			parentComp.getDisplay().asyncExec(new Runnable() {
+				});
+			} else if (plotMode.equals(GuiPlotMode.EMPTY) && mainPlotter.getMode() != PlottingMode.EMPTY) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
 
-				@Override
-				public void run() {
-					try {
-						clearPlot();
-					} finally {
-						undoBlock();
+					@Override
+					public void run() {
+						try {
+							clearPlot();
+						} finally {
+							undoBlock();
+						}
 					}
-				}
-			});
+				});
+			}
 		}
+		if(getDefaultPlottingSystemChoice()==1){
+			if (plotMode.equals(GuiPlotMode.ONED) && getPlottingSystemMode() != PlottingMode.ONED) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							plottingSystem.reset();
+							plottingSystem.repaint();
+							setupPlotting1D();
+						} finally {
+							undoBlock();
+						}
+					}
+				});
+			} else if (plotMode.equals(GuiPlotMode.TWOD) && getPlottingSystemMode() != PlottingMode.TWOD) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							plottingSystem.reset();
+							plottingSystem.repaint();
+							setupPlotting2D();
+						} finally {
+							undoBlock();
+						}
+					}
+				});
+			} else if (plotMode.equals(GuiPlotMode.SCATTER2D) && getPlottingSystemMode() != PlottingMode.SCATTER2D) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							plottingSystem.reset();
+							plottingSystem.repaint();
+							setupScatterPlotting2D();
+						} finally {
+							undoBlock();
+						}
+					}
+				});
+			} else if (plotMode.equals(GuiPlotMode.EMPTY) && getPlottingSystemMode() != PlottingMode.EMPTY) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							clearPlot();
+						} finally {
+							undoBlock();
+						}
+					}
+				});
+			}
+		}
+	}
+
+	public PlottingMode getPlottingSystemMode(){
+		final Collection<ITrace> traces = plottingSystem.getTraces();
+		if (traces==null) return PlottingMode.EMPTY;
+		for (ITrace iTrace : traces) {
+			if (iTrace instanceof ILineTrace) return PlottingMode.ONED;
+			if (iTrace instanceof IImageTrace) return PlottingMode.TWOD;
+		}
+		return PlottingMode.EMPTY;
 	}
 
 	public void updatePlotMode(GuiBean bean, boolean async) {

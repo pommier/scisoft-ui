@@ -29,50 +29,48 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 
 /**
- * Class to create the a 2D/image plotting
+ * Class to create a 1D plotting
+ * 
  */
-public class Plotting2DUI extends AbstractPlotUI {
+public class Plotting1DUI extends AbstractPlotUI {
 
-	public final static String STATUSITEMID = "uk.ac.diamond.scisoft.analysis.rcp.plotting.Plotting2DUI";
+	public final static String STATUSITEMID = "uk.ac.diamond.scisoft.analysis.rcp.plotting.Plotting1DUI";
+	private static final Logger logger = LoggerFactory.getLogger(Plotting1DUI.class);
 
 	private AbstractPlottingSystem plottingSystem;
-
 	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
 
-	private static final Logger logger = LoggerFactory.getLogger(Plotting2DUI.class);
-
 	/**
-	 * @param plotter
+	 * Constructor of a plotting 1D 
+	 * @param plottingSystem plotting system
 	 */
-	public Plotting2DUI(final AbstractPlottingSystem plotter){
-		this.plottingSystem = plotter;
+	public Plotting1DUI(AbstractPlottingSystem plottingSystem) {
+		this.plottingSystem = plottingSystem;
 	}
 
 	@Override
-	public void processPlotUpdate(DataBean dbPlot, boolean isUpdate)
-	{
+	public void processPlotUpdate(DataBean dbPlot, boolean isUpdate) {
 		Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
+		
 		if (plotData != null) {
 			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
 			final List<AbstractDataset> yDatasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
 
+			AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
+			
 			while (iter.hasNext()) {
 				DataSetWithAxisInformation dataSetAxis = iter.next();
 				AbstractDataset data = dataSetAxis.getData();
 				yDatasets.add(data);
 			}
-
-			AbstractDataset data = yDatasets.get(0);
-			if(data != null){
-				data.setName("");
-				plottingSystem.reset();
-				plottingSystem.createPlot2D(data, yDatasets, null);
-				logger.debug("Plot 2D created");
-			}
+			plottingSystem.reset();
+			plottingSystem.createPlot1D(xAxisValues, yDatasets, null);
+			logger.debug("Plot 1D created");
 		}
 	}
 
@@ -88,6 +86,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 
 	@Override
 	public void deleteIObservers() {
-		observers.clear();
+		observers.removeAll(observers);
 	}
+
 }
