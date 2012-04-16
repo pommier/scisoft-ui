@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright 2012 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,17 +27,26 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.PlotType;
+import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawb.common.ui.plot.AbstractPlottingSystem.ColorOption;
+import org.dawb.common.ui.plot.tool.IToolPageSystem;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.menus.CommandContributionItem;
@@ -55,6 +64,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.InjectPyDevConsoleHandler;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
 
@@ -74,6 +84,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	private IWorkbenchPage page = null;
 	private IActionBars bars;
 	private String name;
+
+	private AbstractPlottingSystem plottingSystem;
 
 	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
 	private IGuiInfoManager manager = null;
@@ -119,36 +131,43 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		this(parent, plotMode, null, null, bars, page, name);
 	}
 
-	public PlotWindow(Composite parent, GuiPlotMode plotMode, IGuiInfoManager manager,
+	public PlotWindow(final Composite parent, GuiPlotMode plotMode, IGuiInfoManager manager,
 			IUpdateNotificationListener notifyListener, IActionBars bars, IWorkbenchPage page, String name) {
 
 		this.manager = manager;
 		this.notifyListener = notifyListener;
 		this.parentComp = parent;
 		this.page = page;
-
+		this.bars = bars;
+		this.name = name;
+		
 		if (plotMode == null)
 			plotMode = GuiPlotMode.ONED;
 
 		// this needs to be started in 1D as later mode changes will not work as plot UIs are not setup
 		mainPlotter = new DataSetPlotter(PlottingMode.ONED, parent, true);
-
 		mainPlotter.setAxisModes(AxisMode.LINEAR, AxisMode.LINEAR, AxisMode.LINEAR);
-
-		this.parentComp = parent;
-		this.bars = bars;
-		this.name = name;
-		parent.setLayout(new FillLayout());
 		mainPlotter.setXAxisLabel("X-Axis");
 		mainPlotter.setYAxisLabel("Y-Axis");
 		mainPlotter.setZAxisLabel("Z-Axis");
 
+		parentComp.setLayout(new FillLayout());
+		
+		if(getDefaultPlottingSystemChoice() == 1)
+			createPlottingSystem();
+		
 		if (plotMode.equals(GuiPlotMode.ONED)) {
-			setup1D();
+			if(getDefaultPlottingSystemChoice()==0)
+				setup1D();
+			else
+				setupPlotting1D();
 		} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
 			setupMulti1DPlot();
 		} else if (plotMode.equals(GuiPlotMode.TWOD)) {
-			setup2D();
+			if(getDefaultPlottingSystemChoice()==0)
+				setup2D();
+			else
+				setupPlotting2D();
 		} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
 			setup2DSurface();
 		} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
@@ -168,7 +187,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 					parentComp.getDisplay().asyncExec(new Runnable() {
 						@Override
 						public void run() {
-							mainPlotter.refresh(false);
+							if(!mainPlotter.isDisposed())
+								mainPlotter.refresh(false);
 						}
 					});
 				}
@@ -182,6 +202,23 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		PlotWindowManager.getPrivateManager().registerPlotWindow(this);
 	}
 
+	private void createPlottingSystem(){
+		parentComp.setLayout(new GridLayout());
+		final Composite plot = new Composite(parentComp, SWT.NONE);
+		plot.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		plot.setLayout(new FillLayout());
+		try {
+			plottingSystem = PlottingFactory.getPlottingSystem();
+			plottingSystem.setColorOption(ColorOption.NONE);
+			plottingSystem.setDatasetChoosingRequired(false);
+			
+			//IActionBars wrapper = plotView.getViewSite().getActionBars();
+			plottingSystem.createPlotPart(plot, "1D Plot", bars, PlotType.PT1D, (IViewPart)manager);
+		} catch (Exception e) {
+			logger.error("Cannot locate any Abstract plotting System!", e);
+		}
+	}
+	
 	/**
 	 * Return current page.
 	 * 
@@ -254,12 +291,17 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	}
 
 	private void cleanUpFromOldMode(final boolean leaveSidePlotOpen) {
-		isUpdatePlot = false;
-		mainPlotter.unregisterUI(plotUI);
-		if (plotUI != null) {
-			plotUI.deleteIObservers();
-			plotUI.deactivate(leaveSidePlotOpen);
-			removePreviousActions();
+		if(getDefaultPlottingSystemChoice() == 0){
+			isUpdatePlot = false;
+			mainPlotter.unregisterUI(plotUI);
+			if (plotUI != null) {
+				plotUI.deleteIObservers();
+				plotUI.deactivate(leaveSidePlotOpen);
+				removePreviousActions();
+			}
+		}else{
+			if(plottingSystem!=null)
+				plottingSystem.reset();
 		}
 	}
 
@@ -385,6 +427,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		bars.getMenuManager().add(new Separator());
 	}
 
+	//Datasetplotter
 	private void setup1D() {
 		mainPlotter.setMode(PlottingMode.ONED);
 		plotUI = new Plot1DUIComplete(this, manager, bars, parentComp, getPage(), name);
@@ -392,11 +435,26 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		bars.updateActionBars();
 	}
 
+	//Abstract plotting System
+	private void setupPlotting1D() {
+		if(!mainPlotter.isDisposed())
+			mainPlotter.cleanUp();
+		plotUI = new Plotting1DUIComplete(this, plottingSystem, parentComp, getPage(), name);
+	}
+
+	//Datasetplotter
 	private void setup2D() {
 		mainPlotter.setMode(PlottingMode.TWOD);
 		plotUI = new Plot2DUI(this, mainPlotter, manager, parentComp, getPage(), bars, name);
 		addCommonActions();
 		bars.updateActionBars();
+	}
+
+	//Abstract plotting System
+	private void setupPlotting2D() {
+		if(!mainPlotter.isDisposed())
+			mainPlotter.cleanUp();
+		plotUI = new Plotting2DUI(this, plottingSystem, getPage(), name);
 	}
 
 	private void setupMulti2D() {
@@ -441,13 +499,19 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	public void updatePlotMode(GuiPlotMode plotMode) {
 		if (plotMode.equals(GuiPlotMode.ONED) && mainPlotter.getMode() != PlottingMode.ONED) {
 			cleanUpFromOldMode(true);
-			setup1D();
+			if(getDefaultPlottingSystemChoice() == 0)
+				setup1D();
+			else
+				setupPlotting1D();
 		} else if (plotMode.equals(GuiPlotMode.ONED_THREED) && mainPlotter.getMode() != PlottingMode.ONED_THREED) {
 			cleanUpFromOldMode(true);
 			setupMulti1DPlot();
 		} else if (plotMode.equals(GuiPlotMode.TWOD) && mainPlotter.getMode() != PlottingMode.TWOD) {
 			cleanUpFromOldMode(true);
-			setup2D();
+			if(getDefaultPlottingSystemChoice() == 0)
+				setup2D();
+			else
+				setupPlotting2D();
 		} else if (plotMode.equals(GuiPlotMode.SURF2D) && mainPlotter.getMode() != PlottingMode.SURF2D) {
 			cleanUpFromOldMode(true);
 			setup2DSurface();
@@ -470,6 +534,10 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 			mainPlotter.emptyPlot();
 			mainPlotter.refresh(true);
 		}
+		if(plottingSystem != null){
+			plottingSystem.reset();
+			plottingSystem.repaint();
+		}
 	}
 
 	private void updatePlotModeAsync(GuiPlotMode plotMode) {
@@ -480,7 +548,10 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 				public void run() {
 					try {
 						cleanUpFromOldMode(true);
-						setup1D();
+						if(getDefaultPlottingSystemChoice() == 0)
+							setup1D();
+						else
+							setupPlotting1D();
 					} finally {
 						undoBlock();
 					}
@@ -506,7 +577,10 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 				public void run() {
 					try {
 						cleanUpFromOldMode(true);
-						setup2D();
+						if(getDefaultPlottingSystemChoice()==0)
+							setup2D();
+						else
+							setupPlotting2D();
 					} finally {
 						undoBlock();
 					}
@@ -661,7 +735,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 			HistogramUpdate update = (HistogramUpdate) changeCode;
 			mainPlotter.applyColourCast(update);
 
-			mainPlotter.refresh(false);
+			if(!mainPlotter.isDisposed())
+				mainPlotter.refresh(false);
 			if (plotUI instanceof Plot2DUI) {
 				Plot2DUI plot2Dui = (Plot2DUI) plotUI;
 				plot2Dui.getSidePlotView().sendHistogramUpdate(update);
@@ -672,6 +747,21 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 
 	public DataSetPlotter getMainPlotter() {
 		return mainPlotter;
+	}
+
+	public AbstractPlottingSystem getPlottingSystem() {
+		return plottingSystem;
+	}
+
+	/**
+	 * Required if you want to make tools work with Abstract Plotting System.
+	 */
+	@SuppressWarnings("rawtypes")
+	public Object getAdapter(final Class clazz) {
+		if (clazz == IToolPageSystem.class) {
+			return plottingSystem;
+		}
+		return null;
 	}
 
 	public void dispose() {
@@ -753,6 +843,12 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		}
 	}
 
+	private int getDefaultPlottingSystemChoice() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
+				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
+				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
+	}
 }
 
 class SimpleLock {

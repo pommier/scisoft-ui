@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright 2012 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,6 +30,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.dawb.common.ui.plot.tool.IToolPageSystem;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
@@ -161,6 +162,18 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 		// plotConsumer.addIObserver(this);
 		dataBeanAvailable = plotViewName;
 		updateBeans();
+	}
+
+	/**
+	 * Required if you want to make tools work with Abstract Plotting System.
+	 */
+	@SuppressWarnings("rawtypes")
+	@Override
+	public Object getAdapter(final Class clazz) {
+		if (clazz == IToolPageSystem.class) {
+			return plotWindow.getAdapter(clazz);
+		}
+		return super.getAdapter(clazz);
 	}
 
 	@Override

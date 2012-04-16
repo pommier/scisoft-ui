@@ -64,6 +64,12 @@ Export-Package: com.swtdesigner,
  uk.ac.diamond.scisoft.analysis.rcp.volimage,
  uk.ac.diamond.scisoft.analysis.rcp.wizards
 Import-Package: ncsa.hdf.object,
+ org.dawb.common.ui.plot,
+ org.dawb.common.ui.plot.region,
+ org.dawb.common.ui.plot.tool,
+ org.dawb.common.ui.plot.trace,
+ org.dawb.common.ui.util,
+ org.dawb.common.ui.widgets,
  org.eclipse.ui,
  org.slf4j;version="[1.5.0,2.0.0)"
 Bundle-ActivationPolicy: lazy
