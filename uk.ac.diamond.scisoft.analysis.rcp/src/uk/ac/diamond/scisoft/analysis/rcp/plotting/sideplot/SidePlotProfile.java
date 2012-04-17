@@ -53,6 +53,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay2DConsumer;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay2DProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.OverlayProvider;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.IRowData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIDataList;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIHandles;
@@ -313,8 +314,9 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 	protected void updateDataList() {
 		if (getDataset()) {
 			for (int i = 0, imax = roiDataList.size(); i < imax; i++) {
-				ROIData rdata = roiDataList.get(i);
-				roiDataList.set(i, createNewROIData(rdata.getROI()));
+				IRowData rdata = roiDataList.get(i);
+				if (rdata instanceof ROIData)
+					roiDataList.set(i, createNewROIData(((ROIData) rdata).getROI()));
 			}
 		}
 	}
@@ -759,14 +761,14 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 	 */
 	DataBean getPlottingData(int profileNr) {
 		DataBean dBean = null;
-		
-		if (roiData != null && roiData.getProfileData().length > profileNr) {
+
+		if (roiData.getProfileData().length > profileNr) {
 			dBean = new DataBean(GuiPlotMode.ONED);
 			DataSetWithAxisInformation axisData = new DataSetWithAxisInformation();
 			AxisMapBean axisMapBean = new AxisMapBean(AxisMapBean.DIRECT);
 
 			dBean.addAxis(AxisMapBean.XAXIS, roiData.getXAxis(profileNr).toDataset());
-			axisMapBean.setAxisID(new String[] {AxisMapBean.XAXIS});
+			axisMapBean.setAxisID(new String[] { AxisMapBean.XAXIS });
 			axisData.setData(roiData.getProfileData(profileNr));
 			axisData.setAxisMap(axisMapBean);
 

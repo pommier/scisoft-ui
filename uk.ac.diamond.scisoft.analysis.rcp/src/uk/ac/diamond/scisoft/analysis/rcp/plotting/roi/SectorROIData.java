@@ -51,7 +51,8 @@ public class SectorROIData extends ROIData {
 	}
 
 	public SectorROIData(SectorROI sroi, AbstractDataset data, AbstractDataset mask, double subFactor) {
-		super();setROI(sroi.copy());
+		super();
+		setROI(sroi.copy());
 		roi.downsample(subFactor);
 		profileData = ROIProfile.sector(data, mask, (SectorROI) roi);
 		if (profileData != null && profileData[0].getShape()[0] > 1 && profileData[1].getShape()[0] > 1) {

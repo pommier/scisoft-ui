@@ -955,7 +955,7 @@ public class SectorProfile extends SidePlotProfile {
 		// handle areas
 		double[] hpt;
 		double psize = hsize / sroi.getRadius(1); // angular extent
-		int[] apt;
+		double[] apt;
 		for (int h = 0, hmax = roiHandler.size() - 1; h < hmax; h++) {
 			int hid = roiHandler.get(h);
 			if (hid == -1) {
