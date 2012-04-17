@@ -268,6 +268,10 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 
 				final ILoaderService service = (ILoaderService) PlatformUI.getWorkbench().getService(
 						ILoaderService.class);
+
+				if (service == null)
+					return Status.CANCEL_STATUS;
+
 				try {
 					meta = service.getMetaData(filePath, monitor);
 				} catch (Exception e1) {

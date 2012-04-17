@@ -333,6 +333,15 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		return false;
 	}
 
+	@Override
+	public void dispose() {
+		explorer.dispose();
+		sashComp.dispose();
+		viewer.getControl().dispose();
+
+		super.dispose();
+	}
+
 	private enum Column {
 		TICK, PATH, VALUE;
 	}

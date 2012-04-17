@@ -227,6 +227,9 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 			loader.stopAsyncLoading();
 
 		cListeners.clear();
+		tree = null;
+		holder = null;
+		loader = null;
 		super.dispose();
 	}
 

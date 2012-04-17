@@ -90,6 +90,12 @@ public class ImageEditor extends EditorPart {
 		imgxp.setFocus();
 	}
 
+	@Override
+	public void dispose() {
+		imgxp.dispose();
+		super.dispose();
+	}
+
 	/**
 	 * This editor uses an SRimage explorer
 	 * @return explorer class

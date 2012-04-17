@@ -149,6 +149,7 @@ public class SRSEditor extends EditorPart {
 		// Unregister selection listener
 		unregisterSelectionListener();
 
+		srsxp.dispose();
 		super.dispose();
 	}
 
