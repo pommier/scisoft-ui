@@ -211,6 +211,11 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 	@Override
 	public void dispose() {
 		viewer.removeSelectionChangedListener(listener);
+		data = null;
+		MenuItem[] items = viewer.getTable().getMenu().getItems();
+		for (MenuItem i : items) {
+			i.removeSelectionListener(contextListener);
+		}
 	}
 
 	@Override

@@ -214,6 +214,11 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 	@Override
 	public void dispose() {
 		viewer.removeSelectionChangedListener(listener);
+		data = null;
+		MenuItem[] items = viewer.getTable().getMenu().getItems();
+		for (MenuItem i : items) {
+			i.removeSelectionListener(contextListener);
+		}
 	}
 
 	@Override

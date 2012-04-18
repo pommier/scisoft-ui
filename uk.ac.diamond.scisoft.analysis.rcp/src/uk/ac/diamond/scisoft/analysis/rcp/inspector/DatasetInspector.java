@@ -691,8 +691,8 @@ public class DatasetInspector extends Composite {
 			
 			slicers.get(i).createAxisSlicer();
 			slicers.get(i).setParameters(n, p, axis, props, true);
-
 		}
+
 		parent.pack();
 		parent.setSize(parent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}

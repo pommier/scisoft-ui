@@ -41,7 +41,7 @@ public interface IImagePositionEvent extends IDataPositionEvent{
 	public static final short SHIFTKEY = 8;
 
 	/**
-	 * Get the id of the overlay primitive that the mouse is currently add
+	 * Get the id of the overlay primitive that the mouse is currently on
 	 * @return -1 if there is no overlay primitive otherwise its id
 	 */
 	public abstract int getPrimitiveID();

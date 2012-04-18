@@ -50,7 +50,7 @@ public class SectorROIHandler extends ROIHandles {
 	}
 
 	@Override
-	public int[] getHandlePoint(int handle, int size) {
+	public double[] getHandlePoint(int handle, int size) {
 		return null;
 	}
 
@@ -107,9 +107,9 @@ public class SectorROIHandler extends ROIHandles {
 
 	@SuppressWarnings("null")
 	@Override
-	public int[] getAnchorPoint(int handle, int size) {
+	public double[] getAnchorPoint(int handle, int size) {
 		SectorROI oroi = (SectorROI) roi;
-		int[] pt = new int[2];
+		double[] pt = new double[2];
 		double[] cpt = roi.getPoint();
 		SectorCoords sc = null;
 
@@ -143,8 +143,8 @@ public class SectorROIHandler extends ROIHandles {
 			sc = new SectorCoords(oroi.getRadius(1), oroi.getAngle(1), false, false);
 			break;
 		}
-		pt[0] = (int) (cpt[0] + sc.getCartesian()[0]);
-		pt[1] = (int) (cpt[1] + sc.getCartesian()[1]);
+		pt[0] = cpt[0] + sc.getCartesian()[0];
+		pt[1] = cpt[1] + sc.getCartesian()[1];
 		return pt;
 	}
 

@@ -49,8 +49,8 @@ public class LinearROIHandler extends ROIHandles {
 	}
 
 	@Override
-	public int[] getHandlePoint(int handle, int size) {
-		int[] pt = getAnchorPoint(handle, size);
+	public double[] getHandlePoint(int handle, int size) {
+		double[] pt = getAnchorPoint(handle, size);
 		
 		if (pt != null) {
 			pt[0] -= size/2;
@@ -60,19 +60,19 @@ public class LinearROIHandler extends ROIHandles {
 	}
 
 	@Override
-	public int[] getAnchorPoint(int handle, int size) {
+	public double[] getAnchorPoint(int handle, int size) {
 		final LinearROI oroi = (LinearROI) roi;
-		int[] pt = null;
+		double[] pt = null;
 
 		switch (handle) {
 		case 0:
-			pt = oroi.getIntPoint();
+			pt = oroi.getPoint();
 			break;
 		case 1:
-			pt = new int[] { (int) oroi.getMidPoint()[0], (int) oroi.getMidPoint()[1] };
+			pt = oroi.getMidPoint();
 			break;
 		case 2:
-			pt = oroi.getIntEndPoint();
+			pt = oroi.getEndPoint();
 			break;
 		}
 

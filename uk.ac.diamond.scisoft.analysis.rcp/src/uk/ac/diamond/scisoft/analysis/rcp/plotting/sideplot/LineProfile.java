@@ -551,7 +551,7 @@ public class LineProfile extends SidePlotProfile {
 			} else
 				oProvider.setPrimitiveVisible(hid, true);
 
-			int[] pt = roiHandler.getHandlePoint(h, hsize);
+			double[] pt = roiHandler.getHandlePoint(h, hsize);
 			if (pt == null)
 				continue;
 			oProvider.drawBox(hid, pt[0], pt[1], pt[0] + hsize, pt[1] + hsize);
