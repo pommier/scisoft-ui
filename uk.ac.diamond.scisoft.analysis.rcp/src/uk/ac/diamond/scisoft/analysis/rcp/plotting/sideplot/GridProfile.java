@@ -545,7 +545,7 @@ public class GridProfile extends SidePlotProfile {
 				oProvider.setPrimitiveVisible(hid, true);
 			}
 
-			int[] hspt = roiHandler.getHandlePoint(h, hsize);
+			double[] hspt = roiHandler.getHandlePoint(h, hsize);
 			if (hspt == null) {
 				oProvider.setPrimitiveVisible(hid, false);
 				continue;

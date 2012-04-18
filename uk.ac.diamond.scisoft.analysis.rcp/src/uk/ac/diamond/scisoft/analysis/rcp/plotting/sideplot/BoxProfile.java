@@ -635,7 +635,7 @@ public class BoxProfile extends SidePlotProfile {
 			} else
 				oProvider.setPrimitiveVisible(hid, true);
 
-			int[] pt = roiHandler.getHandlePoint(h, hsize);
+			double[] pt = roiHandler.getHandlePoint(h, hsize);
 			if (pt == null) {
 				oProvider.setPrimitiveVisible(hid, false);
 				continue;

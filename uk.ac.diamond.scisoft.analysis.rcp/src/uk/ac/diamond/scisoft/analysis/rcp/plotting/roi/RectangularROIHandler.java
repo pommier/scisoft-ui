@@ -48,47 +48,47 @@ public class RectangularROIHandler extends ROIHandles {
 	}
 
 	@Override
-	public int[] getHandlePoint(int handle, int size) {
+	public double[] getHandlePoint(int handle, int size) {
 		final RectangularROI oroi = (RectangularROI) roi;
-		int[] pt = null;
+		double[] pt = null;
 
 		switch (handle) {
 		case 0:
-			pt = oroi.getIntPoint();
+			pt = oroi.getPoint();
 			break;
 		case 1:
-			pt = oroi.getIntPoint(0.5, 0);
+			pt = oroi.getPoint(0.5, 0);
 			pt[0] -= size/2;
 			break;
 		case 2:
-			pt = oroi.getIntPoint(1.0, 0);
+			pt = oroi.getPoint(1.0, 0);
 			pt[0] -= size;
 			break;
 		case 3:
-			pt = oroi.getIntPoint(0.0, 0.5);
+			pt = oroi.getPoint(0.0, 0.5);
 			pt[1] -= size/2;
 			break;
 		case 4:
-			pt = oroi.getIntPoint(0.5, 0.5);
+			pt = oroi.getPoint(0.5, 0.5);
 			pt[0] -= size/2;
 			pt[1] -= size/2;
 			break;
 		case 5:
-			pt = oroi.getIntPoint(1.0, 0.5);
+			pt = oroi.getPoint(1.0, 0.5);
 			pt[0] -= size;
 			pt[1] -= size/2;
 			break;
 		case 6:
-			pt = oroi.getIntPoint(0.0, 1.0);
+			pt = oroi.getPoint(0.0, 1.0);
 			pt[1] -= size;
 			break;
 		case 7:
-			pt = oroi.getIntPoint(0.5, 1.0);
+			pt = oroi.getPoint(0.5, 1.0);
 			pt[0] -= size/2;
 			pt[1] -= size;
 			break;
 		case 8:
-			pt = oroi.getIntPoint(1.0, 1.0);
+			pt = oroi.getPoint(1.0, 1.0);
 			pt[0] -= size;
 			pt[1] -= size;
 			break;
@@ -97,37 +97,37 @@ public class RectangularROIHandler extends ROIHandles {
 	}
 
 	@Override
-	public int[] getAnchorPoint(int handle, int size) {
+	public double[] getAnchorPoint(int handle, int size) {
 		final RectangularROI oroi = (RectangularROI) roi;
-		int[] pt = null;
+		double[] pt = null;
 
 		switch (handle) {
 		case 0:
-			pt = oroi.getIntPoint();
+			pt = oroi.getPoint();
 			break;
 		case 1:
-			pt = oroi.getIntPoint(0.5, 0);
+			pt = oroi.getPoint(0.5, 0);
 			break;
 		case 2:
-			pt = oroi.getIntPoint(1.0, 0);
+			pt = oroi.getPoint(1.0, 0);
 			break;
 		case 3:
-			pt = oroi.getIntPoint(0.0, 0.5);
+			pt = oroi.getPoint(0.0, 0.5);
 			break;
 		case 4:
-			pt = oroi.getIntPoint(0.5, 0.5);
+			pt = oroi.getPoint(0.5, 0.5);
 			break;
 		case 5:
-			pt = oroi.getIntPoint(1.0, 0.5);
+			pt = oroi.getPoint(1.0, 0.5);
 			break;
 		case 6:
-			pt = oroi.getIntPoint(0.0, 1.0);
+			pt = oroi.getPoint(0.0, 1.0);
 			break;
 		case 7:
-			pt = oroi.getIntPoint(0.5, 1.0);
+			pt = oroi.getPoint(0.5, 1.0);
 			break;
 		case 8:
-			pt = oroi.getIntPoint(1.0, 1.0);
+			pt = oroi.getPoint(1.0, 1.0);
 			break;
 		}
 		return pt;

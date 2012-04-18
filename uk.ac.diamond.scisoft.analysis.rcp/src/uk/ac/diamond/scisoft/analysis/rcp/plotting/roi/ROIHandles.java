@@ -33,14 +33,14 @@ abstract public class ROIHandles extends ArrayList<Integer> {
 	 * @param size 
 	 * @return handle point
 	 */
-	abstract public int[] getHandlePoint(int handle, int size);
+	abstract public double[] getHandlePoint(int handle, int size);
 
 	/**
 	 * @param handle
 	 * @param size
 	 * @return anchor point for scale invariant display
 	 */
-	abstract public int[] getAnchorPoint(int handle, int size);
+	abstract public double[] getAnchorPoint(int handle, int size);
 
 	abstract public ROIBase getROI();
 
