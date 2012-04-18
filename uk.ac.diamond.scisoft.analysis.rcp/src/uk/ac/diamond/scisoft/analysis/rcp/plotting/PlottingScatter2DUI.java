@@ -23,6 +23,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.trace.ILineTrace;
+import org.dawb.common.ui.plot.trace.ILineTrace.PointStyle;
+import org.dawb.common.ui.plot.trace.ILineTrace.TraceType;
+import org.dawb.common.ui.plot.trace.ITrace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +36,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 
 /**
- * Class to create a scatter plot
+ *
  */
 public class PlottingScatter2DUI extends AbstractPlotUI {
 
@@ -60,16 +64,13 @@ public class PlottingScatter2DUI extends AbstractPlotUI {
 				yDatasets.add(data);
 			}
 			plottingSystem.reset();
-			// TODO
-			int itemSize = xAxisValues.getSize();
-			try {
-				for (int i = 0; i < itemSize; i++) {
-					plottingSystem.append("", xAxisValues.getDouble(i), yDatasets.get(0).getDouble(i), null);
-				}
-			} catch (Exception e) {
-				logger.error("Error creating scatter plot:", e);
+			Collection<ITrace> traces = plottingSystem.createPlot1D(xAxisValues, yDatasets, null);
+			for (ITrace iTrace : traces) {
+				ILineTrace lineTrace = (ILineTrace)iTrace;
+				lineTrace.setPointStyle(PointStyle.CROSS);
+				lineTrace.setTraceType(TraceType.POINT);
+				lineTrace.setPointSize(10);
 			}
-			//plottingSystem.createPlot1D(xAxisValues, yDatasets, null);
 			logger.debug("Scatter plot created");
 		}
 	}

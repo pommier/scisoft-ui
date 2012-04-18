@@ -120,6 +120,9 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	 */
 	private boolean exclusiveToolars = false;
 
+	private Composite plotSystemComposite;
+	private Composite mainPlotterComposite;
+	
 	/**
 	 * Obtain the IPlotWindowManager for the running Eclipse.
 	 * 
@@ -148,14 +151,11 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		if (plotMode == null)
 			plotMode = GuiPlotMode.ONED;
 
-		// this needs to be started in 1D as later mode changes will not work as plot UIs are not setup
-		mainPlotter = new DataSetPlotter(PlottingMode.ONED, parent, true);
-		mainPlotter.setAxisModes(AxisMode.LINEAR, AxisMode.LINEAR, AxisMode.LINEAR);
-		mainPlotter.setXAxisLabel("X-Axis");
-		mainPlotter.setYAxisLabel("Y-Axis");
-		mainPlotter.setZAxisLabel("Z-Axis");
+	//	parentComp.setLayout(new FillLayout());
+		
+		createDatasetPlotter();
 
-		parentComp.setLayout(new FillLayout());
+	//	parentComp.setLayout(new FillLayout());
 		
 		if(getDefaultPlottingSystemChoice() == 1)
 			createPlottingSystem();
@@ -185,9 +185,15 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 			setupMulti2D();
 		}
 
+		parentAddControlListener();
+
+		PlotWindowManager.getPrivateManager().registerPlotWindow(this);
+	}
+
+	private void parentAddControlListener(){
 		// for some reason, this window does not get repainted
 		// when a perspective is switched and the view is resized
-		parent.addControlListener(new ControlListener() {
+		parentComp.addControlListener(new ControlListener() {
 			@Override
 			public void controlResized(ControlEvent e) {
 				if (e.widget.equals(parentComp)) {
@@ -200,27 +206,36 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 					});
 				}
 			}
-
 			@Override
 			public void controlMoved(ControlEvent e) {
 			}
 		});
-
-		PlotWindowManager.getPrivateManager().registerPlotWindow(this);
 	}
+	
+	private void createDatasetPlotter(){
+		// this needs to be started in 1D as later mode changes will not work as plot UIs are not setup
+		//parentComp.setLayout(new FillLayout(SWT.HORIZONTAL));
+		mainPlotterComposite = new Composite(parentComp, SWT.NONE);
+		mainPlotterComposite.setLayout(new FillLayout());
+		mainPlotter = new DataSetPlotter(PlottingMode.ONED, mainPlotterComposite, true);
+		mainPlotter.setAxisModes(AxisMode.LINEAR, AxisMode.LINEAR, AxisMode.LINEAR);
+		mainPlotter.setXAxisLabel("X-Axis");
+		mainPlotter.setYAxisLabel("Y-Axis");
+		mainPlotter.setZAxisLabel("Z-Axis");
 
+	}
+	
 	private void createPlottingSystem(){
-		parentComp.setLayout(new GridLayout());
-		final Composite plot = new Composite(parentComp, SWT.NONE);
-		plot.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		plot.setLayout(new FillLayout());
+		//parentComp.setLayout(new GridLayout());
+		plotSystemComposite = new Composite(parentComp, SWT.NONE);
+		plotSystemComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		plotSystemComposite.setLayout(new FillLayout());
 		try {
 			plottingSystem = PlottingFactory.getPlottingSystem();
 			plottingSystem.setColorOption(ColorOption.NONE);
 			plottingSystem.setDatasetChoosingRequired(false);
 			
-			//IActionBars wrapper = plotView.getViewSite().getActionBars();
-			plottingSystem.createPlotPart(plot, "1D Plot", bars, PlotType.PT1D, (IViewPart)manager);
+			plottingSystem.createPlotPart(plotSystemComposite, "1D Plot", bars, PlotType.PT1D, (IViewPart)manager);
 		} catch (Exception e) {
 			logger.error("Cannot locate any Abstract plotting System!", e);
 		}
@@ -304,6 +319,38 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 			plotUI.deleteIObservers();
 			plotUI.deactivate(leaveSidePlotOpen);
 			removePreviousActions();
+		}
+	}
+
+	/**
+	 * Cleaning of the DatasetPlotter and its composite
+	 * before the setting up of a Plotting System
+	 */
+	private void cleanUpMainPlotter(){
+		if(!mainPlotter.isDisposed()){
+			mainPlotter.cleanUp();
+			mainPlotterComposite.dispose();
+		}
+		if(plottingSystem.isDisposed())
+			createPlottingSystem();
+		plottingSystem.reset();
+		plottingSystem.repaint();
+	}
+	
+	/**
+	 * Cleaning of the plotting system and its composite
+	 * before the setting up of a datasetPlotter
+	 */
+	private void cleanUpPlottingSystem(){
+		if(!plottingSystem.isDisposed()){
+			bars.getToolBarManager().removeAll();
+			bars.getMenuManager().removeAll();
+		//	plottingSystem.getPlotComposite().dispose();
+			plottingSystem.dispose();
+			plotSystemComposite.dispose();
+		}
+		if(mainPlotter.isDisposed()){
+			createDatasetPlotter();
 		}
 	}
 
@@ -439,8 +486,6 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 
 	//Abstract plotting System
 	private void setupPlotting1D() {
-		if(!mainPlotter.isDisposed())
-			mainPlotter.cleanUp();
 		plotUI = new Plotting1DUI(plottingSystem);
 	}
 
@@ -454,8 +499,6 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 
 	//Abstract plotting System
 	private void setupPlotting2D() {
-		if(!mainPlotter.isDisposed())
-			mainPlotter.cleanUp();
 		plotUI = new Plotting2DUI(plottingSystem);
 	}
 
@@ -490,8 +533,6 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 
 	//Abstract plotting System
 	private void setupScatterPlotting2D() {
-		if(!mainPlotter.isDisposed())
-			mainPlotter.cleanUp();
 		plotUI = new PlottingScatter2DUI(plottingSystem);
 	}
 
@@ -534,17 +575,30 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		}
 		if(getDefaultPlottingSystemChoice() == 1){
 			if (plotMode.equals(GuiPlotMode.ONED) && getPlottingSystemMode() != PlottingMode.ONED) {
-				plottingSystem.reset();
-				plottingSystem.repaint();
+				cleanUpMainPlotter();
 				setupPlotting1D();
 			} else if (plotMode.equals(GuiPlotMode.TWOD) && getPlottingSystemMode() != PlottingMode.TWOD) {
-				plottingSystem.reset();
-				plottingSystem.repaint();
+				cleanUpMainPlotter();
 				setupPlotting2D();
 			} else if (plotMode.equals(GuiPlotMode.SCATTER2D) && getPlottingSystemMode() != PlottingMode.SCATTER2D) {
-				plottingSystem.reset();
-				plottingSystem.repaint();
+				cleanUpMainPlotter();
 				setupScatterPlotting2D();
+			} else if (plotMode.equals(GuiPlotMode.ONED_THREED) && mainPlotter.getMode() != PlottingMode.ONED_THREED) {
+				cleanUpPlottingSystem();
+				cleanUpFromOldMode(true);
+				setupMulti1DPlot();
+			} else if (plotMode.equals(GuiPlotMode.SURF2D) && mainPlotter.getMode() != PlottingMode.SURF2D) {
+				cleanUpPlottingSystem();
+				cleanUpFromOldMode(true);
+				setup2DSurface();
+			} else if (plotMode.equals(GuiPlotMode.SCATTER3D) && mainPlotter.getMode() != PlottingMode.SCATTER3D) {
+				cleanUpPlottingSystem();
+				cleanUpFromOldMode(true);
+				setupScatter3DPlot();
+			} else if (plotMode.equals(GuiPlotMode.MULTI2D) && mainPlotter.getMode() != PlottingMode.MULTI2D) {
+				cleanUpPlottingSystem();
+				cleanUpFromOldMode(true);
+				setupMulti2D();
 			} else if (plotMode.equals(GuiPlotMode.EMPTY) && getPlottingSystemMode() != PlottingMode.EMPTY) {
 				clearPlot();
 			}
@@ -633,7 +687,6 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 			} else if (plotMode.equals(GuiPlotMode.SCATTER3D) && mainPlotter.getMode() != PlottingMode.SCATTER3D) {
 				doBlock();
 				parentComp.getDisplay().asyncExec(new Runnable() {
-
 					@Override
 					public void run() {
 						try {
@@ -647,7 +700,6 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 			} else if (plotMode.equals(GuiPlotMode.MULTI2D) && mainPlotter.getMode() != PlottingMode.MULTI2D) {
 				doBlock();
 				parentComp.getDisplay().asyncExec(new Runnable() {
-
 					@Override
 					public void run() {
 						try {
@@ -661,7 +713,6 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 			} else if (plotMode.equals(GuiPlotMode.EMPTY) && mainPlotter.getMode() != PlottingMode.EMPTY) {
 				doBlock();
 				parentComp.getDisplay().asyncExec(new Runnable() {
-
 					@Override
 					public void run() {
 						try {
@@ -680,8 +731,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 					@Override
 					public void run() {
 						try {
-							plottingSystem.reset();
-							plottingSystem.repaint();
+							cleanUpMainPlotter();
 							setupPlotting1D();
 						} finally {
 							undoBlock();
@@ -694,8 +744,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 					@Override
 					public void run() {
 						try {
-							plottingSystem.reset();
-							plottingSystem.repaint();
+							cleanUpMainPlotter();
 							setupPlotting2D();
 						} finally {
 							undoBlock();
@@ -708,9 +757,64 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 					@Override
 					public void run() {
 						try {
-							plottingSystem.reset();
-							plottingSystem.repaint();
+							cleanUpMainPlotter();
 							setupScatterPlotting2D();
+						} finally {
+							undoBlock();
+						}
+					}
+				});
+			} else if (plotMode.equals(GuiPlotMode.ONED_THREED) && mainPlotter.getMode() != PlottingMode.ONED_THREED) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							cleanUpPlottingSystem();
+							cleanUpFromOldMode(true);
+							setupMulti1DPlot();
+						} finally {
+							undoBlock();
+						}
+					}
+				});
+			} else if (plotMode.equals(GuiPlotMode.SURF2D) && mainPlotter.getMode() != PlottingMode.SURF2D) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							cleanUpPlottingSystem();
+							cleanUpFromOldMode(true);
+							setup2DSurface();
+						} finally {
+							undoBlock();
+						}
+					}
+				});
+			} else if (plotMode.equals(GuiPlotMode.SCATTER3D) && mainPlotter.getMode() != PlottingMode.SCATTER3D) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							cleanUpPlottingSystem();
+							cleanUpFromOldMode(true);
+							setupScatter3DPlot();
+						} finally {
+							undoBlock();
+						}
+					}
+				});
+			} else if (plotMode.equals(GuiPlotMode.MULTI2D) && mainPlotter.getMode() != PlottingMode.MULTI2D) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							cleanUpPlottingSystem();
+							cleanUpFromOldMode(true);
+							setupMulti2D();
 						} finally {
 							undoBlock();
 						}
