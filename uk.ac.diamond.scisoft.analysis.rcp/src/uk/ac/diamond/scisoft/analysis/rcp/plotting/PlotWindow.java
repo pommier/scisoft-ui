@@ -227,6 +227,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	
 	private void createPlottingSystem(){
 		//parentComp.setLayout(new GridLayout());
+		if(!mainPlotterComposite.isDisposed())
+			mainPlotterComposite.dispose();
 		plotSystemComposite = new Composite(parentComp, SWT.NONE);
 		plotSystemComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		plotSystemComposite.setLayout(new FillLayout());
@@ -236,6 +238,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 			plottingSystem.setDatasetChoosingRequired(false);
 			
 			plottingSystem.createPlotPart(plotSystemComposite, "1D Plot", bars, PlotType.PT1D, (IViewPart)manager);
+			plottingSystem.repaint();
 		} catch (Exception e) {
 			logger.error("Cannot locate any Abstract plotting System!", e);
 		}
