@@ -92,7 +92,8 @@ public class ImageEditor extends EditorPart {
 
 	@Override
 	public void dispose() {
-		imgxp.dispose();
+		if (imgxp != null && !imgxp.isDisposed())
+			imgxp.dispose();
 		super.dispose();
 	}
 
