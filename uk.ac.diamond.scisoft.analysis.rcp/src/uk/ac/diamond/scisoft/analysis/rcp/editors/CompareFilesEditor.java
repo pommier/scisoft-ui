@@ -40,6 +40,7 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
@@ -1000,6 +1001,8 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 	@Override
 	public ISelection getSelection() {
+		if (multipleSelection == null)
+			return new StructuredSelection(); // Eclipse requires that we do not return null
 		return multipleSelection;
 	}
 

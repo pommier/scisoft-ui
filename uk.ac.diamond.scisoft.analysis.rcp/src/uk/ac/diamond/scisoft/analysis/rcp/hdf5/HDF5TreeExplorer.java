@@ -25,6 +25,7 @@ import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
@@ -324,6 +325,8 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 
 	@Override
 	public ISelection getSelection() {
+		if (hdf5Selection == null)
+			return new StructuredSelection(); // Eclipse requires that we do not return null
 		return hdf5Selection;
 	}
 

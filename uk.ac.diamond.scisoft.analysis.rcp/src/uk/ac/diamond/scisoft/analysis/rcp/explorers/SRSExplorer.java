@@ -29,6 +29,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
@@ -189,6 +190,8 @@ public class SRSExplorer extends AbstractExplorer implements ISelectionProvider 
 
 	@Override
 	public ISelection getSelection() {
+		if (dSelection == null)
+			return new StructuredSelection(); // Eclipse requires that we do not return null
 		return dSelection;
 	}
 
