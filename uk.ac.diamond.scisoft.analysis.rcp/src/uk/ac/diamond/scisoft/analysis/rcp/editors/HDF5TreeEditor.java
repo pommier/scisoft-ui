@@ -159,7 +159,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 	public void dispose() {
 		file = null;
 //		unregisterSelectionListener();
-		if (hdfxp != null)
+		if (hdfxp != null && !hdfxp.isDisposed())
 			hdfxp.dispose();
 		super.dispose();
 	}
