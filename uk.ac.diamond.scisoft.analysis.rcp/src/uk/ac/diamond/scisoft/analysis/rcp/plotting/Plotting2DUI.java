@@ -25,12 +25,21 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.region.IRegion;
+import org.dawb.common.ui.plot.region.IRegion.RegionType;
+import org.dawb.common.ui.plot.region.RegionBounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
+import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
+import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
+import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
+import uk.ac.diamond.scisoft.analysis.roi.SectorROI;
 
 /**
  * Class to create the a 2D/image plotting
@@ -89,5 +98,42 @@ public class Plotting2DUI extends AbstractPlotUI {
 	@Override
 	public void deleteIObservers() {
 		observers.clear();
+	}
+
+	@Override
+	public void processGUIUpdate(GuiBean guiBean) {
+		updateGUI(guiBean);
+	}
+
+	public void updateGUI(GuiBean guiBean) {
+		Collection<IRegion> regions = plottingSystem.getRegions();
+		for (Iterator<IRegion> iterator = regions.iterator(); iterator.hasNext();) {
+			IRegion iRegion = iterator.next();
+			guiBean.put(GuiParameters.ROIDATA, createRegion(iRegion));
+			logger.debug("ROI x:"+ iRegion.getRegionBounds().getX()+" ROI y:"+iRegion.getRegionBounds().getX());
+		}
+	}
+
+	private ROIBase createRegion(IRegion iRegion) {
+		RegionBounds rb = iRegion.getRegionBounds();
+		if(rb.isRectange()){
+			RegionType type = iRegion.getRegionType();
+			if(type == RegionType.LINE){
+				LinearROI roi = new LinearROI(rb.getP1(), rb.getP2());
+				return roi;
+			}
+			if(type == RegionType.BOX){
+				RectangularROI roi = new RectangularROI(rb.getP1()[0], rb.getP1()[1], rb.getWidth(), rb.getHeight(), 0);
+				return roi;
+			}
+		}
+		if(rb.isCircle()){
+			SectorROI roi = new SectorROI();
+			return roi;
+		}
+		if(rb.isPoints()){
+			
+		}
+		return null;
 	}
 }

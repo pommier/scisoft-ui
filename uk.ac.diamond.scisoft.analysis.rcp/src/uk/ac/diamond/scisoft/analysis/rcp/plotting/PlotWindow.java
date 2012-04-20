@@ -46,7 +46,6 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.IActionBars;
@@ -122,6 +121,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 
 	private Composite plotSystemComposite;
 	private Composite mainPlotterComposite;
+	private Composite plotAreaComposite;
 	
 	/**
 	 * Obtain the IPlotWindowManager for the running Eclipse.
@@ -152,6 +152,9 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 			plotMode = GuiPlotMode.ONED;
 
 	//	parentComp.setLayout(new FillLayout());
+
+		plotAreaComposite = new Composite(parentComp, SWT.NONE);
+		plotAreaComposite.setLayout(new FillLayout());
 		
 		createDatasetPlotter();
 
@@ -159,6 +162,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		
 		if(getDefaultPlottingSystemChoice() == 1)
 			createPlottingSystem();
+		//we hide everything at the beginning
+		plotAreaComposite.setVisible(false);
 		
 		if (plotMode.equals(GuiPlotMode.ONED)) {
 			if(getDefaultPlottingSystemChoice()==0)
@@ -215,7 +220,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	private void createDatasetPlotter(){
 		// this needs to be started in 1D as later mode changes will not work as plot UIs are not setup
 		//parentComp.setLayout(new FillLayout(SWT.HORIZONTAL));
-		mainPlotterComposite = new Composite(parentComp, SWT.NONE);
+		mainPlotterComposite = new Composite(plotAreaComposite, SWT.NONE);
 		mainPlotterComposite.setLayout(new FillLayout());
 		mainPlotter = new DataSetPlotter(PlottingMode.ONED, mainPlotterComposite, true);
 		mainPlotter.setAxisModes(AxisMode.LINEAR, AxisMode.LINEAR, AxisMode.LINEAR);
@@ -227,9 +232,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	
 	private void createPlottingSystem(){
 		//parentComp.setLayout(new GridLayout());
-		if(!mainPlotterComposite.isDisposed())
-			mainPlotterComposite.dispose();
-		plotSystemComposite = new Composite(parentComp, SWT.NONE);
+		plotSystemComposite = new Composite(plotAreaComposite, SWT.NONE);
 		plotSystemComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		plotSystemComposite.setLayout(new FillLayout());
 		try {
@@ -338,6 +341,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 			createPlottingSystem();
 		plottingSystem.reset();
 		plottingSystem.repaint();
+		plotAreaComposite.layout();
 	}
 	
 	/**
@@ -348,13 +352,13 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		if(!plottingSystem.isDisposed()){
 			bars.getToolBarManager().removeAll();
 			bars.getMenuManager().removeAll();
-		//	plottingSystem.getPlotComposite().dispose();
 			plottingSystem.dispose();
 			plotSystemComposite.dispose();
 		}
 		if(mainPlotter.isDisposed()){
 			createDatasetPlotter();
 		}
+		plotAreaComposite.layout();
 	}
 
 	private void addCommonActions() {
@@ -485,11 +489,14 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		plotUI = new Plot1DUIComplete(this, manager, bars, parentComp, getPage(), name);
 		addCommonActions();
 		bars.updateActionBars();
+		plotAreaComposite.setVisible(true);
 	}
 
 	//Abstract plotting System
 	private void setupPlotting1D() {
 		plotUI = new Plotting1DUI(plottingSystem);
+		plottingSystem.repaint();
+		plotAreaComposite.setVisible(true);
 	}
 
 	//Datasetplotter
@@ -498,11 +505,13 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		plotUI = new Plot2DUI(this, mainPlotter, manager, parentComp, getPage(), bars, name);
 		addCommonActions();
 		bars.updateActionBars();
+		plotAreaComposite.setVisible(true);
 	}
 
 	//Abstract plotting System
 	private void setupPlotting2D() {
 		plotUI = new Plotting2DUI(plottingSystem);
+		plotAreaComposite.setVisible(true);
 	}
 
 	private void setupMulti2D() {
@@ -510,6 +519,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		plotUI = new Plot2DMultiUI(this, mainPlotter, manager, parentComp, getPage(), bars, name);
 		addCommonActions();
 		bars.updateActionBars();
+		plotAreaComposite.setVisible(true);
 	}
 
 	private void setup2DSurface() {
@@ -518,6 +528,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		plotUI = new PlotSurf3DUI(this, mainPlotter, parentComp, getPage(), bars, name);
 		addCommonActions();
 		bars.updateActionBars();
+		plotAreaComposite.setVisible(true);
 	}
 
 	private void setupMulti1DPlot() {
@@ -525,6 +536,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		plotUI = new Plot1DStackUI(this, bars, mainPlotter, parentComp, page);
 		addCommonActions();
 		bars.updateActionBars();
+		plotAreaComposite.setVisible(true);
 	}
 
 	private void setupScatter2DPlot() {
@@ -532,11 +544,13 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		plotUI = new PlotScatter2DUI(this, bars, mainPlotter, parentComp, page, name);
 		addCommonActions();
 		bars.updateActionBars();
+		plotAreaComposite.setVisible(true);
 	}
 
 	//Abstract plotting System
 	private void setupScatterPlotting2D() {
 		plotUI = new PlottingScatter2DUI(plottingSystem);
+		plotAreaComposite.setVisible(true);
 	}
 
 	private void setupScatter3DPlot() {
@@ -544,6 +558,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		plotUI = new PlotScatter3DUI(this, mainPlotter, parentComp, getPage(), bars, name);
 		addCommonActions();
 		bars.updateActionBars();
+		plotAreaComposite.setVisible(true);
 	}
 
 	/**
