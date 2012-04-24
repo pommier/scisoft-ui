@@ -78,7 +78,6 @@ public class Plotting2DUI extends AbstractPlotUI {
 			AbstractDataset data = yDatasets.get(0);
 			if(data != null){
 				data.setName("");
-				plottingSystem.reset();
 				plottingSystem.createPlot2D(data, null, null);
 				logger.debug("Plot 2D created");
 			}
@@ -104,6 +103,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 	public void processGUIUpdate(GuiBean guiBean) {
 		updateGUI(guiBean);
 	}
+
 
 	public void updateGUI(GuiBean guiBean) {
 		Collection<IRegion> regions = plottingSystem.getRegions();

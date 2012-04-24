@@ -68,7 +68,7 @@ public class Plotting1DUI extends AbstractPlotUI {
 				AbstractDataset data = dataSetAxis.getData();
 				yDatasets.add(data);
 			}
-			plottingSystem.reset();
+			plottingSystem.clear();
 			plottingSystem.createPlot1D(xAxisValues, yDatasets, null);
 			logger.debug("Plot 1D created");
 		}
