@@ -63,7 +63,7 @@ public class PlottingScatter2DUI extends AbstractPlotUI {
 				AbstractDataset data = dataSetAxis.getData();
 				yDatasets.add(data);
 			}
-			plottingSystem.reset();
+			plottingSystem.clear();
 			Collection<ITrace> traces = plottingSystem.createPlot1D(xAxisValues, yDatasets, null);
 			for (ITrace iTrace : traces) {
 				ILineTrace lineTrace = (ILineTrace)iTrace;
