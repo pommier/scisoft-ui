@@ -27,10 +27,9 @@ import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.region.IRegion;
-import org.dawb.common.ui.plot.region.IRegion.RegionType;
 import org.dawb.common.ui.plot.region.IRegionBoundsListener;
+import org.dawb.common.ui.plot.region.ROIEvent;
 import org.dawb.common.ui.plot.region.RegionBounds;
-import org.dawb.common.ui.plot.region.RegionBoundsEvent;
 import org.dawb.common.ui.plot.trace.IImageTrace;
 import org.dawb.common.ui.plot.trace.ITrace;
 import org.eclipse.swt.widgets.Display;
@@ -42,10 +41,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
-import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
-import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
-import uk.ac.diamond.scisoft.analysis.roi.SectorROI;
 
 /**
  * Class to create the a 2D/image plotting
@@ -135,40 +131,21 @@ public class Plotting2DUI extends AbstractPlotUI implements IRegionBoundsListene
 		for (Iterator<IRegion> iterator = regions.iterator(); iterator.hasNext();) {
 			IRegion iRegion = iterator.next();
 			guiBean.put(GuiParameters.ROIDATA, createRegion(iRegion));
-			logger.debug("ROI x:"+ iRegion.getRegionBounds().getX()+" ROI y:"+iRegion.getRegionBounds().getX());
+			logger.debug("ROI x:"+ iRegion.getROI().getPointX()+" ROI y:"+iRegion.getROI().getPointY());
 		}
 	}
 
 	private ROIBase createRegion(IRegion iRegion) {
-		RegionBounds rb = iRegion.getRegionBounds();
-		if(rb.isRectange()){
-			RegionType type = iRegion.getRegionType();
-			if(type == RegionType.LINE){
-				LinearROI roi = new LinearROI(rb.getP1(), rb.getP2());
-				return roi;
-			}
-			if(type == RegionType.BOX){
-				RectangularROI roi = new RectangularROI(rb.getP1()[0], rb.getP1()[1], rb.getWidth(), rb.getHeight(), 0);
-				return roi;
-			}
-		}
-		if(rb.isCircle()){
-			SectorROI roi = new SectorROI();
-			return roi;
-		}
-		if(rb.isPoints()){
-			
-		}
-		return null;
+		return iRegion.getROI();
 	}
 
 	@Override
-	public void regionBoundsDragged(RegionBoundsEvent evt) {
+	public void roiDragged(ROIEvent evt) {
 //		update((IRegion)evt.getSource(), evt.getRegionBounds());
 	}
 
 	@Override
-	public void regionBoundsChanged(RegionBoundsEvent evt) {
+	public void roiChanged(ROIEvent evt) {
 //		final IRegion region = (IRegion)evt.getSource();
 //		update(region, region.getRegionBounds());
 //		
@@ -185,11 +162,11 @@ public class Plotting2DUI extends AbstractPlotUI implements IRegionBoundsListene
 //		});
 	}
 	
-	private synchronized void update(IRegion r, RegionBounds rb) {
+//	private synchronized void update(IRegion r, RegionBounds rb) {
 //		if (r!=null && !isRegionTypeSupported(r.getRegionType())) return; // Nothing to do.
 //		if (isUpdateRunning)  updateProfiles.cancel();
 //		this.currentRegion = r;
 //		this.currentBounds = rb;
 //		updateProfiles.schedule();
-	}
+//	}
 }
