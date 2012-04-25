@@ -332,8 +332,6 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		}
 		if(plottingSystem.isDisposed())
 			createPlottingSystem();
-		plottingSystem.reset();
-		plottingSystem.repaint();
 		parentComp.layout();
 	}
 	

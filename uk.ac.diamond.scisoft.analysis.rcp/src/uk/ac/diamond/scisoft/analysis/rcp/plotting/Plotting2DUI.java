@@ -18,7 +18,6 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import gda.observable.IObserver;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -29,10 +28,6 @@ import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.region.IRegion;
 import org.dawb.common.ui.plot.region.IRegionBoundsListener;
 import org.dawb.common.ui.plot.region.ROIEvent;
-import org.dawb.common.ui.plot.region.RegionBounds;
-import org.dawb.common.ui.plot.trace.IImageTrace;
-import org.dawb.common.ui.plot.trace.ITrace;
-import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,8 +59,7 @@ public class Plotting2DUI extends AbstractPlotUI implements IRegionBoundsListene
 	}
 
 	@Override
-	public void processPlotUpdate(DataBean dbPlot, boolean isUpdate)
-	{
+	public void processPlotUpdate(DataBean dbPlot, boolean isUpdate){
 		Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
 		if (plotData != null) {
 			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
@@ -80,28 +74,10 @@ public class Plotting2DUI extends AbstractPlotUI implements IRegionBoundsListene
 			final AbstractDataset data = yDatasets.get(0);
 			if(data != null){
 				data.setName("");
-
-				final Collection<ITrace> traces = plottingSystem.getTraces(IImageTrace.class);
-				if (traces!=null && traces.size()>0) {
-					final IImageTrace image = (IImageTrace)traces.iterator().next();
-					final int[]       shape = image.getData().getShape();
-					if (Arrays.equals(shape, data.getShape())) {
-						Display.getDefault().syncExec(new Runnable() {
-							@Override
-							public void run() {
-								// This will keep the previous zoom level if there was one
-								// and will be faster than createPlot2D(...) which autoscales.
-								image.setData(data, image.getAxes(), false);
-							}
-						});
-					} else {
-						plottingSystem.createPlot2D(data, null, null);
-					}
-				} else {
-					plottingSystem.createPlot2D(data, null, null);
-				}
+				plottingSystem.updatePlot2D(data, null, null);
 				logger.debug("Plot 2D created");
-			}
+			} else
+				logger.debug("No data to plot");
 		}
 	}
 

@@ -28,6 +28,7 @@ import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.trace.ILineTrace;
 import org.dawb.common.ui.plot.trace.ITrace;
 import org.dawb.common.ui.plot.trace.ILineTrace.TraceType;
+import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,8 +75,14 @@ public class Plotting1DUI extends AbstractPlotUI {
 			plottingSystem.clear();
 			Collection<ITrace> traces = plottingSystem.createPlot1D(xAxisValues, yDatasets, null);
 			for (ITrace iTrace : traces) {
-				ILineTrace lineTrace = (ILineTrace)iTrace;
-				lineTrace.setTraceType(TraceType.SOLID_LINE);
+				final ILineTrace lineTrace = (ILineTrace)iTrace;
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						lineTrace.setTraceType(TraceType.SOLID_LINE);
+					}
+				});
+				
 			}
 			logger.debug("Plot 1D created");
 		}

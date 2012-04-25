@@ -27,6 +27,7 @@ import org.dawb.common.ui.plot.trace.ILineTrace;
 import org.dawb.common.ui.plot.trace.ILineTrace.PointStyle;
 import org.dawb.common.ui.plot.trace.ILineTrace.TraceType;
 import org.dawb.common.ui.plot.trace.ITrace;
+import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,10 +67,17 @@ public class PlottingScatter2DUI extends AbstractPlotUI {
 			plottingSystem.clear();
 			Collection<ITrace> traces = plottingSystem.createPlot1D(xAxisValues, yDatasets, null);
 			for (ITrace iTrace : traces) {
-				ILineTrace lineTrace = (ILineTrace)iTrace;
-				lineTrace.setPointStyle(PointStyle.CROSS);
-				lineTrace.setTraceType(TraceType.POINT);
-				lineTrace.setPointSize(10);
+				final ILineTrace lineTrace = (ILineTrace)iTrace;
+				Display.getDefault().syncExec(new Runnable() {
+					@Override
+					public void run() {
+						lineTrace.setPointStyle(PointStyle.CROSS);
+						lineTrace.setTraceType(TraceType.POINT);
+						lineTrace.setPointSize(10);
+					}
+	
+				});
+				
 			}
 			logger.debug("Scatter plot created");
 		}
