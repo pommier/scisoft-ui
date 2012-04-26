@@ -419,11 +419,14 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		bars.getMenuManager().add(saveGraphAction);
 		bars.getMenuManager().add(copyGraphAction);
 		bars.getMenuManager().add(printGraphAction);
-		addScriptingDuplicateAction();
+		bars.getMenuManager().add(new Separator("scripting.group"));
+		addScriptingAction();
+		bars.getMenuManager().add(new Separator("duplicate.group"));
+		addDuplicateAction();
 		
 	}
 
-	private void addScriptingDuplicateAction(){
+	private void addDuplicateAction(){
 		if (duplicateWindowCCI == null) {
 			CommandContributionItemParameter ccip = new CommandContributionItemParameter(PlatformUI.getWorkbench()
 					.getActiveWorkbenchWindow(), null, DuplicatePlotAction.COMMAND_ID,
@@ -431,6 +434,11 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 			ccip.label = "Create Duplicate Plot";
 			duplicateWindowCCI = new CommandContributionItem(ccip);
 		}
+		bars.getMenuManager().add(duplicateWindowCCI);
+	}
+
+	private void addScriptingAction(){
+		
 		if (openPyDevConsoleCCI == null) {
 			CommandContributionItemParameter ccip = new CommandContributionItemParameter(PlatformUI.getWorkbench()
 					.getActiveWorkbenchWindow(), null, InjectPyDevConsoleHandler.COMMAND_ID,
@@ -467,13 +475,9 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 			ccip.parameters = params;
 			getPlotBeanCCI = new CommandContributionItem(ccip);
 		}
-		//bars.getMenuManager().add(new Separator("Scripting"));
 		bars.getMenuManager().add(openPyDevConsoleCCI);
 		bars.getMenuManager().add(updateDefaultPlotCCI);
 		bars.getMenuManager().add(getPlotBeanCCI);
-		//bars.getMenuManager().add(new Separator(duplicateWindowCCI.getCommand().getId()));
-		bars.getMenuManager().add(duplicateWindowCCI);
-		
 	}
 
 	//Datasetplotter
@@ -487,8 +491,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	//Abstract plotting System
 	private void setupPlotting1D() {
 		plotUI = new Plotting1DUI(plottingSystem);
-		addScriptingDuplicateAction();
-		bars.updateActionBars();
+		addScriptingAction();
+		addDuplicateAction();
 	}
 
 	//Datasetplotter
@@ -502,8 +506,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	//Abstract plotting System
 	private void setupPlotting2D() {
 		plotUI = new Plotting2DUI(plottingSystem);
-		addScriptingDuplicateAction();
-		bars.updateActionBars();
+		addScriptingAction();
+		addDuplicateAction();
 	}
 
 	private void setupMulti2D() {
@@ -538,8 +542,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	//Abstract plotting System
 	private void setupScatterPlotting2D() {
 		plotUI = new PlottingScatter2DUI(plottingSystem);
-		addScriptingDuplicateAction();
-		bars.updateActionBars();
+		addScriptingAction();
+		addDuplicateAction();
 	}
 
 	private void setupScatter3DPlot() {
