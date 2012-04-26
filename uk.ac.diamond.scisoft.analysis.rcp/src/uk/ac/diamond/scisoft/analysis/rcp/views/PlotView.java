@@ -30,6 +30,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.tool.IToolPageSystem;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -422,6 +423,10 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 	@Override
 	public DataSetPlotter getMainPlotter() {
 		return plotWindow.getMainPlotter();
+	}
+
+	public AbstractPlottingSystem getPlottingSystem() {
+		return plotWindow.getPlottingSystem();
 	}
 
 	public PlotWindow getPlotWindow() {

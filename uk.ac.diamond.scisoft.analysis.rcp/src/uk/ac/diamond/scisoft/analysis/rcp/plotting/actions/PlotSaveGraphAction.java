@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright 2012 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,15 +18,24 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting.actions;
 
 import java.io.File;
 
+import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.SDAPlotter;
+import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
+import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 //import uk.ac.diamond.scisoft.analysis.rcp.views.plot.AbstractPlotView;
 
@@ -36,43 +45,73 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 public class PlotSaveGraphAction extends AbstractHandler {
 
 	private String filename;
-
+	Logger logger = LoggerFactory.getLogger(PlotSaveGraphAction.class);
+	
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-//		String viewID = event.getParameter("uk.ac.diamond.scisoft.analysis.command.sourceView");
-//		if (viewID == null)
-//			return Boolean.FALSE;
-//
-//		final AbstractPlotView apv = (AbstractPlotView)HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().findView(viewID);
-//		DataSetPlotter plotter = apv.getPlotter();
-//		if (plotter == null)
-//			return Boolean.FALSE;
+
 		final PlotView pv = (PlotView)HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().getActivePart();
-		DataSetPlotter plotter = pv.getMainPlotter();
 
-
-		FileDialog dialog = new FileDialog(pv.getSite().getShell(), SWT.SAVE);
-
-		String [] filterExtensions = new String [] {"*.jpg;*.JPG;*.jpeg;*.JPEG;*.png;*.PNG", "*.ps;*.eps","*.svg;*.SVG"};
-		if (filename != null) {
-			dialog.setFilterPath((new File(filename)).getParent());
-		} else {
-			String filterPath = "/";
-			String platform = SWT.getPlatform();
-			if (platform.equals("win32") || platform.equals("wpf")) {
-				filterPath = "c:\\";
+		try{
+			DataBean dbPlot = SDAPlotter.getDataBean("Dataset Plot");
+			GuiPlotMode plotMode = dbPlot.getGuiPlotMode();
+			
+			// With DatasetPlotter
+			if(getDefaultPlottingSystemChoice() == 0){
+				return saveDatasetPlotter(pv);
+			} 
+			// with Plotting System
+			else if (getDefaultPlottingSystemChoice() == 1){
+				// plot modes with new plotting system
+				if (plotMode.equals(GuiPlotMode.ONED) 
+						||(plotMode.equals(GuiPlotMode.TWOD))
+						||(plotMode.equals(GuiPlotMode.SCATTER2D))) {
+					AbstractPlottingSystem plottingSystem = pv.getPlottingSystem();
+					plottingSystem.savePlotting(filename);
+				} 
+				// plot modes with DatasetPlotter
+				else {
+					return saveDatasetPlotter(pv);
+				}
 			}
-			dialog.setFilterPath(filterPath);
-		}
-		dialog.setFilterNames(PlotExportUtil.FILE_TYPES);
-		dialog.setFilterExtensions(filterExtensions);
-		filename = dialog.open();
-		if (filename == null)
+		}catch (Exception e) {
+			logger.error("Error while processing save", e);
 			return Boolean.FALSE;
-
-		plotter.saveGraph(filename, PlotExportUtil.FILE_TYPES[dialog.getFilterIndex()]);
-
+		}
+		
 		return Boolean.TRUE;
 	}
 
+	private Boolean saveDatasetPlotter(PlotView pv){
+		DataSetPlotter plotter = pv.getMainPlotter();
+		if (plotter != null) {
+			FileDialog dialog = new FileDialog(pv.getSite().getShell(), SWT.SAVE);
+			String [] filterExtensions = new String [] {"*.jpg;*.JPG;*.jpeg;*.JPEG;*.png;*.PNG", "*.ps;*.eps","*.svg;*.SVG"};
+			if (filename != null) {
+				dialog.setFilterPath((new File(filename)).getParent());
+			} else {
+				String filterPath = "/";
+				String platform = SWT.getPlatform();
+				if (platform.equals("win32") || platform.equals("wpf")) {
+					filterPath = "c:\\";
+				}
+				dialog.setFilterPath(filterPath);
+			}
+			dialog.setFilterNames(PlotExportUtil.FILE_TYPES);
+			dialog.setFilterExtensions(filterExtensions);
+			filename = dialog.open();
+			if (filename == null)
+				return Boolean.FALSE;
+			plotter.saveGraph(filename, PlotExportUtil.FILE_TYPES[dialog.getFilterIndex()]);
+		} else
+			return Boolean.FALSE;
+		return Boolean.TRUE;
+	}
+
+	private int getDefaultPlottingSystemChoice() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
+				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
+				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
+	}
 }

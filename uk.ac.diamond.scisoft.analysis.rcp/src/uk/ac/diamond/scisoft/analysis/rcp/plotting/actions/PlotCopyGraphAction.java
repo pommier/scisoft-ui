@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright 2012 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,12 +17,21 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.actions;
 
 
+import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.SDAPlotter;
+import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
+import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 
 /**
@@ -30,17 +39,51 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
  */
 public class PlotCopyGraphAction extends AbstractHandler {
 
+	Logger logger = LoggerFactory.getLogger(PlotCopyGraphAction.class);
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
 		final PlotView pv = (PlotView)HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().getActivePart();
-		DataSetPlotter plotter = pv.getMainPlotter();
-		if (plotter == null)
+		try{
+			DataBean dbPlot = SDAPlotter.getDataBean("Dataset Plot");
+			GuiPlotMode plotMode = dbPlot.getGuiPlotMode();
+		
+			// With DatasetPlotter
+			if(getDefaultPlottingSystemChoice() == 0){
+				DataSetPlotter plotter = pv.getMainPlotter();
+				if (plotter != null) {
+					plotter.copyGraph();
+				} else
+					return Boolean.FALSE;
+			} 
+			// with Plotting System
+			else {
+				
+				if (plotMode.equals(GuiPlotMode.ONED) 
+						||(plotMode.equals(GuiPlotMode.TWOD))
+						||(plotMode.equals(GuiPlotMode.SCATTER2D))) {
+					AbstractPlottingSystem plottingSystem = pv.getPlottingSystem();
+					plottingSystem.copyPlotting();
+				} else {
+					DataSetPlotter plotter = pv.getMainPlotter();
+					if (plotter != null) {
+						plotter.copyGraph();
+					}
+				}
+			}
+		}catch (Exception e) {
+			logger.error("Error while processing print", e);
 			return Boolean.FALSE;
-
-		plotter.copyGraph();
-
+		}
+		
 		return Boolean.TRUE;
 	}
 
+	private int getDefaultPlottingSystemChoice() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
+				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
+				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
+	}
 }

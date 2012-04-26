@@ -26,11 +26,7 @@ import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.region.IRegion;
-import org.dawb.common.ui.plot.region.IROIListener;
-import org.dawb.common.ui.plot.region.ROIEvent;
-import org.dawb.common.ui.plot.trace.IImageTrace;
-import org.dawb.common.ui.plot.trace.ITrace;
-import org.eclipse.swt.widgets.Display;
+//import org.dawb.common.ui.plot.region.IRegionBoundsListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +40,7 @@ import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 /**
  * Class to create the a 2D/image plotting
  */
-public class Plotting2DUI extends AbstractPlotUI implements IROIListener {
+public class Plotting2DUI extends AbstractPlotUI {
 
 	public final static String STATUSITEMID = "uk.ac.diamond.scisoft.analysis.rcp.plotting.Plotting2DUI";
 
@@ -118,13 +114,13 @@ public class Plotting2DUI extends AbstractPlotUI implements IROIListener {
 		return iRegion.getROI();
 	}
 
-	@Override
-	public void roiDragged(ROIEvent evt) {
+//	@Override
+//	public void roiDragged(ROIEvent evt) {
 //		update((IRegion)evt.getSource(), evt.getRegionBounds());
-	}
+//	}
 
-	@Override
-	public void roiChanged(ROIEvent evt) {
+//	@Override
+//	public void roiChanged(ROIEvent evt) {
 //		final IRegion region = (IRegion)evt.getSource();
 //		update(region, region.getRegionBounds());
 //		
@@ -139,7 +135,7 @@ public class Plotting2DUI extends AbstractPlotUI implements IROIListener {
 //				plotter.autoscaleAxes();
 //			}
 //		});
-	}
+//	}
 	
 //	private synchronized void update(IRegion r, RegionBounds rb) {
 //		if (r!=null && !isRegionTypeSupported(r.getRegionType())) return; // Nothing to do.
