@@ -605,6 +605,11 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.contributions.openImageGridView"
             name="Open Image Grid">
       </command>
+      <command
+            defaultHandler="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DuplicatePlotAction"
+            id="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.duplicatePlot"
+            name="Duplicate plot">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">

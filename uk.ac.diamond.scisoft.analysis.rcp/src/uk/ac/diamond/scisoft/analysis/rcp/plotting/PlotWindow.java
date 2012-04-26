@@ -37,7 +37,6 @@ import org.dawb.common.ui.plot.trace.IImageTrace;
 import org.dawb.common.ui.plot.trace.ILineTrace;
 import org.dawb.common.ui.plot.trace.ITrace;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -65,6 +64,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiPlotMode;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DuplicatePlotAction;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.InjectPyDevConsoleHandler;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
@@ -96,10 +96,10 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	private IUpdateNotificationListener notifyListener = null;
 	private DataBean myBeanMemory;
 
-	protected Action duplicateWindowAction;
 	protected Action saveGraphAction;
 	protected Action copyGraphAction;
 	protected Action printGraphAction;
+	protected CommandContributionItem duplicateWindowCCI;
 	protected CommandContributionItem openPyDevConsoleCCI;
 	protected CommandContributionItem updateDefaultPlotCCI;
 	protected CommandContributionItem getPlotBeanCCI;
@@ -353,16 +353,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	}
 
 	private void addCommonActions() {
-		if (duplicateWindowAction == null) {
-			duplicateWindowAction = new Action("Create Duplicate Plot", IAction.AS_PUSH_BUTTON) {
-				@Override
-				public void run() {
-					getManager().openDuplicateView(page, name);
-				}
-			};
-			duplicateWindowAction.setText("Duplicate Plot");
-			duplicateWindowAction.setToolTipText("Open an additional Plot View with a duplicate of this plot's data");
-		}
+
 		if (saveGraphAction == null) {
 			saveGraphAction = new Action() {		
 				// Cache file name otherwise they have to keep
@@ -423,6 +414,23 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 			printGraphAction.setImageDescriptor(AnalysisRCPActivator.getImageDescriptor(printImagePath));
 		}
 
+		if (bars.getMenuManager().getItems().length > 0)
+			bars.getMenuManager().add(new Separator());
+		bars.getMenuManager().add(saveGraphAction);
+		bars.getMenuManager().add(copyGraphAction);
+		bars.getMenuManager().add(printGraphAction);
+		addScriptingDuplicateAction();
+		
+	}
+
+	private void addScriptingDuplicateAction(){
+		if (duplicateWindowCCI == null) {
+			CommandContributionItemParameter ccip = new CommandContributionItemParameter(PlatformUI.getWorkbench()
+					.getActiveWorkbenchWindow(), null, DuplicatePlotAction.COMMAND_ID,
+					CommandContributionItem.STYLE_PUSH);
+			ccip.label = "Create Duplicate Plot";
+			duplicateWindowCCI = new CommandContributionItem(ccip);
+		}
 		if (openPyDevConsoleCCI == null) {
 			CommandContributionItemParameter ccip = new CommandContributionItemParameter(PlatformUI.getWorkbench()
 					.getActiveWorkbenchWindow(), null, InjectPyDevConsoleHandler.COMMAND_ID,
@@ -459,19 +467,13 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 			ccip.parameters = params;
 			getPlotBeanCCI = new CommandContributionItem(ccip);
 		}
-
-		if (bars.getMenuManager().getItems().length > 0)
-			bars.getMenuManager().add(new Separator());
-		bars.getMenuManager().add(saveGraphAction);
-		bars.getMenuManager().add(copyGraphAction);
-		bars.getMenuManager().add(printGraphAction);
-		bars.getMenuManager().add(new Separator());
+		//bars.getMenuManager().add(new Separator("Scripting"));
 		bars.getMenuManager().add(openPyDevConsoleCCI);
 		bars.getMenuManager().add(updateDefaultPlotCCI);
 		bars.getMenuManager().add(getPlotBeanCCI);
-		bars.getMenuManager().add(new Separator());
-		bars.getMenuManager().add(duplicateWindowAction);
-		bars.getMenuManager().add(new Separator());
+		//bars.getMenuManager().add(new Separator(duplicateWindowCCI.getCommand().getId()));
+		bars.getMenuManager().add(duplicateWindowCCI);
+		
 	}
 
 	//Datasetplotter
@@ -485,6 +487,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	//Abstract plotting System
 	private void setupPlotting1D() {
 		plotUI = new Plotting1DUI(plottingSystem);
+		addScriptingDuplicateAction();
+		bars.updateActionBars();
 	}
 
 	//Datasetplotter
@@ -498,6 +502,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	//Abstract plotting System
 	private void setupPlotting2D() {
 		plotUI = new Plotting2DUI(plottingSystem);
+		addScriptingDuplicateAction();
+		bars.updateActionBars();
 	}
 
 	private void setupMulti2D() {
@@ -532,6 +538,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 	//Abstract plotting System
 	private void setupScatterPlotting2D() {
 		plotUI = new PlottingScatter2DUI(plottingSystem);
+		addScriptingDuplicateAction();
+		bars.updateActionBars();
 	}
 
 	private void setupScatter3DPlot() {
