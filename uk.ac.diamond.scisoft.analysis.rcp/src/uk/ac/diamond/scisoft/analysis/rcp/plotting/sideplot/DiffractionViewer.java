@@ -94,32 +94,6 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 	@SuppressWarnings("unused")
 	private String standardName, standardDistances;
 
-	/**
-	 * possible handle states
-	 */
-	public enum HandleStatus {
-		/**
-		 * Specifies the handle does nothing
-		 */
-		NONE,
-		/**
-		 * Specifies the handle is for moving
-		 */
-		MOVE,
-		/**
-		 * Specifies the handle is for resizing
-		 */
-		RESIZE,
-		/**
-		 * Specifies the handle is for re-orienting (i.e. move end but preserve length)
-		 */
-		REORIENT,
-		/**
-		 * Specifies the handle is for spinning
-		 */
-		ROTATE
-	}
-
 	private HandleStatus hStatus = HandleStatus.NONE;
 	private DiffractionViewerResolutionRings resRingTable;
 	private ArrayList<Integer> boxIDs;
@@ -505,7 +479,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 							hStatus = HandleStatus.REORIENT;
 						}
 					} else if (h == 1) {
-						hStatus = HandleStatus.MOVE;
+						hStatus = HandleStatus.RMOVE;
 						if ((flags & IImagePositionEvent.SHIFTKEY) != 0) {
 							hStatus = HandleStatus.ROTATE;
 						}
@@ -667,7 +641,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 		RectangularROI croi = null; // return null if not a valid event
 
 		switch (hStatus) {
-		case MOVE:
+		case RMOVE:
 			croi = rectROI.copy();
 			pt[0] -= cpt[0];
 			pt[1] -= cpt[1];
@@ -690,6 +664,10 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 			croi.setAngle(ang);
 			croi.setMidPoint(mpt);
 			break;
+		case CMOVE:
+			break;
+		case CRMOVE:
+			break;
 		}
 		return croi;
 	}
@@ -699,7 +677,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 		LinearROI croi = null; // return null if not a valid event
 
 		switch (hStatus) {
-		case MOVE:
+		case RMOVE:
 			croi = lroi.copy();
 			croi.addPoint(pt);
 			croi.subPoint(cpt);
@@ -720,6 +698,10 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 			double[] mpt = croi.getMidPoint();
 			croi.setAngle(ang);
 			croi.setMidPoint(mpt);
+			break;
+		case CMOVE:
+			break;
+		case CRMOVE:
 			break;
 		}
 

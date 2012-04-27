@@ -78,32 +78,6 @@ public class GridProfile extends SidePlotProfile {
 
 	private IPropertyChangeListener propListener;
 
-	/**
-	 * possible handle states
-	 */
-	private enum HandleStatus {
-		/**
-		 * Specifies the handle does nothing
-		 */
-		NONE,
-		/**
-		 * Specifies the handle is for moving
-		 */
-		MOVE,
-		/**
-		 * Specifies the handle is for resizing
-		 */
-		RESIZE,
-		/**
-		 * Specifies the handle is for re-orienting (i.e. move end but preserve length)
-		 */
-		REORIENT,
-		/**
-		 * Specifies the handle is for spinning
-		 */
-		ROTATE
-	}
-
 	private HandleStatus hStatus = HandleStatus.NONE;
 	private FloatSpinner spsx, spsy;
 	private FloatSpinner resx, resy;
@@ -858,7 +832,7 @@ public class GridProfile extends SidePlotProfile {
 						}
 					}
 				} else if (h == 4) {
-					hStatus = HandleStatus.MOVE;
+					hStatus = HandleStatus.RMOVE;
 					if ((flags & IImagePositionEvent.SHIFTKEY) != 0) {
 						hStatus = HandleStatus.ROTATE;
 					}
@@ -894,7 +868,7 @@ public class GridProfile extends SidePlotProfile {
 		final GridROI groi = (GridROI) roi;
 
 		switch (hStatus) {
-		case MOVE:
+		case RMOVE:
 			croi = groi.copy();
 			pt[0] -= cpt[0];
 			pt[1] -= cpt[1];
@@ -916,6 +890,10 @@ public class GridProfile extends SidePlotProfile {
 			double[] mpt = croi.getMidPoint();
 			croi.setAngle(ang);
 			croi.setMidPoint(mpt);
+			break;
+		case CMOVE:
+			break;
+		case CRMOVE:
 			break;
 		}
 
