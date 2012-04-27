@@ -33,6 +33,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
+import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 /**
  *
@@ -40,15 +41,20 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 public class PlotCopyGraphAction extends AbstractHandler {
 
 	Logger logger = LoggerFactory.getLogger(PlotCopyGraphAction.class);
+	private String plotName = "Dataset Plot";
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
 		final PlotView pv = (PlotView)HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().getActivePart();
 		try{
-			DataBean dbPlot = SDAPlotter.getDataBean("Dataset Plot");
+			String activePartName = EclipseUtils.getActivePage().getActivePart().getTitle();
+			if(activePartName.startsWith(plotName))
+				plotName = activePartName;
+
+			DataBean dbPlot = SDAPlotter.getDataBean(plotName);
 			GuiPlotMode plotMode = dbPlot.getGuiPlotMode();
-		
+
 			// With DatasetPlotter
 			if(getDefaultPlottingSystemChoice() == 0){
 				DataSetPlotter plotter = pv.getMainPlotter();

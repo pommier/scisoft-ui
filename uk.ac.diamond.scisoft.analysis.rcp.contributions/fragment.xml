@@ -1203,36 +1203,51 @@
             class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotCopyGraphAction"
             commandId="org.eclipse.ui.edit.copy">
          <activeWhen>
-               <with
-                     variable="activePartId">
+            <with
+                   variable="activePartId">
+               <or>
                   <equals
-                         value="uk.ac.diamond.scisoft.analysis.rcp.plotViewDP">
+                      value="uk.ac.diamond.scisoft.analysis.rcp.plotViewDP">
                   </equals>
-               </with>
+                  <equals
+                      value="uk.ac.diamond.scisoft.analysis.rcp.plotViewMultiple">
+                  </equals>
+               </or>
+            </with>
          </activeWhen>
       </handler>
       <handler
             class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotSaveGraphAction"
             commandId="org.eclipse.ui.file.saveAs">
          <activeWhen>
-               <with
-                     variable="activePartId">
+            <with
+                   variable="activePartId">
+               <or>
                   <equals
-                         value="uk.ac.diamond.scisoft.analysis.rcp.plotViewDP">
+                      value="uk.ac.diamond.scisoft.analysis.rcp.plotViewDP">
                   </equals>
-               </with>
+                  <equals
+                      value="uk.ac.diamond.scisoft.analysis.rcp.plotViewMultiple">
+                  </equals>
+               </or>
+            </with>
          </activeWhen>
       </handler>
       <handler
             class="uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.PlotPrintGraphAction"
             commandId="org.eclipse.ui.file.print">
          <activeWhen>
-               <with
-                     variable="activePartId">
+            <with
+                   variable="activePartId">
+               <or>
                   <equals
-                         value="uk.ac.diamond.scisoft.analysis.rcp.plotViewDP">
+                      value="uk.ac.diamond.scisoft.analysis.rcp.plotViewDP">
                   </equals>
-               </with>
+                  <equals
+                      value="uk.ac.diamond.scisoft.analysis.rcp.plotViewMultiple">
+                  </equals>
+               </or>
+            </with>
          </activeWhen>
       </handler>
    </extension>
