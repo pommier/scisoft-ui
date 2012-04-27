@@ -128,36 +128,6 @@ public class SectorProfile extends SidePlotProfile {
 	private String saveToolTipText = ResourceProperties.getResourceString("SAVE_TOOLTIP");
 	private String saveImagePath = ResourceProperties.getResourceString("SAVE_IMAGE_PATH");
 
-	/**
-	 * possible handle states
-	 */
-	private enum HandleStatus {
-		/**
-		 * Specifies the handle does nothing
-		 */
-		NONE,
-		/**
-		 * Specifies the handle is for moving centre
-		 */
-		CMOVE,
-		/**
-		 * Specifies the handle is for moving ROI
-		 */
-		RMOVE,
-		/**
-		 * Specifies the handle is for resizing
-		 */
-		RESIZE,
-		/**
-		 * Specifies the handle is for spinning
-		 */
-		ROTATE,
-		/**
-		 * Specifies the handle is for constrained ROI moving
-		 */
-		CRMOVE
-	}
-
 	private HandleStatus hStatus = HandleStatus.NONE;
 
 	private FloatSpinner spsx, spsy, spsr, sper, spsang, speang;
@@ -1176,6 +1146,8 @@ public class SectorProfile extends SidePlotProfile {
 			sp = ssc.getPolarRadians();
 			ep = esc.getPolarRadians();
 			croi = ((SectorROIHandler) roiHandler).crmove(dragHandle, sp, ep);
+			break;
+		case REORIENT:
 			break;
 		}
 		return croi;

@@ -108,32 +108,6 @@ public class LineProfile extends SidePlotProfile {
 
 	private Composite parent;
 
-	/**
-	 * possible handle states
-	 */
-	private enum HandleStatus {
-		/**
-		 * Specifies the handle does nothing
-		 */
-		NONE,
-		/**
-		 * Specifies the handle is for moving
-		 */
-		MOVE,
-		/**
-		 * Specifies the handle is for resizing
-		 */
-		RESIZE,
-		/**
-		 * Specifies the handle is for re-orienting (i.e. move end but preserve length)
-		 */
-		REORIENT,
-		/**
-		 * Specifies the handle is for spinning
-		 */
-		ROTATE
-	}
-
 	private HandleStatus hStatus = HandleStatus.NONE;
 
 	private Spinner spsx, spsy;
@@ -651,7 +625,7 @@ public class LineProfile extends SidePlotProfile {
 						hStatus = HandleStatus.ROTATE;
 						oProvider.setPlotAreaCursor(SWT.CURSOR_APPSTARTING);
 					} else {
-						hStatus = HandleStatus.MOVE;
+						hStatus = HandleStatus.RMOVE;
 						oProvider.setPlotAreaCursor(SWT.CURSOR_HAND);
 					}
 				}
@@ -684,7 +658,7 @@ public class LineProfile extends SidePlotProfile {
 		LinearROI croi = null; // return null if not a valid event
 
 		switch (hStatus) {
-		case MOVE:
+		case RMOVE:
 			croi = lroi.copy();
 			croi.addPoint(pt);
 			croi.subPoint(cpt);
@@ -705,6 +679,10 @@ public class LineProfile extends SidePlotProfile {
 			double[] mpt = croi.getMidPoint();
 			croi.setAngle(ang);
 			croi.setMidPoint(mpt);
+			break;
+		case CMOVE:
+			break;
+		case CRMOVE:
 			break;
 		}
 

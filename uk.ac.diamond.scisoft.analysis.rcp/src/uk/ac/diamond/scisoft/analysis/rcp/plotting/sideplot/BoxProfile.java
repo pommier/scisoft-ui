@@ -118,32 +118,6 @@ public class BoxProfile extends SidePlotProfile {
 	private String saveButtonText = ResourceProperties.getResourceString("SAVE_BUTTON");
 	private String saveToolTipText = ResourceProperties.getResourceString("SAVE_TOOLTIP");
 	private String saveImagePath = ResourceProperties.getResourceString("SAVE_IMAGE_PATH");
-	
-	/**
-	 * possible handle states
-	 */
-	private enum HandleStatus {
-		/**
-		 * Specifies the handle does nothing
-		 */
-		NONE,
-		/**
-		 * Specifies the handle is for moving
-		 */
-		MOVE,
-		/**
-		 * Specifies the handle is for resizing
-		 */
-		RESIZE,
-		/**
-		 * Specifies the handle is for re-orienting (i.e. move end but preserve length)
-		 */
-		REORIENT,
-		/**
-		 * Specifies the handle is for spinning
-		 */
-		ROTATE
-	}
 
 	private HandleStatus hStatus = HandleStatus.NONE;
 
@@ -745,7 +719,7 @@ public class BoxProfile extends SidePlotProfile {
 						hStatus = HandleStatus.ROTATE;
 						oProvider.setPlotAreaCursor(SWT.CURSOR_APPSTARTING);
 					} else {
-						hStatus = HandleStatus.MOVE;
+						hStatus = HandleStatus.RMOVE;
 						oProvider.setPlotAreaCursor(SWT.CURSOR_HAND);
 					}
 				}
@@ -784,7 +758,7 @@ public class BoxProfile extends SidePlotProfile {
 		RectangularROI croi = null; // return null if not a valid event
 
 		switch (hStatus) {
-		case MOVE:
+		case RMOVE:
 			croi = rroi.copy();
 			pt[0] -= cpt[0];
 			pt[1] -= cpt[1];
@@ -806,6 +780,10 @@ public class BoxProfile extends SidePlotProfile {
 			double[] mpt = croi.getMidPoint();
 			croi.setAngle(ang);
 			croi.setMidPoint(mpt);
+			break;
+		case CMOVE:
+			break;
+		case CRMOVE:
 			break;
 		}
 
