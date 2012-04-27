@@ -432,6 +432,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 					.getActiveWorkbenchWindow(), null, DuplicatePlotAction.COMMAND_ID,
 					CommandContributionItem.STYLE_PUSH);
 			ccip.label = "Create Duplicate Plot";
+			ccip.icon = AnalysisRCPActivator.getImageDescriptor("icons/chart_curve_add.png");
 			duplicateWindowCCI = new CommandContributionItem(ccip);
 		}
 		bars.getMenuManager().add(duplicateWindowCCI);

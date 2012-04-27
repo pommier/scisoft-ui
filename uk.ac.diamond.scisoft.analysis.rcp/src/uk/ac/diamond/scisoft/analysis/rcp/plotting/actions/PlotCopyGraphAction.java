@@ -47,10 +47,7 @@ public class PlotCopyGraphAction extends AbstractHandler {
 
 		final PlotView pv = (PlotView)HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().getActivePart();
 		try{
-			String activePartName = EclipseUtils.getActivePage().getActivePart().getTitle();
-			String plotName = "Dataset Plot";
-			if(activePartName.startsWith(plotName))
-				plotName = activePartName;
+			String plotName = EclipseUtils.getActivePage().getActivePart().getTitle();
 
 			DataBean dbPlot = SDAPlotter.getDataBean(plotName);
 			GuiPlotMode plotMode = dbPlot.getGuiPlotMode();
