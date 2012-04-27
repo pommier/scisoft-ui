@@ -46,7 +46,6 @@ public class PlotSaveGraphAction extends AbstractHandler {
 
 	private String filename;
 	Logger logger = LoggerFactory.getLogger(PlotSaveGraphAction.class);
-	private String plotName = "Dataset Plot";
 	
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -55,6 +54,7 @@ public class PlotSaveGraphAction extends AbstractHandler {
 
 		try{
 			String activePartName = EclipseUtils.getActivePage().getActivePart().getTitle();
+			String plotName = "Dataset Plot";
 			if(activePartName.startsWith(plotName))
 				plotName = activePartName;
 

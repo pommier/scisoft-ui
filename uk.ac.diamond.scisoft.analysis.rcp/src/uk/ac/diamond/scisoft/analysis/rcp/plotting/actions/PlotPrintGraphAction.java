@@ -40,7 +40,6 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
 public class PlotPrintGraphAction extends AbstractHandler {
 
 	Logger logger = LoggerFactory.getLogger(PlotPrintGraphAction.class);
-	private String plotName = "Dataset Plot";
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -49,6 +48,7 @@ public class PlotPrintGraphAction extends AbstractHandler {
 
 		try{
 			String activePartName = EclipseUtils.getActivePage().getActivePart().getTitle();
+			String plotName = "Dataset Plot";
 			if(activePartName.startsWith(plotName))
 				plotName = activePartName;
 

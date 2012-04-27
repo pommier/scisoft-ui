@@ -41,7 +41,6 @@ import uk.ac.gda.common.rcp.util.EclipseUtils;
 public class PlotCopyGraphAction extends AbstractHandler {
 
 	Logger logger = LoggerFactory.getLogger(PlotCopyGraphAction.class);
-	private String plotName = "Dataset Plot";
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -49,6 +48,7 @@ public class PlotCopyGraphAction extends AbstractHandler {
 		final PlotView pv = (PlotView)HandlerUtil.getActiveWorkbenchWindow(event).getActivePage().getActivePart();
 		try{
 			String activePartName = EclipseUtils.getActivePage().getActivePart().getTitle();
+			String plotName = "Dataset Plot";
 			if(activePartName.startsWith(plotName))
 				plotName = activePartName;
 
@@ -79,7 +79,7 @@ public class PlotCopyGraphAction extends AbstractHandler {
 				}
 			}
 		}catch (Exception e) {
-			logger.error("Error while processing print", e);
+			logger.error("Error while processing copy", e);
 			return Boolean.FALSE;
 		}
 		
