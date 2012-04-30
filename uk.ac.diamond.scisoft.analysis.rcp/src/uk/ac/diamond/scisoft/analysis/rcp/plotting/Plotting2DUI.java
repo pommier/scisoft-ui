@@ -25,17 +25,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
-import org.dawb.common.ui.plot.region.IRegion;
-//import org.dawb.common.ui.plot.region.IRegionBoundsListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
-import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 
 /**
  * Class to create the a 2D/image plotting
@@ -94,54 +89,4 @@ public class Plotting2DUI extends AbstractPlotUI {
 	public void deleteIObservers() {
 		observers.clear();
 	}
-
-	@Override
-	public void processGUIUpdate(GuiBean guiBean) {
-		updateGUI(guiBean);
-	}
-
-
-	public void updateGUI(GuiBean guiBean) {
-		Collection<IRegion> regions = plottingSystem.getRegions();
-		for (Iterator<IRegion> iterator = regions.iterator(); iterator.hasNext();) {
-			IRegion iRegion = iterator.next();
-			guiBean.put(GuiParameters.ROIDATA, createRegion(iRegion));
-			logger.debug("ROI x:"+ iRegion.getROI().getPointX()+" ROI y:"+iRegion.getROI().getPointY());
-		}
-	}
-
-	private ROIBase createRegion(IRegion iRegion) {
-		return iRegion.getROI();
-	}
-
-//	@Override
-//	public void roiDragged(ROIEvent evt) {
-//		update((IRegion)evt.getSource(), evt.getRegionBounds());
-//	}
-
-//	@Override
-//	public void roiChanged(ROIEvent evt) {
-//		final IRegion region = (IRegion)evt.getSource();
-//		update(region, region.getRegionBounds());
-//		
-//		try {
-//			updateProfiles.join();
-//		} catch (InterruptedException e) {
-//			logger.error("Update profiles job interrupted!", e);
-//		}
-//		
-//		getControl().getDisplay().syncExec(new Runnable() {
-//			public void run() {
-//				plotter.autoscaleAxes();
-//			}
-//		});
-//	}
-	
-//	private synchronized void update(IRegion r, RegionBounds rb) {
-//		if (r!=null && !isRegionTypeSupported(r.getRegionType())) return; // Nothing to do.
-//		if (isUpdateRunning)  updateProfiles.cancel();
-//		this.currentRegion = r;
-//		this.currentBounds = rb;
-//		updateProfiles.schedule();
-//	}
 }

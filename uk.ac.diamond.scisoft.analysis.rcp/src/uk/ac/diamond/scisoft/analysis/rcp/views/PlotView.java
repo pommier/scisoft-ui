@@ -262,7 +262,7 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 			GuiUpdate gu = (GuiUpdate) changeCode;
 			if (gu.getGuiName().contains(plotViewName)) {
 				GuiBean bean = gu.getGuiData();
-				logger.debug("Getting a plot gui update for this plot : " + bean.toString());
+				logger.debug("Getting a plot gui update for \""+plotViewName+"\" plot: " + bean.toString());
 				UUID id = (UUID) bean.get(GuiParameters.PLOTID);
 				if (id == null || plotID.compareTo(id) != 0) { // filter out own beans
 					if (guiBean == null)

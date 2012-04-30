@@ -32,6 +32,11 @@ import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlotType;
 import org.dawb.common.ui.plot.PlottingFactory;
 import org.dawb.common.ui.plot.AbstractPlottingSystem.ColorOption;
+import org.dawb.common.ui.plot.region.IROIListener;
+import org.dawb.common.ui.plot.region.IRegion;
+import org.dawb.common.ui.plot.region.IRegionListener;
+import org.dawb.common.ui.plot.region.ROIEvent;
+import org.dawb.common.ui.plot.region.RegionEvent;
 import org.dawb.common.ui.plot.tool.IToolPageSystem;
 import org.dawb.common.ui.plot.trace.IImageTrace;
 import org.dawb.common.ui.plot.trace.ILineTrace;
@@ -57,6 +62,8 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.PlotServer;
+import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
@@ -75,7 +82,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
 /**
  * Actual PlotWindow that can be used inside a View- or EditorPart
  */
-public class PlotWindow implements IObserver, IObservable, IPlotWindow {
+public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIListener {
 	public static final String RPC_SERVICE_NAME = "PlotWindowManager";
 	public static final String RMI_SERVICE_NAME = "RMIPlotWindowManager";
 
@@ -147,7 +154,11 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		this.page = page;
 		this.bars = bars;
 		this.name = name;
-		
+
+		this.plotServer = PlotServerProvider.getPlotServer();
+		this.guiBean = getGUIState();
+		this.registeredTraces = new HashMap<String,Collection<ITrace>>(7);
+
 		if (plotMode == null)
 			plotMode = GuiPlotMode.ONED;
 
@@ -235,6 +246,10 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 			
 			plottingSystem.createPlotPart(plotSystemComposite, "1D Plot", bars, PlotType.PT1D, (IViewPart)manager);
 			plottingSystem.repaint();
+			
+			this.regionListener = getRegionListener();
+			this.plottingSystem.addRegionListener(this.regionListener);
+			
 		} catch (Exception e) {
 			logger.error("Cannot locate any Abstract plotting System!", e);
 		}
@@ -343,6 +358,10 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 		if(!plottingSystem.isDisposed()){
 			bars.getToolBarManager().removeAll();
 			bars.getMenuManager().removeAll();
+			for (Iterator<IRegion> iterator = plottingSystem.getRegions().iterator(); iterator.hasNext();) {
+				IRegion region = iterator.next();
+				plottingSystem.removeRegion(region);
+			}
 			plottingSystem.dispose();
 			plotSystemComposite.dispose();
 		}
@@ -975,11 +994,16 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 			if (mainPlotter != null) {
 				mainPlotter.cleanUp();
 			}
+			if (plottingSystem != null) {
+				plottingSystem.removeRegionListener(regionListener);
+				plottingSystem.dispose();
+			}
 		} catch (Exception ne) {
 			logger.debug("Cannot clean up main plotter!", ne);
 		}
 		deleteIObservers();
 		mainPlotter = null;
+		plottingSystem = null;
 		plotUI = null;
 		System.gc();
 	}
@@ -1041,6 +1065,78 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow {
 			logger.debug("undoBlock " + Thread.currentThread().getId());
 			simpleLock.unlock();
 			simpleLock.notifyAll();
+		}
+	}
+
+	// Make the PlotWindow a RegionListener (new plotting)
+	private IRegionListener regionListener;
+	private Map<String,Collection<ITrace>> registeredTraces;
+
+	private IRegionListener getRegionListener(){
+		return new IRegionListener.Stub() {
+			@Override
+			public void regionRemoved(RegionEvent evt) {
+				if (evt.getRegion()!=null) {
+					evt.getRegion().removeROIListener(PlotWindow.this);
+					clearTraces(evt.getRegion());
+				}
+			}
+			@Override
+			public void regionAdded(RegionEvent evt) {
+				if (evt.getRegion()!=null) {
+					update(null, null);
+				}
+			}
+			@Override
+			public void regionCreated(RegionEvent evt) {
+				if (evt.getRegion()!=null) {
+					evt.getRegion().addROIListener(PlotWindow.this);
+				}
+			}
+		};
+	}
+
+	protected void clearTraces(final IRegion region) {
+		final String name = region.getName();
+		Collection<ITrace> registered = this.registeredTraces.get(name);
+		if (registered!=null) for (ITrace iTrace : registered) {
+			plottingSystem.removeTrace(iTrace);
+		}
+	}
+
+	private PlotServer plotServer;
+	private GuiBean guiBean;
+
+	private GuiBean getGUIState() {
+		GuiBean guiBean = null;
+		try {
+			guiBean = plotServer.getGuiState(name);
+		} catch (Exception e) {
+			logger.warn("Problem with getting GUI data from plot server");
+		}
+		if (guiBean == null)
+			guiBean = new GuiBean();
+		return guiBean;
+	}
+
+	@Override
+	public void roiDragged(ROIEvent evt) {
+		updateGuiBean(evt);
+	}
+
+	@Override
+	public void roiChanged(ROIEvent evt) {
+		updateGuiBean(evt);
+	}
+
+	private void updateGuiBean(ROIEvent event){
+		try {
+			if(guiBean!=null){
+				guiBean.put(GuiParameters.ROIDATA, event.getROI());
+				plotServer.updateGui(name, guiBean);
+			}
+		} catch (Exception e) {
+			logger.error("Error initializing Guibean", e);
 		}
 	}
 
