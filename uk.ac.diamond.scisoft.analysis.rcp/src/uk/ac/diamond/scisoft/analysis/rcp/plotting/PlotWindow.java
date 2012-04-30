@@ -994,7 +994,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 			if (mainPlotter != null) {
 				mainPlotter.cleanUp();
 			}
-			if (plottingSystem != null) {
+			if (!plottingSystem.isDisposed()) {
 				plottingSystem.removeRegionListener(regionListener);
 				plottingSystem.dispose();
 			}
@@ -1003,7 +1003,6 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		}
 		deleteIObservers();
 		mainPlotter = null;
-		plottingSystem = null;
 		plotUI = null;
 		System.gc();
 	}

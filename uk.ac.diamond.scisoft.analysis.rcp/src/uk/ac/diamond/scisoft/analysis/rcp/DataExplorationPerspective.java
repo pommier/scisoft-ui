@@ -16,10 +16,12 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
+import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView;
@@ -44,22 +46,42 @@ public class DataExplorationPerspective implements IPerspectiveFactory {
 		String plot = PlotView.ID + "DP";
 		dataLayout.addView(plot);
 		
-		layout.addView(plot, IPageLayout.RIGHT, 0.25f, editorArea);
+		layout.addView(plot, IPageLayout.RIGHT, 0.30f, editorArea);
 		if (layout.getViewLayout(plot) != null)
 			layout.getViewLayout(plot).setCloseable(false);
 
 		String sidePlot = SidePlotView.ID + ":Dataset Plot";
-		layout.addView(sidePlot, IPageLayout.RIGHT, 0.60f, plot);
-		if (layout.getViewLayout(sidePlot) != null)
-			layout.getViewLayout(sidePlot).setCloseable(false);
-		
-		layout.addView(MetadataPageView.ID, IPageLayout.BOTTOM, 0.60f, sidePlot);
+		if(getDefaultPlottingSystemChoice()==0){
+			
+			layout.addView(sidePlot, IPageLayout.RIGHT, 0.60f, plot);
+			if (layout.getViewLayout(sidePlot) != null)
+				layout.getViewLayout(sidePlot).setCloseable(false);
+			layout.addView(MetadataPageView.ID, IPageLayout.BOTTOM, 0.60f, sidePlot);
+		}
+		if(getDefaultPlottingSystemChoice()==1){
+			IFolderLayout metaFolderLayout = layout.createFolder("toolPageFolder", IPageLayout.RIGHT, 0.6f, plot);
+			String tool1D2D = "org.dawb.workbench.plotting.views.toolPageView.1D_and_2D";
+			String tool2D = "org.dawb.workbench.plotting.views.toolPageView.2D";
+			metaFolderLayout.addView(tool1D2D);
+			layout.getViewLayout(tool1D2D).setCloseable(false);
+			metaFolderLayout.addView(tool2D);
+			layout.getViewLayout(tool2D).setCloseable(false);
+			metaFolderLayout.addView("org.dawb.workbench.views.dataSetView");
+
+			layout.addView(MetadataPageView.ID, IPageLayout.BOTTOM, 0.6f, "toolPageFolder");
+		}
 
 		String inspector = DatasetInspectorView.ID;
-		layout.addStandaloneView(inspector, false, IPageLayout.BOTTOM, 0.60f, editorArea);
+		layout.addStandaloneView(inspector, false, IPageLayout.BOTTOM, 0.50f, editorArea);
 		if (layout.getViewLayout(inspector) != null)
 			layout.getViewLayout(inspector).setCloseable(false);
 		
 	}
 
+	private int getDefaultPlottingSystemChoice() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
+				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
+				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
+	}
 }
