@@ -70,6 +70,7 @@ Import-Package: ncsa.hdf.object,
  org.dawb.common.ui.plot.trace,
  org.dawb.common.ui.util,
  org.dawb.common.ui.widgets,
+ org.eclipse.draw2d,
  org.eclipse.ui,
  org.slf4j;version="[1.5.0,2.0.0)"
 Bundle-ActivationPolicy: lazy

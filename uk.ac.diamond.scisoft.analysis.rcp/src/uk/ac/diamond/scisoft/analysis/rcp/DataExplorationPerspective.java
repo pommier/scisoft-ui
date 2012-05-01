@@ -62,13 +62,14 @@ public class DataExplorationPerspective implements IPerspectiveFactory {
 			IFolderLayout metaFolderLayout = layout.createFolder("toolPageFolder", IPageLayout.RIGHT, 0.6f, plot);
 			String tool1D2D = "org.dawb.workbench.plotting.views.toolPageView.1D_and_2D";
 			String tool2D = "org.dawb.workbench.plotting.views.toolPageView.2D";
-			metaFolderLayout.addView(tool1D2D);
-			layout.getViewLayout(tool1D2D).setCloseable(false);
-			metaFolderLayout.addView(tool2D);
-			layout.getViewLayout(tool2D).setCloseable(false);
+//			metaFolderLayout.addView(tool1D2D);
+//			layout.getViewLayout(tool1D2D).setCloseable(false);
+//			metaFolderLayout.addView(tool2D);
+//			layout.getViewLayout(tool2D).setCloseable(false);
 			metaFolderLayout.addView("org.dawb.workbench.views.dataSetView");
 
-			layout.addView(MetadataPageView.ID, IPageLayout.BOTTOM, 0.6f, "toolPageFolder");
+			//layout.addView(MetadataPageView.ID, IPageLayout.BOTTOM, 0.6f, "toolPageFolder");
+			metaFolderLayout.addView(MetadataPageView.ID);
 		}
 
 		String inspector = DatasetInspectorView.ID;

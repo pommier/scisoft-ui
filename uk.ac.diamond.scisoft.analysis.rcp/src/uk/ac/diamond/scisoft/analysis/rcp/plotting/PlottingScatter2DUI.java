@@ -17,16 +17,12 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.trace.ILineTrace;
 import org.dawb.common.ui.plot.trace.ILineTrace.PointStyle;
 import org.dawb.common.ui.plot.trace.ILineTrace.TraceType;
-import org.dawb.common.ui.plot.trace.ITrace;
+import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,36 +46,29 @@ public class PlottingScatter2DUI extends AbstractPlotUI {
 	}
 
 	@Override
-	public void processPlotUpdate(DataBean dbPlot, boolean isUpdate) {
-		Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
-		if (plotData != null) {
-			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
+	public void processPlotUpdate(final DataBean dbPlot, boolean isUpdate) {
+		Display.getDefault().syncExec(new Runnable() {
+			@Override
+			public void run() {
+				Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
+				if (plotData != null) {
 
-			final List<AbstractDataset> yDatasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
+					AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS+0);
+					AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS+0);
 
-			AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
-
-			while (iter.hasNext()) {
-				DataSetWithAxisInformation dataSetAxis = iter.next();
-				AbstractDataset data = dataSetAxis.getData();
-				yDatasets.add(data);
+					plottingSystem.clear();
+					ILineTrace scatterPlotPoints = plottingSystem.createLineTrace(yAxisValues.getName());
+					scatterPlotPoints.setTraceType(TraceType.POINT);
+					scatterPlotPoints.setTraceColor(ColorConstants.blue);
+					scatterPlotPoints.setPointStyle(PointStyle.CROSS);
+					scatterPlotPoints.setPointSize(10);
+					scatterPlotPoints.setName(xAxisValues.getName());
+					scatterPlotPoints.setData(xAxisValues, yAxisValues);
+					plottingSystem.addTrace(scatterPlotPoints);
+					plottingSystem.setRescale(true);
+					logger.debug("Scatter plot created");
+				}
 			}
-			plottingSystem.clear();
-			Collection<ITrace> traces = plottingSystem.createPlot1D(xAxisValues, yDatasets, null);
-			for (ITrace iTrace : traces) {
-				final ILineTrace lineTrace = (ILineTrace)iTrace;
-				Display.getDefault().syncExec(new Runnable() {
-					@Override
-					public void run() {
-						lineTrace.setPointStyle(PointStyle.CROSS);
-						lineTrace.setTraceType(TraceType.POINT);
-						lineTrace.setPointSize(10);
-					}
-	
-				});
-				
-			}
-			logger.debug("Scatter plot created");
-		}
+		});
 	}
 }
