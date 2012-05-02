@@ -22,6 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobManager;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
@@ -143,6 +147,9 @@ public class SectorProfile extends SidePlotProfile {
 	private Button centreLock, centreReset, centreCentroid;
 	private boolean lockCentre;
 
+	private IJobManager jobManager;
+	private String spinnerJobName = "Spinner Update Job";
+
 	private class SectorJob extends InteractiveJobAdapter {
 		private SectorROI sroi = null;
 		private boolean subsample;
@@ -198,6 +205,8 @@ public class SectorProfile extends SidePlotProfile {
 		super();
 		roiClass = SectorROI.class;
 		roiListClass = SectorROIList.class;
+		
+		jobManager = Job.getJobManager();
 	}
 
 	/**
@@ -1412,19 +1421,39 @@ public class SectorProfile extends SidePlotProfile {
 				if (!isBulkUpdate)
 					sendCurrentROI(roi);
 
-				updateAllSpinners(roi); // in case of branch cut
-
-				if (isBulkUpdate)
-					return;
-
-
-				getControl().getDisplay().asyncExec(new Runnable() {
+				Job spinnerJob = new Job(spinnerJobName) {
+					
 					@Override
-					public void run() {
-						updatePlot();
-						drawCurrentOverlay();
+					public IStatus run(IProgressMonitor monitor) {
+						updateAllSpinners(roi); // in case of branch cut
+						
+						if (isBulkUpdate)
+							return Status.OK_STATUS;
+
+						getControl().getDisplay().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								updatePlot();
+								drawCurrentOverlay();
+							}
+						});
+						return Status.OK_STATUS;
 					}
-				});
+					
+					@Override
+					public boolean belongsTo(Object family) {
+						return family == spinnerJobName;
+					}
+				};
+				
+				spinnerJob.setPriority(Job.LONG);
+				spinnerJob.setSystem(true);
+				if (jobManager.find(spinnerJobName).length > 5) {
+					jobManager.cancel(spinnerJobName);
+					spinnerJob.schedule();
+				} else {
+					spinnerJob.schedule(2000);
+				}
 			}
 		}
 	};
