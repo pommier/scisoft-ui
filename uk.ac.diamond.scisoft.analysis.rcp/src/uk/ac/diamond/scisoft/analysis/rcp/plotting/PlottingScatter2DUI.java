@@ -60,12 +60,12 @@ public class PlottingScatter2DUI extends AbstractPlotUI {
 					ILineTrace scatterPlotPoints = plottingSystem.createLineTrace(yAxisValues.getName());
 					scatterPlotPoints.setTraceType(TraceType.POINT);
 					scatterPlotPoints.setTraceColor(ColorConstants.blue);
-					scatterPlotPoints.setPointStyle(PointStyle.CROSS);
-					scatterPlotPoints.setPointSize(10);
+					scatterPlotPoints.setPointStyle(PointStyle.FILLED_CIRCLE);
+					scatterPlotPoints.setPointSize(6);
 					scatterPlotPoints.setName(xAxisValues.getName());
 					scatterPlotPoints.setData(xAxisValues, yAxisValues);
 					plottingSystem.addTrace(scatterPlotPoints);
-					plottingSystem.setRescale(true);
+					plottingSystem.autoscaleAxes();
 					logger.debug("Scatter plot created");
 				}
 			}
