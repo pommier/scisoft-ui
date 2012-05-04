@@ -446,7 +446,7 @@
             description="Enable/disable multi-editor use"
             id="uk.ac.diamond.sda.navigator.ReUseEditor"
             name="Re-use Editor">
-            <state class="org.eclipse.ui.handlers.RegistryToggleState:true"
+            <state class="org.eclipse.ui.handlers.RegistryToggleState:false"
                id="org.eclipse.ui.commands.toggleState"/>
       </command>
    </extension>
