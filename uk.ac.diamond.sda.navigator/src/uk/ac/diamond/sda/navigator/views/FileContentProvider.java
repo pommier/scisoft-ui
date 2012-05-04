@@ -135,9 +135,8 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		
 		if (childQueue==null) return;
 		
-		final File node = (File)element;
-		if (!node.isDirectory()) {
-			treeViewer.setChildCount(node, 0);
+		if (element instanceof File && !((File)element).isDirectory()) {
+			treeViewer.setChildCount(element, 0);
 			return;
 		}
 		
@@ -152,13 +151,12 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 	
 	private void updateChildCountInternal(Object element, int size) {
 		
-		final File node = (File) element;
-		if (node==null) return;
+		if (element==null) return;
 		
-		if (node.isDirectory()) {
-			treeViewer.setChildCount(node, size);
+		if (element instanceof String || ((element instanceof File) && ((File) element).isDirectory())) {
+			treeViewer.setChildCount(element, size);
 		} else {
-			treeViewer.setChildCount(node, 0);
+			treeViewer.setChildCount(element, 0);
 		}
 		
 	}
@@ -293,9 +291,16 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 			
 			try {
 				updateBusy(elementQueue, true);
+				
+				final List<File> fa;
+				if (getElement() instanceof String) {
+					fa = Arrays.asList(File.listRoots());
+				} else {
+					final File node = (File) getElement();
+					fa = getFileList(node);
+					
+				}
 	
-				final File node = (File) getElement();
-				final List<File> fa = getFileList(node);
 
 				if (treeViewer.getControl().isDisposed()) return false;
 				treeViewer.getControl().getDisplay().asyncExec(new Runnable() {
@@ -303,7 +308,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 					public void run() {
 						if (treeViewer.getControl().isDisposed()) return;
 
-						updateElementInternal(node, getIndex(), fa);
+						updateElementInternal(getElement(), getIndex(), fa);
 					}
 				});
 
@@ -339,8 +344,10 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 				
 				if (updateBusyRequired) updateBusy(childQueue, true);
 				
-				final File   node = (File)element;
-				final Object[] fa = node.list(); // Only way speed up - use JNA and rely on unix command which has been tuned.
+				final Object[] fa = element instanceof File  
+						            ? ((File)element).list()// Only way speed up - use JNA and rely on unix command which has been tuned.
+						            : File.listRoots();
+      
 				final int    size = fa==null||fa.length<1 ? 0 : fa.length;
 
 				if (treeViewer.getControl().isDisposed()) return false;
@@ -349,7 +356,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 					public void run() {
 						if (treeViewer.getControl().isDisposed()) return;
 
-						updateChildCountInternal(node, size);
+						updateChildCountInternal(element, size);
 					}
 				});
 				    

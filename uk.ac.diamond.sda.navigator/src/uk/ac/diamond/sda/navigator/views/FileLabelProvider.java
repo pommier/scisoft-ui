@@ -52,6 +52,8 @@ public class FileLabelProvider extends ColumnLabelProvider {
 	
 	@Override
 	public Image getImage(Object element) {
+		
+		if (element instanceof String) return null;
 		final File node   = (File)element;
 	
 		switch(columnIndex) {
@@ -73,11 +75,14 @@ public class FileLabelProvider extends ColumnLabelProvider {
 	@Override
 	public String getText(Object element) {
 		
+		if (element instanceof String) return (String)element;
 		final File node   = (File)element;
 	
 		switch(columnIndex) {
 		case 0:
-			return node.getName();
+			return "".equals(node.getName())
+				   ? "("+node.getAbsolutePath().substring(0, node.getAbsolutePath().length()-1)+")"
+				   : node.getName();
 		case 1:
 			return dateFormat.format(new Date(node.lastModified()));
 		case 2:

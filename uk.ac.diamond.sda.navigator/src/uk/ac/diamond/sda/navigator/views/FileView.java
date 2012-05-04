@@ -87,13 +87,10 @@ public class FileView extends ViewPart {
 	private TreeViewer tree;
 
 	private File savedSelection;
-	private File root;
-	private boolean rootOverride;
 	private Text filePath;
 	
 	public FileView() {
 		super();
-		root = OSUtils.isWindowsOS() ? new File("C:/") : new File("/");
 	}
 	
 	@Override
@@ -110,31 +107,6 @@ public class FileView extends ViewPart {
 			savedSelection = new File(path);
 		}
 		
-		rootOverride = false;
-		if (memento!=null) {
-			final String rootPath = memento.getString("ROOT_DIR");
-		    if (rootPath!=null) {
-		    	root = new File(rootPath);
-		    	rootOverride = true;
-		    	if (!(savedSelection.getAbsolutePath().indexOf(rootPath)>-1)) {
-		    		savedSelection = root;
-		    	}
-		    }
-		}
-	}
-	
-	public void setRoot(File root) throws Exception {
-		if (!root.isDirectory()) throw new Exception("Must choose a directory!");
-		
-		this.root         = root;
-		setSelectedFile(root.getAbsolutePath());
-		
-		this.rootOverride = true;
-	    this.filePath.setEnabled(false);
-	    this.filePath.setEditable(false);
-		final FileContentProvider fileCont = (FileContentProvider)tree.getContentProvider();
-		fileCont.clearAndStop();
-		createContent(false);
 	}
 
 	@Override
@@ -144,10 +116,6 @@ public class FileView extends ViewPart {
 		if ( getSelectedFile() != null ) {
 		    final String path = getSelectedFile().getAbsolutePath();
 		    memento.putString("DIR", path);
-		}
-		
-		if (root !=null && rootOverride) {
-		    memento.putString("ROOT_DIR", root.getAbsolutePath());
 		}
 	}
 
@@ -199,10 +167,6 @@ public class FileView extends ViewPart {
 		}
 		
 		this.filePath = new Text(top, SWT.BORDER);
-		if (rootOverride) {
-		    this.filePath.setEnabled(false);
-		    this.filePath.setEditable(false);
-		}
 		if (savedSelection!=null) filePath.setText(savedSelection.getAbsolutePath());
 		filePath.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		FileContentProposalProvider prov = new FileContentProposalProvider();
@@ -340,9 +304,9 @@ public class FileView extends ViewPart {
 
 	private void createContent(boolean setItemCount) {
 		
-		if (setItemCount) tree.getTree().setItemCount(root.listFiles().length);
+		if (setItemCount) tree.getTree().setItemCount(File.listRoots().length);
 		tree.setContentProvider(new FileContentProvider());
-		tree.setInput(root);
+		tree.setInput("Root");
 		tree.expandToLevel(1);
 	}
 

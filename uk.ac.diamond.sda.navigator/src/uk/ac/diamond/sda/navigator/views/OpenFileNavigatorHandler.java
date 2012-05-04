@@ -33,7 +33,7 @@ public class OpenFileNavigatorHandler extends AbstractHandler {
 			final FileView parent   = (FileView)EclipseUtils.getActivePage().getActivePart();	
 			final FileView fileView = (FileView)EclipseUtils.getActivePage().showView(FileView.ID, FileView.ID+secondaryId, IWorkbenchPage.VIEW_CREATE);
 			secondaryId++;
-			fileView.setRoot(parent.getSelectedFile());
+			//TODO fileView.setRoot(parent.getSelectedFile());
 			EclipseUtils.getActivePage().activate(fileView);
 	        return Boolean.TRUE;
         } catch (Exception ne) {
