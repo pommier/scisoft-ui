@@ -17,6 +17,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.roi;
 
 import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
+import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 
 /**
  * Wrapper class for a LinearROI that adds handles
@@ -80,11 +81,10 @@ public class LinearROIHandler extends ROIHandles {
 	}
 
 	/**
-	 * @param handle
 	 * @param pt
 	 * @return reoriented ROI
 	 */
-	public LinearROI reorient(int handle, int[] pt) {
+	public LinearROI reorient(int[] pt) {
 		final LinearROI oroi = (LinearROI) roi;
 		LinearROI croi = null;
 		double len;
@@ -108,11 +108,10 @@ public class LinearROIHandler extends ROIHandles {
 	}
 
 	/**
-	 * @param handle
 	 * @param pt
 	 * @return resized ROI
 	 */
-	public LinearROI resize(int handle, int[] pt) {
+	public LinearROI resize(int[] pt) {
 		final LinearROI oroi = (LinearROI) roi;
 		LinearROI croi = null;
 
@@ -127,5 +126,42 @@ public class LinearROIHandler extends ROIHandles {
 			break;
 		}
 		return croi;
+	}
+
+	@Override
+	public ROIBase interpretMouseDragging(int[] spt, int[] ept) {
+			final LinearROI lroi = (LinearROI) roi;
+			LinearROI croi = null; // return null if not a valid event
+
+			switch (status) {
+			case RMOVE:
+				croi = lroi.copy();
+				croi.addPoint(ept);
+				croi.subPoint(spt);
+				break;
+			case NONE:
+				croi = lroi.copy();
+				croi.setEndPoint(ept);
+				break;
+			case REORIENT:
+				croi = reorient(ept);
+				break;
+			case RESIZE:
+				croi = resize(ept);
+				break;
+			case ROTATE:
+				croi = lroi.copy();
+				double ang = croi.getAngleRelativeToMidPoint(ept);
+				double[] mpt = croi.getMidPoint();
+				croi.setAngle(ang);
+				croi.setMidPoint(mpt);
+				break;
+			case CMOVE:
+				break;
+			case CRMOVE:
+				break;
+			}
+
+			return croi;
 	}
 }

@@ -56,6 +56,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.OverlayType;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.PrimitiveType;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.VectorOverlayStyles;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.HandleStatus;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.LinearROIHandler;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIDataList;
@@ -94,7 +95,6 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 	@SuppressWarnings("unused")
 	private String standardName, standardDistances;
 
-	private HandleStatus hStatus = HandleStatus.NONE;
 	private DiffractionViewerResolutionRings resRingTable;
 	private ArrayList<Integer> boxIDs;
 	private ArrayList<Integer> ringID;
@@ -434,7 +434,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 
 	@Override
 	public void imageStart(IImagePositionEvent event) {
-		hStatus = HandleStatus.NONE;
+		HandleStatus hStatus = HandleStatus.NONE;
 
 		if (roi == null) {
 			roi = new LinearROI();
@@ -462,6 +462,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 				// drawBeamCentre(true);
 
 			} else {
+				int dragHandle = -1;
 				if (id == -1 || !roiHandler.contains(id)) {
 					// new ROI mode
 					diffSpotFit.removePrimitives();
@@ -490,6 +491,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 					dragHandle = h; // store dragged handle
 					isLine = true;
 				}
+				roiHandler.configureDragging(dragHandle, hStatus);
 			}
 		}
 		if ((flags & IImagePositionEvent.RIGHTMOUSEBUTTON) != 0) {
@@ -511,6 +513,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 				dragging = true;
 				isLine = false;
 				draggedRectROI = true;
+				rectRioHandler.configureDragging(-1, HandleStatus.CMOVE);
 				rectRoiBox = false;
 			} else {
 				double[] point = new double[] { cpt[0], cpt[1] };
@@ -549,7 +552,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 				}
 			} else {
 				if (isLine) {
-					final LinearROI croi = interpretMouseDragging(((ImagePositionEvent) event).getImagePosition());
+					final ROIBase croi = roiHandler.interpretMouseDragging(cpt, ((ImagePositionEvent) event).getImagePosition());
 					if (croi != null) {
 						drawDraggedOverlay(croi);
 						if (System.currentTimeMillis() >= nextTime) {
@@ -559,7 +562,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 						}
 					}
 				} else {
-					final RectangularROI rroi = interpretMouseDraggingRectangle(((ImagePositionEvent) event)
+					final RectangularROI rroi = (RectangularROI) rectRioHandler.interpretMouseDragging(cpt, ((ImagePositionEvent) event)
 							.getImagePosition());
 					if (rroi != null) {
 						if (System.currentTimeMillis() >= nextTime) {
@@ -588,20 +591,19 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 				updateBeamCentre(event);
 			} else if (isLine) {
 				hideIDs(dragIDs);
-				roi = interpretMouseDragging(((ImagePositionEvent) event).getImagePosition());
+				roi = roiHandler.interpretMouseDragging(cpt, ((ImagePositionEvent) event).getImagePosition());
 				roiHandler.setROI(roi);
+				roiHandler.unconfigureDragging();
 
-				dragHandle = -1;
-				hStatus = HandleStatus.NONE;
 				drawCurrentOverlay();
 				// sendCurrentROI(roi);
 				updatePlot();
 			} else {
-				rectROI = interpretMouseDraggingRectangle(((ImagePositionEvent) event).getImagePosition());
+				rectROI = (RectangularROI) rectRioHandler.interpretMouseDragging(cpt, ((ImagePositionEvent) event).getImagePosition());
 				// rectROI = interpretMouseDraggingRectangle(tempMousePos);
 				rectRioHandler.setROI(rectROI);
-				dragHandle = -1;
-				hStatus = HandleStatus.NONE;
+				rectRioHandler.unconfigureDragging();
+
 				// sendCurrentROI(rectROI);
 				updatePlot3D();
 			}
@@ -635,77 +637,6 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 		detConfig.setOrigin(newOri);
 		diffViewMetadata.updateBeamPositionFromDragging();
 		updateDiffractionObjects(true);
-	}
-
-	private RectangularROI interpretMouseDraggingRectangle(int[] pt) {
-		RectangularROI croi = null; // return null if not a valid event
-
-		switch (hStatus) {
-		case RMOVE:
-			croi = rectROI.copy();
-			pt[0] -= cpt[0];
-			pt[1] -= cpt[1];
-			croi.addPoint(pt);
-			break;
-		case NONE:
-			croi = rectROI.copy();
-			croi.setEndPoint(pt);
-			break;
-		case REORIENT:
-			croi = rectRioHandler.reorient(dragHandle, pt);
-			break;
-		case RESIZE:
-			croi = rectRioHandler.resize(dragHandle, cpt, pt);
-			break;
-		case ROTATE:
-			croi = rectROI.copy();
-			double ang = croi.getAngleRelativeToMidPoint(pt);
-			double[] mpt = croi.getMidPoint();
-			croi.setAngle(ang);
-			croi.setMidPoint(mpt);
-			break;
-		case CMOVE:
-			break;
-		case CRMOVE:
-			break;
-		}
-		return croi;
-	}
-
-	private LinearROI interpretMouseDragging(int[] pt) {
-		final LinearROI lroi = (LinearROI) roi;
-		LinearROI croi = null; // return null if not a valid event
-
-		switch (hStatus) {
-		case RMOVE:
-			croi = lroi.copy();
-			croi.addPoint(pt);
-			croi.subPoint(cpt);
-			break;
-		case NONE:
-			croi = lroi.copy();
-			croi.setEndPoint(pt);
-			break;
-		case REORIENT:
-			croi = ((LinearROIHandler) roiHandler).reorient(dragHandle, pt);
-			break;
-		case RESIZE:
-			croi = ((LinearROIHandler) roiHandler).resize(dragHandle, pt);
-			break;
-		case ROTATE:
-			croi = lroi.copy();
-			double ang = croi.getAngleRelativeToMidPoint(pt);
-			double[] mpt = croi.getMidPoint();
-			croi.setAngle(ang);
-			croi.setMidPoint(mpt);
-			break;
-		case CMOVE:
-			break;
-		case CRMOVE:
-			break;
-		}
-
-		return croi;
 	}
 
 	/**

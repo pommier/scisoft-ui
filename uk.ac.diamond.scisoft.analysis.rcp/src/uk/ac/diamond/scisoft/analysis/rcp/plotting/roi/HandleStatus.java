@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
+package uk.ac.diamond.scisoft.analysis.rcp.plotting.roi;
 
 /**
  * possible handle states

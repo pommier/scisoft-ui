@@ -27,6 +27,8 @@ import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
  */
 abstract public class ROIHandles extends ArrayList<Integer> {
 	protected ROIBase roi;
+	protected int handle;
+	protected HandleStatus status;
 
 	/**
 	 * @param handle
@@ -52,4 +54,29 @@ abstract public class ROIHandles extends ArrayList<Integer> {
 		this.roi = roi;
 	}
 
+	/**
+	 * Set handle used and status in dragging
+	 * @param handle
+	 * @param dragStatus
+	 */
+	public void configureDragging(int handle, HandleStatus dragStatus) {
+		this.handle = handle;
+		status = dragStatus;
+	}
+
+	/**
+	 * Reset configuration for dragging
+	 */
+	public void unconfigureDragging() {
+		handle = -1;
+		status = HandleStatus.NONE;
+	}
+
+	/**
+	 * Interpret mouse dragging
+	 * @param spt
+	 * @param ept
+	 * @return roi
+	 */
+	abstract public ROIBase interpretMouseDragging(int[] spt, int[] ept);
 }

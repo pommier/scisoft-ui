@@ -54,9 +54,6 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.swtdesigner.SWTResourceManager;
-
-import uk.ac.diamond.scisoft.analysis.coords.SectorCoords;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.function.Centroid;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
@@ -78,6 +75,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.OverlayType;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.Plot1DStyles;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.PrimitiveType;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.VectorOverlayStyles;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.HandleStatus;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIDataList;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.SectorROIData;
@@ -93,6 +91,8 @@ import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.scisoft.analysis.roi.SectorROI;
 import uk.ac.diamond.scisoft.analysis.roi.SectorROIList;
 import uk.ac.gda.common.rcp.util.EclipseUtils;
+
+import com.swtdesigner.SWTResourceManager;
 
 public class SectorProfile extends SidePlotProfile {
 
@@ -131,8 +131,6 @@ public class SectorProfile extends SidePlotProfile {
 	private String saveButtonText = ResourceProperties.getResourceString("SAVE_BUTTON");
 	private String saveToolTipText = ResourceProperties.getResourceString("SAVE_TOOLTIP");
 	private String saveImagePath = ResourceProperties.getResourceString("SAVE_IMAGE_PATH");
-
-	private HandleStatus hStatus = HandleStatus.NONE;
 
 	private FloatSpinner spsx, spsy, spsr, sper, spsang, speang;
 	private Text txSum;
@@ -1020,7 +1018,7 @@ public class SectorProfile extends SidePlotProfile {
 
 	@Override
 	public void imageStart(IImagePositionEvent event) {
-		hStatus = HandleStatus.NONE;
+		HandleStatus hStatus = HandleStatus.NONE;
 
 		if (roi == null) {
 			roi = new SectorROI();
@@ -1032,6 +1030,7 @@ public class SectorProfile extends SidePlotProfile {
 		short flags = event.getFlags();
 		cpt = event.getImagePosition();
 
+		int dragHandle = -1;
 		if ((flags & IImagePositionEvent.LEFTMOUSEBUTTON) != 0) {
 			if (id == -1 || !roiHandler.contains(id)) {
 				if (!lockCentre) {
@@ -1086,6 +1085,7 @@ public class SectorProfile extends SidePlotProfile {
 				dragging = true;
 				dragHandle = h; // store dragged handle
 			}
+			roiHandler.configureDragging(dragHandle, hStatus);
 		} else if ((flags & IImagePositionEvent.RIGHTMOUSEBUTTON) != 0) {
 			if (roiHandler.contains(id)) {
 				int h = roiHandler.indexOf(id);
@@ -1102,70 +1102,15 @@ public class SectorProfile extends SidePlotProfile {
 				dragging = true;
 				dragHandle = h; // store dragged handle
 				logger.debug("Selected handle {}", h);
+				roiHandler.configureDragging(dragHandle, hStatus);
 			}
 		}
-	}
-
-	private SectorROI interpretMouseDragging(int[] pt) {
-		SectorROI croi = null; // return null if not a valid event
-		final SectorROI sroi = (SectorROI) roi;
-
-		SectorCoords ssc = null;
-		SectorCoords esc = null;
-		double[] sp = null;
-		double[] ep = null;
-
-		switch (hStatus) {
-		case CMOVE:
-			croi = sroi.copy();
-			pt[0] -= cpt[0];
-			pt[1] -= cpt[1];
-			croi.addPoint(pt);
-			break;
-		case RMOVE:
-			croi = sroi.copy();
-			ssc = new SectorCoords(roi.getPoint(), cpt);
-			esc = new SectorCoords(roi.getPoint(), pt);
-			sp = ssc.getPolarRadians();
-			ep = esc.getPolarRadians();
-			croi.addRadii(ep[0] - sp[0]);
-			croi.addAngles(ep[1] - sp[1]);
-			break;
-		case NONE:
-			croi = sroi.copy();
-			break;
-		case RESIZE:
-			ssc = new SectorCoords(roi.getPoint(), cpt);
-			esc = new SectorCoords(roi.getPoint(), pt);
-			sp = ssc.getPolarRadians();
-			ep = esc.getPolarRadians();
-			croi = ((SectorROIHandler) roiHandler).resize(dragHandle, sp, ep);
-			break;
-		case ROTATE:
-			croi = sroi.copy();
-			ssc = new SectorCoords(roi.getPoint(), cpt);
-			esc = new SectorCoords(roi.getPoint(), pt);
-			sp = ssc.getPolarRadians();
-			ep = esc.getPolarRadians();
-			croi.addAngles(ep[1] - sp[1]);
-			break;
-		case CRMOVE:
-			ssc = new SectorCoords(roi.getPoint(), cpt);
-			esc = new SectorCoords(roi.getPoint(), pt);
-			sp = ssc.getPolarRadians();
-			ep = esc.getPolarRadians();
-			croi = ((SectorROIHandler) roiHandler).crmove(dragHandle, sp, ep);
-			break;
-		case REORIENT:
-			break;
-		}
-		return croi;
 	}
 
 	@Override
 	public void imageDragged(IImagePositionEvent event) {
 		if (dragging) {
-			final SectorROI croi = interpretMouseDragging(event.getImagePosition());
+			final ROIBase croi = roiHandler.interpretMouseDragging(cpt, event.getImagePosition());
 
 			if (croi != null) {
 				drawDraggedOverlay(croi);
@@ -1187,11 +1132,10 @@ public class SectorProfile extends SidePlotProfile {
 			hideIDs(dragIDs);
 			oProvider.restoreDefaultPlotAreaCursor();
 
-			roi = interpretMouseDragging(event.getImagePosition());
+			roi = roiHandler.interpretMouseDragging(cpt, event.getImagePosition());
 			roiHandler.setROI(roi);
+			roiHandler.unconfigureDragging();
 
-			dragHandle = -1;
-			hStatus = HandleStatus.NONE;
 			drawCurrentOverlay();
 			sendCurrentROI(roi);
 
