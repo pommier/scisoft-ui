@@ -14,7 +14,15 @@
  * limitations under the License.
  */
 
+
 package uk.ac.diamond.scisoft.analysis.rcp.pixelinfoutils;
+
+/*
+ * creating a dependency to vecmath package from the plotting tools plugin was throwing a linkage error
+ * 
+ * This class has been created here as a workaround since the current plugin is dependant
+ * on gda.libs that holds the vecmath package
+ * */
 
 import javax.vecmath.Vector3d;
 import uk.ac.diamond.scisoft.analysis.diffraction.QSpace;
