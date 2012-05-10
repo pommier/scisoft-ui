@@ -101,7 +101,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 	private boolean isLine;
 	private int[] beamCentrePrimitive = { -1, -1 };
 	private int maskPrimID = -1;
-	private boolean mask;
+	private boolean drawMask;
 	public boolean beamVisable = false;
 	private static int MAX_SIZE_3D_PLOT; // variable to control the max size of the 3D overlay
 	@SuppressWarnings("unused")
@@ -450,7 +450,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 		if ((flags & IImagePositionEvent.LEFTMOUSEBUTTON) != 0) {
 			if ((flags & IImagePositionEvent.CTRLKEY) != 0 && maskPrimID != -1) {
 				if (maskPrimID == id) {
-					mask = true;
+					drawMask = true;
 					dragging = true;
 					isLine = false;
 				}
@@ -545,7 +545,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 					nextTime = System.currentTimeMillis() + updateInterval;
 					updateBeamCentre(event);
 				}
-			} else if (mask && maskPrimID != -1) {
+			} else if (drawMask && maskPrimID != -1) {
 				if (System.currentTimeMillis() >= nextTime) {
 					nextTime = System.currentTimeMillis() + updateInterval;
 					updateMask(event);
@@ -583,8 +583,8 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 		if (dragging) {
 			// draggedRectROI = false;
 			dragging = false;
-			if (mask) {
-				mask = false;
+			if (drawMask) {
+				drawMask = false;
 			}
 			if (beamRePosition) {
 				beamRePosition = false;

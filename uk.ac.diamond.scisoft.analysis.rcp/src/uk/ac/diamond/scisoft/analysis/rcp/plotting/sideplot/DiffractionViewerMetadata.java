@@ -597,6 +597,7 @@ public class DiffractionViewerMetadata extends Composite {
 		diffView.updateDiffractionObjects(showBeam.getSelection());
 	}
 
+	@SuppressWarnings("unused")
 	private double getDoubleFromMetadata(String key) {
 		Object data = metadata.get(key);
 

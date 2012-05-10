@@ -95,11 +95,14 @@ public class DiffractionViewerSpotFit extends Composite implements Overlay1DCons
 	private Text sigma;
 	private Text averageDSpacing;
 
+	@SuppressWarnings("unused")
 	private APeak peak;
+	@SuppressWarnings("unused")
 	private int maxNumPeaks;
 
 	private boolean autoStopping;
 
+	@SuppressWarnings("unused")
 	private int stoppingThreashold;
 
 	private org.eclipse.swt.widgets.List rawTable;
