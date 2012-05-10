@@ -101,6 +101,8 @@ public class SectorROIHandler extends ROIHandles {
 			pt[0] = oroi.getRadius(1) - size;
 			pt[1] = oroi.getAngle(1) - dphi;
 			break;
+		case 9:
+			break;
 		}
 		return pt;
 	}
@@ -142,6 +144,8 @@ public class SectorROIHandler extends ROIHandles {
 		case 8:
 			sc = new SectorCoords(oroi.getRadius(1), oroi.getAngle(1), false, false);
 			break;
+		case 9:
+			return cpt;
 		}
 		pt[0] = cpt[0] + sc.getCartesian()[0];
 		pt[1] = cpt[1] + sc.getCartesian()[1];
