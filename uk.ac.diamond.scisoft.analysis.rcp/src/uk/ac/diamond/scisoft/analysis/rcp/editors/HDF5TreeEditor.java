@@ -183,6 +183,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 	}
 
 	/* Setting up of the editor as a Selection listener on the navigator selectionProvider */
+	@SuppressWarnings("unused")
 	private void registerSelectionListener() {
 
 		final ISelectionService selectionService = getSite().getWorkbenchWindow().getSelectionService();
@@ -214,6 +215,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 		selectionService.addSelectionListener(selectionListener);
 	}
 
+	@SuppressWarnings("unused")
 	private void unregisterSelectionListener() {
 		if (selectionListener == null)
 			return;

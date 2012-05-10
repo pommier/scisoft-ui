@@ -60,8 +60,8 @@ public class DataExplorationPerspective implements IPerspectiveFactory {
 		}
 		if(getDefaultPlottingSystemChoice()==1){
 			IFolderLayout metaFolderLayout = layout.createFolder("toolPageFolder", IPageLayout.RIGHT, 0.6f, plot);
-			String tool1D2D = "org.dawb.workbench.plotting.views.toolPageView.1D_and_2D";
-			String tool2D = "org.dawb.workbench.plotting.views.toolPageView.2D";
+//			String tool1D2D = "org.dawb.workbench.plotting.views.toolPageView.1D_and_2D";
+//			String tool2D = "org.dawb.workbench.plotting.views.toolPageView.2D";
 //			metaFolderLayout.addView(tool1D2D);
 //			layout.getViewLayout(tool1D2D).setCloseable(false);
 //			metaFolderLayout.addView(tool2D);
