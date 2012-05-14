@@ -30,7 +30,7 @@ public class OpenFileNavigatorHandler extends AbstractHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
         try {
-			final FileView parent   = (FileView)EclipseUtils.getActivePage().getActivePart();	
+			//final FileView parent   = (FileView)EclipseUtils.getActivePage().getActivePart();	
 			final FileView fileView = (FileView)EclipseUtils.getActivePage().showView(FileView.ID, FileView.ID+secondaryId, IWorkbenchPage.VIEW_CREATE);
 			secondaryId++;
 			//TODO fileView.setRoot(parent.getSelectedFile());

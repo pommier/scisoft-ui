@@ -53,7 +53,7 @@ public class SRSContentProvider implements ITreeContentProvider, IResourceChange
 
 	private static final Object[] NO_CHILDREN = new Object[0];
 	private static final String SRS_EXT = "dat"; //$NON-NLS-1$
-	private final Map/* <IFile, SRSTreeData[]> */cachedModelMap = new HashMap();
+	private final Map<IFile, SRSTreeData[]> cachedModelMap = new HashMap<IFile, SRSTreeData[]>();
 	private static StructuredViewer viewer;
 	protected static String fileName;
 	private DataHolder data;
@@ -80,9 +80,9 @@ public class SRSContentProvider implements ITreeContentProvider, IResourceChange
 			/* possible model file */
 			IFile modelFile = (IFile) parentElement;
 			if (SRS_EXT.equals(modelFile.getFileExtension())) {
-				children = (SRSTreeData[]) cachedModelMap.get(modelFile);
+				children = cachedModelMap.get(modelFile);
 				if (children == null && updateModel(modelFile) != null) {
-					children = (SRSTreeData[]) cachedModelMap.get(modelFile);
+					children = cachedModelMap.get(modelFile);
 				}
 			}
 		}
@@ -132,9 +132,9 @@ public class SRSContentProvider implements ITreeContentProvider, IResourceChange
 
 				cachedModelMap.put(modelFile, srsTreeData);
 				return metaData;
-			} else {
+			} 
+			if(!modelFile.exists())
 				cachedModelMap.remove(modelFile);
-			}
 		}
 		return null;
 	}

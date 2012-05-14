@@ -51,13 +51,13 @@ public class HDF5LabelProvider extends LabelProvider implements ILabelProvider, 
 			if (dataset.isString()) {
 				return new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/hdf5/text.gif"));
 			}
-			ILazyDataset data = dataset.getDataset();
+			//ILazyDataset data = dataset.getDataset();
 			// data
-			if (data instanceof AbstractDataset) {
-				return  new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/hdf5/dataset.gif"));
-			} else {
-				return new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/hdf5/dataset.gif"));
-			}				
+			//if (data instanceof AbstractDataset) {
+			return  new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/hdf5/dataset.gif"));
+			//} else {
+			//	return new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/hdf5/dataset.gif"));
+			//}				
 		}
 		return  new Image(Display.getCurrent(), getClass().getResourceAsStream("/icons/hdf5/folderopen.gif"));
 	}

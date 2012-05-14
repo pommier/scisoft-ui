@@ -72,6 +72,7 @@ public class PrintMargin {
 		return new PrintMargin(leftMargin, rightMargin, topMargin, bottomMargin);
 	}
 
+	@Override
 	public String toString() {
 		return "Margin { " + left + ", " + right + "; " + top + ", " + bottom + " }";
 	}

@@ -425,6 +425,7 @@ public class FileContentProvider implements ILazyTreeContentProvider {
 		final File dir = new File("E:/Data_Backup/ID22-ODA-Complete");
 		
 		long start, end;
+		@SuppressWarnings("unused")
 		Object[] fa;
 		
 		start = System.currentTimeMillis();

@@ -35,7 +35,13 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
+import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
+import uk.ac.diamond.scisoft.analysis.roi.LinearROIList;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
+import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
+import uk.ac.diamond.scisoft.analysis.roi.RectangularROIList;
+import uk.ac.diamond.scisoft.analysis.roi.SectorROI;
+import uk.ac.diamond.scisoft.analysis.roi.SectorROIList;
 
 //import gda.observable.IObserver;
 
@@ -106,15 +112,69 @@ public class Plotting2DUI extends AbstractPlotUI {
 
 		logger.debug("There is a guiBean update:"+ guiBean.toString());
 
-		for (final IRegion iRegion : regions) {
-			if(plotWindow.currentRoiPair.getName().equals(iRegion.getName())){
-				Display.getDefault().asyncExec(new Runnable(){
-					@Override
-					public void run() {
-						iRegion.setROI(currentRoi);
+		if(currentRoi instanceof LinearROI){
+			final LinearROIList rois = (LinearROIList)guiBean.get(GuiParameters.ROIDATALIST);
+			
+			Display.getDefault().asyncExec(new Runnable(){
+				@Override
+				public void run() {
+					int roiListIdx = 0;
+					for (final IRegion iRegion : regions) {
+				
+						// current region
+						if(plotWindow.currentRoiPair.getName().equals(iRegion.getName())){
+							iRegion.setROI(currentRoi);
+						}
+						//roidatalist regions
+						else{
+							iRegion.setROI(rois.get(roiListIdx));
+							roiListIdx++;
+						}
 					}
-				});
-			}
+				}
+			});
+		} else if(currentRoi instanceof RectangularROI){
+			final RectangularROIList rois = (RectangularROIList)guiBean.get(GuiParameters.ROIDATALIST);
+			
+			Display.getDefault().asyncExec(new Runnable(){
+				@Override
+				public void run() {
+					int roiListIdx = 0;
+					for (final IRegion iRegion : regions) {
+				
+						// current region
+						if(plotWindow.currentRoiPair.getName().equals(iRegion.getName())){
+							iRegion.setROI(currentRoi);
+						}
+						//roidatalist regions
+						else{
+							iRegion.setROI(rois.get(roiListIdx));
+							roiListIdx++;
+						}
+					}
+				}
+			});
+		} else if(currentRoi instanceof SectorROI){
+			final SectorROIList rois = (SectorROIList)guiBean.get(GuiParameters.ROIDATALIST);
+			
+			Display.getDefault().asyncExec(new Runnable(){
+				@Override
+				public void run() {
+					int roiListIdx = 0;
+					for (final IRegion iRegion : regions) {
+				
+						// current region
+						if(plotWindow.currentRoiPair.getName().equals(iRegion.getName())){
+							iRegion.setROI(currentRoi);
+						}
+						//roidatalist regions
+						else{
+							iRegion.setROI(rois.get(roiListIdx));
+							roiListIdx++;
+						}
+					}
+				}
+			});
 		}
 	}
 }
