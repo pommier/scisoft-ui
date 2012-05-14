@@ -51,7 +51,7 @@ public class PropertiesContentProvider implements ITreeContentProvider, IResourc
 	private static final Logger logger = LoggerFactory.getLogger(PropertiesContentProvider.class);
 	private static final Object[] NO_CHILDREN = new Object[0];
 	private static final Object PROPERTIES_EXT = "properties"; //$NON-NLS-1$
-	private final Map/* <IFile, PropertiesTreeData[]> */cachedModelMap = new HashMap();
+	private final Map<IFile, PropertiesTreeData[]> cachedModelMap = new HashMap<IFile, PropertiesTreeData[]>();
 	private StructuredViewer viewer;
 
 	/**
@@ -74,9 +74,9 @@ public class PropertiesContentProvider implements ITreeContentProvider, IResourc
 			/* possible model file */
 			IFile modelFile = (IFile) parentElement;
 			if (PROPERTIES_EXT.equals(modelFile.getFileExtension())) {
-				children = (PropertiesTreeData[]) cachedModelMap.get(modelFile);
+				children = cachedModelMap.get(modelFile);
 				if (children == null && updateModel(modelFile) != null) {
-					children = (PropertiesTreeData[]) cachedModelMap.get(modelFile);
+					children = cachedModelMap.get(modelFile);
 				}
 			}
 		}

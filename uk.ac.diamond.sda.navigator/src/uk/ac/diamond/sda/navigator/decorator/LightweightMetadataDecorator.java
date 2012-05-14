@@ -29,14 +29,14 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 public class LightweightMetadataDecorator extends LabelProvider implements ILightweightLabelDecorator {
 
 	public static final String ID = "uk.ac.diamond.sda.navigator.metadataDecorator";
 	
-	private static final Logger logger = LoggerFactory.getLogger(LightweightMetadataDecorator.class);
+	//private static final Logger logger = LoggerFactory.getLogger(LightweightMetadataDecorator.class);
 	
 	public LightweightMetadataDecorator() {
 		super();

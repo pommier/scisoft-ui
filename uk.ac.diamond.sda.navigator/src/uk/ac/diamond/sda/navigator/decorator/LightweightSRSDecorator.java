@@ -52,12 +52,12 @@ public class LightweightSRSDecorator extends LabelProvider implements ILightweig
 
 	@Override
 	public void decorate(Object element, IDecoration decoration) {
-		decorator = "";
+		setDecorator("");
 		if (element instanceof SRSTreeData) {
 			srsData = (SRSTreeData) element;
 			IFile ifile = srsData.getFile();
 
-			List properties = new ArrayList();
+			List<SRSTreeData> properties = new ArrayList<SRSTreeData>();
 			String[] names = data.getNames();
 
 			for (int i = 0; i < data.size(); i++) {
@@ -70,7 +70,7 @@ public class LightweightSRSDecorator extends LabelProvider implements ILightweig
 					properties.add(new SRSTreeData(names[i], "Not available", "Not available", "Not available", ifile));
 				}
 			}
-			SRSTreeData[] srsTreeData = (SRSTreeData[]) properties.toArray(new SRSTreeData[properties.size()]);
+			//SRSTreeData[] srsTreeData = (SRSTreeData[]) properties.toArray(new SRSTreeData[properties.size()]);
 
 		}
 	}
@@ -91,6 +91,14 @@ public class LightweightSRSDecorator extends LabelProvider implements ILightweig
 			data.addDataset("Failed to load File", new DoubleDataset(1));
 			logger.warn("Failed to load srs file");
 		}
+	}
+
+	public String getDecorator() {
+		return decorator;
+	}
+
+	public void setDecorator(String decorator) {
+		this.decorator = decorator;
 	}
 
 }

@@ -422,6 +422,8 @@ public class FileView extends ViewPart {
     /**
      * The adapter IContentProvider gives the value of the H5Dataset
      */
+	@SuppressWarnings("rawtypes")
+	@Override
 	public Object getAdapter(final Class clazz) {
 
 		return super.getAdapter(clazz);
