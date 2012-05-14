@@ -1224,7 +1224,9 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		LinearROIList list = new LinearROIList();
 		if (roiPairList != null) {
 			for (ROIPair<String, ROIBase> roiPair: roiPairList) {
-				list.add((LinearROI) roiPair.getRoi());
+				if(roiPair.getRoi() instanceof LinearROI){
+					list.add((LinearROI) roiPair.getRoi());
+				}
 			}
 		}
 		return list;
@@ -1234,7 +1236,9 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		RectangularROIList list = new RectangularROIList();
 		if (roiPairList != null) {
 			for (ROIPair<String, ROIBase> roiPair: roiPairList) {
-				list.add((RectangularROI) roiPair.getRoi());
+				if(roiPair.getRoi() instanceof RectangularROI){
+					list.add((RectangularROI) roiPair.getRoi());
+				}
 			}
 		}
 		return list;
@@ -1244,7 +1248,9 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		SectorROIList list = new SectorROIList();
 		if (roiPairList != null) {
 			for (ROIPair<String, ROIBase> roiPair: roiPairList) {
-				list.add((SectorROI) roiPair.getRoi());
+				if(roiPair.getRoi() instanceof SectorROI){
+					list.add((SectorROI) roiPair.getRoi());
+				}
 			}
 		}
 		return list;
