@@ -66,6 +66,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.OverlayType;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.Plot1DStyles;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.PrimitiveType;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.VectorOverlayStyles;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.HandleStatus;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIDataList;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.RectangularROIData;
@@ -118,8 +119,6 @@ public class BoxProfile extends SidePlotProfile {
 	private String saveButtonText = ResourceProperties.getResourceString("SAVE_BUTTON");
 	private String saveToolTipText = ResourceProperties.getResourceString("SAVE_TOOLTIP");
 	private String saveImagePath = ResourceProperties.getResourceString("SAVE_IMAGE_PATH");
-
-	private HandleStatus hStatus = HandleStatus.NONE;
 
 	private Spinner spsx, spsy;
 	private FloatSpinner splmaj, splmin, spang;
@@ -671,7 +670,7 @@ public class BoxProfile extends SidePlotProfile {
 
 	@Override
 	public void imageStart(IImagePositionEvent event) {
-		hStatus = HandleStatus.NONE;
+		HandleStatus hStatus = HandleStatus.NONE;
 
 		if (roi == null) {
 			roi = new RectangularROI();
@@ -683,6 +682,7 @@ public class BoxProfile extends SidePlotProfile {
 		short flags = event.getFlags();
 		cpt = event.getImagePosition();
 
+		int dragHandle = -1;
 		if ((flags & IImagePositionEvent.LEFTMOUSEBUTTON) != 0) {
 			if (id == -1 || !roiHandler.contains(id)) {
 				// new ROI mode
@@ -729,6 +729,7 @@ public class BoxProfile extends SidePlotProfile {
 				dragHandle = h; // store dragged handle
 				logger.debug("Selected handle {}", h);
 			}
+			roiHandler.configureDragging(dragHandle, hStatus);
 		} else if ((flags & IImagePositionEvent.RIGHTMOUSEBUTTON) != 0) {
 			if (roiHandler.contains(id)) {
 				int h = roiHandler.indexOf(id);
@@ -749,51 +750,15 @@ public class BoxProfile extends SidePlotProfile {
 				drawDraggedOverlay(roi);
 				dragging = true;
 				dragHandle = h; // store dragged handle
+				roiHandler.configureDragging(dragHandle, hStatus);
 			}
 		}
-	}
-
-	private RectangularROI interpretMouseDragging(int[] pt) {
-		final RectangularROI rroi = (RectangularROI) roi;
-		RectangularROI croi = null; // return null if not a valid event
-
-		switch (hStatus) {
-		case RMOVE:
-			croi = rroi.copy();
-			pt[0] -= cpt[0];
-			pt[1] -= cpt[1];
-			croi.addPoint(pt);
-			break;
-		case NONE:
-			croi = rroi.copy();
-			croi.setEndPoint(pt);
-			break;
-		case REORIENT:
-			croi = ((RectangularROIHandler) roiHandler).reorient(dragHandle, pt);
-			break;
-		case RESIZE:
-			croi = ((RectangularROIHandler) roiHandler).resize(dragHandle, cpt, pt);
-			break;
-		case ROTATE:
-			croi = rroi.copy();
-			double ang = croi.getAngleRelativeToMidPoint(pt);
-			double[] mpt = croi.getMidPoint();
-			croi.setAngle(ang);
-			croi.setMidPoint(mpt);
-			break;
-		case CMOVE:
-			break;
-		case CRMOVE:
-			break;
-		}
-
-		return croi;
 	}
 
 	@Override
 	public void imageDragged(IImagePositionEvent event) {
 		if (dragging) {
-			final RectangularROI croi = interpretMouseDragging(event.getImagePosition());
+			final ROIBase croi = roiHandler.interpretMouseDragging(cpt, event.getImagePosition());
 
 			if (croi != null) {
 				drawDraggedOverlay(croi);
@@ -815,11 +780,10 @@ public class BoxProfile extends SidePlotProfile {
 			hideIDs(dragIDs);
 			oProvider.restoreDefaultPlotAreaCursor();
 
-			roi = interpretMouseDragging(event.getImagePosition());
+			roi = roiHandler.interpretMouseDragging(cpt, event.getImagePosition());
 			roiHandler.setROI(roi);
+			roiHandler.unconfigureDragging();
 
-			dragHandle = -1;
-			hStatus = HandleStatus.NONE;
 			drawCurrentOverlay();
 			sendCurrentROI(roi);
 

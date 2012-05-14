@@ -51,9 +51,9 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.VectorOverlayStyles;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.GridROIData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.GridROIHandler;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.GridROITableViewer;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.HandleStatus;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIDataList;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.RectangularROIHandler;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
@@ -806,6 +806,7 @@ public class GridProfile extends SidePlotProfile {
 		short flags = event.getFlags();
 		cpt = event.getImagePosition();
 
+		int dragHandle = -1;
 		if ((flags & IImagePositionEvent.LEFTMOUSEBUTTON) != 0) {
 			if (id == -1 || !roiHandler.contains(id)) {
 				// new ROI mode
@@ -843,6 +844,7 @@ public class GridProfile extends SidePlotProfile {
 				dragHandle = h; // store dragged handle
 				logger.debug("Selected handle {}", h);
 			}
+			roiHandler.configureDragging(dragHandle, hStatus);
 		} else if ((flags & IImagePositionEvent.RIGHTMOUSEBUTTON) != 0) {
 			if (roiHandler.contains(id)) {
 				int h = roiHandler.indexOf(id);
@@ -859,51 +861,15 @@ public class GridProfile extends SidePlotProfile {
 				drawDraggedOverlay(roi);
 				dragging = true;
 				dragHandle = h; // store dragged handle
+				roiHandler.configureDragging(dragHandle, hStatus);
 			}
 		}
-	}
-
-	private GridROI interpretMouseDragging(int[] pt) {
-		GridROI croi = null; // return null if not a valid event
-		final GridROI groi = (GridROI) roi;
-
-		switch (hStatus) {
-		case RMOVE:
-			croi = groi.copy();
-			pt[0] -= cpt[0];
-			pt[1] -= cpt[1];
-			croi.addPoint(pt);
-			break;
-		case NONE:
-			croi = groi.copy();
-			croi.setEndPoint(pt);
-			break;
-		case REORIENT:
-			croi = (GridROI) ((RectangularROIHandler) roiHandler).reorient(dragHandle, pt);
-			break;
-		case RESIZE:
-			croi = (GridROI) ((RectangularROIHandler) roiHandler).resize(dragHandle, cpt, pt);
-			break;
-		case ROTATE:
-			croi = groi.copy();
-			double ang = croi.getAngleRelativeToMidPoint(pt);
-			double[] mpt = croi.getMidPoint();
-			croi.setAngle(ang);
-			croi.setMidPoint(mpt);
-			break;
-		case CMOVE:
-			break;
-		case CRMOVE:
-			break;
-		}
-
-		return croi;
 	}
 
 	@Override
 	public void imageDragged(IImagePositionEvent event) {
 		if (dragging) {
-			final GridROI croi = interpretMouseDragging(event.getImagePosition());
+			final ROIBase croi = roiHandler.interpretMouseDragging(cpt, event.getImagePosition());
 
 			if (croi != null) {
 				drawDraggedOverlay(croi);
@@ -923,11 +889,10 @@ public class GridProfile extends SidePlotProfile {
 			dragging = false;
 			hideIDs(dragIDs);
 
-			roi = interpretMouseDragging(event.getImagePosition());
+			roi = roiHandler.interpretMouseDragging(cpt, event.getImagePosition());
 			roiHandler.setROI(roi);
+			roiHandler.unconfigureDragging();
 
-			dragHandle = -1;
-			hStatus = HandleStatus.NONE;
 			drawCurrentOverlay();
 			sendCurrentROI(roi);
 

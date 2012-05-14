@@ -29,9 +29,6 @@ import org.eclipse.ui.part.PageBookView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
-
-
 
 public class SidePageView extends PageBookView {
 

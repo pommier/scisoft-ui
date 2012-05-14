@@ -16,6 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.roi;
 
+import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 
 /**
@@ -134,12 +135,11 @@ public class RectangularROIHandler extends ROIHandles {
 	}
 
 	/**
-	 * @param handle
 	 * @param spt starting point 
 	 * @param pt 
 	 * @return resized ROI
 	 */
-	public RectangularROI resize(int handle, int[] spt, int[] pt) {
+	public RectangularROI resize(int[] spt, int[] pt) {
 		RectangularROI rroi = null;
 		double[] ept;
 
@@ -198,11 +198,10 @@ public class RectangularROIHandler extends ROIHandles {
 	}
 
 	/**
-	 * @param handle
 	 * @param pt
 	 * @return reoriented ROI
 	 */
-	public RectangularROI reorient(int handle, int[] pt) {
+	public RectangularROI reorient(int[] pt) {
 		RectangularROI rroi = null;
 
 		if (handle == 4 || (handle%2) == 1)
@@ -241,5 +240,43 @@ public class RectangularROIHandler extends ROIHandles {
 			break;
 		}
 		return rroi;
+	}
+
+	@Override
+	public ROIBase interpretMouseDragging(int[] spt, int[] ept) {
+		final RectangularROI rroi = (RectangularROI) roi;
+		RectangularROI croi = null; // return null if not a valid event
+
+		switch (status) {
+		case RMOVE:
+			croi = rroi.copy();
+			ept[0] -= spt[0];
+			ept[1] -= spt[1];
+			croi.addPoint(ept);
+			break;
+		case NONE:
+			croi = rroi.copy();
+			croi.setEndPoint(ept);
+			break;
+		case REORIENT:
+			croi = reorient(ept);
+			break;
+		case RESIZE:
+			croi = resize(spt, ept);
+			break;
+		case ROTATE:
+			croi = rroi.copy();
+			double ang = croi.getAngleRelativeToMidPoint(ept);
+			double[] mpt = croi.getMidPoint();
+			croi.setAngle(ang);
+			croi.setMidPoint(mpt);
+			break;
+		case CMOVE:
+			break;
+		case CRMOVE:
+			break;
+		}
+
+		return croi;
 	}
 }

@@ -1001,7 +1001,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 			if (mainPlotter != null) {
 				mainPlotter.cleanUp();
 			}
-			if (!plottingSystem.isDisposed()) {
+			if (plottingSystem != null && !plottingSystem.isDisposed()) {
 				plottingSystem.removeRegionListener(regionListener);
 				plottingSystem.dispose();
 			}

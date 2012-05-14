@@ -49,10 +49,6 @@ import org.python.pydev.dltk.console.ui.internal.ScriptConsoleViewer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.AnalysisRpcServerProvider;
-import uk.ac.diamond.scisoft.analysis.RMIServerProvider;
-import uk.ac.diamond.scisoft.analysis.rpc.FlatteningService;
-
 public class InjectPyDevConsoleHandler extends AbstractHandler {
 	private static Logger logger = LoggerFactory.getLogger(InjectPyDevConsoleHandler.class);
 

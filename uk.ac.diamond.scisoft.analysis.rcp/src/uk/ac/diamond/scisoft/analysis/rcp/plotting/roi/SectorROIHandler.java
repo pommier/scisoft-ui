@@ -101,6 +101,8 @@ public class SectorROIHandler extends ROIHandles {
 			pt[0] = oroi.getRadius(1) - size;
 			pt[1] = oroi.getAngle(1) - dphi;
 			break;
+		case 9:
+			break;
 		}
 		return pt;
 	}
@@ -142,6 +144,8 @@ public class SectorROIHandler extends ROIHandles {
 		case 8:
 			sc = new SectorCoords(oroi.getRadius(1), oroi.getAngle(1), false, false);
 			break;
+		case 9:
+			return cpt;
 		}
 		pt[0] = cpt[0] + sc.getCartesian()[0];
 		pt[1] = cpt[1] + sc.getCartesian()[1];
@@ -149,14 +153,13 @@ public class SectorROIHandler extends ROIHandles {
 	}
 
 	/**
-	 * @param handle
 	 * @param spt
 	 *            start point
 	 * @param ept
 	 *            end point
 	 * @return resized ROI
 	 */
-	public SectorROI resize(int handle, double[] spt, double[] ept) {
+	public SectorROI resize(double[] spt, double[] ept) {
 		SectorROI sroi = null;
 
 		if (handle == 4)
@@ -213,12 +216,11 @@ public class SectorROIHandler extends ROIHandles {
 
 	/**
 	 * Constrained ROI move
-	 * @param handle
 	 * @param spt
 	 * @param ept
 	 * @return moved ROI
 	 */
-	public SectorROI crmove(int handle, double[] spt, double[] ept) {
+	public SectorROI crmove(double[] spt, double[] ept) {
 		SectorROI sroi = null;
 
 		if (handle == 4)
@@ -238,5 +240,62 @@ public class SectorROIHandler extends ROIHandles {
 			break;
 		}
 		return sroi;
+	}
+
+	@Override
+	public SectorROI interpretMouseDragging(int[] cpt, int[] pt) {
+		SectorROI croi = null; // return null if not a valid event
+		SectorROI sroi = (SectorROI) roi;
+
+		SectorCoords ssc = null;
+		SectorCoords esc = null;
+		double[] sp = null;
+		double[] ep = null;
+
+		switch (status) {
+		case CMOVE:
+			croi = sroi.copy();
+			pt[0] -= cpt[0];
+			pt[1] -= cpt[1];
+			croi.addPoint(pt);
+			break;
+		case RMOVE:
+			croi = sroi.copy();
+			ssc = new SectorCoords(sroi.getPoint(), cpt);
+			esc = new SectorCoords(sroi.getPoint(), pt);
+			sp = ssc.getPolarRadians();
+			ep = esc.getPolarRadians();
+			croi.addRadii(ep[0] - sp[0]);
+			croi.addAngles(ep[1] - sp[1]);
+			break;
+		case NONE:
+			croi = sroi.copy();
+			break;
+		case RESIZE:
+			ssc = new SectorCoords(sroi.getPoint(), cpt);
+			esc = new SectorCoords(sroi.getPoint(), pt);
+			sp = ssc.getPolarRadians();
+			ep = esc.getPolarRadians();
+			croi = resize(sp, ep);
+			break;
+		case ROTATE:
+			croi = sroi.copy();
+			ssc = new SectorCoords(sroi.getPoint(), cpt);
+			esc = new SectorCoords(sroi.getPoint(), pt);
+			sp = ssc.getPolarRadians();
+			ep = esc.getPolarRadians();
+			croi.addAngles(ep[1] - sp[1]);
+			break;
+		case CRMOVE:
+			ssc = new SectorCoords(sroi.getPoint(), cpt);
+			esc = new SectorCoords(sroi.getPoint(), pt);
+			sp = ssc.getPolarRadians();
+			ep = esc.getPolarRadians();
+			croi = crmove(sp, ep);
+			break;
+		case REORIENT:
+			break;
+		}
+		return croi;
 	}
 }

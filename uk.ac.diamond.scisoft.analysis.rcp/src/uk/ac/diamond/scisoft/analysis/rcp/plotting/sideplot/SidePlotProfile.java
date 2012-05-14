@@ -98,7 +98,6 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 	protected List<Integer> roisIDs;
 	protected ROIHandles roiHandler;
 
-	protected int dragHandle = -1; // handle being dragged
 	private static final int HSIZEMIN = 5;
 	private static final int HSIZEMAX = 100;
 	private static final double HSIZEFRACTION = 0.05; // fraction of smallest dimension to use for size of handle
