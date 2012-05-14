@@ -245,6 +245,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 		Listener listener = new Listener() {
 			@Override
 			public void handleEvent(Event e) {
+				@SuppressWarnings("unused")
 				Canvas canvas = null;
 				switch (e.type) {
 				case SWT.Paint:
@@ -354,6 +355,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 		setPrinter(printer, settings.getScale().getValue());
 	}
 
+	@SuppressWarnings("unused")
 	private SelectionAdapter orientationSelection = new SelectionAdapter() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
@@ -473,13 +475,6 @@ public class PlotPrintPreviewDialog extends Dialog {
 				: preferenceStore.getInt(PreferenceConstants.PRINTSETTINGS_RESOLUTION);
 	}
 	
-	private int getPreferencePrintOrientation() {
-		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		return preferenceStore.isDefault(PreferenceConstants.PRINTSETTINGS_ORIENTATION)
-				? preferenceStore.getDefaultInt(PreferenceConstants.PRINTSETTINGS_ORIENTATION)
-				: preferenceStore.getInt(PreferenceConstants.PRINTSETTINGS_ORIENTATION);
-	}
-
 	private void setPrinterNamePreference(int value) {
 		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
 		settings.setPrinterData(Printer.getPrinterList()[value]);
@@ -591,7 +586,7 @@ public class PlotPrintPreviewDialog extends Dialog {
 				imageSizeFactor = Math.min(imageSizeFactor, (margin.bottom - margin.top) * 1.0
 						/ (dpiScaleFactorY * imageHeight));
 
-				float imageFactor = imageWidth / rectangle.width;
+				//float imageFactor = imageWidth / rectangle.width;
 				e.gc.drawImage(image, 0, 0, imageWidth, imageHeight, marginOffsetX, marginOffsetY,
 				 (int) (dpiScaleFactorX * imageSizeFactor * imageHeight * viewScaleFactor),
 				 (int) (dpiScaleFactorY * imageSizeFactor * imageWidth * viewScaleFactor));
@@ -660,8 +655,8 @@ public class PlotPrintPreviewDialog extends Dialog {
 					logger.error("Failed to start a new page!");
 					gc.dispose();
 					return;
-				} else {
-					Rectangle trim = printer.computeTrim(0, 0, 0, 0);
+				} else if(printer.startPage()) {
+					//Rectangle trim = printer.computeTrim(0, 0, 0, 0);
 					
 					if (settings.getOrientation().equals(Orientation.PORTRAIT)) {
 						int imageWidth = image.getBounds().width;
