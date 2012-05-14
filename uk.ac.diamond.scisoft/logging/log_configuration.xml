@@ -42,6 +42,13 @@
 		</layout>
 	</appender>
 
+	<logger name="org.apache.commons">
+		<appender-ref ref="STDOUT" />
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>ERROR</level>
+		</filter>
+	</logger>
+	
 	<root>
 		<level value="ALL" />
 		<appender-ref ref="DebugFILE" />
