@@ -20,6 +20,7 @@ import gda.observable.IObservable;
 import gda.observable.IObserver;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,6 +28,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.PlotType;
@@ -62,8 +65,6 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.PlotServer;
-import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
@@ -78,6 +79,13 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
+import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
+import uk.ac.diamond.scisoft.analysis.roi.LinearROIList;
+import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
+import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
+import uk.ac.diamond.scisoft.analysis.roi.RectangularROIList;
+import uk.ac.diamond.scisoft.analysis.roi.SectorROI;
+import uk.ac.diamond.scisoft.analysis.roi.SectorROIList;
 
 /**
  * Actual PlotWindow that can be used inside a View- or EditorPart
@@ -155,8 +163,6 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		this.bars = bars;
 		this.name = name;
 
-		this.plotServer = PlotServerProvider.getPlotServer();
-		this.guiBean = getGUIState();
 		this.registeredTraces = new HashMap<String,Collection<ITrace>>(7);
 
 		if (plotMode == null)
@@ -525,7 +531,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 
 	//Abstract plotting System
 	private void setupPlotting2D() {
-		plotUI = new Plotting2DUI(plottingSystem);
+		plotUI = new Plotting2DUI(this, plottingSystem);
 		addScriptingAction();
 		addDuplicateAction();
 	}
@@ -636,11 +642,12 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	}
 
 	public void clearPlot() {
-		if (mainPlotter != null) {
+		if (!mainPlotter.isDisposed()) {
 			mainPlotter.emptyPlot();
 			mainPlotter.refresh(true);
 		}
 		if(plottingSystem != null){
+			plottingSystem.clearRegions();
 			plottingSystem.reset();
 			plottingSystem.repaint();
 		}
@@ -1075,21 +1082,84 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		return new IRegionListener.Stub() {
 			@Override
 			public void regionRemoved(RegionEvent evt) {
-				if (evt.getRegion()!=null) {
-					evt.getRegion().removeROIListener(PlotWindow.this);
+				IRegion region = evt.getRegion();
+				if (region!=null) {
+					region.removeROIListener(PlotWindow.this);
+					Object obj = evt.getSource();
+					//if we delete current ROI
+					if(currentRoiPair.getName().equals(obj.toString())){
+						currentRoiPair = previousRoiPair;
+						for (ROIPair<String, ROIBase> roiPair : roiPairList) {
+							if(previousRoiPair.getName().equals(roiPair.getName())){
+								roiPairList.remove(roiPair);
+								break;
+							}
+						}
+						if(roiPairList.size()>0)
+							previousRoiPair = roiPairList.get(0);
+						else
+							previousRoiPair = null;
+					}
+					//if we delete the previous ROI
+					else if(previousRoiPair.getName().equals(obj.toString())){
+						for (ROIPair<String, ROIBase> roiPair : roiPairList) {
+							if(previousRoiPair.getName().equals(roiPair.getName())){
+								roiPairList.remove(roiPair);
+								break;
+							}
+						}
+						if(roiPairList.size()>0)
+							previousRoiPair = roiPairList.get(0);
+						else
+							previousRoiPair = null;
+					}
+					//if we delete a ROI which is in the ROIlist and which is not the current nor the previous
+					else {
+						for (ROIPair<String, ROIBase> roiPair : roiPairList) {
+							if(roiPair.getName().equals(obj.toString())){
+								roiPairList.remove(roiPair);
+								break;
+							}
+						}
+					}
+					if(currentRoiPair!=null)
+						updateGuiBean(currentRoiPair.getRoi());
+					else
+						updateGuiBean(null);
 					clearTraces(evt.getRegion());
 				}
 			}
 			@Override
 			public void regionAdded(RegionEvent evt) {
 				if (evt.getRegion()!=null) {
-					update(null, null);
+					ROIBase roi = evt.getRegion().getROI();
+					if(roi!=null){
+						currentRoiPair = new ROIPair<String, ROIBase>(evt.getSource().toString(), roi);
+						if(roiPairList.size()>0){
+							//Remove the current ROI from ROI List and replace it by previous one
+							for (ROIPair<String, ROIBase> roiPair : roiPairList) {
+								if(roiPair.getName().equals(currentRoiPair.getName())){
+									roiPairList.remove(roiPair);
+									roiPairList.add(new ROIPair<String, ROIBase>(previousRoiPair.getName(), previousRoiPair.getRoi()));
+								//	break;
+								}
+							}
+						}
+						
+					}
+					updateGuiBean(roi);
 				}
 			}
 			@Override
 			public void regionCreated(RegionEvent evt) {
 				if (evt.getRegion()!=null) {
 					evt.getRegion().addROIListener(PlotWindow.this);
+					IRegion region = evt.getRegion();
+					ROIBase roi = region.getROI();
+					if(roi!=null){
+						updateGuiBean(roi);
+					}
+					
 				}
 			}
 		};
@@ -1103,40 +1173,83 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		}
 	}
 
-	private PlotServer plotServer;
-	private GuiBean guiBean;
-
-	private GuiBean getGUIState() {
-		GuiBean guiBean = null;
-		try {
-			guiBean = plotServer.getGuiState(name);
-		} catch (Exception e) {
-			logger.warn("Problem with getting GUI data from plot server");
-		}
-		if (guiBean == null)
-			guiBean = new GuiBean();
-		return guiBean;
-	}
-
 	@Override
 	public void roiDragged(ROIEvent evt) {
-		updateGuiBean(evt);
+		ROIBase roi = evt.getROI();
+		if(roi!=null){
+			// TODO with a timer
+			//updateGuiBean(roi);
+		}
 	}
 
 	@Override
 	public void roiChanged(ROIEvent evt) {
-		updateGuiBean(evt);
+		ROIBase roi = evt.getROI();
+		if(roi!=null){
+			ROIPair<String, ROIBase> evtPair = new ROIPair<String, ROIBase>(evt.getSource().toString(), roi);
+			if(currentRoiPair!=null && !evtPair.getName().equals(currentRoiPair.getName()))
+				previousRoiPair = currentRoiPair;
+			currentRoiPair = evtPair;
+			
+			if(previousRoiPair!=null && !roiPairList.contains(previousRoiPair))
+				roiPairList.add(new ROIPair<String, ROIBase>(previousRoiPair.getName(), previousRoiPair.getRoi()));
+			if (roiPairList.size()>0){
+				//Remove the current ROI from ROI List and replace it by previous one
+				for (ROIPair<String, ROIBase> roiPair : roiPairList) {
+					if(roiPair.getName().equals(currentRoiPair.getName())){
+						roiPairList.remove(roiPair);
+						break;
+					}
+				}
+			}
+			updateGuiBean(roi);
+		}
 	}
 
-	private void updateGuiBean(ROIEvent event){
-		try {
-			if(guiBean!=null){
-				guiBean.put(GuiParameters.ROIDATA, event.getROI());
-				plotServer.updateGui(name, guiBean);
+	protected List<ROIPair<String, ROIBase>> roiPairList = new ArrayList<ROIPair<String, ROIBase>>();
+	protected ROIPair<String, ROIBase> currentRoiPair;
+	protected ROIPair<String, ROIBase> previousRoiPair;
+	
+	protected void updateGuiBean(ROIBase roib){
+		manager.removeGUIInfo(GuiParameters.ROIDATA);
+		manager.putGUIInfo(GuiParameters.ROIDATA, roib);
+		manager.removeGUIInfo(GuiParameters.ROIDATALIST);
+		if(roib instanceof RectangularROI)
+			manager.putGUIInfo(GuiParameters.ROIDATALIST, createNewRROIList());
+		if(roib instanceof LinearROI)
+			manager.putGUIInfo(GuiParameters.ROIDATALIST, createNewLROIList());
+		if(roib instanceof SectorROI)
+			manager.putGUIInfo(GuiParameters.ROIDATALIST, createNewSROIList());
+	}
+
+	public LinearROIList createNewLROIList() {
+		LinearROIList list = new LinearROIList();
+		if (roiPairList != null) {
+			for (ROIPair<String, ROIBase> roiPair: roiPairList) {
+				list.add((LinearROI) roiPair.getRoi());
 			}
-		} catch (Exception e) {
-			logger.error("Error initializing Guibean", e);
 		}
+		return list;
+	}
+
+	public RectangularROIList createNewRROIList() {
+		RectangularROIList list = new RectangularROIList();
+		if (roiPairList != null) {
+			for (ROIPair<String, ROIBase> roiPair: roiPairList) {
+				list.add((RectangularROI) roiPair.getRoi());
+			}
+		}
+		return list;
+	}
+
+	public SectorROIList createNewSROIList() {
+		SectorROIList list = new SectorROIList();
+		if (roiPairList != null) {
+			for (ROIPair<String, ROIBase> roiPair: roiPairList) {
+				list.add((SectorROI) roiPair.getRoi());
+			}
+		}
+		return list;
 	}
 
 	private int getDefaultPlottingSystemChoice() {
@@ -1160,5 +1273,54 @@ class SimpleLock {
 
 	void unlock() {
 		state = false;
+	}
+}
+
+/**
+ * Class to store key-value (name-RoiBase) pairs for handling ROIs
+ */
+class ROIPair<A, B> {
+	private final A name;
+	private final B roi;
+
+	public ROIPair(A name, B roi) {
+		super();
+		this.name = name;
+		this.roi = roi;
+	}
+
+	@Override
+	public int hashCode() {
+		int hashFirst = name != null ? name.hashCode() : 0;
+		int hashSecond = roi != null ? roi.hashCode() : 0;
+		return (hashFirst + hashSecond) * hashSecond + hashFirst;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof ROIPair) {
+			ROIPair<?, ?> otherPair = (ROIPair<?, ?>) other;
+			return 
+					((this.name == otherPair.name ||
+					(this.name != null && otherPair.name != null &&
+					this.name.equals(otherPair.name))) &&
+					(this.roi == otherPair.roi ||
+					(this.roi != null && otherPair.roi != null &&
+					this.roi.equals(otherPair.roi))) );
+		}
+		return false;
+	}
+
+	@Override
+	public String toString(){ 
+		return "(" + name + ", " + roi + ")"; 
+	}
+
+	public A getName() {
+		return name;
+	}
+
+	public B getRoi() {
+		return roi;
 	}
 }

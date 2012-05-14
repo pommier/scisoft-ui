@@ -25,12 +25,19 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.region.IRegion;
+import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
+import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
+import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
+
+//import gda.observable.IObserver;
 
 /**
  * Class to create the a 2D/image plotting
@@ -40,15 +47,16 @@ public class Plotting2DUI extends AbstractPlotUI {
 	public final static String STATUSITEMID = "uk.ac.diamond.scisoft.analysis.rcp.plotting.Plotting2DUI";
 
 	private AbstractPlottingSystem plottingSystem;
-
 	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
-
+	private PlotWindow plotWindow;
+	private AbstractDataset data;
 	private static final Logger logger = LoggerFactory.getLogger(Plotting2DUI.class);
 
 	/**
 	 * @param plotter
 	 */
-	public Plotting2DUI(final AbstractPlottingSystem plotter){
+	public Plotting2DUI(PlotWindow window, final AbstractPlottingSystem plotter){
+		this.plotWindow = window;
 		this.plottingSystem = plotter;
 	}
 
@@ -65,7 +73,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 				yDatasets.add(data);
 			}
 
-			final AbstractDataset data = yDatasets.get(0);
+			data = yDatasets.get(0);
 			if(data != null){
 				data.setName("");
 				plottingSystem.updatePlot2D(data, null, null);
@@ -88,5 +96,25 @@ public class Plotting2DUI extends AbstractPlotUI {
 	@Override
 	public void deleteIObservers() {
 		observers.clear();
+	}
+	
+	@Override
+	public void processGUIUpdate(GuiBean guiBean) {
+		
+		final Collection<IRegion> regions = plottingSystem.getRegions();
+		final ROIBase currentRoi = (ROIBase)guiBean.get(GuiParameters.ROIDATA);
+
+		logger.debug("There is a guiBean update:"+ guiBean.toString());
+
+		for (final IRegion iRegion : regions) {
+			if(plotWindow.currentRoiPair.getName().equals(iRegion.getName())){
+				Display.getDefault().asyncExec(new Runnable(){
+					@Override
+					public void run() {
+						iRegion.setROI(currentRoi);
+					}
+				});
+			}
+		}
 	}
 }
