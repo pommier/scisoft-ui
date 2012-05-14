@@ -306,7 +306,11 @@ public class FileView extends ViewPart {
 		
 		if (setItemCount) tree.getTree().setItemCount(File.listRoots().length);
 		tree.setContentProvider(new FileContentProvider());
-		tree.setInput("Root");
+		if (File.listRoots().length==1) {
+			tree.setInput(File.listRoots()[0]);
+		} else {
+		    tree.setInput("Root");
+		}
 		tree.expandToLevel(1);
 	}
 
