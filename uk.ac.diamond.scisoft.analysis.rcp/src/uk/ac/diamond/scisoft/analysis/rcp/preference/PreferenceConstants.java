@@ -57,6 +57,9 @@ public class PreferenceConstants {
 	public static final String PLOT_VIEW_PLOT2D_AUTOCONTRAST_LOTHRESHOLD = "plotView.autoContrastLoThreshold";
 	public static final String PLOT_VIEW_PLOT2D_AUTOCONTRAST_HITHRESHOLD = "plotView.autoContrastHiThreshold";
 	public static final String PLOT_VIEW_PLOT2D_SHOWSCROLLBAR = "plotView.plot2DshowScrollbar";
+	/**
+	 * 0 if DatasetPlotter is chosen or 1 if AbstractPlottingSystem
+	 */
 	public static final String PLOT_VIEW_PLOTTING_SYSTEM = "plotView.plottingsystem";
 
 	/**

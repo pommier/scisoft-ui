@@ -72,8 +72,8 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		Label lblPlottingSys = new Label(plottingSystemGroup, SWT.LEFT);
 		lblPlottingSys.setText("Default plotting system (restart to take effect): ");
 		cmbPlottingSystem = new Combo(plottingSystemGroup, SWT.RIGHT | SWT.READ_ONLY);
-		cmbPlottingSystem.add("Hardware Accelerated");
-		cmbPlottingSystem.add("Lightweight");
+		cmbPlottingSystem.add("Hardware Accelerated", 0);
+		cmbPlottingSystem.add("Lightweight", 1);
 
 		Group plotMulti1DGroup = new Group(comp, SWT.NONE);
 		plotMulti1DGroup.setText("Plot 1DStack");
