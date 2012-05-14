@@ -168,7 +168,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 
 		createDatasetPlotter();
 		
-		if(getDefaultPlottingSystemChoice() == 1){
+		if (getDefaultPlottingSystemChoice() == 1) {
 			createPlottingSystem();
 			cleanUpMainPlotter();
 		}
@@ -345,11 +345,11 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	 * before the setting up of a Plotting System
 	 */
 	private void cleanUpMainPlotter(){
-		if(!mainPlotter.isDisposed()){
+		if (!mainPlotter.isDisposed()) {
 			mainPlotter.cleanUp();
 			mainPlotterComposite.dispose();
 		}
-		if(plottingSystem.isDisposed())
+		if (plottingSystem == null || plottingSystem.isDisposed())
 			createPlottingSystem();
 		parentComp.layout();
 	}
@@ -581,7 +581,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	 * @param plotMode
 	 */
 	public void updatePlotMode(GuiPlotMode plotMode) {
-		if(getDefaultPlottingSystemChoice() == 0){
+		if (getDefaultPlottingSystemChoice() == 0) {
 			if (plotMode.equals(GuiPlotMode.ONED) && mainPlotter.getMode() != PlottingMode.ONED) {
 				cleanUpFromOldMode(true);
 				setup1D();
@@ -607,7 +607,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 				clearPlot();
 			}
 		}
-		if(getDefaultPlottingSystemChoice() == 1){
+		if (getDefaultPlottingSystemChoice() == 1) {
 			if (plotMode.equals(GuiPlotMode.ONED)) {
 				cleanUpMainPlotter();
 				setupPlotting1D();
@@ -644,7 +644,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 			mainPlotter.emptyPlot();
 			mainPlotter.refresh(true);
 		}
-		if(plottingSystem != null){
+		if (plottingSystem != null) {
 			plottingSystem.clearRegions();
 			plottingSystem.reset();
 			plottingSystem.repaint();
@@ -652,7 +652,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	}
 
 	private void updatePlotModeAsync(GuiPlotMode plotMode) {
-		if(getDefaultPlottingSystemChoice()==0){
+		if (getDefaultPlottingSystemChoice() == 0) {
 			if (plotMode.equals(GuiPlotMode.ONED) && mainPlotter.getMode() != PlottingMode.ONED) {
 				doBlock();
 				parentComp.getDisplay().asyncExec(new Runnable() {
@@ -759,7 +759,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 				});
 			}
 		}
-		if(getDefaultPlottingSystemChoice()==1){
+		if (getDefaultPlottingSystemChoice() == 1) {
 			if (plotMode.equals(GuiPlotMode.ONED)){
 				doBlock();
 				parentComp.getDisplay().asyncExec(new Runnable() {

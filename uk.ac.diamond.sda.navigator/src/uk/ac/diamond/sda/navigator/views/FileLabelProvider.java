@@ -29,6 +29,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 
+import uk.ac.gda.util.OSUtils;
 import uk.ac.gda.util.io.FileUtils;
 
 public class FileLabelProvider extends ColumnLabelProvider {
@@ -81,7 +82,7 @@ public class FileLabelProvider extends ColumnLabelProvider {
 		switch(columnIndex) {
 		case 0:
 			return "".equals(node.getName())
-				   ? "("+node.getAbsolutePath().substring(0, node.getAbsolutePath().length()-1)+")"
+				   ? getRootLabel(node)
 				   : node.getName();
 		case 1:
 			return dateFormat.format(new Date(node.lastModified()));
@@ -94,7 +95,15 @@ public class FileLabelProvider extends ColumnLabelProvider {
 		}
 	}
 
-    private static final double BASE = 1024, KB = BASE, MB = KB*BASE, GB = MB*BASE;
+    private String getRootLabel(File node) {
+    	if (OSUtils.isWindowsOS()) {
+    		return	"("+node.getAbsolutePath().substring(0, node.getAbsolutePath().length()-1)+")";
+    	} else {
+    		return "/";
+    	}
+    }
+ 
+	private static final double BASE = 1024, KB = BASE, MB = KB*BASE, GB = MB*BASE;
     private static final DecimalFormat df = new DecimalFormat("#.##");
 
     public static String formatSize(double size) {
