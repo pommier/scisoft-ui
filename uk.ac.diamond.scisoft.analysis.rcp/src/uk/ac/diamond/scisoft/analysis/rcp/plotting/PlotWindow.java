@@ -248,7 +248,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 			plottingSystem.setColorOption(ColorOption.NONE);
 			plottingSystem.setDatasetChoosingRequired(false);
 			
-			plottingSystem.createPlotPart(plotSystemComposite, "1D Plot", bars, PlotType.PT1D, (IViewPart)manager);
+			plottingSystem.createPlotPart(plotSystemComposite, name, bars, PlotType.PT1D, (IViewPart)manager);
 			plottingSystem.repaint();
 			
 			this.regionListener = getRegionListener();
