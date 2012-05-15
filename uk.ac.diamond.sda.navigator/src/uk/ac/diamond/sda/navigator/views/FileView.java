@@ -268,7 +268,7 @@ public class FileView extends ViewPart {
 		if (savedSelection!=null) {
 			if (savedSelection.exists()) {
 			    tree.setSelection(new StructuredSelection(savedSelection));
-			} else if (savedSelection.getParentFile().exists()) {
+			} else if (savedSelection.getParentFile()!=null && savedSelection.getParentFile().exists()) {
 				// If file deleted, select parent.
 				tree.setSelection(new StructuredSelection(savedSelection.getParentFile()));
 			}
