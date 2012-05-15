@@ -244,7 +244,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		plotSystemComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		plotSystemComposite.setLayout(new FillLayout());
 		try {
-			plottingSystem = PlottingFactory.getPlottingSystem();
+			plottingSystem = PlottingFactory.createPlottingSystem();
 			plottingSystem.setColorOption(ColorOption.NONE);
 			plottingSystem.setDatasetChoosingRequired(false);
 			
