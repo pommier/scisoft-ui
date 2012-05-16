@@ -47,7 +47,8 @@ public class PreferenceConstants {
 	public static final String DIFFRACTION_VIEWER_STANDARD_DISTANCES = "diffviewer.standardDistances";
 	public static final String DIFFRACTION_VIEWER_STANDARD_DISTANCES_LIST = "diffviewer.standardDistancesList";
 	public static final String DIFFRACTION_VIEWER_PIXELOVERLOAD_THRESHOLD = "diffviewer.pixelOverLoadThreshold";
-
+	public static final String DIFFRACTION_VIEWER_MX_IMAGE_GLOBAL = "diffviewer.mxImageGlobal";
+	
 	// plot view preferences
 	public static final String PLOT_VIEW_MULTI1D_CAMERA_PROJ = "plotView.multi1Dcamera";
 	public static final String PLOT_VIEW_PLOT2D_COLOURMAP = "plotView.plot2DcolourMap";

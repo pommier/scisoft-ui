@@ -57,6 +57,7 @@ public class DiffractionViewerPreferencePage extends PreferencePage implements I
 	private ArrayList<String> standardDistances;
 	private Button autoStopping;
 	private Spinner stoppingThreshold;
+	private Button mxImageGlobal;
 
 	static private String[] peaknames = { "Gaussian", "Lorentzian", "Pearson VII", "PseudoVoigt" };
 
@@ -223,6 +224,17 @@ public class DiffractionViewerPreferencePage extends PreferencePage implements I
 		spnPixeloverloadThreshold.setMaximum(100000);
 		spnPixeloverloadThreshold.setMinimum(0);
 		spnPixeloverloadThreshold.setIncrement(1);
+
+		Group mxImageGlobalGroup = new Group(otherComp, SWT.NONE);
+		mxImageGlobalGroup.setText("The MX image editor");
+		mxImageGlobalGroup.setLayout(new GridLayout(2, false));
+		mpgd = new GridData(SWT.FILL, SWT.FILL, true, false);
+		mxImageGlobalGroup.setLayoutData(mpgd);
+
+		Label mxImageGlobalLabel = new Label(mxImageGlobalGroup, SWT.NONE);
+		mxImageGlobalLabel.setText("Editor available in all perspectives");
+		mxImageGlobal = new Button(mxImageGlobalGroup, SWT.CHECK);
+
 		// initialize
 		initializePage();
 		return tabfolder;
@@ -306,6 +318,7 @@ public class DiffractionViewerPreferencePage extends PreferencePage implements I
 		maxNumPeaks.setSelection(getMaxNumPeaks());
 		pullDownPeaks.select(getPeakNumber(getPeakType()));
 		spnPixeloverloadThreshold.setSelection(getPixelOverloadThreshold());
+		mxImageGlobal.setSelection(getMXImageGlobal());
 		stoppingThreshold.setSelection(getStoppingThreshold());
 		autoStopping.setSelection(getAutoStopping());
 		controlAutoStoppingGUI();
@@ -488,6 +501,23 @@ public class DiffractionViewerPreferencePage extends PreferencePage implements I
 		getPreferenceStore().setValue(PreferenceConstants.DIFFRACTION_VIEWER_PIXELOVERLOAD_THRESHOLD, threshold);
 	}
 
+	// MX image global value
+	public boolean getDefaultMXImageGlobal() {
+		return getPreferenceStore().getDefaultBoolean(PreferenceConstants.DIFFRACTION_VIEWER_MX_IMAGE_GLOBAL);
+	}
+	
+	public boolean getMXImageGlobal() {
+		if (getPreferenceStore().isDefault(PreferenceConstants.DIFFRACTION_VIEWER_MX_IMAGE_GLOBAL)) {
+			return getPreferenceStore().getDefaultBoolean(PreferenceConstants.DIFFRACTION_VIEWER_MX_IMAGE_GLOBAL);
+		}
+		return getPreferenceStore().getBoolean(PreferenceConstants.DIFFRACTION_VIEWER_MX_IMAGE_GLOBAL);
+	}
+	
+	public void setMXImageGlobal(boolean value) {
+		getPreferenceStore().setValue(PreferenceConstants.DIFFRACTION_VIEWER_MX_IMAGE_GLOBAL, value);
+	}
+	
+	
 	@Override
 	public boolean performOk() {
 		storePreferences();
@@ -498,6 +528,7 @@ public class DiffractionViewerPreferencePage extends PreferencePage implements I
 		setMaxNumPeaks(maxNumPeaks.getSelection());
 		setPeakType(peaknames[pullDownPeaks.getSelectionIndex()]);
 		setPixelOverloadThreshold(spnPixeloverloadThreshold.getSelection());
+		setMXImageGlobal(mxImageGlobal.getSelection());
 		setAutoStopping(autoStopping.getSelection());
 		setStoppingThreshold(stoppingThreshold.getSelection());
 		storeLists();

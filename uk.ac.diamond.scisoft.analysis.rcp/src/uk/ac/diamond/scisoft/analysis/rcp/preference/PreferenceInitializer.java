@@ -47,6 +47,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	private static final int DEFAULT_COLOURSCALE_CHOICE = 0;
 	private static final boolean DEFAULT_DIFFRACTION_VIEWER_AUTOSTOPPING = true;
 	private static final int DEFAULT_DIFFRACTION_VIEWER_STOPPING_THRESHOLD= 25;
+	private static final boolean DEFAULT_DIFFRACTION_VIEWER_MX_IMAGE_GLOBAL = false;
 
 	private static final String DEFAULT_STANDARD_NAME_LIST = "Cr2O3"+DELIMITER+"Silicon"+DELIMITER+"Bees Wax";
 	private static final String DEFAULT_STANDARD_NAME = "Cr2O3";
@@ -105,6 +106,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(PreferenceConstants.DIFFRACTION_VIEWER_PIXELOVERLOAD_THRESHOLD, DEFAULT_PIXELOVERLOAD_THRESHOLD);
 		store.setDefault(PreferenceConstants.DIFFRACTION_VIEWER_AUTOSTOPPING, DEFAULT_DIFFRACTION_VIEWER_AUTOSTOPPING);
 		store.setDefault(PreferenceConstants.DIFFRACTION_VIEWER_STOPPING_THRESHOLD, DEFAULT_DIFFRACTION_VIEWER_STOPPING_THRESHOLD);
+		store.setDefault(PreferenceConstants.DIFFRACTION_VIEWER_MX_IMAGE_GLOBAL, DEFAULT_DIFFRACTION_VIEWER_MX_IMAGE_GLOBAL);
 
 		store.setDefault(PreferenceConstants.FITTING_1D_PEAKTYPE, DEFAULT_FITTING_1D_PEAKTYPE);
 		store.setDefault(PreferenceConstants.FITTING_1D_PEAKLIST, DEFAULT_FITTING_1D_PEAKLIST);
