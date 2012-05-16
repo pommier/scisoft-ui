@@ -168,7 +168,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 
 		createDatasetPlotter();
 		
-		if(getDefaultPlottingSystemChoice() == 1){
+		if (getDefaultPlottingSystemChoice() == 1) {
 			createPlottingSystem();
 			cleanUpMainPlotter();
 		}
@@ -244,11 +244,11 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		plotSystemComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		plotSystemComposite.setLayout(new FillLayout());
 		try {
-			plottingSystem = PlottingFactory.getPlottingSystem();
+			plottingSystem = PlottingFactory.createPlottingSystem();
 			plottingSystem.setColorOption(ColorOption.NONE);
 			plottingSystem.setDatasetChoosingRequired(false);
 			
-			plottingSystem.createPlotPart(plotSystemComposite, "1D Plot", bars, PlotType.PT1D, (IViewPart)manager);
+			plottingSystem.createPlotPart(plotSystemComposite, name, bars, PlotType.PT1D, (IViewPart)manager);
 			plottingSystem.repaint();
 			
 			this.regionListener = getRegionListener();
@@ -345,11 +345,11 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	 * before the setting up of a Plotting System
 	 */
 	private void cleanUpMainPlotter(){
-		if(!mainPlotter.isDisposed()){
+		if (!mainPlotter.isDisposed()) {
 			mainPlotter.cleanUp();
 			mainPlotterComposite.dispose();
 		}
-		if(plottingSystem.isDisposed())
+		if (plottingSystem == null || plottingSystem.isDisposed())
 			createPlottingSystem();
 		parentComp.layout();
 	}
@@ -581,7 +581,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	 * @param plotMode
 	 */
 	public void updatePlotMode(GuiPlotMode plotMode) {
-		if(getDefaultPlottingSystemChoice() == 0){
+		if (getDefaultPlottingSystemChoice() == 0) {
 			if (plotMode.equals(GuiPlotMode.ONED) && mainPlotter.getMode() != PlottingMode.ONED) {
 				cleanUpFromOldMode(true);
 				setup1D();
@@ -607,7 +607,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 				clearPlot();
 			}
 		}
-		if(getDefaultPlottingSystemChoice() == 1){
+		if (getDefaultPlottingSystemChoice() == 1) {
 			if (plotMode.equals(GuiPlotMode.ONED)) {
 				cleanUpMainPlotter();
 				setupPlotting1D();
@@ -644,7 +644,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 			mainPlotter.emptyPlot();
 			mainPlotter.refresh(true);
 		}
-		if(plottingSystem != null){
+		if (plottingSystem != null) {
 			plottingSystem.clearRegions();
 			plottingSystem.reset();
 			plottingSystem.repaint();
@@ -652,7 +652,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	}
 
 	private void updatePlotModeAsync(GuiPlotMode plotMode) {
-		if(getDefaultPlottingSystemChoice()==0){
+		if (getDefaultPlottingSystemChoice() == 0) {
 			if (plotMode.equals(GuiPlotMode.ONED) && mainPlotter.getMode() != PlottingMode.ONED) {
 				doBlock();
 				parentComp.getDisplay().asyncExec(new Runnable() {
@@ -759,7 +759,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 				});
 			}
 		}
-		if(getDefaultPlottingSystemChoice()==1){
+		if (getDefaultPlottingSystemChoice() == 1) {
 			if (plotMode.equals(GuiPlotMode.ONED)){
 				doBlock();
 				parentComp.getDisplay().asyncExec(new Runnable() {
@@ -1224,7 +1224,9 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		LinearROIList list = new LinearROIList();
 		if (roiPairList != null) {
 			for (ROIPair<String, ROIBase> roiPair: roiPairList) {
-				list.add((LinearROI) roiPair.getRoi());
+				if(roiPair.getRoi() instanceof LinearROI){
+					list.add((LinearROI) roiPair.getRoi());
+				}
 			}
 		}
 		return list;
@@ -1234,7 +1236,9 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		RectangularROIList list = new RectangularROIList();
 		if (roiPairList != null) {
 			for (ROIPair<String, ROIBase> roiPair: roiPairList) {
-				list.add((RectangularROI) roiPair.getRoi());
+				if(roiPair.getRoi() instanceof RectangularROI){
+					list.add((RectangularROI) roiPair.getRoi());
+				}
 			}
 		}
 		return list;
@@ -1244,7 +1248,9 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		SectorROIList list = new SectorROIList();
 		if (roiPairList != null) {
 			for (ROIPair<String, ROIBase> roiPair: roiPairList) {
-				list.add((SectorROI) roiPair.getRoi());
+				if(roiPair.getRoi() instanceof SectorROI){
+					list.add((SectorROI) roiPair.getRoi());
+				}
 			}
 		}
 		return list;
