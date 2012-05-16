@@ -36,4 +36,4 @@ Import-Package: com.isencia.passerelle.workbench.model.editor.ui.editor,
  uk.ac.gda.ui.content
 Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-Vendor: Diamond Light Source Ltd.
+Bundle-Vendor: Diamond Light Source
