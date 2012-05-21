@@ -625,7 +625,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 				+ ((point[1] - beam[1]) * (point[1] - beam[1])));
 
 		oProvider.begin(OverlayType.VECTOR2D);
-		oProvider.drawRing(maskPrimID, beam[0], beam[1], radius, detConfig.distToCloestEdgeInPx() * 2);
+		oProvider.drawRing(maskPrimID, beam[0], beam[1], radius, detConfig.distToClosestEdgeInPx() * 2);
 		oProvider.end(OverlayType.VECTOR2D);
 	}
 
@@ -831,7 +831,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 		int[] beamCentre = detConfig.pixelCoords(detConfig.getBeamPosition());
 		oProvider.begin(OverlayType.VECTOR2D);
 		if (maskPrimID == -1) {
-			int radius = detConfig.distToCloestEdgeInPx();
+			int radius = detConfig.distToClosestEdgeInPx();
 			maskPrimID = oProvider.registerPrimitive(PrimitiveType.RING);
 			oProvider.setColour(maskPrimID, Color.RED);
 			oProvider.setTransparency(maskPrimID, 0.8);
