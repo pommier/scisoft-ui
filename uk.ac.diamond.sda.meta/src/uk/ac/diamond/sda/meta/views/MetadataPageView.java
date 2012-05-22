@@ -273,7 +273,7 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 				try {
 					meta = service.getMetaData(filePath, monitor);
 				} catch (Exception e1) {
-					logger.error("Cannot get meta data for " + filePath, e1);
+					logger.debug("Cannot get meta data for " + filePath, e1);
 					return Status.CANCEL_STATUS;
 				}
 
