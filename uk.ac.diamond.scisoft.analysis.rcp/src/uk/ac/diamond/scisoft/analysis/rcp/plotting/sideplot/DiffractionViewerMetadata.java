@@ -339,7 +339,7 @@ public class DiffractionViewerMetadata extends Composite {
 						@Override
 						public void widgetSelected(SelectionEvent e) {
 							diffView.drawBeamCentre(showBeam.getSelection());
-							diffView.beamVisable = showBeam.getSelection();
+							diffView.beamVisible = showBeam.getSelection();
 						}
 					});
 					showBeam.setToolTipText("Show beam centre");

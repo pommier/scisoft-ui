@@ -16,7 +16,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.roi;
 
-import java.awt.Color;
 import java.util.List;
 
 import org.eclipse.jface.viewers.CellEditor;
@@ -28,12 +27,12 @@ import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
-
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
@@ -119,10 +118,11 @@ public final class ResolutionRingTableViewer {
 			
 			switch (columnIndex) {
 			case 1:
-				msg = String.format("%.2f", resRingData.getWavelength());
+				msg = String.format("%.2f", resRingData.getResolution());
 				break;
 			case 2:
-				msg = Integer.toHexString(resRingData.getColour().getRGB());
+				Color c = resRingData.getColour();
+				msg = String.format("%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue());
 				break;
 			}
 		}
@@ -244,8 +244,8 @@ public final class ResolutionRingTableViewer {
 		private final int linehalfthickness = 2;
 		private final RGB white = new RGB(255, 255, 255);
 
-		private Image drawImage(RGB rgb) {
-			PaletteData palette = new PaletteData(new RGB[] { white, rgb });
+		private Image drawImage(Color colour) {
+			PaletteData palette = new PaletteData(new RGB[] { white, colour.getRGB() });
 			ImageData data = new ImageData(width, height, 2, palette);
 			for (int y = 0; y < height; y++) {
 				for (int x = 0; x < width; x++) {
@@ -269,8 +269,7 @@ public final class ResolutionRingTableViewer {
 			if (resRing != null) {
 				if (columnIndex == CHECKCOLNUM) {
 					if (resRing.isVisible()) {
-						Color colour = resRing.getColour();
-						return drawImage(new RGB(colour.getRed(), colour.getGreen(), colour.getBlue()));
+						return drawImage(resRing.getColour());
 					}
 					return CROSSED;
 				}
