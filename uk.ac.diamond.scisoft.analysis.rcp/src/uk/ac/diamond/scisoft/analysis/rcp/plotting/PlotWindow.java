@@ -1228,6 +1228,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 					list.add((LinearROI) roiPair.getRoi());
 				}
 			}
+			if(roiPairList.size()==0)
+				return null;
 		}
 		return list;
 	}
@@ -1240,6 +1242,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 					list.add((RectangularROI) roiPair.getRoi());
 				}
 			}
+			if(roiPairList.size()==0)
+				return null;
 		}
 		return list;
 	}
@@ -1252,6 +1256,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 					list.add((SectorROI) roiPair.getRoi());
 				}
 			}
+			if(roiPairList.size()==0)
+				return null;
 		}
 		return list;
 	}
