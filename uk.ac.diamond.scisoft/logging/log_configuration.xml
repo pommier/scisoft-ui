@@ -8,9 +8,9 @@
 
 	<appender name="DebugFILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<File>${log.folder}/sda_DEBUG.log</File>
+		<File>${log.folder}/dawn_DEBUG.log</File>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<FileNamePattern>${log.folder}/sda_DEBUG.%d{yyyy-MM-dd}.log.gz
+			<FileNamePattern>${log.folder}/dawn_DEBUG.%d{yyyy-MM-dd}.log.gz
 			</FileNamePattern>
 		</rollingPolicy>
 		<layout class="ch.qos.logback.classic.PatternLayout">
@@ -23,7 +23,7 @@
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
 			<level>WARN</level>
 		</filter>
-		<file>${user.home}/sdalog.html</file>
+		<file>${user.home}/dawnlog.html</file>
 		<layout class="ch.qos.logback.classic.html.HTMLLayout">
 			<pattern>%relative%thread%level%logger%msg</pattern>
 		</layout>
