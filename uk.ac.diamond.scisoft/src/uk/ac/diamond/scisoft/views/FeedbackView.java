@@ -18,9 +18,19 @@ package uk.ac.diamond.scisoft.views;
 
 import java.io.File;
 import java.net.InetAddress;
+import java.util.Properties;
 
-import javax.mail.MessagingException;
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.mail.Message;
+import javax.mail.Multipart;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -48,11 +58,6 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.UIJob;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.InputStreamSource;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.mail.javamail.MimeMessagePreparator;
 
 import uk.ac.diamond.scisoft.system.info.SystemInformation;
 
@@ -60,7 +65,7 @@ public class FeedbackView extends ViewPart {
 
 	private static final String SDA_FEEDBACK = "[SDA-FEEDBACK]";
 	//TODO this should probably be removed and put into a config file somewhere
-	private static final String[] MAIL_TO = {"scientificsoftware@diamond.ac.uk"};
+	private static final String MAIL_TO = "scientificsoftware@diamond.ac.uk";
 	/**
 	 * The ID of the view as specified by the extension.
 	 */
@@ -81,7 +86,7 @@ public class FeedbackView extends ViewPart {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		
+
 		parent.setLayout(new GridLayout(1, false));
 		{
 			Label lblEmailAddress = new Label(parent, SWT.NONE);
@@ -152,12 +157,12 @@ public class FeedbackView extends ViewPart {
 		feedbackAction = new Action() {
 			@Override
 			public void run() {
-				
+
 				UIJob feedbackJob = new UIJob("Sending feedback to SDA developers") {
-					
+
 					@Override
 					public IStatus runInUIThread(IProgressMonitor monitor) {
-						
+
 						try {
 							String mailserver = "localhost";
 							String fromvalue = emailAddress.getText();
@@ -172,7 +177,7 @@ public class FeedbackView extends ViewPart {
 							try {
 								computerName = InetAddress.getLocalHost().getHostName();
 							} finally {
-								
+
 							}
 							messageBody.append("Machine is   : "+computerName+"\n");
 							String versionNumber = System.getProperty("sda.version", "Unknown");
@@ -181,27 +186,13 @@ public class FeedbackView extends ViewPart {
 							messageBody.append("\n\n\n");
 							messageBody.append(SystemInformation.getSystemString());
 
-							File logpath = new File(System.getProperty("user.home"), "sdalog.html");
-							
-							FileSystemResource logAttachment = null;
-							if(logpath.exists()) {
-								logAttachment = new FileSystemResource(logpath);
-							} 
-							
-							sendMail(mailserver, from, MAIL_TO, subject, messageBody.toString(), "log.html", logAttachment, monitor);
+							File logpath = new File(System.getProperty("user.home"), "dawnlog.html");
+
+							sendMail(mailserver, from, MAIL_TO, subject, messageBody.toString(), "log.html", logpath, monitor);
 						} catch (Exception e) {
 							return Status.CANCEL_STATUS;
 						}
-						
-						Display.getDefault().asyncExec(new Runnable() {
-							
-							@Override
-							public void run() {
-								MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-										"Feedback Sucsessfully Sent", "Thank you for your contribution");
-							}
-						});
-						
+
 						return Status.OK_STATUS;
 					}
 
@@ -225,38 +216,79 @@ public class FeedbackView extends ViewPart {
 		messageText.setFocus();
 	}
 
-	public void sendMail(String mailServer, final String from, final String[] to,
+	public void sendMail(String mailServer, final String from, final String to,
 			final String subject, final String messageBody, final String attachmentName,
-			final InputStreamSource attachmentContent, IProgressMonitor monitor) {
+			final File attachmentContent, IProgressMonitor monitor) {
 
-		
+
 		// monitoring
 		monitor.beginTask("Sending feedback", 2);
 		monitor.worked(1);
-		
-		JavaMailSenderImpl sender = new JavaMailSenderImpl();
-		sender.setHost(mailServer);
+
+
+		// Get system properties
+		Properties props = System.getProperties();
+
+		// Setup mail server
+		props.put("mail.smtp.host", mailServer);
+
+
+		try {
+			// Get session
+			Session session = Session.getInstance(props, null);
+
+			// Define message
+			MimeMessage message = new MimeMessage(session);
+			message.setFrom(new InternetAddress(from));
+			message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+			message.setSubject(subject);
+
+			// create the message part 
+			MimeBodyPart messageBodyPart = new MimeBodyPart();
+
+			//fill message
+			messageBodyPart.setText(messageBody);
+
+			Multipart multipart = new MimeMultipart();
+			multipart.addBodyPart(messageBodyPart);
+
+			// Part two is attachment
+			messageBodyPart = new MimeBodyPart();
+			DataSource source = new FileDataSource(attachmentContent);
+			messageBodyPart.setDataHandler(new DataHandler(source));
+			messageBodyPart.setFileName(attachmentName);
+			multipart.addBodyPart(messageBodyPart);
+
+			// Put parts in message
+			message.setContent(multipart);
+
+			// Send the message
+			Transport.send( message );
+
+			Display.getDefault().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+							"Feedback Sucsessfully Sent", "Thank you for your contribution");
+				}
+			});
 			
+			
+		} catch (Exception e) {
+			Display.getDefault().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+							"Feedback not sent!", "For some reason we could not send the feedback direclty, please go to www.dawnsci.org and register your problem there.");
+				}
+			});
+		}
+
 		// monitoring
 		monitor.worked(1);
 
-		sender.send(new MimeMessagePreparator() {
-			@Override
-			public void prepare(MimeMessage mimeMessage) throws MessagingException {
-			     MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-			     message.setFrom(from);
-			     message.setTo(to);
-			     message.setSubject(subject);
-			     message.setText(messageBody);
-			     if (attachmentContent != null) {
-			    	 message.addAttachment(attachmentName, attachmentContent);
-			     }
-			   }
-			 });
-		
-		// monitoring
-		monitor.worked(1);
-		
 	} 
 
 }
