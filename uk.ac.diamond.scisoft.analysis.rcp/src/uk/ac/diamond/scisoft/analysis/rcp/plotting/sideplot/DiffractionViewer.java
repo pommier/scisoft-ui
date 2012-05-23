@@ -102,7 +102,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 	private int[] beamCentrePrimitive = { -1, -1 };
 	private int maskPrimID = -1;
 	private boolean drawMask;
-	public boolean beamVisable = false;
+	public boolean beamVisible = false;
 	private static int MAX_SIZE_3D_PLOT; // variable to control the max size of the 3D overlay
 	@SuppressWarnings("unused")
 	private int[] tempMousePos;
@@ -330,7 +330,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 				drawCurrentOverlay();
 				drawOverlays();
 				resRingTable.redrawExistingRings();
-				drawBeamCentre(beamVisable);
+				drawBeamCentre(beamVisible);
 				showMask(resRingTable.isMaskToggled());
 
 			}
@@ -454,7 +454,7 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 					dragging = true;
 					isLine = false;
 				}
-			} else if ((flags & IImagePositionEvent.SHIFTKEY) != 0 && beamVisable) {
+			} else if ((flags & IImagePositionEvent.SHIFTKEY) != 0 && beamVisible) {
 				beamRePosition = true;
 				dragging = true;
 				isLine = false;
@@ -725,9 +725,8 @@ public class DiffractionViewer extends SidePlotProfile implements SelectionListe
 		for (int i = 0; i < ringList.size(); i++) {
 			int tempID = oProvider.registerPrimitive(PrimitiveType.CIRCLE);
 			int[] beam = detConfig.pixelCoords(detConfig.getBeamPosition());
-			int radius = (int) Resolution.circularResolutionRingRadius(detConfig, diffEnv, ringList.get(i)
-					.getWavelength());
-			oProvider.setColour(tempID, ringList.get(i).getColour());
+			int radius = (int) Resolution.circularResolutionRingRadius(detConfig, diffEnv, ringList.get(i).getResolution());
+			oProvider.setColour(tempID, ringList.get(i).getAWTColour());
 			oProvider.setStyle(tempID, VectorOverlayStyles.OUTLINE);
 			oProvider.setTransparency(tempID, oTransparency);
 			oProvider.setLineThickness(tempID, oThickness);

@@ -16,12 +16,12 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 import javax.vecmath.Vector3d;
 
+import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ICellEditorListener;
 import org.eclipse.swt.SWT;
@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Spinner;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
@@ -59,7 +60,7 @@ public class DiffractionViewerResolutionRings extends Composite implements Selec
 
 	final private Button addIce;
 
-	private FloatSpinner numberEvenSpacedRings;
+	private Spinner numberEvenSpacedRings;
 
 	private Button beamCentre;
 
@@ -120,10 +121,9 @@ public class DiffractionViewerResolutionRings extends Composite implements Selec
 			addIce.setText("Ice rings");
 			addIce.addSelectionListener(addIceListener);
 
-			numberEvenSpacedRings = new FloatSpinner(ringsGroup, SWT.NONE);
-			numberEvenSpacedRings.setFormat(2, 0);
+			numberEvenSpacedRings = new Spinner(ringsGroup, SWT.NONE);
 			numberEvenSpacedRings.setMinimum(2);
-			numberEvenSpacedRings.setDouble(6);
+			numberEvenSpacedRings.setSelection(6);
 			numberEvenSpacedRings.setMaximum(10);
 
 			addSpacedRings = new Button(ringsGroup, SWT.TOGGLE);
@@ -161,31 +161,24 @@ public class DiffractionViewerResolutionRings extends Composite implements Selec
 	private SelectionListener toggleRingListener = new SelectionAdapter() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			System.out.println("The astatus of the "+diffView.beamVisable);
-			if (!toggleRing.getSelection()) {
-				diffView.ringsVisible(false);
-				diffView.drawBeamCentre(false);
-				addRing.setEnabled(false);
-				removeRings.setEnabled(false);
-				addIce.setEnabled(false);
-				addSpacedRings.setEnabled(false);
-				beamCentre.setEnabled(false);
-				mask.setEnabled(false);
-				standard.setEnabled(false);
-				diffView.hideMask();
+//			System.out.println("The status of the "+diffView.beamVisable);
+			boolean toggled = toggleRing.getSelection();
+			diffView.ringsVisible(toggled);
+			addRing.setEnabled(toggled);
+			removeRings.setEnabled(toggled);
+			addIce.setEnabled(toggled);
+			addSpacedRings.setEnabled(toggled);
+			beamCentre.setEnabled(toggled);
+			mask.setEnabled(toggled);
+			standard.setEnabled(toggled);
 
+			if (toggled) {
+				diffView.beamVisible = beamCentre.getSelection();
+				diffView.drawBeamCentre(diffView.beamVisible);
 			} else {
-				diffView.beamVisable = beamCentre.getSelection();
-				diffView.drawBeamCentre(diffView.beamVisable);
-				addRing.setEnabled(true);
-				removeRings.setEnabled(true);
-				diffView.ringsVisible(true);
-				addIce.setEnabled(true);
-				addSpacedRings.setEnabled(true);
-				beamCentre.setEnabled(true);
-				mask.setEnabled(true);
-				standard.setEnabled(true);
 				redrawExistingRings();
+				diffView.drawBeamCentre(false);
+				diffView.hideMask();
 			}
 		}
 	};
@@ -223,8 +216,7 @@ public class DiffractionViewerResolutionRings extends Composite implements Selec
 			if (mask.getSelection()) {
 				diffView.drawMask();
 				((DataSetPlotter) diffView.mainPlotter).getComposite().setFocus();
-			}
-			if (!mask.getSelection()) {
+			} else {
 				diffView.hideMask();
 			}
 		}
@@ -234,19 +226,17 @@ public class DiffractionViewerResolutionRings extends Composite implements Selec
 		public void widgetSelected(SelectionEvent e) {
 			if (addIce.getSelection()) {
 				for (double res : iceResolution) {
-					resolutionRingList.add(new ResolutionRing(res, true, Color.BLUE, true, false));
+					resolutionRingList.add(new ResolutionRing(res, true, ColorConstants.blue, true, false));
 				}
 				tViewer.refresh();
 				diffView.updateRings(resolutionRingList);
-			}
-			if (!addIce.getSelection()) {
+			} else {
 				// create new list of non-ice rings and overwrite old one
-				ResolutionRingList tempList = new ResolutionRingList();
-				if (resolutionRingList != null && resolutionRingList.size() > 1) {
-					for (int i = 0; i < resolutionRingList.size(); i++) {
-						ResolutionRing temp = resolutionRingList.get(i);
-						if (!temp.isIce()) {
-							tempList.add(temp);
+				if (resolutionRingList != null) {
+					ResolutionRingList tempList = new ResolutionRingList();
+					for (ResolutionRing r : resolutionRingList) {
+						if (!r.isIce()) {
+							tempList.add(r);
 						}
 					}
 					resolutionRingList.clear();
@@ -264,11 +254,11 @@ public class DiffractionViewerResolutionRings extends Composite implements Selec
 			if (addSpacedRings.getSelection()) {
 				double lambda = diffView.diffEnv.getWavelength();
 				Vector3d longestVector = diffView.detConfig.getLongestVector();
-				double step = longestVector.length() / numberEvenSpacedRings.getDouble();
+				double step = longestVector.length() / numberEvenSpacedRings.getSelection();
 				double d, twoThetaSpacing;
 				Vector3d toDetectorVector = new Vector3d();
 				Vector3d beamVector = diffView.detConfig.getBeamPosition();
-				for (int i = 0; i < numberEvenSpacedRings.getDouble() - 1; i++) {
+				for (int i = 0; i < numberEvenSpacedRings.getSelection() - 1; i++) {
 					// increase the length of the vector by step.
 					longestVector.normalize();
 					longestVector.scale(step + (step * i));
@@ -276,19 +266,16 @@ public class DiffractionViewerResolutionRings extends Composite implements Selec
 					toDetectorVector.add(beamVector, longestVector);
 					twoThetaSpacing = beamVector.angle(toDetectorVector);
 					d = lambda / Math.sin(twoThetaSpacing);
-					resolutionRingList.add(new ResolutionRing(d, true, Color.YELLOW, false, true));
+					resolutionRingList.add(new ResolutionRing(d, true, ColorConstants.yellow, false, true));
 				}
 				tViewer.refresh();
 				diffView.updateRings(resolutionRingList);
-
-			}
-			if (!addSpacedRings.getSelection()) {
-				ResolutionRingList tempList = new ResolutionRingList();
-				if (resolutionRingList != null && resolutionRingList.size() > 1) {
-					for (int i = 0; i < resolutionRingList.size(); i++) {
-						ResolutionRing temp = resolutionRingList.get(i);
-						if (!temp.isEvenSpaced()) {
-							tempList.add(temp);
+			} else {
+				if (resolutionRingList != null) {
+					ResolutionRingList tempList = new ResolutionRingList();
+					for (ResolutionRing r : resolutionRingList) {
+						if (!r.isEvenSpaced()) {
+							tempList.add(r);
 						}
 					}
 					resolutionRingList.clear();
@@ -306,14 +293,13 @@ public class DiffractionViewerResolutionRings extends Composite implements Selec
 			diffView.drawBeamCentre(beamCentre.getSelection());
 		}
 	};
-	private SelectionListener standardSampleListener = new SelectionAdapter() {
 
+	private SelectionListener standardSampleListener = new SelectionAdapter() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			if (standard.getSelection()) {
 				drawStandardSampleRings();
-			}
-			if (!standard.getSelection()) {
+			} else {
 				removeStandardSampleRings();
 			}
 		}
@@ -342,19 +328,18 @@ public class DiffractionViewerResolutionRings extends Composite implements Selec
 			dSpacing.add(Double.valueOf(temp));
 		}
 		for (double d : dSpacing) {
-			resolutionRingList.add(new ResolutionRing(d, true, Color.RED, false, false, true));
+			resolutionRingList.add(new ResolutionRing(d, true, ColorConstants.red, false, false, true));
 		}
 		tViewer.refresh();
 		diffView.updateRings(resolutionRingList);
 	}
 
 	public void removeStandardSampleRings() {
-		ResolutionRingList tempList = new ResolutionRingList();
-		if (resolutionRingList != null && resolutionRingList.size() > 1) {
-			for (int i = 0; i < resolutionRingList.size(); i++) {
-				ResolutionRing temp = resolutionRingList.get(i);
-				if (!temp.isStandard()) {
-					tempList.add(temp);
+		if (resolutionRingList != null) {
+			ResolutionRingList tempList = new ResolutionRingList();
+			for (ResolutionRing r : resolutionRingList) {
+				if (!r.isStandard()) {
+					tempList.add(r);
 				}
 			}
 			resolutionRingList.clear();
@@ -366,12 +351,10 @@ public class DiffractionViewerResolutionRings extends Composite implements Selec
 
 	@Override
 	public void widgetDefaultSelected(SelectionEvent e) {
-
 	}
 
 	@Override
 	public void widgetSelected(SelectionEvent e) {
-
 		if (e.getSource().equals(tViewer.deleteItem)) {
 			int doomed = tViewer.getSelectionIndex();
 			resolutionRingList.remove(doomed);
@@ -396,17 +379,14 @@ public class DiffractionViewerResolutionRings extends Composite implements Selec
 
 	@Override
 	public void applyEditorValue() {
-
 	}
 
 	@Override
 	public void cancelEditor() {
-
 	}
 
 	@Override
 	public void editorValueChanged(boolean oldValidState, boolean newValidState) {
-
 	}
 
 	public boolean isMaskToggled() {
@@ -428,10 +408,9 @@ public class DiffractionViewerResolutionRings extends Composite implements Selec
 
 	public void showBeamCentre(final boolean visible) {
 		getDisplay().asyncExec(new Runnable() {
-
 			@Override
 			public void run() {
-				diffView.beamVisable = visible;
+				diffView.beamVisible = visible;
 			}
 		});
 	}
