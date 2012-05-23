@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 public class JythonCreator implements IStartup {
 
 	private static Logger logger = LoggerFactory.getLogger(JythonCreator.class);
+	private Boolean isRunningInEclipse;
 	
 	@Override
 	public void earlyStartup() {
@@ -100,6 +101,11 @@ public class JythonCreator implements IStartup {
 	private void initialiseInterpreter(IProgressMonitor monitor) throws CoreException {
 
 		logger.debug("Initialising the Jython interpreter setup");
+
+		if (isRunningInEclipse == null) {
+			String runProp = System.getProperty(RUN_IN_ECLIPSE);
+			 isRunningInEclipse = runProp != null && runProp.equalsIgnoreCase("true");
+		}
 
 		// Horrible Hack warning: This code is copied from parts of Pydev to set up the interpreter and save it.
 		{
@@ -210,23 +216,21 @@ public class JythonCreator implements IStartup {
 			}
 
 			// Defines all third party libs that can be used in scripts.
-			logger.debug("Adding files to library path");
+			logger.debug("Adding files to python path");
 			final List<File> gdaJars = findJars(pluginsDir);
 			for (File file : gdaJars) {
 				if (pyPaths.contains(file.getAbsolutePath())) {
 					logger.warn("File already there!");
 				}
 				pyPaths.add(file.getAbsolutePath());
-				logger.debug("Adding jar file to library path : {} ", file.getAbsolutePath());
+				logger.debug("Adding jar file to python path : {} ", file.getAbsolutePath());
 			}
 
 			final List<File> gdaDirs = findDirs(pluginsDir);
 
 			logger.debug("All Jars prepared");
 
-
-			String runProp = System.getProperty(RUN_IN_ECLIPSE);
-			if (runProp != null && runProp.equalsIgnoreCase("true")) {
+			if (isRunningInEclipse) {
 				File bundles = pluginsDir.getParentFile();
 				if (bundles.isDirectory()) {
 					// ok checking for items inside the tp directory
@@ -239,7 +243,7 @@ public class JythonCreator implements IStartup {
 								logger.warn("File already there!");
 							}
 							pyPaths.add(file.getAbsolutePath());
-							logger.debug("Adding jar file to library path : {} ", file.getAbsolutePath());
+							logger.debug("Adding jar file to python path : {} ", file.getAbsolutePath());
 						}						
 					}
 				}
@@ -252,7 +256,7 @@ public class JythonCreator implements IStartup {
 							logger.warn("File already there!");
 						}
 						pyPaths.add(b.getAbsolutePath());
-						logger.debug("Adding dir to library path : {} ", b.getAbsolutePath());
+						logger.debug("Adding dir to python path : {} ", b.getAbsolutePath());
 					} 
 					// also check for internal jars
 					File j = new File(file, "jars");
@@ -262,10 +266,10 @@ public class JythonCreator implements IStartup {
 								logger.warn("File already there!");
 							}
 							pyPaths.add(jar.getAbsolutePath());
-							logger.debug("Adding jar to library path : {} ", jar.getAbsolutePath());
+							logger.debug("Adding jar to python path : {} ", jar.getAbsolutePath());
 						}
 					} 
-					// and 1 furthur possible place
+					// and 1 further possible place
 					// also check for internal jars
 					File jj = new File(j, "ext");
 					if (jj.isDirectory()) {
@@ -274,7 +278,7 @@ public class JythonCreator implements IStartup {
 								logger.warn("File already there!");
 							}
 							pyPaths.add(jar.getAbsolutePath());
-							logger.debug("Adding jar to library path : {} ", jar.getAbsolutePath());
+							logger.debug("Adding jar to python path : {} ", jar.getAbsolutePath());
 						}
 					}
 
@@ -286,7 +290,7 @@ public class JythonCreator implements IStartup {
 						logger.warn("File already there!");
 					}
 					pyPaths.add(file.getAbsolutePath());
-					logger.debug("Adding dir to library path : {} ", file.getAbsolutePath());
+					logger.debug("Adding dir to python path : {} ", file.getAbsolutePath());
 				}
 			}
 
@@ -309,6 +313,7 @@ public class JythonCreator implements IStartup {
 							if (allPaths.length() != 0) {
 								allPaths.append(File.pathSeparatorChar);
 							}
+							logger.debug("Adding library path : {}", d);
 							allPaths.append(d.getAbsolutePath());
 						}
 					}
@@ -394,14 +399,13 @@ public class JythonCreator implements IStartup {
 			File f = FileLocator.getBundleFile(b);
 			logger.debug("Bundle location: {}", f.getParent());
 
-			String runProp = System.getProperty(RUN_IN_ECLIPSE);
-			if (runProp != null && runProp.equalsIgnoreCase("true")) {
+			if (isRunningInEclipse) {
 				File git = f.getParentFile().getParentFile().getParentFile();
 				File parent = git.getParentFile();
 				String projectName = git.getName().replace(GIT_SUFFIX, "");
 				File plugins = new File(parent, projectName + "/plugins");
 
-				if(plugins.isDirectory()) {
+				if (plugins.isDirectory()) {
 					logger.debug("Plugins location: {}", plugins);
 					return plugins;
 				}
@@ -428,7 +432,7 @@ public class JythonCreator implements IStartup {
 	 * 
 	 * @return list of directories
 	 */
-	public static final List<File> findDirs(File directoryName) {
+	private List<File> findDirs(File directoryName) {
 
 		// ok we get the plugins directory here, so we need to explore a bit further for git
 		final List<File> libs = new ArrayList<File>();
@@ -437,19 +441,17 @@ public class JythonCreator implements IStartup {
 		if (directoryName.exists() && directoryName.isDirectory()) {
 			for (File f : directoryName.listFiles()) {
 				if (f.isDirectory()) {
-					if (isRequired(f, pluginKeys))
-						logger.debug("Adding library directory {}", f);
-					libs.add(f);
+					if (isRequired(f, pluginKeys)) {
+						logger.debug("Adding plugin directory {}", f);
+						libs.add(f);
+					}
 				}
 			}
 		}
 
 		// get down to the git checkouts
 		// only do this if we are running inside Eclipse
-
-		String runProp = System.getProperty(RUN_IN_ECLIPSE);
-		if (runProp != null && runProp.equalsIgnoreCase("true")) {
-
+		if (isRunningInEclipse) {
 			String gitpathname = directoryName.getParentFile().getAbsolutePath() + JythonCreator.GIT_SUFFIX;
 
 			List<File> dirs = new ArrayList<File>();
@@ -462,6 +464,7 @@ public class JythonCreator implements IStartup {
 					} else if (n.equals("scisoft")) {
 						for (File f : d.listFiles()) {
 							if (f.isDirectory()) {
+								logger.debug("Adding scisoft directory {}", f);
 								dirs.add(f);
 							}
 						}
@@ -472,8 +475,10 @@ public class JythonCreator implements IStartup {
 			for (File f : dirs) {
 				for (File plugin : f.listFiles()) {
 					if (plugin.isDirectory()) {
-						if (isRequired(plugin, pluginKeys))
+						if (isRequired(plugin, pluginKeys)) {
+							logger.debug("Adding plugin directory {}", f);
 							libs.add(plugin);
+						}
 					}
 				}
 			}
@@ -490,6 +495,4 @@ public class JythonCreator implements IStartup {
 		}
 		return false;
 	}
-
-
 }
