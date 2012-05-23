@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright 2012 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -118,7 +118,78 @@ public class SystemInformation {
 		gc.drawText(outputStr,xpos,110);
 	
 	}
-	
+
+	/**
+	 * Method to generate content for a system information check (used a HTML content provider)
+	 * 
+	 * @param systemInfoCheck SystemInformation static fields
+	 * @return outputStr[] a String array with 2 columns ([0]= style, [1]= content)
+	 */
+	public static String[] writeHTMLInfo(String systemInfoCheck) {
+		String[] outputStr={"", ""};
+		if(systemInfoCheck.equals(SUPPORTOPENGL)){
+			if (systemInfo.get(SUPPORTOPENGL) != null) {
+				boolean hasJOGL = Boolean.parseBoolean(systemInfo.get(SUPPORTOPENGL));
+				if (hasJOGL) {
+					outputStr[0]="green";
+					outputStr[1]="PASSED";
+				} else {
+					outputStr[0]="red";
+					outputStr[1]="FAILED: Please upgrade your system to a OpenGL1.4 compatible graphics card";
+				}	
+			}
+		} else if(systemInfoCheck.equals(SUPPORTGLSL)){
+			if (systemInfo.get(SUPPORTGLSL) != null) {
+				boolean hasJOGLshaders = Boolean.parseBoolean(systemInfo.get(SUPPORTGLSL));
+				if (hasJOGLshaders) {
+					outputStr[0]="green";
+					outputStr[1]="PASSED";
+				} else {
+					outputStr[0]="yellow";
+					outputStr[1]="FAILED: GLSL isn't mandatory but recommended some features need it!";
+				}
+			}
+		} else if(systemInfoCheck.equals(NUMCPUS)){
+			if (Runtime.getRuntime().availableProcessors() < 2) {
+				outputStr[0]="yellow";
+			} else
+				outputStr[0]="green";
+			outputStr[1]=""+Runtime.getRuntime().availableProcessors();
+
+		} else if(systemInfoCheck.equals(JAVAVERSION)){
+			String javaVersionStr = systemInfo.get(JAVAVERSION);
+			outputStr[1] = javaVersionStr;
+			int pos = javaVersionStr.indexOf('.');
+			if (pos != -1) {
+				String majorVersion = javaVersionStr.substring(0,pos);
+				int pos2 = javaVersionStr.indexOf('.',pos+1);
+				String minorVersion = javaVersionStr.substring(pos+1,pos2);
+				int majorNr = Integer.parseInt(majorVersion);
+				int minorNr = Integer.parseInt(minorVersion);
+				if (majorNr == 1 && minorNr < 6){
+					outputStr[0]="red";
+					outputStr[1] += " You need Java1.6";
+				} else
+					outputStr[0]="green";
+			} else 
+				outputStr[0]="red";
+		} else if(systemInfoCheck.equals(TOTALMEMORY)){
+			float mBytes = Runtime.getRuntime().maxMemory()/(1024*1024);
+			if (mBytes < 300) {
+				outputStr[0]="red";
+			} else if (mBytes < 1000) {
+				outputStr[0]="yellow";
+			} else
+				outputStr[0]="green";
+			outputStr[1] = ""+mBytes+" Mbyte(s)";
+			if (mBytes < 1000) {
+				outputStr[1]+=" We recommend at least 1024Mbyte of Java heapspace";
+			}
+		}
+
+		return outputStr;
+	}
+
 	public static void setOpenGLVendor(String vendor) {
 		systemInfo.put(GPUVENDOR, vendor);
 	}
