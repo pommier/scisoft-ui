@@ -65,7 +65,7 @@ public class Vector3dutil {
 		return q.length();
 	}
 	
-	public double getQScaterringAngle(QSpace qSpace){
+	public double getQScatteringAngle(QSpace qSpace){
 		return qSpace.scatteringAngle(q);
 	}
 }
