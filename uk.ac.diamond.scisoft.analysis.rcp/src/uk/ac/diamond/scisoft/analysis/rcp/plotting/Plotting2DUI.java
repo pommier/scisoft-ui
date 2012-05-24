@@ -81,7 +81,7 @@ public class Plotting2DUI extends AbstractPlotUI {
 
 			data = yDatasets.get(0);
 			if(data != null){
-				data.setName("");
+				//data.setName("");
 				plottingSystem.updatePlot2D(data, null, null);
 				logger.debug("Plot 2D created");
 			} else
