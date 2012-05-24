@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.dawb.common.ui.menu.CheckableActionGroup;
+import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
@@ -60,8 +62,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.plot.AbstractPlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotBean;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.StaticScanPlotView;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
-import uk.ac.gda.ui.actions.CheckableActionGroup;
 
 import com.swtdesigner.SWTResourceManager;
 

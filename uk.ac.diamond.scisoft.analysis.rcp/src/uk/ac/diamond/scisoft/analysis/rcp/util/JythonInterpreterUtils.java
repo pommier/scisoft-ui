@@ -19,14 +19,13 @@ package uk.ac.diamond.scisoft.analysis.rcp.util;
 import java.io.File;
 import java.io.IOException;
 
+import org.dawb.common.util.eclipse.BundleUtils;
 import org.python.core.PyString;
 import org.python.core.PyStringMap;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.gda.common.rcp.util.BundleUtils;
 
 /**
  * SCISOFT - added static method which returns a PythonInterpreter which can run scisoft scripts

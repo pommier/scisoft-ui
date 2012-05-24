@@ -18,6 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.editors;
 
 import java.io.File;
 
+import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.PageChangedEvent;
@@ -46,7 +47,6 @@ import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5TreeExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, IReusableEditor {
 

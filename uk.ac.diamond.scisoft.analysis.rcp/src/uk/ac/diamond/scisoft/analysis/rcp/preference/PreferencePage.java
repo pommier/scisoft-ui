@@ -18,6 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.preference;
 
 import java.text.DecimalFormat;
 
+import org.dawb.common.ui.widgets.LabelFieldEditor;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.BooleanFieldEditor;
@@ -32,7 +33,6 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.gda.ui.preferences.LabelFieldEditor;
 
 
 public class PreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {

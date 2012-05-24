@@ -18,6 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.editors;
 
 import java.io.File;
 
+import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
@@ -28,7 +29,6 @@ import org.eclipse.ui.part.EditorPart;
 
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.ImageExplorer;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 public class ImageEditor extends EditorPart {
 

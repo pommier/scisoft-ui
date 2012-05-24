@@ -16,6 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.preference;
 
+import org.dawb.common.ui.widgets.LabelFieldEditor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.DirectoryFieldEditor;
@@ -29,7 +30,6 @@ import org.eclipse.ui.PlatformUI;
 import uk.ac.diamond.scisoft.analysis.AnalysisRpcServerProvider;
 import uk.ac.diamond.scisoft.analysis.RMIServerProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.gda.ui.preferences.LabelFieldEditor;
 
 public class AnalysisRpcAndRmiPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
