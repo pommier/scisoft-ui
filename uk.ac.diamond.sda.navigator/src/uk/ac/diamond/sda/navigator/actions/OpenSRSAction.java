@@ -16,6 +16,7 @@
 
 package uk.ac.diamond.sda.navigator.actions;
 
+import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -29,7 +30,6 @@ import org.eclipse.ui.ide.IDE;
 
 import uk.ac.diamond.scisoft.analysis.rcp.navigator.srs.SRSTreeData;
 import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 public class OpenSRSAction extends Action {
 

@@ -21,12 +21,12 @@ package uk.ac.diamond.sda.navigator.fileview;
 import java.io.File;
 import java.io.FileFilter;
 
+import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.ui.IWorkbenchPage;
 import org.junit.Before;
 import org.junit.Test;
 
 import uk.ac.diamond.sda.navigator.views.FileView;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 /**
  * Run as junit plugin test

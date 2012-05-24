@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.dawb.common.ui.util.GridUtils;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IToolBarManager;
@@ -46,7 +47,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotDataTableDialog;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionComplexEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEvent;
-import uk.ac.gda.common.rcp.util.GridUtils;
 
 /**
  * A class with a left, right and status. The right contains a plot above the 

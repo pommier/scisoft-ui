@@ -15,6 +15,7 @@
  */
 package uk.ac.diamond.sda.exporter;
 
+import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -28,8 +29,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.handlers.HandlerUtil;
-
-import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 /**
  * ExportWizard shows a wizard for converting synchrotron data to more common

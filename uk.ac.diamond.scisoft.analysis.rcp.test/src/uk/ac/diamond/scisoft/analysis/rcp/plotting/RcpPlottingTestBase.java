@@ -20,6 +20,7 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.IViewReference;
@@ -41,7 +42,6 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 abstract public class RcpPlottingTestBase {
 

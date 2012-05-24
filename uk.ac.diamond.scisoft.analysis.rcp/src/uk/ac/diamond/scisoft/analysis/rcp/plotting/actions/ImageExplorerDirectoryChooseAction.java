@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -35,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FileComparator;
 import uk.ac.diamond.scisoft.analysis.rcp.util.FileCompareMode;
 import uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 /**
  *

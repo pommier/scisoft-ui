@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.dawb.common.ui.monitor.ProgressMonitorWrapper;
+import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -45,8 +47,6 @@ import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
 import uk.ac.diamond.scisoft.analysis.io.LoaderFactory;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
-import uk.ac.gda.monitor.ProgressMonitorWrapper;
 
 /**
  *   CSVUtils

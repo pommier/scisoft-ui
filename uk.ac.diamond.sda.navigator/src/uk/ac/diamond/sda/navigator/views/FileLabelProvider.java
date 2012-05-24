@@ -23,6 +23,7 @@ import java.util.Date;
 
 import org.dawb.common.services.IFileIconService;
 import org.dawb.common.services.ServiceManager;
+import org.dawb.common.util.io.FileUtils;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -30,7 +31,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 
 import uk.ac.gda.util.OSUtils;
-import uk.ac.gda.util.io.FileUtils;
 
 public class FileLabelProvider extends ColumnLabelProvider {
 
@@ -98,9 +98,8 @@ public class FileLabelProvider extends ColumnLabelProvider {
     private String getRootLabel(File node) {
     	if (OSUtils.isWindowsOS()) {
     		return	"("+node.getAbsolutePath().substring(0, node.getAbsolutePath().length()-1)+")";
-    	} else {
-    		return "/";
     	}
+		return "/";
     }
  
 	private static final double BASE = 1024, KB = BASE, MB = KB*BASE, GB = MB*BASE;

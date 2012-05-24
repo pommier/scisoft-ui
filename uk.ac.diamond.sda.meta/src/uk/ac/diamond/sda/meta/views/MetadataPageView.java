@@ -20,6 +20,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.dawb.common.services.ILoaderService;
+import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -49,20 +51,16 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.UIJob;
-
-import org.dawb.common.services.ILoaderService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
-
 import uk.ac.diamond.sda.meta.Activator;
 import uk.ac.diamond.sda.meta.contribution.MetadataPageContribution;
 import uk.ac.diamond.sda.meta.page.IMetadataPage;
 import uk.ac.diamond.sda.meta.preferences.PreferenceConstants;
 import uk.ac.diamond.sda.meta.utils.MapUtils;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MetadataPageView extends ViewPart implements ISelectionListener, IPartListener {
 
