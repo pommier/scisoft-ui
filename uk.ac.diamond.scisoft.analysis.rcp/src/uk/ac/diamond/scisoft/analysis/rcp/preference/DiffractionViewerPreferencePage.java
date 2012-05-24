@@ -179,7 +179,7 @@ public class DiffractionViewerPreferencePage extends PreferencePage implements I
 				addNewCalibrant);
 		sfeNewCalDSpacing = new StringFieldEditor(PreferenceConstants.DIFFRACTION_VIEWER_STANDARD_DISTANCES,
 				"Calibrant d spacing", addNewCalibrant);
-		sfeNewCalDSpacing.setStringValue("Separated my comas");
+		sfeNewCalDSpacing.setStringValue("Separated by commas");
 
 		add = new Button(addNewCalibrant, SWT.NONE);
 		add.setText("Add");
