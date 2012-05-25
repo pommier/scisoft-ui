@@ -188,7 +188,10 @@ public class FeedbackView extends ViewPart {
 
 							File logpath = new File(System.getProperty("user.home"), "dawnlog.html");
 
-							sendMail(mailserver, from, MAIL_TO, subject, messageBody.toString(), "log.html", logpath, monitor);
+							// get the mail to address from the properties
+							String mailTo = System.getProperty("org.dawnsci.feedbackmail", "dawnjira@diamond.ac.uk");
+														
+							sendMail(mailserver, from, mailTo, subject, messageBody.toString(), "log.html", logpath, monitor);
 						} catch (Exception e) {
 							return Status.CANCEL_STATUS;
 						}
