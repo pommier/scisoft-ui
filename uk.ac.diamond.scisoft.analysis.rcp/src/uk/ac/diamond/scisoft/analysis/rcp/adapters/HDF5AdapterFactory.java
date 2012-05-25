@@ -51,9 +51,7 @@ public class HDF5AdapterFactory implements IAdapterFactory {
 
 					@Override
 					public String getPyCode() {
-						// e.g. would like: hdf5Attribute.getFile().getFilename()
-						// or hdf5Attribute.getParent().getFile().getFilename()
-						String filename = "<missing way to obtain file name>";
+						String filename = hdf5Attribute.getHDF5File().getFilename();
 						return "dnp.io.load(" + PythonSnippetUtils.getSingleQuotedString(filename) + ")["
 								+ PythonSnippetUtils.getSingleQuotedString(hdf5Attribute.getFullName()) + "]";
 					}
