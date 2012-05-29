@@ -856,7 +856,7 @@
             locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions">
            <menu
                  id="uk.ac.diamond.scisoft.explorer.group"
-                 label="SDA">
+                 label="DAWN">
            </menu>
         </menuContribution>
         <menuContribution
@@ -915,7 +915,7 @@
       <page
             class="uk.ac.diamond.scisoft.analysis.rcp.preference.ScisoftPreferencePage"
             id="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            name="SDA">
+            name="DAWN">
       </page>
       <page
             category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
