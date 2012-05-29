@@ -27,6 +27,7 @@ import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.RMIServerProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.AnalysisRpcAndRmiPreferencePage;
+import uk.ac.diamond.scisoft.analysis.rpc.AnalysisRpcException;
 import uk.ac.diamond.scisoft.analysis.rpc.FlatteningService;
 
 /**
@@ -63,10 +64,14 @@ public class AnalysisRCPActivator extends AbstractUIPlugin {
 		if( plotServer != null)
 			PlotServerProvider.setPlotServer(plotServer);
 		
-		AnalysisRpcServerProvider.getInstance().setPort(AnalysisRpcAndRmiPreferencePage.getAnalysisRpcPort());
-		RMIServerProvider.getInstance().setPort(AnalysisRpcAndRmiPreferencePage.getRmiPort());
-		FlatteningService.getFlattener().setTempLocation(
-				AnalysisRpcAndRmiPreferencePage.getAnalysisRpcTempFileLocation());
+		// if the rmi server has been vetoed, dont start it up, this also has issues
+		if (Boolean.getBoolean("uk.ac.diamond.scisoft.analysis.analysisrpcserverprovider.disable") == false) {
+			AnalysisRpcServerProvider.getInstance().setPort(AnalysisRpcAndRmiPreferencePage.getAnalysisRpcPort());
+			RMIServerProvider.getInstance().setPort(AnalysisRpcAndRmiPreferencePage.getRmiPort());
+			FlatteningService.getFlattener().setTempLocation(
+					AnalysisRpcAndRmiPreferencePage.getAnalysisRpcTempFileLocation());
+		}
+		
 	}
 
 	@Override
