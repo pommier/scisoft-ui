@@ -16,9 +16,18 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.explorers;
 
+import org.eclipse.jface.util.LocalSelectionTransfer;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DragSourceListener;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbenchPartSite;
 
@@ -33,6 +42,7 @@ import uk.ac.gda.monitor.IMonitor;
  * Leave this to the method that instantiates the subclass.
  */
 abstract public class AbstractExplorer extends Composite implements ISelectionProvider {
+
 	protected IWorkbenchPartSite site;
 	protected ISelectionChangedListener metaValueListener;
 
@@ -51,6 +61,39 @@ abstract public class AbstractExplorer extends Composite implements ISelectionPr
 
 		site = partSite;
 		metaValueListener = valueSelect;
+		
+	}
+
+	protected void initDragDrop(final Viewer viewer) {
+		DragSource dragSource = new DragSource(viewer.getControl(), DND.DROP_COPY | DND.DROP_MOVE);
+		dragSource.addDragListener(new DragSourceListener() {
+			
+			@Override
+			public void dragStart(DragSourceEvent event) {
+		        ISelection selection = viewer.getSelection();
+		        LocalSelectionTransfer.getTransfer().setSelection(selection);
+		        LocalSelectionTransfer.getTransfer().setSelectionSetTime(event.time & 0xFFFFFFFFL);
+		        event.doit = !selection.isEmpty();
+			}
+			
+			@Override
+			public void dragSetData(DragSourceEvent event) {
+				if (TextTransfer.getInstance().isSupportedType(event.dataType)) {
+					event.data = LocalSelectionTransfer.getTransfer().getSelection().toString();
+				} else {
+			        event.data = LocalSelectionTransfer.getTransfer().getSelection();
+				}
+			}
+			
+			@Override
+			public void dragFinished(DragSourceEvent event) {
+		        LocalSelectionTransfer.getTransfer().setSelection(null);
+		        LocalSelectionTransfer.getTransfer().setSelectionSetTime(0);
+			}
+		});
+		dragSource.setTransfer(new Transfer[] {LocalSelectionTransfer.getTransfer(), org.eclipse.swt.dnd.TextTransfer.getInstance()});
+
+		// No drop support as of yet
 	}
 
 	/**
