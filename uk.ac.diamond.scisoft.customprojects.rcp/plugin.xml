@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            icon="icons/explorer.png">
+         <run
+               class="uk.ac.diamond.scisoft.customprojects.rcp.internal.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="uk.ac.diamond.scisoft.customprojects.rcp.application"
+            name="Single Level project">
+         <property
+               name="Custom Project Creator"
+               value="Custom Project Creator">
+         </property>
+         <property
+               name="windowImages"
+               value="platform:/plugin/uk.ac.diamond.scisoft.icatexplorer.rcp/icons/favicon.gif">
+         </property>
+         <property
+               name="appName"
+               value="Single Level project">
+         </property>
+      </product>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.views">
+       <category
+            name="Custom Projects"
+            id="uk.ac.diamond.scisoft.customprojects.rcp">
+      </category>
+       <view
+             allowMultiple="false"
+             category="uk.ac.diamond.scisoft.customproject.rcp"
+             class="org.eclipse.ui.navigator.CommonNavigator"
+             icon="icons/cnficons/BinaryTree.png"
+             id="uk.ac.diamond.scisoft.customprojects.view"
+             name="Non-Recursive View">
+       </view>
+      
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:uk.ac.diamond.scisoft.customprojects.rcp.view.popup?after=group.edit">
+         <command
+               commandId="org.eclipse.ui.edit.delete"
+               id="cnf.popupmenu.delete"
+               label="Delete"
+               mnemonic="D"
+               style="push">
+         </command>
+         <command
+               commandId="org.eclipse.ui.edit.rename"
+               id="cnf.popupmenu.rename"
+               label="Rename"
+               mnemonic="R"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="uk.ac.diamond.scisoft.customprojects.rcp.handler.RenameHandler"
+            commandId="org.eclipse.ui.edit.rename">
+         <activeWhen>
+            <reference
+                  definitionId="uk.ac.diamond.scisoft.customprojects.rcp.elementSelected">
+            </reference>
+         </activeWhen>
+         <enabledWhen>
+            <reference
+                  definitionId="uk.ac.diamond.scisoft.customprojects.rcp.elementSelected">
+            </reference>
+         </enabledWhen>
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="org.eclipse.ui.cheatsheets.actionSet"
+            label="label">
+         <action
+               id="org.eclipse.ui.cheatsheets.actions.CheatSheetHelpMenuAction"
+               label="label"
+               style="push">
+         </action>
+      </actionSet>
+   </extension>
+   <extension
+         point="org.eclipse.ui.navigator.viewer">
+      <viewer
+            viewerId="uk.ac.diamond.scisoft.customprojects.view">
+         <popupMenu
+               allowsPlatformContributions="true"
+               id="org.eclipse.ui.examples.navigator.view#PopupMenu">
+            <insertionPoint
+                  name="group.new">
+            </insertionPoint>
+            <insertionPoint
+                  name="group.open"
+                  separator="true">
+            </insertionPoint>
+            <insertionPoint
+                  name="group.openWith">
+            </insertionPoint>
+            <insertionPoint
+                  name="group.edit"
+                  separator="true">
+            </insertionPoint>
+            <insertionPoint
+                  name="group.reorganize">
+            </insertionPoint>
+            <insertionPoint
+                  name="group.port"
+                  separator="true">
+            </insertionPoint>
+            <insertionPoint
+                  name="group.build"
+                  separator="true">
+            </insertionPoint>
+            <insertionPoint
+                  name="group.generate"
+                  separator="true">
+            </insertionPoint>
+            <insertionPoint
+                  name="group.search"
+                  separator="true">
+            </insertionPoint>
+            <insertionPoint
+                  name="additions"
+                  separator="true">
+            </insertionPoint>
+            <insertionPoint
+                  name="group.properties"
+                  separator="true">
+            </insertionPoint>
+         </popupMenu>
+      </viewer>
+      <viewerContentBinding
+            viewerId="uk.ac.diamond.scisoft.customprojects.view">
+         <includes>
+            <contentExtension
+                  pattern="org.eclipse.ui.navigator.resourceContent">
+            </contentExtension>
+            <contentExtension
+                  pattern="org.eclipse.ui.navigator.resources.filters.*">
+            </contentExtension>
+            <contentExtension
+                  pattern="org.eclipse.ui.examples.navigator.filters.*">
+            </contentExtension>
+         </includes>
+      </viewerContentBinding>
+      <viewerActionBinding
+            viewerId="uk.ac.diamond.scisoft.customprojects.view">
+         <includes>
+            <actionExtension
+                  pattern="org.eclipse.ui.navigator.resources.*">
+            </actionExtension>
+         </includes>
+      </viewerActionBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.navigator.navigatorContent">
+      <commonFilter
+            id="org.eclipse.ui.examples.navigator.filters.hideNonJavaProjects"
+            name="Hide non-Java Projects">
+         <filterExpression>
+            <not>
+               <adapt
+                     type="org.eclipse.core.resources.IProject">
+                  <test
+                        property="org.eclipse.core.resources.IWorkspaceRoot"
+                        value="org.eclipse.jdt.core.javanature">
+                  </test>
+               </adapt>
+            </not>
+         </filterExpression>
+      </commonFilter>
+   </extension>
+   
+   
+     <extension point="org.eclipse.ui.navigator.navigatorContent">
+    <commonFilter
+          activeByDefault="true"
+          class="uk.ac.diamond.scisoft.customprojects.rcp.projects.HideDeepProjects"
+          description="hide deep content"
+          id="uk.ac.diamond.scisoft.customprojects.rcp.HideDeepContent"
+          name="*.top level items"
+          visibleInUI="true">
+       </commonFilter>
+</extension>
+<extension point="org.eclipse.ui.navigator.viewer">
+    <viewerContentBinding
+          viewerId="org.eclipse.ui.navigator.ProjectExplorer">
+          <includes>
+            <contentExtension pattern="uk.ac.diamond.scisoft.customprojects.rcp.HideDeepContent"/> 
+          </includes>
+    </viewerContentBinding>
+</extension> 
+   
+   
+   
+   <extension point="org.eclipse.ui.newWizards">
+      <category
+            id="uk.ac.diamond.scisoft.customprojects.rcp.wizard.category"
+            name="Non-Recursive project">
+      </category>
+      <wizard
+      		category="uk.ac.diamond.scisoft.customprojects.rcp.wizard.category"
+            class="uk.ac.diamond.scisoft.customprojects.rcp.wizards.NonRecursiveWizard"
+            icon="icons/BinaryTree.png"
+            id="uk.ac.diamond.scisoft.customprojects.rcp.NonRecursiveWizard"
+            name="Create Non-Recursive Project"
+            project="true">
+      </wizard>
+   </extension>
+     <extension
+         id="uk.ac.diamond.scisoft.singlelevelproject.rcp.nature"
+         name="Single Level nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="uk.ac.diamond.scisoft.customprojects.rcp.natures.SingleLevelProjectNature">
+         </run>
+      </runtime>
+   </extension>
+   <extension
+         point="org.eclipse.ui.ide.projectNatureImages">
+      <image
+            icon="icons/database.png"
+            id="customprojects.projectNature.img"
+            natureId="uk.ac.diamond.scisoft.customprojects.rcp.icat.nature">
+      </image>
+   </extension>
+  
+  
+
+
+  
+  
+</plugin>

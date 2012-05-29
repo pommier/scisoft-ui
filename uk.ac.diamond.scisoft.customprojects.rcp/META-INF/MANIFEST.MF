@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Custom Projects RCP
+Bundle-SymbolicName: uk.ac.diamond.scisoft.customprojects.rcp;singleton:=true
+Bundle-Version: 1.4.0.qualifier
+Eclipse-BundleShape: dir
+Bundle-Activator: uk.ac.diamond.scisoft.customprojects.rcp.internal.CustomProjectActivator
+Bundle-Vendor: Diamond Light Source
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui.views.properties.tabbed,
+ org.eclipse.core.resources
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Import-Package: org.slf4j
+Bundle-ClassPath: .
+Export-Package: uk.ac.diamond.scisoft.customprojects.rcp.natures,
+ uk.ac.diamond.scisoft.customprojects.rcp.projects
