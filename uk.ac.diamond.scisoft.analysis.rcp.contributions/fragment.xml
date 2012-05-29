@@ -69,15 +69,6 @@
             category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
             icon="icons/chart_curve.png"
-            id="uk.ac.diamond.scisoft.analysis.rcp.plotViewShifts"
-            name="Shifts"
-            restorable="true">
-      </view>
-      <view
-            allowMultiple="false"
-            category="uk.ac.diamond.scisoft.analysis.rcp"
-            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
-            icon="icons/chart_curve.png"
             id="uk.ac.diamond.scisoft.analysis.rcp.livePlotView"
             name="Live Plot"
             restorable="true">
@@ -1060,9 +1051,6 @@
          <ViewRegister
          	ViewName="Live Plot">
          </ViewRegister>
-         <ViewRegister
-         	ViewName="Shifts">
-         </ViewRegister>
    </extension>
    <extension
          point="org.eclipse.ui.editors">
@@ -1403,5 +1391,22 @@
       <interpreter_observer
             class="uk.ac.diamond.scisoft.analysis.rcp.variables.InjectVariablesInPyDevInterpretterInfo">
       </interpreter_observer>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.adapters">
+      <factory
+            adaptableType="uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink"
+            class="uk.ac.diamond.scisoft.analysis.rcp.adapters.HDF5AdapterFactory">
+         <adapter
+               type="org.python.pydev.dltk.console.codegen.IScriptConsoleCodeGenerator">
+         </adapter>
+      </factory>
+      <factory
+            adaptableType="uk.ac.diamond.scisoft.analysis.hdf5.HDF5Attribute"
+            class="uk.ac.diamond.scisoft.analysis.rcp.adapters.HDF5AdapterFactory">
+         <adapter
+               type="org.python.pydev.dltk.console.codegen.IScriptConsoleCodeGenerator">
+         </adapter>
+      </factory>
    </extension>
 </fragment>
