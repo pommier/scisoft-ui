@@ -69,15 +69,6 @@
             category="uk.ac.diamond.scisoft.analysis.rcp"
             class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
             icon="icons/chart_curve.png"
-            id="uk.ac.diamond.scisoft.analysis.rcp.plotViewShifts"
-            name="Shifts"
-            restorable="true">
-      </view>
-      <view
-            allowMultiple="false"
-            category="uk.ac.diamond.scisoft.analysis.rcp"
-            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
-            icon="icons/chart_curve.png"
             id="uk.ac.diamond.scisoft.analysis.rcp.livePlotView"
             name="Live Plot"
             restorable="true">
@@ -865,7 +856,7 @@
             locationURI="popup:org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions">
            <menu
                  id="uk.ac.diamond.scisoft.explorer.group"
-                 label="SDA">
+                 label="DAWN">
            </menu>
         </menuContribution>
         <menuContribution
@@ -924,7 +915,7 @@
       <page
             class="uk.ac.diamond.scisoft.analysis.rcp.preference.ScisoftPreferencePage"
             id="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            name="SDA">
+            name="DAWN">
       </page>
       <page
             category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
@@ -1059,9 +1050,6 @@
          </ViewRegister>
          <ViewRegister
          	ViewName="Live Plot">
-         </ViewRegister>
-         <ViewRegister
-         	ViewName="Shifts">
          </ViewRegister>
    </extension>
    <extension
