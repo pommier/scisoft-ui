@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="uk.ac.diamond.scisoft.actionSet1"
+            label="label"
+            visible="true">
+         <action
+               class="uk.ac.diamond.scisoft.FeedbackAction"
+               id="uk.ac.diamond.scisoft.feedback"
+               label="Leave Feedback"
+               menubarPath="Help/"
+               style="push">
+         </action>
+      </actionSet>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="uk.ac.diamond.scisoft"
+            name="SDA">
+      </category>
+      <view
+            category="uk.ac.diamond.scisoft"
+            class="uk.ac.diamond.scisoft.views.FeedbackView"
+            icon="icons/sample.gif"
+            id="uk.ac.diamond.scisoft.views.FeedbackView"
+            name="Feedback">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="uk.ac.diamond.scisoft.JythonCreator">
+      </startup>
+   </extension>
+</plugin>
