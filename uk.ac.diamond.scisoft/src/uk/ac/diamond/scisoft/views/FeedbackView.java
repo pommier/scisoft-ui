@@ -58,14 +58,18 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.progress.UIJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.system.info.SystemInformation;
 
 public class FeedbackView extends ViewPart {
 
-	private static final String SDA_FEEDBACK = "[SDA-FEEDBACK]";
-	//TODO this should probably be removed and put into a config file somewhere
-	private static final String MAIL_TO = "scientificsoftware@diamond.ac.uk";
+	private static Logger logger = LoggerFactory.getLogger(FeedbackView.class);
+	
+	private static final String DAWN_FEEDBACK = "[DAWN-FEEDBACK]";
+	//this is the default to the java property "org.dawnsci.feedbackmail"
+	private static final String MAIL_TO = "dawnjira@diamond.ac.uk";
 	/**
 	 * The ID of the view as specified by the extension.
 	 */
@@ -73,6 +77,7 @@ public class FeedbackView extends ViewPart {
 	private Action feedbackAction;
 	private Text emailAddress;
 	private Text messageText;
+	private Text subjectText;
 
 	/**
 	 * The constructor.
@@ -95,6 +100,15 @@ public class FeedbackView extends ViewPart {
 		{
 			emailAddress = new Text(parent, SWT.BORDER | SWT.MULTI);
 			emailAddress.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		}
+		{
+			Label lblSubject = new Label(parent, SWT.NONE);
+			lblSubject.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
+			lblSubject.setText("Summary");
+		}
+		{
+			subjectText = new Text(parent, SWT.BORDER | SWT.MULTI);
+			subjectText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		}
 		{
 			Label lblComment = new Label(parent, SWT.NONE);
@@ -170,7 +184,7 @@ public class FeedbackView extends ViewPart {
 								fromvalue = "user";
 							}
 							String from = fromvalue;
-							String subject = SDA_FEEDBACK;
+							String subject = DAWN_FEEDBACK + " - " + subjectText.getText();
 							StringBuilder messageBody = new StringBuilder();
 							messageBody.append("Message from : "+ System.getProperty("user.name", "Unknown User")+"\n");
 							String computerName = "Unknown";
@@ -189,7 +203,7 @@ public class FeedbackView extends ViewPart {
 							File logpath = new File(System.getProperty("user.home"), "dawnlog.html");
 
 							// get the mail to address from the properties
-							String mailTo = System.getProperty("org.dawnsci.feedbackmail", "dawnjira@diamond.ac.uk");
+							String mailTo = System.getProperty("org.dawnsci.feedbackmail", MAIL_TO);
 														
 							sendMail(mailserver, from, mailTo, subject, messageBody.toString(), "log.html", logpath, monitor);
 						} catch (Exception e) {
@@ -279,6 +293,7 @@ public class FeedbackView extends ViewPart {
 			
 			
 		} catch (Exception e) {
+			logger.error("Feedback email not sent", e);
 			Display.getDefault().asyncExec(new Runnable() {
 
 				@Override
