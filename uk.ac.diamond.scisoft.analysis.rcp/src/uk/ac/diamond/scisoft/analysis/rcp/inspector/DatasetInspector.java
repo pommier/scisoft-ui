@@ -46,6 +46,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartSite;
+import org.eclipse.ui.forms.events.ExpansionAdapter;
+import org.eclipse.ui.forms.events.ExpansionEvent;
+import org.eclipse.ui.forms.widgets.ExpandableComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -438,16 +441,22 @@ public class DatasetInspector extends Composite {
 		});
 
 		// Create data slicer
-		Group slicersGroup = new Group(comp, SWT.NONE);
-		slicersGroup.setLayout(new FillLayout());
-		slicersGroup.setText("Dataset slicing");
-		slicersGroup.setToolTipText("Configure the slicing of the dataset array. Each dimension can be sliced. " +
+		ExpandableComposite ecomp = new ExpandableComposite(comp, SWT.NONE);
+		ecomp.setText("Dataset slicing");
+		ecomp.setToolTipText("Configure the slicing of the dataset array. Each dimension can be sliced. " +
 				"A slice is a selection of items specified by a starting position, the number of items selected " +
 				"and the size of the step over which items are skipped");
 		gd = new GridData(SWT.FILL, SWT.FILL, true, true);
 		gd.horizontalSpan = 2;
-		slicersGroup.setLayoutData(gd);
-		ScrolledComposite slComp = new ScrolledComposite(slicersGroup, SWT.HORIZONTAL | SWT.VERTICAL);
+		ecomp.setLayoutData(gd);
+		ecomp.addExpansionListener(new ExpansionAdapter() {
+			@Override
+			public void expansionStateChanged(ExpansionEvent e) {
+				getParent().layout();
+			}		
+		});
+
+		ScrolledComposite slComp = new ScrolledComposite(ecomp, SWT.HORIZONTAL | SWT.VERTICAL);
 		iComp = new Composite(slComp, SWT.NONE);
 		iComp.setLayout(new GridLayout(AxisSlicer.COLUMNS, false));
 		Label l;
@@ -469,6 +478,8 @@ public class DatasetInspector extends Composite {
 		new Label(iComp, SWT.NONE).setText("");
 		slComp.setContent(iComp);
 
+		ecomp.setClient(slComp);
+		ecomp.setExpanded(false);
 		layout();
 
 		slicerListener = new PropertyChangeListener() {
