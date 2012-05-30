@@ -53,7 +53,7 @@ public class PlotCopyGraphAction extends AbstractHandler {
 			GuiPlotMode plotMode = dbPlot.getGuiPlotMode();
 
 			// With DatasetPlotter
-			if(getDefaultPlottingSystemChoice() == 0){
+			if(getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
 				DataSetPlotter plotter = pv.getMainPlotter();
 				if (plotter != null) {
 					plotter.copyGraph();

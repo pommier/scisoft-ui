@@ -51,14 +51,14 @@ public class DataExplorationPerspective implements IPerspectiveFactory {
 			layout.getViewLayout(plot).setCloseable(false);
 
 		String sidePlot = SidePlotView.ID + ":Dataset Plot";
-		if(getDefaultPlottingSystemChoice()==0){
+		if(getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
 			
 			layout.addView(sidePlot, IPageLayout.RIGHT, 0.60f, plot);
 			if (layout.getViewLayout(sidePlot) != null)
 				layout.getViewLayout(sidePlot).setCloseable(false);
 			layout.addView(MetadataPageView.ID, IPageLayout.BOTTOM, 0.60f, sidePlot);
 		}
-		if(getDefaultPlottingSystemChoice()==1){
+		if(getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
 			IFolderLayout metaFolderLayout = layout.createFolder("toolPageFolder", IPageLayout.RIGHT, 0.6f, plot);
 //			String tool1D2D = "org.dawb.workbench.plotting.views.toolPageView.1D_and_2D";
 //			String tool2D = "org.dawb.workbench.plotting.views.toolPageView.2D";
