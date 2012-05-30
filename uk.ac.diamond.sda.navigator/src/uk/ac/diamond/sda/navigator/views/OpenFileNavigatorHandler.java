@@ -16,12 +16,11 @@
 
 package uk.ac.diamond.sda.navigator.views;
 
+import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IWorkbenchPage;
-
-import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 public class OpenFileNavigatorHandler extends AbstractHandler {
 

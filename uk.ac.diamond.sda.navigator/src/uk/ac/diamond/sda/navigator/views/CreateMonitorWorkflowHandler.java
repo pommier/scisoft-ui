@@ -19,6 +19,7 @@ package uk.ac.diamond.sda.navigator.views;
 import java.io.File;
 
 import org.dawb.common.ui.util.EclipseUtils;
+import org.dawb.common.util.io.FileUtils;
 import org.dawb.passerelle.common.project.PasserelleNewProjectWizard;
 import org.dawb.passerelle.common.utils.ModelUtils;
 import org.eclipse.core.commands.AbstractHandler;
@@ -27,8 +28,6 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-
-import uk.ac.gda.util.io.FileUtils;
 
 import com.isencia.passerelle.workbench.model.editor.ui.editor.PasserelleModelMultiPageEditor;
 

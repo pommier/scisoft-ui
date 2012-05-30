@@ -18,6 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting.actions;
 
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -33,7 +34,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 /**
  *

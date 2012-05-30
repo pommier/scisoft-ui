@@ -20,6 +20,8 @@ import java.io.File;
 
 import org.dawb.common.services.IFileIconService;
 import org.dawb.common.services.ServiceManager;
+import org.dawb.common.ui.menu.CheckableActionGroup;
+import org.dawb.common.ui.util.EclipseUtils;
 import org.dawb.common.ui.views.ImageMonitorView;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -67,8 +69,6 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.sda.intro.navigator.NavigatorRCPActivator;
 import uk.ac.diamond.sda.navigator.views.FileContentProvider.FileSortType;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
-import uk.ac.gda.ui.actions.CheckableActionGroup;
 import uk.ac.gda.ui.content.FileContentProposalProvider;
 import uk.ac.gda.util.OSUtils;
 

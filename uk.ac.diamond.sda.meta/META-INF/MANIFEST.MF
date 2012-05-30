@@ -7,11 +7,11 @@ Bundle-Activator: uk.ac.diamond.sda.meta.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  uk.ac.diamond.scisoft.analysis;bundle-version="[1.2.0,2.0.0)",
- uk.ac.gda.libs,
- uk.ac.gda.common.rcp;bundle-version="1.0.0"
+ uk.ac.gda.libs
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.dawb.common.services,
+ org.dawb.common.ui.util,
  org.eclipse.core.resources,
  org.slf4j
 Export-Package: uk.ac.diamond.sda.meta.discriminator,

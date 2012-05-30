@@ -18,6 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.editors;
 
 import java.io.File;
 
+import org.dawb.common.ui.util.EclipseUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -36,7 +37,6 @@ import org.eclipse.ui.part.EditorPart;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.SRSExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.navigator.srs.SRSTreeData;
-import uk.ac.gda.common.rcp.util.EclipseUtils;
 
 public class SRSEditor extends EditorPart {
 

@@ -19,10 +19,11 @@ package uk.ac.diamond.scisoft.analysis.rcp.views.plot;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.dawb.common.util.list.PrimitiveArrayEncoder;
+
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AxisValues;
-import uk.ac.gda.util.list.PrimitiveArrayEncoder;
 
 /**
  * Stores information required to restore a plot. Should serialise to 
