@@ -58,11 +58,11 @@ public class PlotSaveGraphAction extends AbstractHandler {
 			GuiPlotMode plotMode = dbPlot.getGuiPlotMode();
 
 			// With DatasetPlotter
-			if(getDefaultPlottingSystemChoice() == 0){
+			if(getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
 				return saveDatasetPlotter(pv);
 			} 
 			// with Plotting System
-			else if (getDefaultPlottingSystemChoice() == 1){
+			else if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
 				// plot modes with new plotting system
 				if (plotMode.equals(GuiPlotMode.ONED) 
 						||(plotMode.equals(GuiPlotMode.TWOD))

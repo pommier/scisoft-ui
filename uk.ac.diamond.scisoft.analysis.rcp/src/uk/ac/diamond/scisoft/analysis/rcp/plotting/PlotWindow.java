@@ -168,27 +168,27 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 
 		createDatasetPlotter();
 		
-		if (getDefaultPlottingSystemChoice() == 1) {
+		if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM) {
 			createPlottingSystem();
 			cleanUpMainPlotter();
 		}
 		
 		if (plotMode.equals(GuiPlotMode.ONED)) {
-			if(getDefaultPlottingSystemChoice()==0)
+			if(getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
 				setup1D();
 			else
 				setupPlotting1D();
 		} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
 			setupMulti1DPlot();
 		} else if (plotMode.equals(GuiPlotMode.TWOD)) {
-			if(getDefaultPlottingSystemChoice()==0)
+			if(getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
 				setup2D();
 			else
 				setupPlotting2D();
 		} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
 			setup2DSurface();
 		} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
-			if(getDefaultPlottingSystemChoice()==0)
+			if(getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
 				setupScatter2DPlot();
 			else
 				setupScatterPlotting2D();
@@ -581,7 +581,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	 * @param plotMode
 	 */
 	public void updatePlotMode(GuiPlotMode plotMode) {
-		if (getDefaultPlottingSystemChoice() == 0) {
+		if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM) {
 			if (plotMode.equals(GuiPlotMode.ONED) && mainPlotter.getMode() != PlottingMode.ONED) {
 				cleanUpFromOldMode(true);
 				setup1D();
@@ -607,7 +607,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 				clearPlot();
 			}
 		}
-		if (getDefaultPlottingSystemChoice() == 1) {
+		if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM) {
 			if (plotMode.equals(GuiPlotMode.ONED)) {
 				cleanUpMainPlotter();
 				setupPlotting1D();
@@ -652,7 +652,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	}
 
 	private void updatePlotModeAsync(GuiPlotMode plotMode) {
-		if (getDefaultPlottingSystemChoice() == 0) {
+		if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM) {
 			if (plotMode.equals(GuiPlotMode.ONED) && mainPlotter.getMode() != PlottingMode.ONED) {
 				doBlock();
 				parentComp.getDisplay().asyncExec(new Runnable() {
@@ -759,7 +759,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 				});
 			}
 		}
-		if (getDefaultPlottingSystemChoice() == 1) {
+		if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM) {
 			if (plotMode.equals(GuiPlotMode.ONED)){
 				doBlock();
 				parentComp.getDisplay().asyncExec(new Runnable() {
