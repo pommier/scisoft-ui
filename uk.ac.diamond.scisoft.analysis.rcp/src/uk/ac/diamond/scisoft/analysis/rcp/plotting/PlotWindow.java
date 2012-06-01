@@ -166,7 +166,9 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		if (plotMode == null)
 			plotMode = GuiPlotMode.ONED;
 
-		createDatasetPlotter();
+		// this needs to be started in 1D as later mode changes will not work as plot UIs are not setup
+		if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
+			createDatasetPlotter(PlottingMode.ONED);
 		
 		if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM) {
 			createPlottingSystem();
@@ -225,12 +227,11 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		});
 	}
 	
-	private void createDatasetPlotter(){
-		// this needs to be started in 1D as later mode changes will not work as plot UIs are not setup
+	private void createDatasetPlotter(PlottingMode mode){
 		parentComp.setLayout(new FillLayout());
 		mainPlotterComposite = new Composite(parentComp, SWT.NONE);
 		mainPlotterComposite.setLayout(new FillLayout());
-		mainPlotter = new DataSetPlotter(PlottingMode.ONED, mainPlotterComposite, true);
+		mainPlotter = new DataSetPlotter(mode, mainPlotterComposite, true);
 		mainPlotter.setAxisModes(AxisMode.LINEAR, AxisMode.LINEAR, AxisMode.LINEAR);
 		mainPlotter.setXAxisLabel("X-Axis");
 		mainPlotter.setYAxisLabel("Y-Axis");
@@ -345,7 +346,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	 * before the setting up of a Plotting System
 	 */
 	private void cleanUpMainPlotter(){
-		if (!mainPlotter.isDisposed()) {
+		if (mainPlotter!=null && !mainPlotter.isDisposed()) {
 			mainPlotter.cleanUp();
 			mainPlotterComposite.dispose();
 		}
@@ -369,10 +370,6 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 			plottingSystem.dispose();
 			plotSystemComposite.dispose();
 		}
-		if(mainPlotter.isDisposed()){
-			createDatasetPlotter();
-		}
-		parentComp.layout();
 	}
 
 	private void addCommonActions() {
@@ -619,18 +616,30 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 				setupScatterPlotting2D();
 			} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
 				cleanUpPlottingSystem();
+				if(mainPlotter==null || mainPlotter.isDisposed())
+					createDatasetPlotter(PlottingMode.ONED_THREED);
+				parentComp.layout();
 				cleanUpFromOldMode(true);
 				setupMulti1DPlot();
 			} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
 				cleanUpPlottingSystem();
+				if(mainPlotter==null || mainPlotter.isDisposed())
+					createDatasetPlotter(PlottingMode.SURF2D);
+				parentComp.layout();
 				cleanUpFromOldMode(true);
 				setup2DSurface();
 			} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
 				cleanUpPlottingSystem();
+				if(mainPlotter==null || mainPlotter.isDisposed())
+					createDatasetPlotter(PlottingMode.SCATTER3D);
+				parentComp.layout();
 				cleanUpFromOldMode(true);
 				setupScatter3DPlot();
 			} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
 				cleanUpPlottingSystem();
+				if(mainPlotter==null || mainPlotter.isDisposed())
+					createDatasetPlotter(PlottingMode.MULTI2D);
+				parentComp.layout();
 				cleanUpFromOldMode(true);
 				setupMulti2D();
 			} else if (plotMode.equals(GuiPlotMode.EMPTY)) {
@@ -806,6 +815,9 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 					public void run() {
 						try {
 							cleanUpPlottingSystem();
+							if(mainPlotter==null || mainPlotter.isDisposed())
+								createDatasetPlotter(PlottingMode.ONED_THREED);
+							parentComp.layout();
 							cleanUpFromOldMode(true);
 							setupMulti1DPlot();
 						} finally {
@@ -820,6 +832,9 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 					public void run() {
 						try {
 							cleanUpPlottingSystem();
+							if(mainPlotter==null || mainPlotter.isDisposed())
+								createDatasetPlotter(PlottingMode.SURF2D);
+							parentComp.layout();
 							cleanUpFromOldMode(true);
 							setup2DSurface();
 						} finally {
@@ -834,6 +849,9 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 					public void run() {
 						try {
 							cleanUpPlottingSystem();
+							if(mainPlotter==null || mainPlotter.isDisposed())
+								createDatasetPlotter(PlottingMode.SCATTER3D);
+							parentComp.layout();
 							cleanUpFromOldMode(true);
 							setupScatter3DPlot();
 						} finally {
@@ -848,6 +866,9 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 					public void run() {
 						try {
 							cleanUpPlottingSystem();
+							if(mainPlotter==null || mainPlotter.isDisposed())
+								createDatasetPlotter(PlottingMode.MULTI2D);
+							parentComp.layout();
 							cleanUpFromOldMode(true);
 							setupMulti2D();
 						} finally {
@@ -947,10 +968,12 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	}
 
 	public void notifyHistogramChange(HistogramDataUpdate histoUpdate) {
-		Iterator<IObserver> iter = observers.iterator();
-		while (iter.hasNext()) {
-			IObserver listener = iter.next();
-			listener.update(this, histoUpdate);
+		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+			Iterator<IObserver> iter = observers.iterator();
+			while (iter.hasNext()) {
+				IObserver listener = iter.next();
+				listener.update(this, histoUpdate);
+			}
 		}
 	}
 
