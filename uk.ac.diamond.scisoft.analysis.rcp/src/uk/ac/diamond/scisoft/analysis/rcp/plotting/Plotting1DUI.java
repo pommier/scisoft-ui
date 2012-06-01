@@ -48,6 +48,10 @@ public class Plotting1DUI extends AbstractPlotUI {
 
 	private AbstractPlottingSystem plottingSystem;
 	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
+	private String currentDataName;
+	private String dataName;
+	private String currentXAxisName;
+	private String xAxisName;
 
 	/**
 	 * Constructor of a plotting 1D 
@@ -65,26 +69,51 @@ public class Plotting1DUI extends AbstractPlotUI {
 			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
 			final List<AbstractDataset> yDatasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
 
-			AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
+			final AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
 			
 			while (iter.hasNext()) {
 				DataSetWithAxisInformation dataSetAxis = iter.next();
 				AbstractDataset data = dataSetAxis.getData();
 				yDatasets.add(data);
+				currentDataName = data.getName();
 			}
-			plottingSystem.clear();
-			Collection<ITrace> traces = plottingSystem.createPlot1D(xAxisValues, yDatasets, null);
-			for (ITrace iTrace : traces) {
-				final ILineTrace lineTrace = (ILineTrace)iTrace;
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						lineTrace.setTraceType(TraceType.SOLID_LINE);
+			currentXAxisName = xAxisValues.getName();
+
+			Collection<ITrace> currentTraces = plottingSystem.getTraces();
+			for (ITrace iTrace : currentTraces) {
+				dataName = iTrace.getName();
+				xAxisName = ((ILineTrace)iTrace).getXData().getName();
+			}
+
+			for (final AbstractDataset yData : yDatasets) {
+				// if same data being pushed to plot, we do an update instead of recreating the plot
+				if(currentDataName.equals(dataName)&&currentXAxisName.equals(xAxisName)){
+					Display.getDefault().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							ILineTrace trace = (ILineTrace) plottingSystem.getTrace(currentDataName);
+							trace.setData(xAxisValues, yData);
+							trace.repaint();
+//							TODO : perform an auto scale only if no zoom has been previously done
+//								plottingSystem.autoscaleAxes();
+						}
+					});
+					logger.debug("Plot 1D updated");
+				} else {
+					plottingSystem.clear();
+					Collection<ITrace> traces = plottingSystem.createPlot1D(xAxisValues, yDatasets, null);
+					for (ITrace iTrace : traces) {
+						final ILineTrace lineTrace = (ILineTrace)iTrace;
+						Display.getDefault().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								lineTrace.setTraceType(TraceType.SOLID_LINE);
+							}
+						});
 					}
-				});
-				
+					logger.debug("Plot 1D created");
+				}
 			}
-			logger.debug("Plot 1D created");
 		}
 	}
 
