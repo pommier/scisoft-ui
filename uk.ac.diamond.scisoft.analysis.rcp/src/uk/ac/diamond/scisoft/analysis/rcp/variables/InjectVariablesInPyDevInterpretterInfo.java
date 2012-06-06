@@ -36,6 +36,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.preference.AnalysisRpcAndRmiPreference
 
 /**
  * Inject into PyDev's IInterpreterInfos the global environment variables for AnalysisRPC/RMI port and temp location.
+ * 
+ * XXX: Apologies for extra t in misspelled interpreter 
  */
 public class InjectVariablesInPyDevInterpretterInfo implements IInterpreterObserver {
 
@@ -88,7 +90,7 @@ public class InjectVariablesInPyDevInterpretterInfo implements IInterpreterObser
 			if (anyChange) {
 				// We want an empty interpreterNamesToRestore here because we don't
 				// want to recreate all the data just for these variable changes
-				// Note that if we do include the interpretter being updated in this
+				// Note that if we do include the interpreter being updated in this
 				// list, then we will be called again 
 				Set<String> empty = Collections.emptySet();
 				manager.setInfos(interpreterInfos, empty, monitor);
