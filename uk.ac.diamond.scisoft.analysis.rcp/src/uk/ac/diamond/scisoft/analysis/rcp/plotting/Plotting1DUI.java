@@ -82,7 +82,8 @@ public class Plotting1DUI extends AbstractPlotUI {
 			Collection<ITrace> currentTraces = plottingSystem.getTraces();
 			for (ITrace iTrace : currentTraces) {
 				dataName = iTrace.getName();
-				xAxisName = ((ILineTrace)iTrace).getXData().getName();
+				if(iTrace instanceof ILineTrace)
+					xAxisName = ((ILineTrace)iTrace).getXData().getName();
 			}
 
 			for (final AbstractDataset yData : yDatasets) {
@@ -91,9 +92,12 @@ public class Plotting1DUI extends AbstractPlotUI {
 					Display.getDefault().asyncExec(new Runnable() {
 						@Override
 						public void run() {
-							ILineTrace trace = (ILineTrace) plottingSystem.getTrace(currentDataName);
-							trace.setData(xAxisValues, yData);
-							trace.repaint();
+							ITrace plotTrace = plottingSystem.getTrace(currentDataName);
+							if(plotTrace instanceof ILineTrace){
+								ILineTrace lineTrace = (ILineTrace) plotTrace;
+								lineTrace.setData(xAxisValues, yData);
+								lineTrace.repaint();
+							}
 //							TODO : perform an auto scale only if no zoom has been previously done
 //								plottingSystem.autoscaleAxes();
 						}
