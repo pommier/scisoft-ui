@@ -64,7 +64,7 @@ public class AnalysisRpcAndRmiPreferencePage extends FieldEditorPreferencePage i
 
 		addField(new BooleanFieldEditor(
 				PreferenceConstants.ANALYSIS_RPC_RMI_INJECT_VARIABLES,
-				"Add above variables automatically to PyDev's Interpretters",
+				"Add above variables automatically to PyDev's Interpreters",
 				getFieldEditorParent()));
 
 	}

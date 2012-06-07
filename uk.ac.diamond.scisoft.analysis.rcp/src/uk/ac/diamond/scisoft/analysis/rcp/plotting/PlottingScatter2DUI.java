@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.trace.ILineTrace;
+import org.dawb.common.ui.plot.trace.ITrace;
 import org.dawb.common.ui.plot.trace.ILineTrace.PointStyle;
 import org.dawb.common.ui.plot.trace.ILineTrace.TraceType;
 import org.eclipse.draw2d.ColorConstants;
@@ -40,6 +41,10 @@ public class PlottingScatter2DUI extends AbstractPlotUI {
 	public final static String STATUSITEMID = "uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingScatter2DUI";
 	private AbstractPlottingSystem plottingSystem;
 	private Logger logger = LoggerFactory.getLogger(PlottingScatter2DUI.class);
+	private String currentDataName;
+	private String dataName;
+	private String currentXAxisName;
+	private String xAxisName;
 
 	public PlottingScatter2DUI(AbstractPlottingSystem plotter) {
 		this.plottingSystem = plotter;
@@ -55,18 +60,47 @@ public class PlottingScatter2DUI extends AbstractPlotUI {
 
 					AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS+0);
 					AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS+0);
+					currentXAxisName = xAxisValues.getName();
+					currentDataName = yAxisValues.getName();
 
-					plottingSystem.clear();
-					ILineTrace scatterPlotPoints = plottingSystem.createLineTrace(yAxisValues.getName());
-					scatterPlotPoints.setTraceType(TraceType.POINT);
-					scatterPlotPoints.setTraceColor(ColorConstants.blue);
-					scatterPlotPoints.setPointStyle(PointStyle.FILLED_CIRCLE);
-					scatterPlotPoints.setPointSize(6);
-					scatterPlotPoints.setName(xAxisValues.getName());
-					scatterPlotPoints.setData(xAxisValues, yAxisValues);
-					plottingSystem.addTrace(scatterPlotPoints);
-					plottingSystem.autoscaleAxes();
-					logger.debug("Scatter plot created");
+					Collection<ITrace> currentTraces = plottingSystem.getTraces();
+					for (ITrace iTrace : currentTraces) {
+						dataName = iTrace.getData().getName();
+						if(iTrace instanceof ILineTrace)
+							xAxisName = ((ILineTrace)iTrace).getXData().getName();
+					}
+
+					// if same data being pushed to plot, we do an update instead of recreating the plot
+					if(currentDataName.equals(dataName)&&currentXAxisName.equals(xAxisName)){
+						ITrace plotTrace = plottingSystem.getTrace(currentDataName);
+						if(plotTrace instanceof ILineTrace){
+							ILineTrace scatterPlotPoints = (ILineTrace) plotTrace;
+							scatterPlotPoints.setTraceType(TraceType.POINT);
+							scatterPlotPoints.setTraceColor(ColorConstants.blue);
+							scatterPlotPoints.setPointStyle(PointStyle.FILLED_CIRCLE);
+							scatterPlotPoints.setPointSize(6);
+							scatterPlotPoints.setName(xAxisValues.getName());
+							scatterPlotPoints.setData(xAxisValues, yAxisValues);
+							scatterPlotPoints.repaint();
+						}
+						logger.debug("Scatter plot updated");
+					}
+
+					// if x or y axis change then we create a new plot
+					if((!currentDataName.equals(dataName)||!currentXAxisName.equals(xAxisName))){
+						plottingSystem.clear();
+						ILineTrace scatterPlotPoints = plottingSystem.createLineTrace(yAxisValues.getName());
+						scatterPlotPoints.setTraceType(TraceType.POINT);
+						scatterPlotPoints.setTraceColor(ColorConstants.blue);
+						scatterPlotPoints.setPointStyle(PointStyle.FILLED_CIRCLE);
+						scatterPlotPoints.setPointSize(6);
+						scatterPlotPoints.setName(xAxisValues.getName());
+						scatterPlotPoints.setData(xAxisValues, yAxisValues);
+						plottingSystem.addTrace(scatterPlotPoints);
+						plottingSystem.autoscaleAxes();
+						logger.debug("Scatter plot created");
+					}
+					
 				}
 			}
 		});
