@@ -36,4 +36,11 @@
             class="uk.ac.diamond.scisoft.JythonCreator">
       </startup>
    </extension>
+   <extension
+         point="org.python.pydev.pydev_interpreter_new_custom_entries">
+      <interpreter_new_custom_entries_participant
+            class="uk.ac.diamond.scisoft.PyDevAdditionalInterpreterSettings">
+      </interpreter_new_custom_entries_participant>
+   </extension>
+   
 </plugin>
