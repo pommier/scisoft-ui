@@ -63,35 +63,33 @@ public class Plotting1DUI extends AbstractPlotUI {
 	}
 
 	@Override
-	public void processPlotUpdate(DataBean dbPlot, boolean isUpdate) {
-		Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
-		
-		if (plotData != null) {
-			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
-			final List<AbstractDataset> yDatasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
+	public void processPlotUpdate(final DataBean dbPlot, boolean isUpdate) {
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
+				if (plotData != null) {
+					Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
+					final List<AbstractDataset> yDatasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
 
-			final AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
+					final AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
 			
-			while (iter.hasNext()) {
-				DataSetWithAxisInformation dataSetAxis = iter.next();
-				AbstractDataset data = dataSetAxis.getData();
-				yDatasets.add(data);
-				currentDataName = data.getName();
-			}
-			currentXAxisName = xAxisValues.getName();
+					while (iter.hasNext()) {
+						DataSetWithAxisInformation dataSetAxis = iter.next();
+						AbstractDataset data = dataSetAxis.getData();
+						yDatasets.add(data);
+						currentDataName = data.getName();
+					}
+					currentXAxisName = xAxisValues.getName();
 
-			Collection<ITrace> currentTraces = plottingSystem.getTraces();
-			final ArrayList<ITrace> traceList = new ArrayList<ITrace>(currentTraces);
-			for (ITrace iTrace : currentTraces) {
-				dataName = iTrace.getName();
-				if(iTrace instanceof ILineTrace)
-					xAxisName = ((ILineTrace)iTrace).getXData().getName();
-			}
+					Collection<ITrace> currentTraces = plottingSystem.getTraces();
+					final ArrayList<ITrace> traceList = new ArrayList<ITrace>(currentTraces);
+					for (ITrace iTrace : currentTraces) {
+						dataName = iTrace.getName();
+						if(iTrace instanceof ILineTrace)
+							xAxisName = ((ILineTrace)iTrace).getXData().getName();
+					}
 
-			// if same data being pushed to plot, we do an update instead of recreating the plot
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
 					int i=0;
 					for (final AbstractDataset yData : yDatasets) {
 						if(!traceList.isEmpty()&&traceList.size()>i){
@@ -104,6 +102,7 @@ public class Plotting1DUI extends AbstractPlotUI {
 						}
 						currentDataName = yData.getName();
 
+						// if same data being pushed to plot, we do an update instead of recreating the plot
 						if(currentDataName.equals(dataName)&&currentXAxisName.equals(xAxisName)){
 							ITrace plotTrace = plottingSystem.getTrace(currentDataName);
 							if(plotTrace instanceof ILineTrace){
@@ -117,24 +116,19 @@ public class Plotting1DUI extends AbstractPlotUI {
 						}
 						i++;
 					}
-				}
-			});
-			// if x or y axis change then we create a new plot
-			if((!currentDataName.equals(dataName)||!currentXAxisName.equals(xAxisName))){
-				plottingSystem.clear();
-				Collection<ITrace> traces = plottingSystem.createPlot1D(xAxisValues, yDatasets, null);
-				for (ITrace iTrace : traces) {
-					final ILineTrace lineTrace = (ILineTrace)iTrace;
-					Display.getDefault().asyncExec(new Runnable() {
-						@Override
-						public void run() {
+					// if x or y axis change then we create a new plot
+					if((!currentDataName.equals(dataName)||!currentXAxisName.equals(xAxisName))){
+						plottingSystem.clear();
+						Collection<ITrace> traces = plottingSystem.createPlot1D(xAxisValues, yDatasets, null);
+						for (ITrace iTrace : traces) {
+							final ILineTrace lineTrace = (ILineTrace)iTrace;
 							lineTrace.setTraceType(TraceType.SOLID_LINE);
 						}
-					});
+						logger.debug("Plot 1D created");
+					}
 				}
-				logger.debug("Plot 1D created");
 			}
-		}
+		});
 	}
 
 	@Override
