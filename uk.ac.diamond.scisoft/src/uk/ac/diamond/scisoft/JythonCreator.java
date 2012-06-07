@@ -328,7 +328,13 @@ public class JythonCreator implements IStartup {
 
 			logPaths("Setting " + pathEnv + " for dynamic libraries", env);
 
-			info.setEnvVariables(new String[] {env});
+			// Add scisoft specific env variables
+			// Note this is temporary implementation on the release branch
+			// the full implementation on the trunk is more complete and does
+			// not duplicate the code from PyDevAdditionalInterpreterSettings
+			String[] envVars = new String[] {"SCISOFT_RPC_PORT=${scisoft_rpc_port}", "SCISOFT_RMI_PORT=${scisoft_rmi_port}", "SCISOFT_RPC_TEMP=${scisoft_rpc_temp}", env};
+			
+			info.setEnvVariables(envVars);
 
 			// java, java.lang, etc should be found now
 			info.restoreCompiledLibs(monitor);
