@@ -8,7 +8,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  uk.ac.gda.libs;bundle-version="1.0.0",
  org.eclipse.core.resources;bundle-version="3.5.2",
- org.python.pydev;bundle-version="2.0.0",
+ org.python.pydev;bundle-version="2.5.0.2012060719",
  org.python.pydev.core;bundle-version="2.0.0",
  org.python.pydev.debug;bundle-version="2.0.0",
  uk.ac.diamond.scisoft.system.info;bundle-version="1.0.0"
