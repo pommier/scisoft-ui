@@ -21,6 +21,9 @@ package uk.ac.diamond.scisoft;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,6 +39,7 @@ import org.osgi.framework.Bundle;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
+import org.python.pydev.core.MisconfigurationException;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManagerWithBuild;
@@ -295,6 +299,7 @@ public class JythonCreator implements IStartup {
 			}
 
 			info.libs.addAll(pyPaths);
+			Collections.sort(info.libs);
 
 			// now set up the LD_LIBRARY_PATH, or PATH for windows
 			File libraryDir = new File(pluginsDir.getParentFile(), "lib");
@@ -328,13 +333,16 @@ public class JythonCreator implements IStartup {
 
 			logPaths("Setting " + pathEnv + " for dynamic libraries", env);
 
-			// Add scisoft specific env variables
-			// Note this is temporary implementation on the release branch
-			// the full implementation on the trunk is more complete and does
-			// not duplicate the code from PyDevAdditionalInterpreterSettings
-			String[] envVars = new String[] {"SCISOFT_RPC_PORT=${scisoft_rpc_port}", "SCISOFT_RMI_PORT=${scisoft_rmi_port}", "SCISOFT_RPC_TEMP=${scisoft_rpc_temp}", env};
+			PyDevAdditionalInterpreterSettings settings = new PyDevAdditionalInterpreterSettings();
+			Collection<String> envVariables = settings.getAdditionalEnvVariables();
+			envVariables.add(env);
 			
-			info.setEnvVariables(envVars);
+			String[] envVarsAlreadyIn = info.getEnvVariables();
+			if (envVarsAlreadyIn != null) {
+				envVariables.addAll(Arrays.asList(envVarsAlreadyIn));
+			}
+			
+			info.setEnvVariables(envVariables.toArray(new String[envVariables.size()]));
 
 			// java, java.lang, etc should be found now
 			info.restoreCompiledLibs(monitor);
@@ -349,7 +357,35 @@ public class JythonCreator implements IStartup {
 			// Pydev doesn't allow two different interpreters to be configured for the same
 			// executable path so in some contexts the executable is the unique identifier (as it is here)
 			set.add(executable);
-			man.setInfos(new IInterpreterInfo[] {info}, set, monitor);
+			
+			// Attempt to update existing Jython configuration
+			IInterpreterInfo[] interpreterInfos = man.getInterpreterInfos();
+			InterpreterInfo existingInfo = null;
+			try {
+				existingInfo = man.getInterpreterInfo(executable, monitor);
+			} catch (MisconfigurationException e) {
+				// MisconfigurationException thrown if executable not found
+			}
+			
+			if (existingInfo != null && existingInfo.toString().equals(info.toString())) {
+				logger.debug("Jython interpreter already exists with exact settings");
+			} else {
+				List<IInterpreterInfo> infos = new ArrayList<IInterpreterInfo>(Arrays.asList(interpreterInfos));
+				if (existingInfo == null) {
+					logger.debug("Adding interpreter as an additional interpreter");
+				} else {
+					logger.debug("Updating interpreter which was previously created");
+					for (int i = 0; i < interpreterInfos.length; i++) {
+						if (infos.get(i) == existingInfo) {
+							infos.remove(i);
+							break;
+						}
+					}
+				}
+				infos.add(info);
+				logger.debug("Removing existing interpreter with the same name");
+				man.setInfos(infos.toArray(new IInterpreterInfo[infos.size()]), set, monitor);
+			}
 
 			logger.debug("Finished the Jython interpreter setup");
 		}
