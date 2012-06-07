@@ -18,6 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import gda.observable.IObserver;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -80,18 +81,30 @@ public class Plotting1DUI extends AbstractPlotUI {
 			currentXAxisName = xAxisValues.getName();
 
 			Collection<ITrace> currentTraces = plottingSystem.getTraces();
+			final ArrayList<ITrace> traceList = new ArrayList<ITrace>(currentTraces);
 			for (ITrace iTrace : currentTraces) {
 				dataName = iTrace.getName();
 				if(iTrace instanceof ILineTrace)
 					xAxisName = ((ILineTrace)iTrace).getXData().getName();
 			}
 
-			for (final AbstractDataset yData : yDatasets) {
-				// if same data being pushed to plot, we do an update instead of recreating the plot
-				if(currentDataName.equals(dataName)&&currentXAxisName.equals(xAxisName)){
-					Display.getDefault().asyncExec(new Runnable() {
-						@Override
-						public void run() {
+			// if same data being pushed to plot, we do an update instead of recreating the plot
+			Display.getDefault().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					int i=0;
+					for (final AbstractDataset yData : yDatasets) {
+						if(!traceList.isEmpty()&&traceList.size()>i){
+							dataName = traceList.get(i).getName();
+							if(traceList.get(i) instanceof ILineTrace)
+								xAxisName = ((ILineTrace)traceList.get(i)).getXData().getName();
+						} else {
+							dataName = "";
+							xAxisName = "";
+						}
+						currentDataName = yData.getName();
+
+						if(currentDataName.equals(dataName)&&currentXAxisName.equals(xAxisName)){
 							ITrace plotTrace = plottingSystem.getTrace(currentDataName);
 							if(plotTrace instanceof ILineTrace){
 								ILineTrace lineTrace = (ILineTrace) plotTrace;
@@ -100,23 +113,26 @@ public class Plotting1DUI extends AbstractPlotUI {
 							}
 //							TODO : perform an auto scale only if no zoom has been previously done
 //								plottingSystem.autoscaleAxes();
+							logger.debug("Plot 1D updated");
+						}
+						i++;
+					}
+				}
+			});
+			// if x or y axis change then we create a new plot
+			if((!currentDataName.equals(dataName)||!currentXAxisName.equals(xAxisName))){
+				plottingSystem.clear();
+				Collection<ITrace> traces = plottingSystem.createPlot1D(xAxisValues, yDatasets, null);
+				for (ITrace iTrace : traces) {
+					final ILineTrace lineTrace = (ILineTrace)iTrace;
+					Display.getDefault().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							lineTrace.setTraceType(TraceType.SOLID_LINE);
 						}
 					});
-					logger.debug("Plot 1D updated");
-				} else {
-					plottingSystem.clear();
-					Collection<ITrace> traces = plottingSystem.createPlot1D(xAxisValues, yDatasets, null);
-					for (ITrace iTrace : traces) {
-						final ILineTrace lineTrace = (ILineTrace)iTrace;
-						Display.getDefault().asyncExec(new Runnable() {
-							@Override
-							public void run() {
-								lineTrace.setTraceType(TraceType.SOLID_LINE);
-							}
-						});
-					}
-					logger.debug("Plot 1D created");
 				}
+				logger.debug("Plot 1D created");
 			}
 		}
 	}
