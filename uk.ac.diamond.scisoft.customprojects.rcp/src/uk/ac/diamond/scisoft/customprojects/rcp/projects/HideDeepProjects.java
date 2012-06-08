@@ -72,6 +72,7 @@ public class HideDeepProjects extends ViewerFilter {
 		}
 		
 		//logger.debug("---------  REFRESHING --------------");
+		if (element instanceof IResource){
 		try {
 			((IResource)element).getParent().refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
 			((IResource)element).getProject().refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
@@ -80,7 +81,7 @@ public class HideDeepProjects extends ViewerFilter {
 		} catch (CoreException e) {
 			logger.error("error refreshing project explorer" + e.getMessage());
 		}
-	
+	}// end check element instanceof iresource
 		
 		return true;
 	}
