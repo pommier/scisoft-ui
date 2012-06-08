@@ -49,30 +49,29 @@ public class PyDevAdditionalInterpreterSettings extends InterpreterNewCustomEntr
 		// Try to add the scisoftpy location when in dev
 		URL scisoftpyInitURL= null;
 		try {
-			scisoftpyInitURL = FileLocator.toFileURL(FileLocator.find(new URL(
-					"platform:/plugin/uk.ac.diamond.scisoft.python/src/scisoftpy/__init__.py")));
+			scisoftpyInitURL = FileLocator.find(new URL("platform:/plugin/uk.ac.diamond.scisoft.python/src/scisoftpy/__init__.py"));
 		} catch (MalformedURLException e) {
 			// unreachable as it is a constant string
-		} catch (IOException e) {
-			// Don't add if cannot be found
 		}
 
-		// Try to add the scisoftpy location when in dev
+		// Try to add the scisoftpy location when deployed
 		if (scisoftpyInitURL == null) {
 			try {
-				scisoftpyInitURL = FileLocator.toFileURL(FileLocator.find(new URL(
-						"platform:/plugin/uk.ac.diamond.scisoft.python/scisoftpy/__init__.py")));
+				scisoftpyInitURL = FileLocator.find(new URL("platform:/plugin/uk.ac.diamond.scisoft.python/scisoftpy/__init__.py"));
 			} catch (MalformedURLException e) {
 				// unreachable as it is a constant string
-			} catch (IOException e) {
-				// Don't add if cannot be found
 			}
 		}
 		if (scisoftpyInitURL != null){
-			IPath scisoftpyInitPath = new Path(scisoftpyInitURL.getPath());
-			IPath rootPath = scisoftpyInitPath.removeLastSegments(2); // remove scisoftpy and __init__.py
-			IPath path = rootPath.removeTrailingSeparator();
-			entriesToAdd.add(path.toOSString());
+			try {
+				scisoftpyInitURL = FileLocator.toFileURL(scisoftpyInitURL);
+				IPath scisoftpyInitPath = new Path(scisoftpyInitURL.getPath());
+				IPath rootPath = scisoftpyInitPath.removeLastSegments(2); // remove scisoftpy and __init__.py
+				IPath path = rootPath.removeTrailingSeparator();
+				entriesToAdd.add(path.toOSString());
+			} catch (IOException e) {
+				logger.debug("Failed to convert scisoft URL into a file URL", e);
+			}
 		} else {		
 			logger.debug("Failed to find location of scisfotpy to add the python path");
 		}
