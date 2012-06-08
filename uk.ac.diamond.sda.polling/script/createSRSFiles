@@ -1,0 +1,6 @@
+#! /bin/sh
+
+PYTHONPATH=/dls_sw/apps/numpy/1.3.0/lib/python2.6/site-packages
+export PYTHONPATH
+
+/dls_sw/apps/python/2.6.2/bin/python createSRSFiles.py $@
