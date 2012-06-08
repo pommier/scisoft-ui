@@ -271,7 +271,32 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 			setFilename(fileName);
 
 			setHDF5Tree(ltree);
+
+			new Thread(new Runnable() { // wait till loader completion whilst periodically refreshing viewer
+				@Override
+				public void run() {
+					while (loader.isLoading()) {
+						try {
+							Thread.sleep(1000l);
+							refreshTree();
+						} catch (InterruptedException e) {
+						}
+					}
+					refreshTree();
+				}
+			}).start();
 		}
+	}
+
+	private void refreshTree() {
+		if (display != null)
+			display.syncExec(new Runnable() {
+				@Override
+				public void run() {
+					tableTree.refresh();
+//					display.update();
+				}
+			});
 	}
 
 	/**

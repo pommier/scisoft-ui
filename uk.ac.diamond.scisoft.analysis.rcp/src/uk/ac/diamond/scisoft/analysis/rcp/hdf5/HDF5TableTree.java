@@ -226,10 +226,19 @@ public class HDF5TableTree extends Composite {
 	 * @param tree given by a node link
 	 */
 	public void setInput(HDF5NodeLink tree) {
-		if (tViewer!=null && tViewer.getContentProvider()!=null) {
+		if (tViewer != null && tViewer.getContentProvider() != null) {
 		    tViewer.setInput(tree);
 //		    TODO decide whether this is needed
 //		    tViewer.getTree().setItemCount(countChildren(tree, treeFilter));
+		}
+	}
+
+	/**
+	 * Refresh viewer's content
+	 */
+	public void refresh() {
+		if (tViewer != null && !isDisposed()) {
+			tViewer.refresh();
 		}
 	}
 
