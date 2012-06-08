@@ -16,6 +16,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay;
 
+import org.eclipse.swt.graphics.Image;
+
 /**
  * A 2D Overlay provider
  */
@@ -159,6 +161,14 @@ public interface Overlay2DProvider extends OverlayProvider {
 	
 	public void drawEllipse(int primID, double cx, double cy, double a, double b, double omega);
 	
-
+	/**
+	 * Draw an image
+	 * @param imageID id of the image
+	 * @param lux left upper x coordinate
+	 * @param luy left upper y coordinate
+	 * @param rlx right lower x coordinate
+	 * @param rly right lower y coordinate
+	 */
+	public void drawImage(int imageID, Image image, double lux, double luy, double rlx, double rly);
 
 }
