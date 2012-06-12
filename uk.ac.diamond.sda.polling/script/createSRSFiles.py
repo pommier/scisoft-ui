@@ -11,7 +11,7 @@ class srs_file_creator:
         self.filelocation = ""
         self.timelap = ""
         
-    def create_files(self, filelocation, savingpath, filenumber, timelap, xaxis, yaxis):
+    def create_files(self, filelocation, savingpath, filenumber, timelap, xaxis, yaxis, deletefiles):
         #create files
         count = 0
         while (count < filenumber):
@@ -64,6 +64,10 @@ class srs_file_creator:
             count = count + 1
             #wait ? sec
             time.sleep(timelap)
+        
+        #clean folder
+        if(deletefiles):
+            srs_file_creator.clean_up(self, filelocation, savingpath)
 
     
     def get_value_of_key(self, pollingjob, key):
@@ -80,13 +84,23 @@ class srs_file_creator:
         FILE.close()
         return value
 
+    def clean_up(self, filelocation, folder):
+        os.remove(filelocation)
+        for file in os.listdir(folder):
+            file_path = os.path.join(folder, file)
+            try:
+                #if os.path.isfile(file_path):
+                os.unlink(file_path)
+            except Exception, e:
+                print e
+
 
     
 if __name__ == "__main__":
     print "SRS File creator"
     if len(sys.argv) != 4 :
         print "\n Usage :"
-        print " createSRSFiles pollingjob.txt /out/put/pathname/ number_of_files_to_create\n"
+        print " createSRSFiles pollingjob.txt /out/put/pathname/ number_of_files_to_create True/False\n"
         sys.exit(0)
 
     pollingjob = sys.argv[1]
@@ -122,7 +136,7 @@ if __name__ == "__main__":
     time.sleep(2)
     
     print "SRS File creation starting..."
-    #create the files
-    filecreator.create_files(filelocation,outpath,filenumber,timelap, xaxis, yaxis)
+    #create the files if True, the files are deleted afterwards. if False, they are not
+    filecreator.create_files(filelocation,outpath,filenumber,timelap, xaxis, yaxis, True)
     print str(filenumber) + " files have been created in " + str(timelap*filenumber) + " seconds."
 
