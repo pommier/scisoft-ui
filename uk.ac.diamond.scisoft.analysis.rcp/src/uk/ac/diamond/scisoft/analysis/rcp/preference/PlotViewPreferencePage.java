@@ -47,6 +47,8 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 	private Spinner spnAutoLoThreshold;
 	private Spinner spnAutoHiThreshold;
 	private Combo cmbPlottingSystem;
+	private Button chkXAxisAutoScale;
+	private Button chkYAxisAutoScale;
 
 	public PlotViewPreferencePage() {
 	}
@@ -74,6 +76,29 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		cmbPlottingSystem = new Combo(plottingSystemGroup, SWT.RIGHT | SWT.READ_ONLY);
 		cmbPlottingSystem.add("Hardware Accelerated", 0);
 		cmbPlottingSystem.add("Lightweight", 1);
+		cmbPlottingSystem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(e.getSource().toString().equals("Hardware Accelerated")){
+					chkXAxisAutoScale.setEnabled(false);
+					chkYAxisAutoScale.setEnabled(false);
+				}else if (e.getSource().toString().equals("Lightweight")){
+					chkXAxisAutoScale.setEnabled(true);
+					chkYAxisAutoScale.setEnabled(true);
+				}
+			}
+		});
+		chkXAxisAutoScale = new Button(plottingSystemGroup, SWT.CHECK);
+		chkXAxisAutoScale.setText("X-Axis auto-scale");
+		chkYAxisAutoScale = new Button(plottingSystemGroup, SWT.CHECK);
+		chkYAxisAutoScale.setText("Y-Axis auto-scale");
+		if(getPlottingSystemPreference()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+			chkXAxisAutoScale.setEnabled(false);
+			chkYAxisAutoScale.setEnabled(false);
+		} else if(getPlottingSystemPreference()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+			chkXAxisAutoScale.setEnabled(true);
+			chkYAxisAutoScale.setEnabled(true);
+		}
 
 		Group plotMulti1DGroup = new Group(comp, SWT.NONE);
 		plotMulti1DGroup.setText("Plot 1DStack");
@@ -182,6 +207,8 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		cmbCameraPerspective.select(getPerspectivePreference());
 		chkScrollbars.setSelection(getScrollBarPreference());
 		cmbPlottingSystem.select(getPlottingSystemPreference());
+		chkXAxisAutoScale.setSelection(getAbstractPlottingXAxisAutoscalePreference());
+		chkYAxisAutoScale.setSelection(getAbstractPlottingYAxisAutoscalePreference());
 	}
 
 	/**
@@ -197,6 +224,8 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		cmbCameraPerspective.select(getDefaultPerspectivePreference());
 		chkScrollbars.setSelection(getDefaultScrollBarPreference());
 		cmbPlottingSystem.select(getDefaultPlottingSystemPreference());
+		chkXAxisAutoScale.setSelection(getDefaultAbstractPlottingXAxisAutoScalePreference());
+		chkYAxisAutoScale.setSelection(getDefaultAbstractPlottingYAxisAutoScalePreference());
 	}
 
 	/**
@@ -212,6 +241,8 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		setCameraPerspective(cmbCameraPerspective.getSelectionIndex());
 		setScrollBarPreference(chkScrollbars.getSelection());
 		setPlottingSystem(cmbPlottingSystem.getSelectionIndex());
+		setAbstractPlottingXAxisAutoscalePreference(chkXAxisAutoScale.getSelection());
+		setAbstractPlottingYAxisAutoscalePreference(chkYAxisAutoScale.getSelection());
 	}
 
 	private int getDefaultPerspectivePreference() {
@@ -248,6 +279,14 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 
 	private int getDefaultPlottingSystemPreference() {
 		return getPreferenceStore().getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
+	}
+
+	private boolean getDefaultAbstractPlottingXAxisAutoScalePreference() {
+		return getPreferenceStore().getDefaultBoolean(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_X_AXIS_AUTOSCALE);
+	}
+
+	private boolean getDefaultAbstractPlottingYAxisAutoScalePreference() {
+		return getPreferenceStore().getDefaultBoolean(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_Y_AXIS_AUTOSCALE);
 	}
 
 	private int getPerspectivePreference() {
@@ -313,6 +352,20 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		return getPreferenceStore().getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
 	}
 
+	private boolean getAbstractPlottingXAxisAutoscalePreference() {
+		if (getPreferenceStore().isDefault(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_X_AXIS_AUTOSCALE)) {
+			return getPreferenceStore().getDefaultBoolean(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_X_AXIS_AUTOSCALE);
+		}
+		return getPreferenceStore().getBoolean(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_X_AXIS_AUTOSCALE);
+	}
+
+	private boolean getAbstractPlottingYAxisAutoscalePreference() {
+		if (getPreferenceStore().isDefault(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_Y_AXIS_AUTOSCALE)) {
+			return getPreferenceStore().getDefaultBoolean(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_Y_AXIS_AUTOSCALE);
+		}
+		return getPreferenceStore().getBoolean(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_Y_AXIS_AUTOSCALE);
+	}
+
 	private void setColourMapChoicePreference(int value) {
 		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEW_PLOT2D_COLOURMAP, value);
 	}
@@ -347,5 +400,13 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 
 	private void setPlottingSystem(int value) {
 		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM, value);
+	}
+
+	private void setAbstractPlottingXAxisAutoscalePreference(boolean value) {
+		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_X_AXIS_AUTOSCALE, value);
+	}
+
+	private void setAbstractPlottingYAxisAutoscalePreference(boolean value) {
+		getPreferenceStore().setValue(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_Y_AXIS_AUTOSCALE, value);
 	}
 }
