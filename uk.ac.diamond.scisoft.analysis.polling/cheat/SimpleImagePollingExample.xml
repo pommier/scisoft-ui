@@ -47,7 +47,7 @@
 			To simulate a external process in a system editor like gedit or notepad create the file which you specified as the Filename in your ImagePlotUpdateJob.txt file.  Into this put the name of an image file you have access too, at Diamond you can use:
 			<br/><br/>/dls/sci-scratch/ExampleData/ADSC-Q315/adsc/F6_1_001.img
 			<br/><br/>Once you save this file, the filename of the image you have names should appear in <b>Plot 1</b>
-			<br/><br/>If you now change the filename to any other image filename, such as 'F6_1_002.img' (or any other number up to 100) you should see the image update, remember thought that the file is only checked every 3 seconds at tme moment, so if you change the file too quickly it wont necessarily keep up.  Also remember to save the file after changing the filename inside it otherwise the Polling can't pick it up. 
+			<br/><br/>If you now change the filename to any other image filename, such as 'F6_1_002.img' (or any other number up to 100) you should see the image update, remember though that the file is only checked every 3 seconds at tme moment, so if you change the file too quickly it wont necessarily keep up.  Also remember to save the file after changing the filename inside it otherwise the Polling can't pick it up. 
 			<br/><br/>Try changing the PollTime in the 'ImagePlotUpdateJob.txt' to make the updates less or more responsive to change, remember to save the file after every change. 
 		</description>
 	</item>
