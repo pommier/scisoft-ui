@@ -84,6 +84,15 @@ public class Plotting1DUI extends AbstractPlotUI {
 
 					Collection<ITrace> currentTraces = plottingSystem.getTraces();
 					final ArrayList<ITrace> traceList = new ArrayList<ITrace>(currentTraces);
+
+					// remove the traces that are not part of the yDataset anymore 
+					// (in the case of the stack plot item number decrease for instance)
+					if(yDatasets.size()<traceList.size()){
+						for(int j=yDatasets.size(); j<traceList.size(); j++){
+							plottingSystem.removeTrace(traceList.get(j));
+						}
+					}
+
 					for (ITrace iTrace : currentTraces) {
 						dataName = iTrace.getName();
 						if(iTrace instanceof ILineTrace)
