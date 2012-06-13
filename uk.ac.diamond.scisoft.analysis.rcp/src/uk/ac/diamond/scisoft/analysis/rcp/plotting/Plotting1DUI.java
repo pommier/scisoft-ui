@@ -29,6 +29,7 @@ import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.trace.ILineTrace;
 import org.dawb.common.ui.plot.trace.ITrace;
 import org.dawb.common.ui.plot.trace.ILineTrace.TraceType;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,8 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
+import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 
 /**
  * Class to create a 1D plotting
@@ -121,6 +124,12 @@ public class Plotting1DUI extends AbstractPlotUI {
 							}
 //							TODO : perform an auto scale only if no zoom has been previously done
 //								plottingSystem.autoscaleAxes();
+							// autoscale xAxis (in the stack plot use case)
+							if(isAbsractPlottingXAxisAutoscaled())
+								plottingSystem.getSelectedXAxis().setRange(xAxisValues.getDouble(xAxisValues.minPos()), xAxisValues.getDouble(xAxisValues.maxPos()));
+							// autoscale yAxis (in the stack plot use case)
+							if(isAbsractPlottingYAxisAutoscaled())
+								plottingSystem.getSelectedYAxis().setRange(yData.getDouble(yData.minPos()), yData.getDouble(yData.maxPos()));
 							logger.debug("Plot 1D updated");
 						}
 						i++;
@@ -155,4 +164,17 @@ public class Plotting1DUI extends AbstractPlotUI {
 		observers.removeAll(observers);
 	}
 
+	private boolean isAbsractPlottingXAxisAutoscaled() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_X_AXIS_AUTOSCALE) ? 
+				preferenceStore.getDefaultBoolean(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_X_AXIS_AUTOSCALE)
+				: preferenceStore.getBoolean(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_X_AXIS_AUTOSCALE);
+	}
+
+	private boolean isAbsractPlottingYAxisAutoscaled() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_Y_AXIS_AUTOSCALE) ? 
+				preferenceStore.getDefaultBoolean(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_Y_AXIS_AUTOSCALE)
+				: preferenceStore.getBoolean(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_Y_AXIS_AUTOSCALE);
+	}
 }
