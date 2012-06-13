@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -54,9 +55,11 @@ import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Slice;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSet3DPlot2DMulti;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.views.DatasetTableView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView;
 import uk.ac.gda.monitor.IMonitor;
@@ -209,6 +212,8 @@ class PlotTab extends ATab {
 	private ImageExplorerView explorer = null;
 	protected boolean runLongJob = false;
 	private boolean plotStackIn3D = false;
+	private boolean plotXAutoScale = false;
+	private boolean plotYAutoScale = false;
 
 	public PlotTab(IWorkbenchPartSite partSite, InspectorType type, String title, String[] axisNames) {
 		super(partSite, type, title, axisNames);
@@ -243,6 +248,37 @@ class PlotTab extends ATab {
 			populateCombos();
 
 		if (itype == InspectorType.LINESTACK) {
+			final Button x = new Button(holder, SWT.CHECK);
+			x.setText("X autoscale");
+			x.setToolTipText("Automatic rescaling of the X-Axis");
+			plotXAutoScale = isAbstractPlottingXAxisAutoscaled();
+			x.setSelection(plotXAutoScale);
+			x.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					plotXAutoScale = x.getSelection();
+					setAbsractPlottingXAxisAutoscale(plotXAutoScale);
+				}
+			});
+			final Button y = new Button(holder, SWT.CHECK);
+			y.setText("Y autoscale");
+			y.setToolTipText("Automatic rescaling of the Y-Axis");
+			plotYAutoScale = isAbstractPlottingYAxisAutoscaled();
+			y.setSelection(plotYAutoScale);
+			y.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					plotYAutoScale = y.getSelection();
+					setAbsractPlottingYAxisAutoscale(plotYAutoScale);
+				}
+			});
+			if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+				x.setEnabled(false);
+				y.setEnabled(false);
+			}else if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+				x.setEnabled(true);
+				y.setEnabled(true);
+			}
 			final Button b = new Button(holder, SWT.CHECK);
 			b.setText("In 3D");
 			b.setToolTipText("Check to plot stack of lines in 3D");
@@ -1050,6 +1086,37 @@ class PlotTab extends ATab {
 		} finally {
 			stopInspection();
 		}
+	}
+
+	private int getDefaultPlottingSystemChoice() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
+				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
+				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
+	}
+
+	private boolean isAbstractPlottingXAxisAutoscaled() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_X_AXIS_AUTOSCALE) ? 
+				preferenceStore.getDefaultBoolean(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_X_AXIS_AUTOSCALE)
+				: preferenceStore.getBoolean(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_X_AXIS_AUTOSCALE);
+	}
+
+	private boolean isAbstractPlottingYAxisAutoscaled() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_Y_AXIS_AUTOSCALE) ? 
+				preferenceStore.getDefaultBoolean(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_Y_AXIS_AUTOSCALE)
+				: preferenceStore.getBoolean(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_Y_AXIS_AUTOSCALE);
+	}
+
+	private void setAbsractPlottingXAxisAutoscale(boolean value) {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		preferenceStore.setValue(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_X_AXIS_AUTOSCALE, value);
+	}
+
+	private void setAbsractPlottingYAxisAutoscale(boolean value) {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		preferenceStore.setValue(PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_Y_AXIS_AUTOSCALE, value);
 	}
 }
 
