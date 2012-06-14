@@ -67,6 +67,7 @@ Export-Package: com.swtdesigner,
 Import-Package: org.dawb.common.util.eclipse,
  org.dawb.common.util.io,
  org.dawb.common.util.list,
+ org.eclipse.core.filesystem,
  org.eclipse.draw2d,
  org.eclipse.ui,
  org.slf4j;version="[1.5.0,2.0.0)"

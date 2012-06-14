@@ -1035,7 +1035,7 @@
    <extension
          point="uk.ac.diamond.scisoft.analysis.rcp.ExplorerViewDefault">
       <ViewDefaultRegister
-            ViewName="Dataset Plot">
+            ViewName="MX image">
       </ViewDefaultRegister>
    </extension>
    <extension
