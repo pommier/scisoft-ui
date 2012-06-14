@@ -87,7 +87,7 @@ public class FeedbackView extends ViewPart {
 
 	/**
 	 * This is a callback that will allow us
-	 * to create the viewer and initialize it.
+	 * to create the viewer and initialise it.
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
@@ -172,7 +172,7 @@ public class FeedbackView extends ViewPart {
 			@Override
 			public void run() {
 
-				UIJob feedbackJob = new UIJob("Sending feedback to SDA developers") {
+				UIJob feedbackJob = new UIJob("Sending feedback to DAWN developers") {
 
 					@Override
 					public IStatus runInUIThread(IProgressMonitor monitor) {
@@ -299,7 +299,7 @@ public class FeedbackView extends ViewPart {
 				@Override
 				public void run() {
 					MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-							"Feedback not sent!", "For some reason we could not send the feedback direclty, please go to www.dawnsci.org and register your problem there.");
+							"Feedback not sent!", "There appears to be no email service set up on this computer, and so we cannot automatically process your feedback.  Please go to www.dawnsci.org and register your problem there. (This is accessible form the welcome page)");
 				}
 			});
 		}
