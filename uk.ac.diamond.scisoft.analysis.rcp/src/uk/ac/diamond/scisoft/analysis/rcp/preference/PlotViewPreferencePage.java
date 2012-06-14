@@ -88,17 +88,6 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 				}
 			}
 		});
-		chkXAxisAutoScale = new Button(plottingSystemGroup, SWT.CHECK);
-		chkXAxisAutoScale.setText("X-Axis auto-scale");
-		chkYAxisAutoScale = new Button(plottingSystemGroup, SWT.CHECK);
-		chkYAxisAutoScale.setText("Y-Axis auto-scale");
-		if(getPlottingSystemPreference()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
-			chkXAxisAutoScale.setEnabled(false);
-			chkYAxisAutoScale.setEnabled(false);
-		} else if(getPlottingSystemPreference()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
-			chkXAxisAutoScale.setEnabled(true);
-			chkYAxisAutoScale.setEnabled(true);
-		}
 
 		Group plotMulti1DGroup = new Group(comp, SWT.NONE);
 		plotMulti1DGroup.setText("Plot 1DStack");
@@ -111,6 +100,29 @@ public class PlotViewPreferencePage extends PreferencePage implements IWorkbench
 		cmbCameraPerspective = new Combo(plotMulti1DGroup, SWT.RIGHT | SWT.READ_ONLY);
 		cmbCameraPerspective.add("Orthographic");
 		cmbCameraPerspective.add("Perspective");
+//		Composite compAxisAutoscale = new Composite(plotMulti1DGroup, SWT.LEFT);
+//		compAxisAutoscale.setLayout(new GridLayout(1, false));
+//		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
+//		compAxisAutoscale.setLayoutData(gd);
+		Label lblXAxisAutoscale = new Label(plotMulti1DGroup, SWT.LEFT);
+		lblXAxisAutoscale.setText("X-Axis auto-scale");
+		lblXAxisAutoscale.setToolTipText("Auto-scale x-axis in lightweight plotting mode");
+		chkXAxisAutoScale = new Button(plotMulti1DGroup, SWT.CHECK);
+		//chkXAxisAutoScale.setText("X-Axis auto-scale");
+		chkXAxisAutoScale.setToolTipText("Auto-scale x-axis in lightweight plotting mode");
+		Label lblYAxisAutoscale = new Label(plotMulti1DGroup, SWT.LEFT);
+		lblYAxisAutoscale.setText("Y-Axis auto-scale");
+		lblYAxisAutoscale.setToolTipText("Auto-scale y-axis in lightweight plotting mode");
+		chkYAxisAutoScale = new Button(plotMulti1DGroup, SWT.CHECK);
+		//chkYAxisAutoScale.setText("Y-Axis auto-scale");
+		chkYAxisAutoScale.setToolTipText("Auto-scale y-axis in lightweight plotting mode");
+		if(getPlottingSystemPreference()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+			chkXAxisAutoScale.setEnabled(false);
+			chkYAxisAutoScale.setEnabled(false);
+		} else if(getPlottingSystemPreference()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+			chkXAxisAutoScale.setEnabled(true);
+			chkYAxisAutoScale.setEnabled(true);
+		}
 
 		Group plot2DGroup = new Group(comp, SWT.NONE);
 		plot2DGroup.setText("Plot 2D");

@@ -59,6 +59,7 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             class="uk.ac.diamond.scisoft.analysis.polling.PollingPerspectiveFactory"
+            icon="icons/cog.png"
             id="uk.ac.diamond.scisoft.analysis.polling.perspective"
             name="Polling">
       </perspective>
