@@ -250,7 +250,7 @@ class PlotTab extends ATab {
 		if (itype == InspectorType.LINESTACK) {
 			final Button x = new Button(holder, SWT.CHECK);
 			x.setText("X autoscale");
-			x.setToolTipText("Automatic rescaling of the X-Axis");
+			x.setToolTipText("Automatic rescaling of the X-Axis in lightweight plotting mode");
 			plotXAutoScale = isAbstractPlottingXAxisAutoscaled();
 			x.setSelection(plotXAutoScale);
 			x.addSelectionListener(new SelectionAdapter() {
@@ -262,7 +262,7 @@ class PlotTab extends ATab {
 			});
 			final Button y = new Button(holder, SWT.CHECK);
 			y.setText("Y autoscale");
-			y.setToolTipText("Automatic rescaling of the Y-Axis");
+			y.setToolTipText("Automatic rescaling of the Y-Axis in lightweight plotting mode");
 			plotYAutoScale = isAbstractPlottingYAxisAutoscaled();
 			y.setSelection(plotYAutoScale);
 			y.addSelectionListener(new SelectionAdapter() {
