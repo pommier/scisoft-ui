@@ -605,7 +605,7 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 					double min = peak.getPosition() - 2 * peak.getFWHM();
 					double max = peak.getPosition() + 2 * peak.getFWHM();
 					try {
-						List<CompositeFunction> functions = Generic1DFitter.fitPeaks(createXData(min, max),
+						List<CompositeFunction> functions = Generic1DFitter.fitPeakFunctions(createXData(min, max),
 								sliceDataSet(min, max), peak, optimiser, smooth, 1);
 						
 
@@ -777,7 +777,7 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 				if (fitData.getNumberOfPeaks() == 1) {
 					fittedPeaks = fitSinglePeak(xData, slicedData, alg, peakToFit, start, finalpos);
 				} else {
-					final List<CompositeFunction> functions = Generic1DFitter.fitPeaks(xData, slicedData, peakToFit, alg, fitData.getSmoothing(),
+					final List<CompositeFunction> functions = Generic1DFitter.fitPeakFunctions(xData, slicedData, peakToFit, alg, fitData.getSmoothing(),
 							fitData.getNumberOfPeaks());
 					fittedPeaks = new ArrayList<APeak>(functions.size());
 					for (CompositeFunction compositeFunction : functions) {
@@ -1195,7 +1195,7 @@ public class Fitting1D extends SidePlot implements Overlay1DConsumer, SelectionL
 
 		@Override
 		protected IStatus run(final IProgressMonitor monitor) {
-			final List<CompositeFunction> functions = Generic1DFitter.fitPeaks(xAxis, yAxis, peak, optomiser, smooth,
+			final List<CompositeFunction> functions = Generic1DFitter.fitPeakFunctions(xAxis, yAxis, peak, optomiser, smooth,
 					numberOfPeaks, cutoff, autoStop, measure, new IAnalysisMonitor() {
 
 						@Override
