@@ -20,33 +20,28 @@ import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.IFolderLayout;
 
-import uk.ac.diamond.sda.meta.views.MetadataPageView;
-
 public class DiffractionViewerPerspective implements IPerspectiveFactory {
 
 	static final String ID = "uk.ac.diamond.scisoft.diffractionviewerperspective";
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
-			
-		IFolderLayout toolsLayout = layout.createFolder("toolsFolder", IPageLayout.RIGHT, 0.3f, layout.getEditorArea());
-		toolsLayout.addView("uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView");
 
-		IFolderLayout plotsLayout = layout.createFolder("plotFolder", IPageLayout.RIGHT, 0.4f, "toolsFolder");
-		plotsLayout.addView("uk.ac.diamond.scisoft.analysis.rcp.plotViewDP");
-		
-		IFolderLayout sidefolder = layout.createFolder("sidefolder", IPageLayout.TOP, 0.8f, "toolsFolder");
-		sidefolder.addView("uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView:Dataset Plot");
-		sidefolder.addView("uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView:Dataset Plot");
-		
-		IFolderLayout explorerLayout = layout.createFolder("explorerFolder", IPageLayout.TOP, 0.5f, "sidefolder");
+		layout.setEditorAreaVisible(true);
+
+		IFolderLayout navigatorLayout = layout.createFolder("navigatorFolder", IPageLayout.LEFT, 0.25f, layout.getEditorArea());
+		navigatorLayout.addView("uk.ac.diamond.sda.navigator.views.FileView");
+		navigatorLayout.addView("org.eclipse.ui.navigator.ProjectExplorer");
+
+		IFolderLayout metadataLayout = layout.createFolder("metadataFolder", IPageLayout.BOTTOM, 0.65f, "navigatorFolder");
+		metadataLayout.addView("uk.ac.diamond.sda.meta.MetadataPageView");
+
+		IFolderLayout explorerLayout = layout.createFolder("explorerFolder", IPageLayout.BOTTOM, 0.70f, layout.getEditorArea());
 		explorerLayout.addView("uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView");
 		explorerLayout.addPlaceholder("org.dawb.workbench.views.imageMonitorView");
 		
-		layout.addView(MetadataPageView.ID, IPageLayout.TOP, 0.8f, layout.getEditorArea());
+		IFolderLayout toolPageLayout = layout.createFolder("toolPageFolder", IPageLayout.RIGHT, 0.50f, layout.getEditorArea());
+		toolPageLayout.addPlaceholder("*");
 		
-		IFolderLayout navigatorLayout = layout.createFolder("navigators", IPageLayout.TOP, 0.6f, "uk.ac.diamond.sda.meta.MetadataPageView");
-		navigatorLayout.addView("uk.ac.diamond.sda.navigator.views.FileView");
-		navigatorLayout.addView("org.eclipse.ui.navigator.ProjectExplorer");
 		
 		
 		if (layout.getViewLayout("uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView") != null)

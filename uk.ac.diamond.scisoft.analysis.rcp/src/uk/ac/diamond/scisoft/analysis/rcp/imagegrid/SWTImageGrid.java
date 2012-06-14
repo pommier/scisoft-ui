@@ -16,11 +16,13 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.imagegrid;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.dawb.common.ui.util.EclipseUtils;
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
@@ -41,7 +43,10 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.IDE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -452,6 +457,7 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 	
 	private void sendOffLoadRequest(List<String> files, String plotViewName) {
 		
+/*
 		if (usePlotServer) {
 //			List<String> files = new ArrayList<String>();
 //			files.add(filename);
@@ -474,12 +480,27 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 			}
 			
 		} else { // Just tell RCP to open the file, the editor should be there for it
-			try {
-				EclipseUtils.openExternalEditor(files.get(0));
-			} catch (PartInitException e) {
-				logger.error("Cannot open "+files.get(0), e);
+*/
+//			try {
+//				EclipseUtils.openExternalEditor(files.get(0));
+//			} catch (PartInitException e) {
+//				logger.error("Cannot open "+files.get(0), e);
+//			}
+
+			File fileToOpen = new File(files.get(0));
+			 
+			if (fileToOpen.exists() && fileToOpen.isFile()) {
+			    IFileStore fileStore = EFS.getLocalFileSystem().getStore(fileToOpen.toURI());
+			    IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+			 
+			    try {
+			        IDE.openEditorOnFileStore( page, fileStore );
+			    } catch ( PartInitException e ) {
+			        //Put your exception handler here if you wish to
+					logger.error("Cannot open "+files.get(0), e);
+			    }
 			}
-		}
+//		}
 	}
 	
 	
