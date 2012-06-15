@@ -63,5 +63,9 @@ public enum PrimitiveType {
 	/**
 	 * Ellipse primitive
 	 */
-	ELLIPSE
+	ELLIPSE,
+	/**
+	 * Image primitive
+	 */
+	IMAGE
 }

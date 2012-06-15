@@ -31,6 +31,7 @@ import java.util.Map;
 
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +62,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.objects.BoxObject;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.objects.CircleObject;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.objects.CircleSectorObject;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.objects.EllipseObject;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.objects.ImageObject;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.objects.LineObject;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.objects.OverlayObject;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.objects.PointListObject;
@@ -2879,6 +2881,8 @@ public class DataSet3DPlot2D implements IDataSet3DCorePlot,
 					return new PointObject(primID, this);
 				case POINTLIST:
 					return new PointListObject(primID, this);
+				case IMAGE:
+					return new ImageObject(primID, this);
 				default:		
 					return null;
 			}
@@ -2940,6 +2944,11 @@ public class DataSet3DPlot2D implements IDataSet3DCorePlot,
 	public void toggleErrorBars(boolean xcoord, boolean ycoord, boolean zcoord) {
 		// TODO Auto-generated method stub	
 		// not yet implemented
+	}
+
+	@Override
+	public void drawImage(int imageID, Image image, double lux, double luy, double rlx, double rly) {
+		throw new UnsupportedOperationException("Unsupported/implemented for DataSet3DPlot2D, please implement if needed");
 	}
 
 }
