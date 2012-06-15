@@ -22,7 +22,6 @@ import java.security.CodeSource;
 import java.security.ProtectionDomain;
 
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -131,8 +130,11 @@ public class Activator extends AbstractUIPlugin {
 		// We need to point Jython cache to a directory writable by a user
 		// Setting -Dpython.cachedir option to .jython_cachedir in users SDA workspace
 		IPreferenceStore pydevPreferenceStore =  new ScopedPreferenceStore(InstanceScope.INSTANCE,"org.python.pydev");
-		IPath cachdir_path = ResourcesPlugin.getWorkspace().getRoot().getLocation().append(".jython_cachedir");
-		pydevPreferenceStore.setDefault(IInterpreterManager.JYTHON_CACHE_DIR, cachdir_path.toOSString());
+		File cachdir_path = ResourcesPlugin.getWorkspace().getRoot().getLocation().append(".jython_cachedir").toFile();
+		if (cachdir_path.exists() || cachdir_path.mkdir())
+			pydevPreferenceStore.setDefault(IInterpreterManager.JYTHON_CACHE_DIR, cachdir_path.getAbsolutePath());
+		else
+			logger.warn("Failed to set Jyhton cache directory to {}", cachdir_path.getAbsolutePath());
 	}
 
 
