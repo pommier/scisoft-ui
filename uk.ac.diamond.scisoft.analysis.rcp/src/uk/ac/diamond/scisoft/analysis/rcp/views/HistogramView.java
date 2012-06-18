@@ -27,8 +27,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.WeakHashMap;
 
+import org.apache.commons.collections.map.AbstractReferenceMap;
+import org.apache.commons.collections.map.ReferenceMap;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -144,7 +146,8 @@ public class HistogramView extends ViewPart implements SelectionListener,
 		public double min = Double.NaN;
 	}
 	private MaxMin currentMaxMin;
-	private Map<Integer, MaxMin> cachedMaxMin;
+	//private Map<Integer, MaxMin> cachedMaxMin;
+	private ReferenceMap cachedMaxMin;
 
 	private boolean autoContrast = true;
 	private boolean lockRange = false;
@@ -163,7 +166,7 @@ public class HistogramView extends ViewPart implements SelectionListener,
 	public HistogramView() {
 		histogramFunc = new Histogram(histogramSize);
 		xAxis = new AxisValues();
-		cachedMaxMin = new HashMap<Integer, MaxMin>();
+		cachedMaxMin = new ReferenceMap(AbstractReferenceMap.SOFT, AbstractReferenceMap.SOFT);
 	}
 
 	@Override
@@ -696,7 +699,7 @@ public class HistogramView extends ViewPart implements SelectionListener,
 			return;
 
 		MaxMin oldMM = currentMaxMin;
-		currentMaxMin = cachedMaxMin.get(data.hashCode());
+		currentMaxMin = (MaxMin) cachedMaxMin.get(data.hashCode());
 		if (currentMaxMin == null) {
 			currentMaxMin = new MaxMin();
 			cachedMaxMin.put(data.hashCode(), currentMaxMin);
