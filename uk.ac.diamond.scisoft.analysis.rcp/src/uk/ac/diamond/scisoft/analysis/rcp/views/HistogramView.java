@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.WeakHashMap;
 
 import org.apache.commons.collections.map.AbstractReferenceMap;
 import org.apache.commons.collections.map.ReferenceMap;
@@ -49,6 +48,8 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
@@ -88,7 +89,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
 public class HistogramView extends ViewPart implements SelectionListener,
 		IObservable, IObserver {
 	
-//	private static final Logger logger = LoggerFactory.getLogger(HistogramView.class);
+	private static final Logger logger = LoggerFactory.getLogger(HistogramView.class);
 
 	/**
 	 * 
@@ -638,6 +639,13 @@ public class HistogramView extends ViewPart implements SelectionListener,
 		histograms.add(0, blueChannel);
 		histograms.add(0, greenChannel);
 		histograms.add(0, redChannel);
+		
+		// Some logging to check on the histograms size
+		logger.debug("number of histograms stored is {}",histograms.size());
+		if(histograms.size() > 10) {
+			logger.warn("Number of stored histograms is over expected levels, now at {}",histograms.size());
+		}
+		
 		try {
 			histogramPlotter.replaceAllPlots(histograms);
 		} catch (PlotException e) {
@@ -660,6 +668,13 @@ public class HistogramView extends ViewPart implements SelectionListener,
 			histograms = new ArrayList<AbstractDataset>();
 			histograms.add(histogram);
 		}
+		
+		// Some logging to check on the histograms size
+		logger.debug("number of histograms stored is {}",histograms.size());
+		if(histograms.size() > 10) {
+			logger.warn("Number of stored histograms is over expected levels, now at {}",histograms.size());
+		}
+		
 		xAxis.setValues(DatasetUtils.linSpace(min, max, Math.max(1,histogram.getSize()+1), AbstractDataset.FLOAT64));
 		histogramPlotter.setXAxisValues(xAxis, 1);
 		generateHistogramUpdate();
