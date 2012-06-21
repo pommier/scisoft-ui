@@ -452,19 +452,15 @@
    </extension>
    <extension
          point="org.eclipse.ui.cheatsheets.cheatSheetContent">
-      <category
-            id="uk.ac.diamond.sda.navigator.basic.data.viewing.category"
-            name="Basic Data Viewing">
-      </category>
       <cheatsheet
-            category="uk.ac.diamond.sda.navigator.basic.data.viewing.category"
+            category="org.dawb.workbench.ui.cheat.sheet.basic.data.category"
             composite="true"
             contentFile="cheatsheets/DATNXSFileExplorer.xml"
             id="uk.ac.diamond.sda.navigator.dat.nxs.file.explorer.cheatsheet"
             name="DAT and NXS file explorer">
       </cheatsheet>
       <cheatsheet
-            category="uk.ac.diamond.sda.navigator.basic.data.viewing.category"
+            category="org.dawb.workbench.ui.cheat.sheet.basic.data.category"
             composite="false"
             contentFile="cheatsheets/ProjectExplorerFileDecorators.xml"
             id="uk.ac.diamond.sda.navigator.project.explorer.decorators.cheatsheet"
