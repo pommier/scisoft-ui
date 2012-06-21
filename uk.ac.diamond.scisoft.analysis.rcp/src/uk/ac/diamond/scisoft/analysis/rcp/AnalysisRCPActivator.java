@@ -21,19 +21,21 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.AnalysisRpcServerProvider;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.RMIServerProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.AnalysisRpcAndRmiPreferencePage;
-import uk.ac.diamond.scisoft.analysis.rpc.AnalysisRpcException;
 import uk.ac.diamond.scisoft.analysis.rpc.FlatteningService;
 
 /**
  * The activator class controls the plug-in life cycle
  */
 public class AnalysisRCPActivator extends AbstractUIPlugin {
+	private static final Logger logger = LoggerFactory.getLogger(AnalysisRCPActivator.class);
 
 	/**
 	 * The plug-in ID
@@ -66,8 +68,16 @@ public class AnalysisRCPActivator extends AbstractUIPlugin {
 		
 		// if the rmi server has been vetoed, dont start it up, this also has issues
 		if (Boolean.getBoolean("uk.ac.diamond.scisoft.analysis.analysisrpcserverprovider.disable") == false) {
-			AnalysisRpcServerProvider.getInstance().setPort(AnalysisRpcAndRmiPreferencePage.getAnalysisRpcPort());
-			RMIServerProvider.getInstance().setPort(AnalysisRpcAndRmiPreferencePage.getRmiPort());
+			try {
+				AnalysisRpcServerProvider.getInstance().setPort(AnalysisRpcAndRmiPreferencePage.getAnalysisRpcPort());
+			} catch (IllegalStateException ex) {
+				logger.warn("Someone has already created an Analysis RPC server", ex);
+			}
+			try {
+				RMIServerProvider.getInstance().setPort(AnalysisRpcAndRmiPreferencePage.getRmiPort());
+			} catch (IllegalStateException ex) {
+				logger.warn("Someone has already created an Analysis RMI server", ex);
+			}
 			FlatteningService.getFlattener().setTempLocation(
 					AnalysisRpcAndRmiPreferencePage.getAnalysisRpcTempFileLocation());
 		}
