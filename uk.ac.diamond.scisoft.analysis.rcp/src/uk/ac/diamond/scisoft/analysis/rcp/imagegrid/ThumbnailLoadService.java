@@ -116,7 +116,7 @@ public class ThumbnailLoadService implements Runnable, IObserver {
 	}
 	
 	private void loadAndCreateThumbnailImage(AbstractGridEntry entry) {
-		AbstractDataset ds = ImageThumbnailLoader.loadImage(entry.getFilename(),true);
+		AbstractDataset ds = ImageThumbnailLoader.loadImage(entry.getFilename(),true, false);
 		entry.createImage(ds);
 		locker.release();
 	}
