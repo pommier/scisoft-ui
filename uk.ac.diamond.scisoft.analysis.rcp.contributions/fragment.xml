@@ -1242,17 +1242,6 @@
    <extension
          point="org.eclipse.ui.cheatsheets.cheatSheetContent">
       <category
-            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.uitesting"
-            name="Basic UI Features Testing">
-      </category>
-      <cheatsheet
-            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.uitesting"
-            composite="true"
-            contentFile="cheat/PrintPlottingMain.xml"
-            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.plotprintingtest"
-            name="Plot Printing Testing">
-      </cheatsheet>
-      <category
             id="uk.ac.diamond.scisoft.analysis.rcp.contributions.divatutorial"
             name="DIVA Tutorials">
       </category>
@@ -1361,6 +1350,13 @@
             contentFile="cheat/CompareFilesIntro.xml"
             id="uk.ac.diamond.scisoft.analysis.rcp.contributions.CompareFilesCheatSheet"
             name="Compare Files Editor Introduction">
+      </cheatsheet>
+      <cheatsheet
+            category="org.dawb.workbench.ui.cheat.sheet.basic.data.category"
+            composite="false"
+            contentFile="cheat/PrintFeature.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.cheatsheet.printing"
+            name="Printing">
       </cheatsheet>
    </extension>
    <extension
