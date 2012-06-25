@@ -218,7 +218,6 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 					logger.error("There has been an issue retrieving the databean from the plotserver", e);
 				}
 			}
-			Thread.sleep(100);
 		}
 }
 
