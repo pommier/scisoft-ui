@@ -188,7 +188,7 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 	private GuiBean stashedGuiBean;
 	private String dataBeanAvailable;
 
-	private void runUpdate() {
+	private void runUpdate() throws InterruptedException {
 
 		while (dataBeanAvailable != null || stashedGuiBean != null) {
 
@@ -218,8 +218,9 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 					logger.error("There has been an issue retrieving the databean from the plotserver", e);
 				}
 			}
+			Thread.sleep(100);
 		}
-	}
+}
 
 	private void updateGuiBean(DataBean dataBean) {
 		if (guiBean == null) {
@@ -243,7 +244,11 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 
 				@Override
 				public void run() {
-					runUpdate();
+					try {
+						runUpdate();
+					} catch (InterruptedException e) {
+						//do nothing - thread has completed
+					}
 				}
 			}, "PlotViewUpdateThread");
 
@@ -395,7 +400,8 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 	public void dispose() {
 		if (plotWindow != null)
 			plotWindow.dispose();
-		// plotConsumer.stop();
+		
+		plotServer.deleteIObserver(this);
 		execSvc.shutdown();
 		deleteIObservers();
 		deleteDataObservers();
