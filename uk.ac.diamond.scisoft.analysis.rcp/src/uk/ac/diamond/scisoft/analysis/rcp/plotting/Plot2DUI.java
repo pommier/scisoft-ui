@@ -52,6 +52,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot2DUI.Plot2DUIUpdater;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.ScaleType;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.TickFormatting;
@@ -67,6 +68,16 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView;
  */
 public class Plot2DUI extends AbstractPlotUI {
 
+	public class Plot2DUIUpdater implements Runnable {
+		public boolean inqueue=true;
+
+		@Override
+		public void run() {
+			inqueue=false;
+			getSidePlotView().processPlotUpdate();
+			plotWindow.notifyUpdateFinished();
+		}
+	}
 	/**
 	 * Status item ID
 	 */
@@ -117,6 +128,7 @@ public class Plot2DUI extends AbstractPlotUI {
 	private String saveButtonText = ResourceProperties.getResourceString("SAVE_BUTTON");
 	private String saveToolTipText = ResourceProperties.getResourceString("SAVE_TOOLTIP");
 	private String saveImagePath = ResourceProperties.getResourceString("SAVE_IMAGE_PATH");
+	private Plot2DUIUpdater lastestPlot2duiUpdater;
 	
 	/**
 	 * @param window 
@@ -229,13 +241,10 @@ public class Plot2DUI extends AbstractPlotUI {
 
 			mainPlotter.setTitle(datasets.get(0).getName());
 
-			compParent.getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					getSidePlotView().processPlotUpdate();
-					plotWindow.notifyUpdateFinished();
-				}
-			});	
+			if( lastestPlot2duiUpdater ==null || !lastestPlot2duiUpdater.inqueue){
+				lastestPlot2duiUpdater = new Plot2DUIUpdater();
+				compParent.getDisplay().asyncExec(lastestPlot2duiUpdater);	
+			}
 
 			AbstractDataset data = datasets.get(0);
 			boolean useRGB = 
