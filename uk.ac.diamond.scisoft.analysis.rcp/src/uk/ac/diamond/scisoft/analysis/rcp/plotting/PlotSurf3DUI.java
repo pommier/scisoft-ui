@@ -25,12 +25,17 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
@@ -55,6 +60,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.SurfPlotStyles;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.TickFormatting;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.SurfacePlotROI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 import uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
@@ -99,6 +105,7 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 	private String saveButtonText = ResourceProperties.getResourceString("SAVE_BUTTON");
 	private String saveToolTipText = ResourceProperties.getResourceString("SAVE_TOOLTIP");
 	private String saveImagePath = ResourceProperties.getResourceString("SAVE_IMAGE_PATH");
+	private String id;
 	
 	private static final Logger logger = LoggerFactory
 	.getLogger(PlotSurf3DUI.class);
@@ -110,7 +117,7 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 	 * @param page 
 	 * @param id 
 	 */
-	public PlotSurf3DUI(PlotWindow window, 
+	public PlotSurf3DUI(PlotWindow window,
 			 final DataSetPlotter plotter,
 			 Composite parent, 
 			 IWorkbenchPage page, 
@@ -120,6 +127,7 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 		this.parent = parent;
 		this.page = page;
 		this.plotWindow = window;
+		this.id = id;
 		xAxis = new AxisValues();
 		yAxis = new AxisValues();
 		zAxis = new AxisValues();
@@ -127,23 +135,35 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 		buildMenuActions(bars.getMenuManager(), plotter); 
 		buildToolActions(bars.getToolBarManager(), 
 				         plotter, parent.getShell());								 
-
-		try {
-			 histogramView = (HistogramView) page.showView("uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView",
-					id, IWorkbenchPage.VIEW_CREATE);
-			plotWindow.addIObserver(histogramView);
-			histogramView.addIObserver(plotWindow);
-		} catch (PartInitException e) {
-			e.printStackTrace();
-		}
-		try {
-			dataWindowView = (DataWindowView) page.showView("uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView",
-					id, IWorkbenchPage.VIEW_CREATE);
-			if (histogramView != null)
-				histogramView.addIObserver(dataWindowView);
-			dataWindowView.addIObserver(this);
-		} catch (PartInitException e) {
-			e.printStackTrace();
+		
+		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+			try {
+				 histogramView = (HistogramView) page.showView("uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView",
+						this.id, IWorkbenchPage.VIEW_CREATE);
+				plotWindow.addIObserver(histogramView);
+				histogramView.addIObserver(plotWindow);
+			} catch (PartInitException e) {
+				e.printStackTrace();
+			}
+			try {
+				dataWindowView = (DataWindowView) page.showView("uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView",
+						this.id, IWorkbenchPage.VIEW_CREATE);
+				if (histogramView != null)
+					histogramView.addIObserver(dataWindowView);
+				dataWindowView.addIObserver(this);
+			} catch (PartInitException e) {
+				e.printStackTrace();
+			}
+		}else if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+			try {
+				dataWindowView = (DataWindowView) page.showView("uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView",
+						this.id, IWorkbenchPage.VIEW_CREATE);
+				dataWindowView.setFocus();
+				plotWindow.addIObserver(dataWindowView);
+				dataWindowView.addIObserver(this);
+			} catch (PartInitException e) {
+				e.printStackTrace();
+			}
 		}
 		if (dataWindowView == null) {
 			logger.warn("Cannot find data window");
@@ -436,7 +456,8 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 					@Override
 					public void run() {
 						mainPlotter.refresh(true);
-						plotWindow.notifyHistogramChange(histoUpdate);
+						if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
+							plotWindow.notifyHistogramChange(histoUpdate);
 						plotWindow.notifyUpdateFinished();
 					}
 				});
@@ -450,11 +471,16 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 	 */
 	@Override
 	public void deactivate(boolean leaveSidePlotOpen) {
-		histogramView.deleteIObserver(dataWindowView);
-		IWorkbenchPage aPage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-		if (aPage != null)
-			aPage.hideView(dataWindowView);
-		plotWindow.deleteIObserver(histogramView);
+		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+			histogramView.deleteIObserver(dataWindowView);
+			IWorkbenchPage aPage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+			if (aPage != null)
+				aPage.hideView(dataWindowView);
+			plotWindow.deleteIObserver(histogramView);
+		} else if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+			
+		}
+	
 	}
 	
 
@@ -477,12 +503,37 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 	}
 
 	@Override
-	public void update(Object theObserved, Object changeCode) {
+	public void update(Object theObserved, final Object changeCode) {
 		if (changeCode instanceof SurfacePlotROI) {
-			SurfacePlotROI roi = (SurfacePlotROI)changeCode;
-			mainPlotter.setDataWindowPosition(roi);
-			mainPlotter.refresh(false);			
+			if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+				SurfacePlotROI roi = (SurfacePlotROI)changeCode;
+				mainPlotter.setDataWindowPosition(roi);
+				mainPlotter.refresh(false);
+			}else if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+				Job updateDataWindow = new Job("Update Data Window") {
+					@Override
+					protected IStatus run(IProgressMonitor monitor) {
+						SurfacePlotROI roi = (SurfacePlotROI)changeCode;
+						if (monitor.isCanceled()) return Status.CANCEL_STATUS;
+						try{
+							mainPlotter.setDataWindowPosition(roi);
+							mainPlotter.refresh(false);
+						}catch(Exception e){
+							logger.debug("Error:"+e);
+							return Status.CANCEL_STATUS;
+						}
+						return Status.OK_STATUS;
+					}
+				};
+				updateDataWindow.schedule();
+			}
 		}
 	}
 
+	private int getDefaultPlottingSystemChoice() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
+				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
+				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
+	}
 }
