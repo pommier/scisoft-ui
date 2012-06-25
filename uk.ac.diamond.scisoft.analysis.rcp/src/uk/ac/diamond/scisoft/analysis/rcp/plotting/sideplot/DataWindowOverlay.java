@@ -23,6 +23,9 @@ import gda.observable.IObserver;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+
+import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSet3DPlot3D;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.OverlayType;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.PrimitiveType;
@@ -32,6 +35,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay2DProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.OverlayProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.SurfacePlotROI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView;
 
 /**
@@ -116,18 +120,22 @@ public class DataWindowOverlay implements Overlay2DConsumer, IObservable {
 	 * @param height
 	 */
 	public void setSelectPosition(int startX, int startY, int width, int height) {
-		if (selectPrimID == -1) 
-			selectPrimID = provider.registerPrimitive(PrimitiveType.BOX);
+		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
+			if (selectPrimID == -1) 
+				selectPrimID = provider.registerPrimitive(PrimitiveType.BOX);
+		
 		selectStartX = startX / xScale;
 		selectStartY = startY / yScale;
 		selectEndX = selectStartX + (width / xScale);
 		selectEndY = selectStartY + (height / yScale);
-		if (!allowUndersampling)
-			clampToMax();
-		else
-			checkIfAboveMax();
-
-		drawOverlay();
+		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+			if (!allowUndersampling)
+				clampToMax();
+			else
+				checkIfAboveMax();
+		
+			drawOverlay();
+		}
 		view.setSpinnerValues(selectStartX * xScale, selectStartY * yScale,
 				  Math.abs(selectEndX - selectStartX) * xScale,
 				  Math.abs(selectEndY - selectStartY) * yScale);
@@ -297,4 +305,18 @@ public class DataWindowOverlay implements Overlay2DConsumer, IObservable {
 		observers.clear();
 	}
 
+	public void cleanIObservers(){
+		if(observers.size()>1){
+			IObserver observer = observers.getLast();
+			observers.clear();
+			observers.add(observer);
+		}
+	}
+
+	private int getDefaultPlottingSystemChoice() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
+				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
+				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
+	}
 }

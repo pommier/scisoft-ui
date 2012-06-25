@@ -36,6 +36,7 @@ import javax.swing.JPanel;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.custom.SashForm;
@@ -95,6 +96,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEventListener;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.SceneDragTool;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.system.info.JOGLChecker;
 import de.jreality.math.MatrixBuilder;
 import de.jreality.scene.Camera;
@@ -961,12 +963,18 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 					for (int i = 0; i < datasets.size() - actualDataSets; i++)
 						((DataSet3DPlot1D) plotter).addGraphNode();
 			}
-
 			for (int i = currentDataSets.size() - (historyCounter + 1); i >= 0; i--)
 				currentDataSets.remove(i);
 			currentDataSets.addAll(0, datasets);
 			plotter.updateGraph(currentDataSets);
-		} else {
+		}else if(currentDataSets.size() == 0 
+				&& getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+			// TODO: correctly update the graph with the dataset without resetting the graph camera
+			currentDataSets.addAll(datasets);
+			graph = plotter.buildGraph(currentDataSets, graph);
+			hasData = true;
+		} else if(currentDataSets.size() == 0
+				&& getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
 			currentDataSets.addAll(datasets);
 			coordAxes = plotter.buildCoordAxis(coordAxes);
 			graph = plotter.buildGraph(currentDataSets, graph);
@@ -2515,5 +2523,11 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 	public void toggleErrorBars(boolean xcoord, boolean ycoord, boolean zcoord) {		
 		plotter.toggleErrorBars(xcoord, ycoord, zcoord);
 	}
-	
+
+	private int getDefaultPlottingSystemChoice() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
+				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
+				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
+	}
 }

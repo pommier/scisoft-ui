@@ -76,6 +76,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
+import uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROIList;
@@ -989,6 +990,11 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 				Plot2DUI plot2Dui = (Plot2DUI) plotUI;
 				plot2Dui.getSidePlotView().sendHistogramUpdate(update);
 			}
+		}
+		if(theObserved instanceof DataWindowView){
+			//TODO update color mapping of the surface plotter with data from palette data of the DataWindowView
+			HistogramUpdate update = (HistogramUpdate) changeCode;
+			mainPlotter.applyColourCast(update);
 		}
 
 	}
