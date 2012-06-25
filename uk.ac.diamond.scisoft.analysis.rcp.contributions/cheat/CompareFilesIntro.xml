@@ -22,6 +22,11 @@
 			file - it represents a per-file value.
 		</description>
 	</item>
+	<item title="Choosing files to compare">
+		<description>
+			To populate the files table, read the tutorial on opening multiple files.
+		</description>
+	</item>
 	<item title="Choosing a dataset">
 		<description>
 			You can choose a dataset in sub-editor in the same way as for a single file. Single or
