@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cheatsheet
+      title="Printing">
+   <intro>
+      <description>
+         <b>This cheat sheet is to show the Dawn printing feature for X/Y plots and images.</b>
+      </description>
+   </intro>
+   <item
+         title="Data Browsing Perspective">
+      <description>
+         Please choose the data browsing perspective if you do not already have it selected (nothing will happen if you do not).
+      </description>
+      <command
+            required="false"
+            serialization="org.eclipse.ui.perspectives.showPerspective(org.eclipse.ui.perspectives.showPerspective.perspectiveId=org.edna.workbench.application.perspective.DataPerspective)"/>
+   </item>
+   <item
+         title="Open File">
+      <description>
+         Any file or directory of files, can be imported to a project in the Project Explorer and then opened. You can do this with click and drag or using the import wizard. Once done, the file can be double clicked to open in the workbench. Click to open an example file from the &apos;data&apos; project.
+      </description>
+      <command
+            required="false"
+            serialization="org.eclipse.ui.navigate.openResource(filePath=data/examples/metalmix.mca)"/>
+   </item>
+   <item
+         title="Select and print data">
+      <description>
+         Please follow the steps below to use the print feature.
+      </description>
+      <subitem
+         label="1. The data called 'Column_1' and 'Column_11' in the 'Data' view to the right of the plot.">
+      </subitem>
+      <subitem
+         label="2. Back in the main plot, click on the Printer button on the tool bar or on the menu located on the top right hand corner of that same view">
+      </subitem>
+      <subitem
+         label="3. If the plot is active (in a window selected blue) you can also use the main menu/tool bar Print Button or the short key CTRL+P.">
+      </subitem>
+      <subitem
+         label="4. Now choose 'Print the plotting', the print preview dialog is displayed. You can select the scale (10% to 100%), the resolution/quality of the plot and the printer to use. There is also an action 'Print scaled image to printer' available for a fast print without a dialog.">
+      </subitem>
+      <subitem
+         label="5. Once the characteristics of the printing are chosen click on Select Printer/Print or Print button if your preferred printer is already the one by default.">
+      </subitem>
+      <subitem
+         label="6. Try the previous steps with other X/Y plots and images. You can print to file if you would prefer to save paper at this stage.">
+      </subitem>
+      <subitem
+         label="7. The chosen print settings are kept in memory and the last settings used will be chosen once a new instance of the print preview dialog is open. You can also change those settings from the general preference page by going to 'Window/Preferences/SDA/Plot Printing Settings'.">
+      </subitem>
+   </item>
+</cheatsheet>
