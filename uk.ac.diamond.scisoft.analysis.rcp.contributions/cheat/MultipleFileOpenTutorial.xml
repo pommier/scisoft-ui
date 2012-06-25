@@ -10,7 +10,7 @@
 			In the <b>Project Explorer</b>, multiple files can be selected in the usual graphical
 			manner by shift-clicking a range of entries and/or control-clicking individual entries.
 			Once satisfied with the selection, right-click to bring up the context menu and select
-			SDA > Compare files.
+			DAWN > Compare files.
 		</description>
 	</item>
 	<item title="File Navigator">
