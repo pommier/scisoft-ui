@@ -22,7 +22,7 @@ import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 /**
  * Wrapper class for a LinearROI that adds handles
  */
-public class LinearROIHandler extends ROIHandles {
+public class LinearROIHandler extends ROIHandler {
 
 	/**
 	 * Number of handle areas

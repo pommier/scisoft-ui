@@ -731,9 +731,9 @@ public class SectorProfile extends SidePlotProfile {
 		index++;
 
 		final SectorROI sroi = (SectorROI) roib;
-		double[] spt = sroi.getPoint();
-		double[] rad = sroi.getRadii();
-		double[] ang = sroi.getAnglesDegrees();
+		final double[] spt = sroi.getPointRef();
+		final double[] rad = sroi.getRadii();
+		final double[] ang = sroi.getAnglesDegrees();
 
 		oProvider.begin(OverlayType.VECTOR2D);
 
@@ -820,9 +820,9 @@ public class SectorProfile extends SidePlotProfile {
 		index++;
 
 		final SectorROI sroi = (SectorROI) roi;
-		double[] spt = roi.getPoint();
-		double[] rad = sroi.getRadii();
-		double[] ang = sroi.getAnglesDegrees();
+		final double[] spt = roi.getPointRef();
+		final double[] rad = sroi.getRadii();
+		final double[] ang = sroi.getAnglesDegrees();
 
 		oProvider.begin(OverlayType.VECTOR2D);
 
@@ -1002,10 +1002,10 @@ public class SectorProfile extends SidePlotProfile {
 			} else
 				oProvider.setPrimitiveVisible(id, true);
 
-			SectorROI sroi = (SectorROI) roiDataList.get(r).getROI();
-			double[] spt = sroi.getPoint();
-			double[] rad = sroi.getRadii();
-			double[] ang = sroi.getAnglesDegrees();
+			final SectorROI sroi = (SectorROI) roiDataList.get(r).getROI();
+			final double[] spt = sroi.getPointRef();
+			final double[] rad = sroi.getRadii();
+			final double[] ang = sroi.getAnglesDegrees();
 
 			oProvider.drawSector(id, spt[0], spt[1], rad[0], rad[1], -ang[1], -ang[0]);
 
@@ -1040,8 +1040,8 @@ public class SectorProfile extends SidePlotProfile {
 					getControl().getDisplay().asyncExec(new Runnable() {
 						@Override
 						public void run() {
-							spsx.setDouble(roi.getPoint()[0]);
-							spsy.setDouble(roi.getPoint()[1]);
+							spsx.setDouble(roi.getPointX());
+							spsy.setDouble(roi.getPointY());
 						}
 					});
 					hStatus = HandleStatus.CMOVE;
@@ -1342,13 +1342,13 @@ public class SectorProfile extends SidePlotProfile {
 			return;
 
 		isBulkUpdate = true;
-		spsx.setDouble(sroi.getPoint()[0]);
-		spsy.setDouble(sroi.getPoint()[1]);
-		spsr.setDouble(sroi.getRadii()[0]);
-		sper.setDouble(sroi.getRadii()[1]);
-		spsang.setDouble(sroi.getAnglesDegrees()[0]);
+		spsx.setDouble(sroi.getPointX());
+		spsy.setDouble(sroi.getPointY());
+		spsr.setDouble(sroi.getRadius(0));
+		sper.setDouble(sroi.getRadius(1));
+		spsang.setDouble(sroi.getAngleDegrees(0));
 		isBulkUpdate = false;
-		speang.setDouble(sroi.getAnglesDegrees()[1]);
+		speang.setDouble(sroi.getAngleDegrees(1));
 	}
 
 	// spinner listener

@@ -22,7 +22,7 @@ import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 /**
  * Wrapper class for a RectangularROI that adds handles
  */
-public class RectangularROIHandler extends ROIHandles {
+public class RectangularROIHandler extends ROIHandler {
 	/**
 	 * Number of handle areas
 	 */

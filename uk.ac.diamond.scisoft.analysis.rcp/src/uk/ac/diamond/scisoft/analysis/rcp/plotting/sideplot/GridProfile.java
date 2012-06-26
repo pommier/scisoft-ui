@@ -815,8 +815,8 @@ public class GridProfile extends SidePlotProfile {
 				getControl().getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {
-						spsx.setDouble(getGridPrefs().getXMicronsFromPixelsCoord(roi.getPoint()[0]));
-						spsy.setDouble(getGridPrefs().getYMicronsFromPixelsCoord(roi.getPoint()[1]));
+						spsx.setDouble(getGridPrefs().getXMicronsFromPixelsCoord(roi.getPointX()));
+						spsy.setDouble(getGridPrefs().getYMicronsFromPixelsCoord(roi.getPointY()));
 					}
 				});
 				hStatus = HandleStatus.RESIZE;
@@ -964,10 +964,10 @@ public class GridProfile extends SidePlotProfile {
 		resy.setDouble(getGridPrefs().getYMicronsFromPixelsLen(groi.getySpacing()));
 		midpoint.setSelection(groi.isMidPointOn());
 		gridpoint.setSelection(groi.isGridLineOn());
-		spsx.setDouble(getGridPrefs().getXMicronsFromPixelsCoord(groi.getPoint()[0]));
-		spsy.setDouble(getGridPrefs().getYMicronsFromPixelsCoord(groi.getPoint()[1]));
-		splmaj.setDouble(getGridPrefs().getXMicronsFromPixelsLen(groi.getLengths()[0]));
-		splmin.setDouble(getGridPrefs().getYMicronsFromPixelsLen(groi.getLengths()[1]));
+		spsx.setDouble(getGridPrefs().getXMicronsFromPixelsCoord(groi.getPointX()));
+		spsy.setDouble(getGridPrefs().getYMicronsFromPixelsCoord(groi.getPointY()));
+		splmaj.setDouble(getGridPrefs().getXMicronsFromPixelsLen(groi.getLength(0)));
+		splmin.setDouble(getGridPrefs().getYMicronsFromPixelsLen(groi.getLength(1)));
 		spang.setDouble(groi.getAngleDegrees());
 		tdim.setText(String.format("%d x %d = %d point%s", groi.getDimensions()[0], groi.getDimensions()[1], groi
 				.getDimensions()[0]

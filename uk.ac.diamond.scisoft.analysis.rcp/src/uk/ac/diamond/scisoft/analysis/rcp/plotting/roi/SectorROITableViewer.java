@@ -45,22 +45,22 @@ public final class SectorROITableViewer extends ROITableViewer {
 			SectorROI cROI = cROIData.getROI();
 			switch (columnIndex) {
 			case 1:
-				msg = Integer.toString(cROI.getIntPoint()[0]);
+				msg = Integer.toString((int) cROI.getPointX());
 				break;
 			case 2:
-				msg = Integer.toString(cROI.getIntPoint()[1]);
+				msg = Integer.toString((int) cROI.getPointY());
 				break;
 			case 3:
-				msg = String.format("%.2f", cROI.getRadii()[0]);
+				msg = String.format("%.2f", cROI.getRadius(0));
 				break;
 			case 4:
-				msg = String.format("%.2f", cROI.getRadii()[1]);
+				msg = String.format("%.2f", cROI.getRadius(1));
 				break;
 			case 5:
-				msg = String.format("%.2f", cROI.getAngles()[0]);
+				msg = String.format("%.1f", cROI.getAngleDegrees(0));
 				break;
 			case 6:
-				msg = String.format("%.2f", cROI.getAngles()[1]);
+				msg = String.format("%.1f", cROI.getAngleDegrees(1));
 				break;
 			case 7:
 				if (cROI.isClippingCompensation())

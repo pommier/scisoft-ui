@@ -25,7 +25,7 @@ import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
  * 
  * Its super class holds the primitive IDs for handle areas
  */
-abstract public class ROIHandles extends ArrayList<Integer> {
+abstract public class ROIHandler extends ArrayList<Integer> {
 	protected ROIBase roi;
 	protected int handle;
 	protected HandleStatus status;

@@ -22,7 +22,7 @@ import uk.ac.diamond.scisoft.analysis.roi.SectorROI;
 /**
  * Wrapper class for a SectorROI that adds handles
  */
-public class SectorROIHandler extends ROIHandles {
+public class SectorROIHandler extends ROIHandler {
 	/**
 	 * Number of handle areas
 	 */
@@ -112,7 +112,7 @@ public class SectorROIHandler extends ROIHandles {
 	public double[] getAnchorPoint(int handle, int size) {
 		SectorROI oroi = (SectorROI) roi;
 		double[] pt = new double[2];
-		double[] cpt = roi.getPoint();
+		double[] cpt = roi.getPointRef();
 		SectorCoords sc = null;
 
 		switch (handle) {
@@ -247,6 +247,7 @@ public class SectorROIHandler extends ROIHandles {
 		SectorROI croi = null; // return null if not a valid event
 		SectorROI sroi = (SectorROI) roi;
 
+		final double[] spt = sroi.getPointRef();
 		SectorCoords ssc = null;
 		SectorCoords esc = null;
 		double[] sp = null;
@@ -261,8 +262,8 @@ public class SectorROIHandler extends ROIHandles {
 			break;
 		case RMOVE:
 			croi = sroi.copy();
-			ssc = new SectorCoords(sroi.getPoint(), cpt);
-			esc = new SectorCoords(sroi.getPoint(), pt);
+			ssc = new SectorCoords(spt, cpt);
+			esc = new SectorCoords(spt, pt);
 			sp = ssc.getPolarRadians();
 			ep = esc.getPolarRadians();
 			croi.addRadii(ep[0] - sp[0]);
@@ -272,23 +273,23 @@ public class SectorROIHandler extends ROIHandles {
 			croi = sroi.copy();
 			break;
 		case RESIZE:
-			ssc = new SectorCoords(sroi.getPoint(), cpt);
-			esc = new SectorCoords(sroi.getPoint(), pt);
+			ssc = new SectorCoords(spt, cpt);
+			esc = new SectorCoords(spt, pt);
 			sp = ssc.getPolarRadians();
 			ep = esc.getPolarRadians();
 			croi = resize(sp, ep);
 			break;
 		case ROTATE:
 			croi = sroi.copy();
-			ssc = new SectorCoords(sroi.getPoint(), cpt);
-			esc = new SectorCoords(sroi.getPoint(), pt);
+			ssc = new SectorCoords(spt, cpt);
+			esc = new SectorCoords(spt, pt);
 			sp = ssc.getPolarRadians();
 			ep = esc.getPolarRadians();
 			croi.addAngles(ep[1] - sp[1]);
 			break;
 		case CRMOVE:
-			ssc = new SectorCoords(sroi.getPoint(), cpt);
-			esc = new SectorCoords(sroi.getPoint(), pt);
+			ssc = new SectorCoords(spt, cpt);
+			esc = new SectorCoords(spt, pt);
 			sp = ssc.getPolarRadians();
 			ep = esc.getPolarRadians();
 			croi = crmove(sp, ep);

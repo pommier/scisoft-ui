@@ -510,8 +510,8 @@ public class BoxProfile extends SidePlotProfile {
 		index++;
 
 		final RectangularROI rroi = (RectangularROI) roib;
-		double[] spt = rroi.getPoint();
-		double[] len = rroi.getLengths();
+		final double[] spt = rroi.getPointRef();
+		final double[] len = rroi.getLengths();
 
 		oProvider.begin(OverlayType.VECTOR2D);
 
@@ -538,8 +538,8 @@ public class BoxProfile extends SidePlotProfile {
 		index = 0;
 
 		final RectangularROI rroi = (RectangularROI) roi;
-		double[] spt = roi.getPoint();
-		double[] len = rroi.getLengths();
+		final double[] spt = roi.getPointRef();
+		final double[] len = rroi.getLengths();
 
 		oProvider.begin(OverlayType.VECTOR2D);
 
@@ -654,9 +654,9 @@ public class BoxProfile extends SidePlotProfile {
 				roisIDs.set(r, id);
 			} else
 				oProvider.setPrimitiveVisible(id, true);
-			RectangularROI rroi = (RectangularROI) roiDataList.get(r).getROI();
-			double[] spt = rroi.getPoint();
-			double[] len = rroi.getLengths();
+			final RectangularROI rroi = (RectangularROI) roiDataList.get(r).getROI();
+			final double[] spt = rroi.getPointRef();
+			final double[] len = rroi.getLengths();
 
 			oProvider.drawBox(id, spt[0], spt[1], spt[0] + len[0], spt[1] + len[1]);
 			oProvider.rotatePrimitive(id, -rroi.getAngle(), spt[0], spt[1]);
