@@ -18,9 +18,34 @@ package uk.ac.diamond.scisoft.analysis.rcp.views;
 
 import gda.observable.IObserver;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import org.dawb.common.ui.plot.AbstractPlottingSystem;
+import org.dawb.common.ui.plot.AbstractPlottingSystem.ColorOption;
+import org.dawb.common.ui.plot.PlotType;
+import org.dawb.common.ui.plot.PlottingFactory;
+import org.dawb.common.ui.plot.region.IROIListener;
+import org.dawb.common.ui.plot.region.IRegion;
+import org.dawb.common.ui.plot.region.IRegion.RegionType;
+import org.dawb.common.ui.plot.region.IRegionListener;
+import org.dawb.common.ui.plot.region.ROIEvent;
+import org.dawb.common.ui.plot.region.RegionEvent;
+import org.dawb.common.ui.plot.tool.IToolPage.ToolPageRole;
+import org.dawb.common.ui.plot.tool.IToolPageSystem;
+import org.dawb.common.ui.plot.trace.ITrace;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.SelectionEvent;
@@ -32,11 +57,14 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
@@ -49,11 +77,14 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotException;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.DataWindowOverlay;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
+import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
+import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 
 /**
  *
  */
-public class DataWindowView extends ViewPart implements IObserver, SelectionListener {
+public class DataWindowView extends ViewPart implements IObserver, SelectionListener, IROIListener {
 
 	private AxisValues xAxis;
 	private AxisValues yAxis;
@@ -80,7 +111,14 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 	private CCombo ccXsampling;
 	private CCombo ccYsampling;
 	
-		
+	private AbstractPlottingSystem plottingSystem;
+	private Logger logger = LoggerFactory.getLogger(DataWindowView.class);
+	private Composite plotComp;
+	
+	protected List<IObserver> observers = 
+			Collections.synchronizedList(new LinkedList<IObserver>());
+
+	private ROIBase currentROI;
 	/**
 	 * Default constructor of DataWindowView
 	 */
@@ -100,7 +138,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 		super.init(site);
 		id = site.getId();
 		sId = site.getSecondaryId();
-		setPartName("SurfacePlotROI: " + sId);
+		setPartName("Surface Plot Slicing: " + sId);
 	}
 	
 	private void buildActions(IToolBarManager manager) {
@@ -138,8 +176,16 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 		gridLayout.horizontalSpacing = 0;
 		gridLayout.verticalSpacing = 2;
 		topComposite.setLayout(gridLayout);
-		plotter = new DataSetPlotter(PlottingMode.ONED,topComposite,false);
-		Composite plotComp = plotter.getComposite();
+		
+		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+			plotter = new DataSetPlotter(PlottingMode.ONED,topComposite,false);
+			plotComp = plotter.getComposite();
+		}
+		else if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+			createPlottingSystem(topComposite);
+			plotComp = plottingSystem.getPlotComposite();
+		}
+		
 		GridData gridData = new GridData();
 		gridData.grabExcessHorizontalSpace = true;
 		gridData.grabExcessVerticalSpace = true;
@@ -349,12 +395,39 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 		ccYsampling.setEnabled(false);
 		ccXsampling.addSelectionListener(this);
 		ccYsampling.addSelectionListener(this);
-		plotter.setMode(PlottingMode.TWOD);
-		plotter.setAxisModes(AxisMode.CUSTOM, AxisMode.CUSTOM, AxisMode.LINEAR);
-		overlay = new DataWindowOverlay(1,1,this);
-		plotter.registerOverlay(overlay);
+		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+			plotter.setMode(PlottingMode.TWOD);
+			plotter.setAxisModes(AxisMode.CUSTOM, AxisMode.CUSTOM, AxisMode.LINEAR);
+			overlay = new DataWindowOverlay(1,1,this);
+			plotter.registerOverlay(overlay);
+		}else if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+			overlay = new DataWindowOverlay(1,1,this);
+		}
+
 		xAxis = new AxisValues();
 		yAxis = new AxisValues();
+		
+		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+			this.registeredTraces = new HashMap<String,Collection<ITrace>>(7);
+		}
+	}
+
+	private void createPlottingSystem(Composite parent){
+		try {
+			plottingSystem = PlottingFactory.createPlottingSystem();
+			plottingSystem.setColorOption(ColorOption.NONE);
+			plottingSystem.setDatasetChoosingRequired(false);
+			plottingSystem.createPlotPart(parent, this.getPartName(), null, PlotType.PT1D, this);
+			plottingSystem.getPlotActionSystem().fillRegionActions(getViewSite().getActionBars().getToolBarManager());
+
+			plottingSystem.repaint();
+
+			this.regionListener = getRegionListener();
+			this.plottingSystem.addRegionListener(this.regionListener);
+			
+		} catch (Exception e) {
+			logger.error("Cannot locate any Abstract plotting System!", e);
+		}
 	}
 
 	@Override
@@ -392,43 +465,127 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 			} else {
 				yAxis.setValues(inYAxis.subset(0, ySize, ySamplingRate).toDataset());
 			}
-			overlay.removePrimitives();
-			overlay.setScaling(xSamplingRate,ySamplingRate);
-			plotter.setXAxisValues(xAxis, 1);
-			plotter.setYAxisValues(yAxis);
-			try {
-				plotter.replaceCurrentPlot(displayData);
-			} catch (PlotException ex) {}
-			plotter.getComposite().getDisplay().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					spnEndX.setMaximum(xSize);
-					spnEndY.setMaximum(ySize);
-					spnStartX.setMaximum(xSize);
-					spnStartY.setMaximum(ySize);
-					if (xSize * ySize > DataSet3DPlot3D.MAXDIM * DataSet3DPlot3D.MAXDIM)
-					{
-						float reduceFactor = (float)(DataSet3DPlot3D.MAXDIM * DataSet3DPlot3D.MAXDIM) / 
-											 (float)(xSize * ySize);
-						float xAspect = (float)xSize / (float)(xSize+ySize);
-						float yAspect = (float)ySize / (float)(xSize+ySize);
-						float xReduce = 1.0f - (1.0f - reduceFactor) * xAspect;
-						float yReduce = 1.0f - (1.0f - reduceFactor) * yAspect;
-						int currentXdim = (int)(xSize * xReduce * 0.75f);
-						int currentYdim = (int)(ySize * yReduce * 0.75f);					
-						spnEndX.setSelection(currentXdim);
-						spnEndY.setSelection(currentYdim);
-						overlay.setSelectPosition(0,0,currentXdim,currentYdim);
-					} else {
-						spnEndX.setSelection(xSize);
-						spnEndY.setSelection(ySize);						
+			if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+				overlay.removePrimitives();
+				overlay.setScaling(xSamplingRate,ySamplingRate);
+				plotter.setXAxisValues(xAxis, 1);
+				plotter.setYAxisValues(yAxis);
+				try {
+					plotter.replaceCurrentPlot(displayData);
+				} catch (PlotException ex) {}
+				plotter.getComposite().getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						spnEndX.setMaximum(xSize);
+						spnEndY.setMaximum(ySize);
+						spnStartX.setMaximum(xSize);
+						spnStartY.setMaximum(ySize);
+						if (xSize * ySize > DataSet3DPlot3D.MAXDIM * DataSet3DPlot3D.MAXDIM)
+						{
+							float reduceFactor = (float)(DataSet3DPlot3D.MAXDIM * DataSet3DPlot3D.MAXDIM) / 
+												 (float)(xSize * ySize);
+							float xAspect = (float)xSize / (float)(xSize+ySize);
+							float yAspect = (float)ySize / (float)(xSize+ySize);
+							float xReduce = 1.0f - (1.0f - reduceFactor) * xAspect;
+							float yReduce = 1.0f - (1.0f - reduceFactor) * yAspect;
+							int currentXdim = (int)(xSize * xReduce * 0.75f);
+							int currentYdim = (int)(ySize * yReduce * 0.75f);					
+							spnEndX.setSelection(currentXdim);
+							spnEndY.setSelection(currentYdim);
+							overlay.setSelectPosition(0,0,currentXdim,currentYdim);
+						} else {
+							spnEndX.setSelection(xSize);
+							spnEndY.setSelection(ySize);						
+						}
+						plotter.refresh(false);
+						spnStartX.setSelection(0);
+						spnStartY.setSelection(0);
 					}
-					plotter.refresh(false);
-					spnStartX.setSelection(0);
-					spnStartY.setSelection(0);
-				}
-			});
+				});
+			}else if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+				if(newData instanceof AbstractDataset){
+					createPlot((AbstractDataset)newData);
+				}else
+					logger.error("Cannot display 2D Data");
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						spnEndX.setMaximum(xSize);
+						spnEndY.setMaximum(ySize);
+						spnStartX.setMaximum(xSize);
+						spnStartY.setMaximum(ySize);
+						if (xSize * ySize > DataSet3DPlot3D.MAXDIM * DataSet3DPlot3D.MAXDIM)
+						{
+							float reduceFactor = (float)(DataSet3DPlot3D.MAXDIM * DataSet3DPlot3D.MAXDIM) / 
+												 (float)(xSize * ySize);
+							float xAspect = (float)xSize / (float)(xSize+ySize);
+							float yAspect = (float)ySize / (float)(xSize+ySize);
+							float xReduce = 1.0f - (1.0f - reduceFactor) * xAspect;
+							float yReduce = 1.0f - (1.0f - reduceFactor) * yAspect;
+							int currentXdim = (int)(xSize * xReduce * 0.75f);
+							int currentYdim = (int)(ySize * yReduce * 0.75f);					
+							spnEndX.setSelection(currentXdim);
+							spnEndY.setSelection(currentYdim);
+							overlay.setSelectPosition(0,0,currentXdim,currentYdim);							
+						} else {
+							spnEndX.setSelection(xSize);
+							spnEndY.setSelection(ySize);						
+						}
+						plottingSystem.repaint();
+						spnStartX.setSelection(0);
+						spnStartY.setSelection(0);
+					}
+				});
+			}
+			
 		}
+	}
+
+	private void createPlot(final AbstractDataset data) {
+		//clean the observer
+		if(overlay!=null){
+			overlay.cleanIObservers();
+		}
+		final Job job = new Job("Create image plot") {
+			@Override
+			protected IStatus run(final IProgressMonitor monitor) {
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						plottingSystem.updatePlot2D(data, null, monitor);
+						plottingSystem.setTitle("");
+						try {
+							//create a region
+							IRegion region = plottingSystem.getRegion("Surface slice");
+							double upperX =plottingSystem.getSelectedXAxis().getUpper();
+							double lowerY =plottingSystem.getSelectedYAxis().getLower();
+							RectangularROI rroi = new RectangularROI(0, 0, upperX/2, lowerY/2, 0);
+							//Test if the region is already there and update the currentRegion
+							if(region!=null&&region.isVisible()){
+								currentROI = region.getROI();
+								if(currentROI.getPointX()<upperX && currentROI.getPointY()<lowerY)
+									region.setROI(currentROI);
+								else
+									region.setROI(rroi);
+							}else {
+								IRegion newRegion = plottingSystem.createRegion("Surface slice", RegionType.BOX);
+								newRegion.setROI(rroi);
+								plottingSystem.addRegion(newRegion);
+								plottingSystem.setToolVisible("org.dawnsci.rcp.histogram.histogram_tool_page",
+										ToolPageRole.ROLE_2D, "org.dawb.workbench.plotting.views.toolPageView.2D");
+							}
+						} catch (Exception e) {
+							logger.error("Couldn't open histogram view and create ROI", e);
+						}
+					}
+				});
+				
+				return Status.OK_STATUS;
+			}
+		};
+		job.setUser(false);
+		job.setPriority(Job.BUILD);
+		job.schedule();
 	}
 
 	/**
@@ -442,29 +599,56 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 								 final int startY, 
 								 final int width, 
 								 final int height) {
-		plotter.getComposite().getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				spnStartX.setSelection(startX);
-				spnStartY.setSelection(startY);
-				spnEndX.setSelection(width);
-				spnEndY.setSelection(height);
-			}
-		});	
+		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+			plotter.getComposite().getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					spnStartX.setSelection(startX);
+					spnStartY.setSelection(startY);
+					spnEndX.setSelection(width);
+					spnEndY.setSelection(height);
+				}
+			});
+		}else if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+			Display.getDefault().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					spnStartX.setSelection(startX);
+					spnStartY.setSelection(startY);
+					spnEndX.setSelection(width);
+					spnEndY.setSelection(height);
+				}
+			});
+		}
+			
 	}
 	
 	@Override
 	public void update(Object theObserved, Object changeCode) {
-		HistogramUpdate update = (HistogramUpdate) changeCode;
-		plotter
-				.applyColourCast(update.getRedMapFunction(), update
-						.getGreenMapFunction(),
-						update.getBlueMapFunction(), update
-								.getAlphaMapFunction(),
-						update.inverseRed(), update.inverseGreen(), update
-								.inverseBlue(), update.inverseAlpha(),
-						update.getMinValue(), update.getMaxValue());
-		plotter.refresh(false);		
+		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+			HistogramUpdate update = (HistogramUpdate) changeCode;
+			plotter.applyColourCast(update.getRedMapFunction(), update
+					.getGreenMapFunction(),
+					update.getBlueMapFunction(), update
+							.getAlphaMapFunction(),
+					update.inverseRed(), update.inverseGreen(), update
+							.inverseBlue(), update.inverseAlpha(),
+					update.getMinValue(), update.getMaxValue());
+	
+			plotter.refresh(false);		
+		}else if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+			logger.debug("Update in DataWindowView");
+		}
+		
+	}
+
+    @SuppressWarnings("rawtypes")
+	@Override
+	public Object getAdapter(final Class clazz) {
+		if (clazz == IToolPageSystem.class) {
+			return plottingSystem;
+		}
+		return super.getAdapter(clazz);
 	}
 
 	/**
@@ -524,6 +708,12 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 										  startPosY,
 										  width,
 										  height);
+				if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+					IRegion region = plottingSystem.getRegion("Surface slice");
+					RectangularROI roi = new RectangularROI(startPosX, startPosY, width, height, 0);
+					if(region!=null)
+						region.setROI(roi);
+				}
 			}
 			else if (e.getSource().equals(ccXsampling) ||
 					 e.getSource().equals(ccYsampling)) {
@@ -558,8 +748,133 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 			ccYsampling.removeSelectionListener(this);
 		
 		deleteIObservers();
-		if (plotter != null)
-			plotter.cleanUp();
+		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+			if (plotter != null)
+				plotter.cleanUp();
+		}else if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+			if(plottingSystem !=null){
+				clearTraces(plottingSystem.getRegion("Surface slice"));
+				plottingSystem.removeRegionListener(regionListener);
+				overlay.deleteIObservers();
+				plottingSystem.dispose();
+			}
+		}
+		
+	}
+
+	// Make the DataWindowView a RegionListener (new plotting)
+	private IRegionListener regionListener;
+	private Map<String,Collection<ITrace>> registeredTraces;
+	private int roiWidth=0;
+	private int roiHeight=0;
+
+	private IRegionListener getRegionListener(){
+		return new IRegionListener.Stub() {
+			@Override
+			public void regionRemoved(RegionEvent evt) {
+				if (evt.getRegion()!=null) {
+					IRegion roi = evt.getRegion();
+					if(roi!=null && roi.getName().equals("Surface slice")){
+						clearTraces(roi);
+					}
+				}
+			}
+			@Override
+			public void regionAdded(RegionEvent evt) {
+				if (evt.getRegion()!=null) {
+					ROIBase roi = evt.getRegion().getROI();
+					if(roi!=null && roi instanceof RectangularROI){
+						RectangularROI rroi = (RectangularROI) roi;
+						final int startX = (int)Math.round(rroi.getPointX());
+						final int startY = (int)Math.round(rroi.getPointY());
+						roiWidth = (int)Math.round(rroi.getEndPoint()[0])-startX;
+						roiHeight = (int)Math.round(rroi.getEndPoint()[1])-startY;
+						Display.getDefault().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								overlay.setSelectPosition(startX,startY,roiWidth,roiHeight);	
+							}
+						});
+					}
+				}
+			}
+			@Override
+			public void regionCreated(RegionEvent evt) {
+				IRegion region = evt.getRegion();
+				if (region!=null) {
+					region.addROIListener(DataWindowView.this);
+					ROIBase roi = region.getROI();
+					if(roi!=null && roi instanceof RectangularROI){
+						RectangularROI rroi = (RectangularROI) roi;
+						final int startX = (int)Math.round(rroi.getPointX());
+						final int startY = (int)Math.round(rroi.getPointY());
+						roiWidth = (int)Math.round(rroi.getEndPoint()[0])-startX;
+						roiHeight = (int)Math.round(rroi.getEndPoint()[1])-startY;
+						Display.getDefault().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								overlay.setSelectPosition(startX,startY,roiWidth,roiHeight);	
+							}
+						});
+					}
+				}
+			}
+		};
+	}
+
+	@Override
+	public void roiDragged(ROIEvent evt) {
+		
+		ROIBase roi = evt.getROI();
+		if(roi!=null){
+			RectangularROI rroi = (RectangularROI) roi;
+			final int startX = (int)Math.round(rroi.getPointX());
+			final int startY = (int)Math.round(rroi.getPointY());
+			if(evt.getDragType()==ROIEvent.DRAG_TYPE.RESIZE){
+				roiWidth = (int)Math.round(rroi.getEndPoint()[0])-startX;
+				roiHeight = (int)Math.round(rroi.getEndPoint()[1])-startY;
+			}
+			Display.getDefault().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					overlay.setSelectPosition(startX,startY,roiWidth,roiHeight);	
+				}
+			});
+			
+		}
+	}
+
+	@Override
+	public void roiChanged(ROIEvent evt) {
+		ROIBase roi = evt.getROI();
+		if(roi!=null){
+			RectangularROI rroi = (RectangularROI) roi;
+			final int startX = (int)Math.round(rroi.getPointX());
+			final int startY = (int)Math.round(rroi.getPointY());
+			roiWidth = (int)Math.round(rroi.getEndPoint()[0])-startX;
+			roiHeight = (int)Math.round(rroi.getEndPoint()[1])-startY;
+			Display.getDefault().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					overlay.setSelectPosition(startX,startY,roiWidth,roiHeight);	
+				}
+			});
+		}
+	}
+
+	protected void clearTraces(final IRegion region) {
+		final String name = region.getName();
+		Collection<ITrace> registered = this.registeredTraces.get(name);
+		if (registered!=null) for (ITrace iTrace : registered) {
+			plottingSystem.removeTrace(iTrace);
+		}
+	}
+	
+	private int getDefaultPlottingSystemChoice() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
+				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
+				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
 	}
 }
  
