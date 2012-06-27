@@ -56,7 +56,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.OverlayProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.IRowData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIDataList;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIHandles;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIHandler;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROITableViewer;
 import uk.ac.diamond.scisoft.analysis.rcp.queue.InteractiveQueue;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
@@ -96,7 +96,7 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 	protected List<Integer> dragIDs;
 	protected List<Integer> roiIDs;
 	protected List<Integer> roisIDs;
-	protected ROIHandles roiHandler;
+	protected ROIHandler roiHandler;
 
 	private static final int HSIZEMIN = 5;
 	private static final int HSIZEMAX = 100;

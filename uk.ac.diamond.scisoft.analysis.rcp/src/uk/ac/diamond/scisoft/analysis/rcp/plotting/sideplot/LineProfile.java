@@ -403,7 +403,7 @@ public class LineProfile extends SidePlotProfile {
 			return;
 
 		final LinearROI lroi = (LinearROI) roib;
-		double[] spt = lroi.getPoint();
+		double[] spt = lroi.getPointRef();
 		double[] ept = lroi.getEndPoint();
 
 		if (dragIDs.isEmpty()) {
@@ -470,8 +470,8 @@ public class LineProfile extends SidePlotProfile {
 		index = 0;
 
 		final LinearROI lroi = (LinearROI) roi;
-		double[] spt = roi.getPoint();
-		double[] ept = lroi.getEndPoint();
+		final double[] spt = roi.getPointRef();
+		final double[] ept = lroi.getEndPoint();
 		oProvider.begin(OverlayType.VECTOR2D);
 
 		// arrow
@@ -569,7 +569,7 @@ public class LineProfile extends SidePlotProfile {
 				oProvider.setPrimitiveVisible(id, true);
 
 			final LinearROI lroi = (LinearROI) roiDataList.get(r).getROI();
-			double[] spt = lroi.getPoint();
+			final double[] spt = lroi.getPointRef();
 			double[] ept = lroi.getEndPoint();
 
 			oProvider.drawArrow(id, spt[0], spt[1], ept[0], ept[1]);

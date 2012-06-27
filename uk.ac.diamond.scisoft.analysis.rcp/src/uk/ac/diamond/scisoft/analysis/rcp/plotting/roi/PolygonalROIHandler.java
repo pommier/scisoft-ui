@@ -22,7 +22,7 @@ import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 /**
  * Wrapper class for polygon that adds handles for each point
  */
-public class PolygonalROIHandler extends ROIHandles {
+public class PolygonalROIHandler extends ROIHandler {
 
 	/**
 	 * Handler for ROIBase

@@ -45,10 +45,10 @@ public final class LinearROITableViewer extends ROITableViewer {
 			LinearROI cROI = cROIData.getROI();
 			switch (columnIndex) {
 			case 1:
-				msg = Integer.toString(cROI.getIntPoint()[0]);
+				msg = Integer.toString((int) cROI.getPointX());
 				break;
 			case 2:
-				msg = Integer.toString(cROI.getIntPoint()[1]);
+				msg = Integer.toString((int) cROI.getPointY());
 				break;
 			case 3:
 				msg = String.format("%.2f", cROI.getEndPoint()[0]);

@@ -45,16 +45,16 @@ public final class RectangularROITableViewer extends ROITableViewer {
 			RectangularROI cROI = cROIData.getROI();
 			switch (columnIndex) {
 			case 1:
-				msg = Integer.toString(cROI.getIntPoint()[0]);
+				msg = Integer.toString((int) cROI.getPointX());
 				break;
 			case 2:
-				msg = Integer.toString(cROI.getIntPoint()[1]);
+				msg = Integer.toString((int) cROI.getPointY());
 				break;
 			case 3:
-				msg = String.format("%.2f", cROI.getLengths()[0]);
+				msg = String.format("%.2f", cROI.getLength(0));
 				break;
 			case 4:
-				msg = String.format("%.2f", cROI.getLengths()[1]);
+				msg = String.format("%.2f", cROI.getLength(1));
 				break;
 			case 5:
 				msg = String.format("%.2f", cROI.getAngleDegrees());

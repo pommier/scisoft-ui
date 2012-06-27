@@ -46,7 +46,7 @@ public class DiffractionSpotExaminer extends Composite {
 		int[] stopPoint = rectROI.getIntPoint(1, 1);
 		IDataset ROIdata = data.getSlice(new int[] { startPoint[1], startPoint[0] }, new int[] { stopPoint[1],
 				stopPoint[0] }, new int[] { 1, 1 });
-		plotter.setAxisOffset(rectROI.getPoint()[0], rectROI.getPoint()[1], 0.0);
+		plotter.setAxisOffset(rectROI.getPointX(), rectROI.getPointY(), 0.0);
 
 		try {
 			plotter.replaceCurrentPlot(ROIdata);

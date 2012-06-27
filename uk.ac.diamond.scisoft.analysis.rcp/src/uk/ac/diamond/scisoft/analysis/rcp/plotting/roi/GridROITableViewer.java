@@ -50,22 +50,22 @@ public final class GridROITableViewer extends ROITableViewer {
 			GridROI cROI = (GridROI)cROIData.getROI();
 			switch (columnIndex) {
 			case 1:
-				msg = String.format("%.2f", gridProfile.getGridPrefs().getXMicronsFromPixelsCoord(cROI.getPoint()[0]));
+				msg = String.format("%.2f", gridProfile.getGridPrefs().getXMicronsFromPixelsCoord(cROI.getPointX()));
 				break;
 			case 2:
-				msg = String.format("%.2f", gridProfile.getGridPrefs().getYMicronsFromPixelsCoord(cROI.getPoint()[1]));
+				msg = String.format("%.2f", gridProfile.getGridPrefs().getYMicronsFromPixelsCoord(cROI.getPointY()));
 				break;
 			case 3:
-				msg = String.format("%.2f", gridProfile.getGridPrefs().getXMicronsFromPixelsLen(cROI.getLengths()[0]));
+				msg = String.format("%.2f", gridProfile.getGridPrefs().getXMicronsFromPixelsLen(cROI.getLength(0)));
 				break;
 			case 4:
-				msg = String.format("%.2f", gridProfile.getGridPrefs().getYMicronsFromPixelsLen(cROI.getLengths()[1]));
+				msg = String.format("%.2f", gridProfile.getGridPrefs().getYMicronsFromPixelsLen(cROI.getLength(1)));
 				break;
 			case 5:
-				msg = String.format("%.2f", gridProfile.getGridPrefs().getXMicronsFromPixelsLen(cROI.getSpacing()[0]));
+				msg = String.format("%.2f", gridProfile.getGridPrefs().getXMicronsFromPixelsLen(cROI.getxSpacing()));
 				break;
 			case 6:
-				msg = String.format("%.2f", gridProfile.getGridPrefs().getYMicronsFromPixelsLen(cROI.getSpacing()[1]));
+				msg = String.format("%.2f", gridProfile.getGridPrefs().getYMicronsFromPixelsLen(cROI.getySpacing()));
 				break;
 			case 7:
 				msg = cROI.isGridLineOn() ? "Y" : "N";
