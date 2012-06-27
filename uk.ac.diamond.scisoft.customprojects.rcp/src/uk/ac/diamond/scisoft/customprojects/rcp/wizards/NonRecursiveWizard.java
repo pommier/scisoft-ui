@@ -18,6 +18,7 @@ package uk.ac.diamond.scisoft.customprojects.rcp.wizards;
 
 import java.io.File;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -28,8 +29,12 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
+import org.eclipse.ui.IPageLayout;
+import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWizard;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.navigator.resources.ProjectExplorer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,11 +101,11 @@ public class NonRecursiveWizard extends Wizard implements INewWizard {
 		final String directory = page.getDirectory();
 		final String folder = page.getFolder();
 
-		final Job loadDataProject = new Job("Load data project") {
+		final Job loadDataProject = new Job("Load non-recursive project") {
 
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
-				monitor.beginTask("Importing data", 100);
+				monitor.beginTask("Importing content", 100);
 				try {
 					NonRecursiveProjectUtils.createImportProjectAndFolder(project, folder, directory, SingleLevelProjectNature.NATURE_ID, null, monitor);
 				} catch (CoreException e) {
@@ -122,12 +127,13 @@ public class NonRecursiveWizard extends Wizard implements INewWizard {
 			settings.put(DIALOG_SETTING_KEY_FOLDER, folder);
 			settings.put(DIALOG_SETTING_KEY_DIRECTORY, directory);
 		}
+				
 		return true;
 	}
 
 	/**
 	 * We will accept the selection in the workbench to see if
-	 * we can initialize from it.
+	 * we can initialise from it.
 	 * @see IWorkbenchWizard#init(IWorkbench, IStructuredSelection)
 	 */
 	@Override
@@ -139,4 +145,6 @@ public class NonRecursiveWizard extends Wizard implements INewWizard {
 		this.defaultDataLocation = selectedPath.getAbsolutePath();
 		this.defaultFolderName   = selectedPath.getName();
 	}
+	
+
 }
