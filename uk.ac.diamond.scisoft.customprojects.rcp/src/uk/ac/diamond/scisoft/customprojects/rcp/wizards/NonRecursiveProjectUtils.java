@@ -33,11 +33,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.ui.IPageLayout;
-import org.eclipse.ui.IViewReference;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.actions.ActionFactory;
-import org.eclipse.ui.navigator.resources.ProjectExplorer;
 
 import uk.ac.diamond.scisoft.customprojects.rcp.internal.CustomProjectActivator;
 

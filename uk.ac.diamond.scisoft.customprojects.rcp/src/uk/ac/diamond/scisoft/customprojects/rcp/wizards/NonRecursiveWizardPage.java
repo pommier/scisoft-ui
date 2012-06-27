@@ -49,7 +49,7 @@ public class NonRecursiveWizardPage extends WizardPage implements KeyListener {
 	 * @param prevFolder
 	 * @param prevProject
 	 */
-	public NonRecursiveWizardPage(@SuppressWarnings("unused") ISelection selection, String prevProject,
+	public NonRecursiveWizardPage(ISelection selection, String prevProject,
 			String prevFolder, String prevDirectory) {
 		super("NonRecursiveWizardPage");
 		this.initProject = prevProject != null ? prevProject : "Top";
@@ -62,7 +62,6 @@ public class NonRecursiveWizardPage extends WizardPage implements KeyListener {
 	/**
 	 * @see IDialogPage#createControl(Composite)
 	 */
-	@SuppressWarnings("unused")
 	@Override
 	public void createControl(Composite parent) {
 		Composite container = new Composite(parent, SWT.NULL);
