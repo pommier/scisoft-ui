@@ -16,14 +16,20 @@
 
 package uk.ac.diamond.scisoft.customprojects.rcp.projects;
 
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IPageLayout;
+import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.navigator.resources.ProjectExplorer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class HideDeepProjects extends ViewerFilter {
 
@@ -35,15 +41,8 @@ public class HideDeepProjects extends ViewerFilter {
 	
 	@Override
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
-//		logger.debug("dealing with parentElement: " + parentElement.getClass().toString());
-//		logger.debug("parent of element " + element.getClass().toString());	
-		
 	
 		if(element instanceof IResource){
-//			logger.debug("================== parentElement: " + parentElement.getClass().getName());
-//			logger.debug("================== MET AN IResource: " + ((IResource)element).getName());
-//			logger.debug("================== my parent is: " + ((IResource)element).getParent().getName());
-//			logger.debug("================== my project is: " + ((IResource)element).getProject().getName());	
 						
 			boolean isTopProjectSingleLevel = false;
 			try {
@@ -58,32 +57,49 @@ public class HideDeepProjects extends ViewerFilter {
 			if(isTopProjectSingleLevel){
 
 			if (!(((IResource)element) instanceof IFile) && ((IResource)element).getParent().isLinked()){
-				
-				logger.debug(">>>>>>>>  HIDDING : " + ((IResource)element).getName());
-				
+								
 				try {
 					((IResource)element).setHidden(true);
 				} catch (CoreException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error("can't set hidden to true: " + e);
 				}
+				// begin refresh
+				if (element instanceof IResource){
+					
+					// update the project explorer view asynchronously
+					final IResource itemToExpand = (IResource) element;
+					Display.getDefault().asyncExec(new Runnable(){
+						   public void run(){
+								refreshProjectExplorer(itemToExpand);
+						   }
+						});
+			}// end check element instanceof iresource
+				// end refresh
 			}
-			}
+					
+			}// is topProjectSingleLevel
 		}
 		
-		//logger.debug("---------  REFRESHING --------------");
-		if (element instanceof IResource){
-		try {
-			((IResource)element).getParent().refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
-			((IResource)element).getProject().refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
-			((IResource)element).refreshLocal(IResource.DEPTH_ZERO,	new NullProgressMonitor());
-			
-		} catch (CoreException e) {
-			logger.error("error refreshing project explorer" + e.getMessage());
-		}
-	}// end check element instanceof iresource
-		
+
 		return true;
 	}
+	
 
+	private void refreshProjectExplorer(IResource itemToExpand) {
+		
+		IViewReference[] viewReferences = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getViewReferences();
+		for (IViewReference  viewRef : viewReferences)
+		{
+			if (viewRef.getId().compareTo(IPageLayout.ID_PROJECT_EXPLORER) == 0)
+			{
+				
+				ProjectExplorer projectExplorer = (ProjectExplorer)(viewRef.getView(true));
+				projectExplorer.getCommonViewer().expandToLevel(itemToExpand, IResource.DEPTH_ONE);//.expandAll();
+				projectExplorer.getCommonViewer().refresh(true);
+			}
+		}
+		
+	}
+
+	
 }
