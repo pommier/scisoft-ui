@@ -18,7 +18,6 @@ package uk.ac.diamond.scisoft.customprojects.rcp.wizards;
 
 import java.io.File;
 
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -29,12 +28,8 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
-import org.eclipse.ui.IPageLayout;
-import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWizard;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.navigator.resources.ProjectExplorer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

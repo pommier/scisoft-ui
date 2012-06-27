@@ -5,7 +5,7 @@
          id="application"
          point="org.eclipse.core.runtime.applications">
       <application
-            icon="icons/explorer.png">
+            icon="icons/BinaryTree.png">
          <run
                class="uk.ac.diamond.scisoft.customprojects.rcp.internal.Application">
          </run>
@@ -42,7 +42,7 @@
              allowMultiple="false"
              category="uk.ac.diamond.scisoft.customproject.rcp"
              class="org.eclipse.ui.navigator.CommonNavigator"
-             icon="icons/cnficons/BinaryTree.png"
+             icon="icons/BinaryTree.png"
              id="uk.ac.diamond.scisoft.customprojects.view"
              name="Non-Recursive View">
        </view>
@@ -239,9 +239,9 @@
    <extension
          point="org.eclipse.ui.ide.projectNatureImages">
       <image
-            icon="icons/database.png"
+            icon="icons/BinaryTree.png"
             id="customprojects.projectNature.img"
-            natureId="uk.ac.diamond.scisoft.customprojects.rcp.icat.nature">
+            natureId="uk.ac.diamond.scisoft.singlelevelproject.rcp.nature">
       </image>
    </extension>
   
