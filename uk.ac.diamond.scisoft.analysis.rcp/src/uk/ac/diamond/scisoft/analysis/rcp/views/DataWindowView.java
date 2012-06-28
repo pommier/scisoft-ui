@@ -142,7 +142,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 		super.init(site);
 		id = site.getId();
 		sId = site.getSecondaryId();
-		setPartName("Surface Plot Slicing: " + sId);
+		setPartName("Surface Profile: " + sId);
 	}
 	
 	private void buildActions(IToolBarManager manager) {
