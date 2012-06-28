@@ -36,7 +36,6 @@ import javax.swing.JPanel;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.custom.SashForm;
@@ -45,6 +44,7 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -65,6 +65,7 @@ import uk.ac.diamond.scisoft.analysis.diffraction.QSpace;
 import uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
+import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColorMappingUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColourImageData;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColourLookupTable;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramChartPlot1D;
@@ -96,7 +97,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEventListener;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.SceneDragTool;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
-import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.system.info.JOGLChecker;
 import de.jreality.math.MatrixBuilder;
 import de.jreality.scene.Camera;
@@ -654,6 +654,26 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 	}
 
 	/**
+	 * This function updates the color mapping with a ColorMappingUpdate object
+	 * @param update
+	 */
+	public void updateColorMapping(ColorMappingUpdate update){
+		ColourImageData imageData = new ColourImageData(256,1);
+		int lastValue=0;
+		PaletteData palette = update.getPaletteData();
+		for (int i = 0; i < imageData.getWidth(); i++){
+			int value =  ((255&0xff) << 24)+((palette.colors[i].red&0xff) << 16)+((palette.colors[i].green&0xff) << 8)+(palette.colors[i].blue&0xff);
+			if(i==252)
+				lastValue = value;
+			else if(i==253||i==254||i==255)
+				imageData.set(lastValue, i);
+			else if(i>=0&&i<252)
+				imageData.set(value, i);
+		}
+		plotter.handleColourCast(imageData, graph, update.getMinValue(), update.getMaxValue());
+	}
+
+	/**
 	 * @param newData
 	 *            DataSet that should be plotted
 	 */
@@ -967,14 +987,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 				currentDataSets.remove(i);
 			currentDataSets.addAll(0, datasets);
 			plotter.updateGraph(currentDataSets);
-		}else if(currentDataSets.size() == 0 
-				&& getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
-			// TODO: correctly update the graph with the dataset without resetting the graph camera
-			currentDataSets.addAll(datasets);
-			graph = plotter.buildGraph(currentDataSets, graph);
-			hasData = true;
-		} else if(currentDataSets.size() == 0
-				&& getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
+		} else if(currentDataSets.size() == 0){
 			currentDataSets.addAll(datasets);
 			coordAxes = plotter.buildCoordAxis(coordAxes);
 			graph = plotter.buildGraph(currentDataSets, graph);
@@ -1011,6 +1024,42 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 			currentDataSet = currentDataSets.get(0);
 			checkForDiffractionImage(currentDataSet);
 		}
+	}
+
+	/**
+	 * Replace the current dataset that are have been plotted with a whole set of new ones
+	 * This is used when in new plotting mode
+	 * TODO do not reset the camera perspective
+	 * @param dataset
+	 * @throws PlotException
+	 *             throws a PlotException when something goes wrong
+	 */
+	public void replacePlot(IDataset dataset) throws PlotException {
+		if (checkForNan(dataset) || checkForInf(dataset))
+			throw new PlotException(ERROR_MESG);
+		
+		if (currentDataSet != null) {
+			currentDataSets.remove(0);
+			currentDataSets.add(0, dataset);
+			checkAndAddLegend(currentDataSets);
+			plotter.updateGraph(dataset);
+		} else {
+			currentDataSets.add(dataset);
+			checkAndAddLegend(currentDataSets);
+			graph = plotter.buildGraph(currentDataSets, graph);
+		//	coordAxes = plotter.buildCoordAxis(coordAxes);
+			hasData = true;
+		//plotter.setXAxisLabel(xAxisLabel);
+		//	plotter.setYAxisLabel(yAxisLabel);
+		//	plotter.setZAxisLabel(zAxisLabel);
+		}
+		if (currentMode == PlottingMode.SURF2D || currentMode == PlottingMode.SCATTER3D) {
+			root.removeChild(bbox);
+			bbox = plotter.buildBoundingBox();
+			root.addChild(bbox);
+		}
+		currentDataSet = dataset;
+		checkForDiffractionImage(dataset);
 	}
 
 	/**
@@ -2527,12 +2576,5 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 	
 	public void toggleErrorBars(boolean xcoord, boolean ycoord, boolean zcoord) {		
 		plotter.toggleErrorBars(xcoord, ycoord, zcoord);
-	}
-
-	private int getDefaultPlottingSystemChoice() {
-		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
-				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
-				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
 	}
 }

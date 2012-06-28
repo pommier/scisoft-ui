@@ -26,6 +26,7 @@ import java.util.LinkedList;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
+import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColorMappingUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSet3DPlot3D;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.OverlayType;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.PrimitiveType;
@@ -287,7 +288,19 @@ public class DataWindowOverlay implements Overlay2DConsumer, IObservable {
 			observer.update(this, roi);
 		}
 	}
-	
+
+	/**
+	 * Update the color mapping
+	 * @param update
+	 */
+	public void updateColorMapping(ColorMappingUpdate update){
+		Iterator<IObserver> iter = observers.iterator();
+		while (iter.hasNext()) {
+			IObserver observer = iter.next();
+			observer.update(this, update);
+		}
+	}
+
 	@Override
 	public void addIObserver(IObserver anIObserver) {
 		observers.add(anIObserver);
