@@ -86,6 +86,7 @@ import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
  */
 public class DataWindowView extends ViewPart implements IObserver, SelectionListener, IROIListener {
 
+	public static String ID = "uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView";
 	private AxisValues xAxis;
 	private AxisValues yAxis;
 	private DataSetPlotter plotter;
@@ -940,10 +941,12 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 	}
 
 	protected void clearTraces(final IRegion region) {
-		final String name = region.getName();
-		Collection<ITrace> registered = this.registeredTraces.get(name);
-		if (registered!=null) for (ITrace iTrace : registered) {
-			plottingSystem.removeTrace(iTrace);
+		if(region!=null){
+			final String name = region.getName();
+			Collection<ITrace> registered = this.registeredTraces.get(name);
+			if (registered!=null) for (ITrace iTrace : registered) {
+				plottingSystem.removeTrace(iTrace);
+			}
 		}
 	}
 
