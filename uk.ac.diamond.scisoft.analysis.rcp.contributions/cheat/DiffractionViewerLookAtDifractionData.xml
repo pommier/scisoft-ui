@@ -15,43 +15,33 @@
 	</item>
 	<item title="Open a Diffraction Image">
    	   	<description>
-   			Use the File Navigator, go to the directory
-   			<br/><br/><b>/dls/sci-scratch/ExampleData/ADSC-Q315/adsc</b>
-   			<br/><br/>And then select the first image, you will see the Header information appear in the Header view just below the navigator.
-        	<br/><br/>Now double click on the selected img file and you will see the image appear in the <b>Dataset Plot View</b> on the right hand side of the screen
+   			Use the Project Explorer, open the <b>data</b> project and the <b>examples</b> folder within it.
+   			<br/><br/>Then select the first .img image. You will see the Metadata information appear in the Metadata view just below the navigator.
+        	<br/><br/>Now double click on the selected .img file and you will see the image appear in the <b>MX image</b> editor in the middle of the window.
         </description>
 	</item>
 	<item title="Navigating arround the image">
    	   	<description>	
-   	   		Move the mouse over to the <b>Dataset Plot view</b> and experiment with the folowing tools which are available to allow you to look around the image.
-   	   		<br/><br/><b>Middle mouse button, or both mouse buttons together</b>
-			<br/>Pan around the image
+   	   		Move the mouse over to the <b>MX image</b> editor which shows the diffraction image and experiment with the following tools which are available to allow you to look around the image.
 			<br/><br/><b>Scroll Wheel</b>
 			<br/>Zoom in and out of the image
-			<br/><br/>Finaly to get information about where you are pointing at specifically activate the monitor which can be found in the row of buttons at the top of the <b>Dataset Plot View</b> it is the button that looks like a computer monitor and the tool-tip reads 'monitor the position in the image'
-			<br/><br/>With this tured on, information can be found out about the image by moving the mouse pointer over it, this information is found at the bottom of the view.
+   	   		<br/><br/><b>The Panning tool</b>
+			<br/>This is the tool selected by default, so just click on the image and drag it around to pan.
+			<br/><br/>Finally to get information about where you are pointing at specifically, activate the <b>Pixel information</b> tool which can be found in the toolbar directly above the image -- it's in the Image tools drop-down and the tool-tip reads 'Image tools used to profile and inspect images'.
+			<br/><br/>With this turned on, information can be found out about the image by moving the mouse pointer over it. The information is displayed in a new view that opens up.
         </description>
 	</item>
 	<item title="Changing the colourscale on the image">
    	   	<description>	
 			Sometimes to get the best out of the data, changing the way the pixel values are mapped to a specific colour can really help.
-			<br/><br/>There is lots of functionality available here, but the easiest way to see a variety of different mappings is to use the Colour Scheme drop-down in the <b>Colour Mapping:Dataset Plot</b> and select a different colour scheme, Try a few different ones, but then end up on 'sqrt' which can be useful for pulling data out of the lower regions on the image.
-        </description>
-	</item>
-	<item title="Measure the d spacing between some spots">
-   	   	<description>	
-			To really investigate properties of the data collection, it is very useful to be able to measure the d-spacing of some of the reflections. 
-			<br/><br/>To do this click on the Crystal icon at the top of the dataset plot, near the middle of the icons, and then bring the <b>side:Dataset Plot</b> to the front from behind the <b>Colour Mapping</b> view.  
-			<br/><br/>In the <b>Side:Dataset Plot</b> view, select the Line Profile tab, which is to the far left of the tabs (you may need to use the arrows to move across to this tab)
-			<br/><br/>In the main Dataset Plot navigate to an area with several spots in a row, and draw a line over 2 of them using the left mouse click.  When you do this a plot of the line profile should appear, with the peak positions marked on it.  Just below this is the d spacing statistics.
-			<br/><br/>To improve the accuracy of this measurement, draw the line across several spots in a row, and you should see better statistics appear. 
+			<br/><br/>There is lots of functionality available here, but the easiest way to see a variety of different mappings is to use the <b>Colour mapping</b> tool in the <b>Image tools</b> drop-down. Select a different colour scheme, Try a few different ones, but then end up on 'Sqrt scale' which can be useful for pulling data out of the lower regions on the image.
         </description>
 	</item>
 	<item title="resolution Rings">
    	   	<description>	
-			To see resolution rings on the image, go to the second tab in the <b>Side:Dataset Plot</b> view, <b>Resolution Ring</b>.  This allows various markers to be set on the image, including standards and ice rings.
-			<br/><br/>Check the toggle rings box to initialise this tool, and then click on Beam Centre button, which will show a point on the image which is where the metadata puts the beam centre.
-			<br/><br/>Now click on Standard to get a set of resolution rings, the values of which are displayed in the table below. 
+			To see resolution rings on the image, use the tools in the <b>Resolution rings</b> drop-down. This allows various markers to be set on the image, including standards and ice rings.
+			<br/><br/>First, select the <b>Beam Centre</b> tool, which will show a point on the image which is where the metadata puts the beam centre.
+			<br/><br/>Now click on <b>Standard rings</b> to get a set of resolution rings, the values of which are displayed as labels on the rings. 
         </description>
 	</item>
 </cheatsheet> 

@@ -21,7 +21,7 @@
    <item
          title="Showing the Calibrant">
       <description>
-         The Calibrant can be seen by toggling the button marked &apos;Calibrant&apos; after checking the toggle ring box. It is also useful to show the beam centre as well.
+         The Calibrant can be seen by clicking the &apos;Resolution rings&apos; drop-down in the toolbar just above the image after. It is also useful to show the beam centre as well.
       </description>
    </item>
    <item
