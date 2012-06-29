@@ -45,10 +45,10 @@ import org.eclipse.ui.PartInitException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
-import uk.ac.diamond.scisoft.analysis.plotserver.FileOperationBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
-import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
+//import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
+//import uk.ac.diamond.scisoft.analysis.plotserver.FileOperationBean;
+//import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
+//import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView;
 
 /**
@@ -90,7 +90,7 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 	private String viewName = null;
 	private String imageFileToLoad = null;
 	private Menu popupMenu = null;
-	private boolean usePlotServer = true;
+//	private boolean usePlotServer = true;
 
 	public SWTImageGrid(Canvas canvas, String viewname) {
 		super();
@@ -113,9 +113,10 @@ public class SWTImageGrid extends AbstractImageGrid implements PaintListener,
 		// send to the plot server and plotted.
 		// NOTE This must be a JAVA property and not a GDA property as programs outside
 		// GDA are setting the property.
-		if (System.getProperty("uk.ac.diamond.scisoft.analysis.rcp.imagegrid.plotServer")!=null) {
-			usePlotServer = false;
-		}
+
+//		if (System.getProperty("uk.ac.diamond.scisoft.analysis.rcp.imagegrid.plotServer")!=null) {
+//			usePlotServer = false;
+//		}
 		
 		this.canvas.addPaintListener(this);
 		this.canvas.addListener(SWT.Resize, this);
