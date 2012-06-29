@@ -41,7 +41,7 @@ public class HideDeepProjects extends ViewerFilter {
 	
 	@Override
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
-	
+
 		if(element instanceof IResource){
 						
 			boolean isTopProjectSingleLevel = false;
@@ -53,30 +53,14 @@ public class HideDeepProjects extends ViewerFilter {
 				e1.printStackTrace();
 			}
 			
-			
-			if(isTopProjectSingleLevel){
 
-			if (!(((IResource)element) instanceof IFile) && ((IResource)element).getParent().isLinked()){
-								
-				try {
-					((IResource)element).setHidden(true);
-				} catch (CoreException e) {
-					logger.error("can't set hidden to true: " + e);
+			if  (isTopProjectSingleLevel){
+
+				if (!(((IResource)element) instanceof IFile) && ((IResource)element).getParent().isLinked()){
+
+					return false;
 				}
-				// begin refresh
-				if (element instanceof IResource){
-					
-					// update the project explorer view asynchronously
-					final IResource itemToExpand = (IResource) element;
-					Display.getDefault().asyncExec(new Runnable(){
-						   public void run(){
-								refreshProjectExplorer(itemToExpand);
-						   }
-						});
-			}// end check element instanceof iresource
-				// end refresh
-			}
-					
+
 			}// is topProjectSingleLevel
 		}
 		
@@ -87,18 +71,11 @@ public class HideDeepProjects extends ViewerFilter {
 
 	private void refreshProjectExplorer(IResource itemToExpand) {
 		
-		IViewReference[] viewReferences = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getViewReferences();
-		for (IViewReference  viewRef : viewReferences)
-		{
-			if (viewRef.getId().compareTo(IPageLayout.ID_PROJECT_EXPLORER) == 0)
-			{
-				
-				ProjectExplorer projectExplorer = (ProjectExplorer)(viewRef.getView(true));
-				projectExplorer.getCommonViewer().expandToLevel(itemToExpand, IResource.DEPTH_ONE);//.expandAll();
-				projectExplorer.getCommonViewer().refresh(true);
-			}
+		ProjectExplorer projectExplorer = (ProjectExplorer)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView(IPageLayout.ID_PROJECT_EXPLORER);
+		if (projectExplorer!=null) {
+			projectExplorer.getCommonViewer().expandToLevel(itemToExpand, IResource.DEPTH_ONE);//.expandAll();
+			projectExplorer.getCommonViewer().refresh(true);
 		}
-		
 	}
 
 	
