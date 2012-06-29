@@ -1,4 +1,4 @@
-/*
+/*-
  * Copyright 2012 Diamond Light Source Ltd.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,7 +37,10 @@ import org.dawb.common.ui.plot.region.ROIEvent;
 import org.dawb.common.ui.plot.region.RegionEvent;
 import org.dawb.common.ui.plot.tool.IToolPage.ToolPageRole;
 import org.dawb.common.ui.plot.tool.IToolPageSystem;
+import org.dawb.common.ui.plot.trace.IImageTrace;
+import org.dawb.common.ui.plot.trace.IPaletteListener;
 import org.dawb.common.ui.plot.trace.ITrace;
+import org.dawb.common.ui.plot.trace.PaletteEvent;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -69,6 +72,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
+import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColorMappingUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AxisValues;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSet3DPlot3D;
@@ -86,6 +90,7 @@ import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
  */
 public class DataWindowView extends ViewPart implements IObserver, SelectionListener, IROIListener {
 
+	public static String ID = "uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView";
 	private AxisValues xAxis;
 	private AxisValues yAxis;
 	private DataSetPlotter plotter;
@@ -138,7 +143,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 		super.init(site);
 		id = site.getId();
 		sId = site.getSecondaryId();
-		setPartName("Surface Plot Slicing: " + sId);
+		setPartName("Surface Profile: " + sId);
 	}
 	
 	private void buildActions(IToolBarManager manager) {
@@ -417,13 +422,14 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 			plottingSystem = PlottingFactory.createPlottingSystem();
 			plottingSystem.setColorOption(ColorOption.NONE);
 			plottingSystem.setDatasetChoosingRequired(false);
-			plottingSystem.createPlotPart(parent, this.getPartName(), null, PlotType.PT1D, this);
-			plottingSystem.getPlotActionSystem().fillRegionActions(getViewSite().getActionBars().getToolBarManager());
+			plottingSystem.createPlotPart(parent, this.getPartName(), getViewSite().getActionBars(), PlotType.PT1D, this);
+			//plottingSystem.getPlotActionSystem().fillRegionActions(getViewSite().getActionBars().getToolBarManager());
 
 			plottingSystem.repaint();
 
 			this.regionListener = getRegionListener();
 			this.plottingSystem.addRegionListener(this.regionListener);
+			this.paletteListener = getPaletteListener();
 			
 		} catch (Exception e) {
 			logger.error("Cannot locate any Abstract plotting System!", e);
@@ -559,7 +565,11 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 							IRegion region = plottingSystem.getRegion("Surface slice");
 							double upperX =plottingSystem.getSelectedXAxis().getUpper();
 							double lowerY =plottingSystem.getSelectedYAxis().getLower();
-							RectangularROI rroi = new RectangularROI(0, 0, upperX/2, lowerY/2, 0);
+							if(upperX>1000 && lowerY>1000){
+								upperX=500;
+								lowerY=500;
+							}
+							RectangularROI rroi = new RectangularROI(0, 0, upperX, lowerY, 0);
 							//Test if the region is already there and update the currentRegion
 							if(region!=null&&region.isVisible()){
 								currentROI = region.getROI();
@@ -576,6 +586,12 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 							}
 						} catch (Exception e) {
 							logger.error("Couldn't open histogram view and create ROI", e);
+						}
+						// finally tie in the listener to the paletedata changes
+						Collection<ITrace> traces = plottingSystem.getTraces(IImageTrace.class);
+						image = traces!=null && traces.size()>0 ? (IImageTrace)traces.iterator().next():null;
+						if(image!=null){
+							image.addPaletteListener(paletteListener);
 						}
 					}
 				});
@@ -753,6 +769,8 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 				plotter.cleanUp();
 		}else if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
 			if(plottingSystem !=null){
+				if (image != null)
+					image.removePaletteListener(paletteListener);
 				clearTraces(plottingSystem.getRegion("Surface slice"));
 				plottingSystem.removeRegionListener(regionListener);
 				overlay.deleteIObservers();
@@ -760,6 +778,55 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 			}
 		}
 		
+	}
+
+	//Make the DataWindowView a PaletteListener (new Plotting)
+	private IPaletteListener paletteListener;
+	private IImageTrace image;
+
+	private IPaletteListener getPaletteListener(){
+		return new IPaletteListener(){
+			@Override
+			public void paletteChanged(PaletteEvent event) {
+				logger.debug("paletteChanged");
+				overlay.updateColorMapping(getColorMappingUpdate(event.getTrace()));
+			}
+			@Override
+			public void minChanged(PaletteEvent event) {
+				logger.debug("paletteListener minChanged");
+				overlay.updateColorMapping(getColorMappingUpdate(event.getTrace()));
+			}
+			@Override
+			public void maxChanged(PaletteEvent event) {
+				logger.debug("paletteListener maxChanged");
+				overlay.updateColorMapping(getColorMappingUpdate(event.getTrace()));
+			}
+			@Override
+			public void maxCutChanged(PaletteEvent event) {
+				logger.debug("paletteListener maxCutChanged");
+				overlay.updateColorMapping(getColorMappingUpdate(event.getTrace()));
+			}
+			@Override
+			public void minCutChanged(PaletteEvent event) {
+				logger.debug("paletteListener minCutChanged");
+				overlay.updateColorMapping(getColorMappingUpdate(event.getTrace()));
+			}
+			@Override
+			public void nanBoundsChanged(PaletteEvent event) {
+				overlay.updateColorMapping(getColorMappingUpdate(event.getTrace()));
+				return;
+			}
+			@Override
+			public void maskChanged(PaletteEvent evt) {
+				// No action needed.
+			}
+		};
+	}
+	
+	private ColorMappingUpdate getColorMappingUpdate(IImageTrace trace){
+		double minValue = trace.getMin().doubleValue();
+		double maxValue = trace.getMax().doubleValue();
+		return new ColorMappingUpdate(trace.getPaletteData(), minValue, maxValue);
 	}
 
 	// Make the DataWindowView a RegionListener (new plotting)
@@ -863,13 +930,15 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 	}
 
 	protected void clearTraces(final IRegion region) {
-		final String name = region.getName();
-		Collection<ITrace> registered = this.registeredTraces.get(name);
-		if (registered!=null) for (ITrace iTrace : registered) {
-			plottingSystem.removeTrace(iTrace);
+		if(region!=null){
+			final String name = region.getName();
+			Collection<ITrace> registered = this.registeredTraces.get(name);
+			if (registered!=null) for (ITrace iTrace : registered) {
+				plottingSystem.removeTrace(iTrace);
+			}
 		}
 	}
-	
+
 	private int getDefaultPlottingSystemChoice() {
 		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
 		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 

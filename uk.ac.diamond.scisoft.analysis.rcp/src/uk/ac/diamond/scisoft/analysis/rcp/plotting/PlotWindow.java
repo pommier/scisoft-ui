@@ -991,12 +991,6 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 				plot2Dui.getSidePlotView().sendHistogramUpdate(update);
 			}
 		}
-		if(theObserved instanceof DataWindowView){
-			//TODO update color mapping of the surface plotter with data from palette data of the DataWindowView
-			HistogramUpdate update = (HistogramUpdate) changeCode;
-			mainPlotter.applyColourCast(update);
-		}
-
 	}
 
 	public DataSetPlotter getMainPlotter() {

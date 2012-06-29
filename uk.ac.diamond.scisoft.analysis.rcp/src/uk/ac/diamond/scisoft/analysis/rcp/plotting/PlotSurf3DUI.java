@@ -25,10 +25,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
@@ -53,6 +49,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
+import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColorMappingUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.ScaleType;
@@ -439,9 +436,14 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 				plotWindow.notifyUpdateFinished();				
 			} else {
 				final HistogramDataUpdate histoUpdate = new
-				  HistogramDataUpdate(datasets.get(0));
+						  HistogramDataUpdate(datasets.get(0));
 				try {
-					mainPlotter.replaceAllPlots(datasets);
+					if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
+						mainPlotter.replaceAllPlots(datasets);
+					else if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
+						mainPlotter.replacePlot(datasets.get(0));
+						
+					}
 				} catch (PlotException e) {
 					e.printStackTrace();
 				}
@@ -463,7 +465,6 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 				});
 			}
 		}
-
 	}
 
 	/**
@@ -505,30 +506,22 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 	@Override
 	public void update(Object theObserved, final Object changeCode) {
 		if (changeCode instanceof SurfacePlotROI) {
-			if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
-				SurfacePlotROI roi = (SurfacePlotROI)changeCode;
+			final SurfacePlotROI roi = (SurfacePlotROI)changeCode;
+			try{
 				mainPlotter.setDataWindowPosition(roi);
 				mainPlotter.refresh(false);
-			}else if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
-				Job updateDataWindow = new Job("Update Data Window") {
-					@Override
-					protected IStatus run(IProgressMonitor monitor) {
-						SurfacePlotROI roi = (SurfacePlotROI)changeCode;
-						if (monitor.isCanceled()) return Status.CANCEL_STATUS;
-						try{
-							mainPlotter.setDataWindowPosition(roi);
-							mainPlotter.refresh(false);
-						}catch(Exception e){
-							logger.debug("Error:"+e);
-							return Status.CANCEL_STATUS;
-						}
-						return Status.OK_STATUS;
-					}
-				};
-				updateDataWindow.schedule();
+			}catch(ArrayIndexOutOfBoundsException e){
+				logger.debug("Surface plot ROI is out of the image bounds:"+e);
+			}catch(NullPointerException e){
+				logger.debug("The Surface plot has been closed and is null:"+e);
 			}
 		}
+		if(changeCode instanceof ColorMappingUpdate){
+			ColorMappingUpdate update = (ColorMappingUpdate)changeCode;
+			mainPlotter.updateColorMapping(update);
+		}
 	}
+
 
 	private int getDefaultPlottingSystemChoice() {
 		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();

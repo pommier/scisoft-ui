@@ -36,7 +36,7 @@
          label="5. HDF5 Tree Element Decorator : it decorates all Tree Elements of an unfolded Nexus/HDF5 file with their corresponding data. It is displayed near by each tree element. Try disabling it. Make sure you have a Nexus/HDF5 file structure unfold in the package explorer in order to see it working. Re-enable it.">
       </subitem>
       <subitem
-         label="Note: depending on the amount of files in a folder, the decorators might take longer to get displayed. However they all run on separate jobs and should not block the SDA.">
+         label="Note: depending on the amount of files in a folder, the decorators might take longer to get displayed. However they all run on separate jobs and should not block DAWN.">
       </subitem>
    </item>
 </cheatsheet>
