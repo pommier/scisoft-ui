@@ -274,7 +274,7 @@ public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, 
 			
 			//hdfxp.getTableTree().getViewer().setSelection(structuredSelection);
 			
-			hdfxp.selectHDF5Node(link, InspectorType.LINE);
+			hdfxp.selectHDF5Node(link);
 		} catch (Exception e) {
 			logger.error("Error processing selection: {}", e.getMessage());
 		} finally {

@@ -117,6 +117,14 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	/**
 	 * Select a node and populate a selection object
 	 * @param link node link
+	 */
+	public void selectHDF5Node(HDF5NodeLink link) {
+		selectHDF5Node(link, null);
+	}
+
+	/**
+	 * Select a node and populate a selection object
+	 * @param link node link
 	 * @param type
 	 */
 	public void selectHDF5Node(HDF5NodeLink link, InspectorType type) {
@@ -135,8 +143,17 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 
 		// provide selection
 		s.setFileName(filename);
-		s.setType(type);
+		if (type != null)
+			s.setType(type);
 		setSelection(s);
+	}
+
+	/**
+	 * Select a node and populate a selection object
+	 * @param path path of node
+	 */
+	public void selectHDF5Node(String path) {
+		selectHDF5Node(path, null);
 	}
 
 	/**
@@ -195,7 +212,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 			// check if selection is valid for plotting
 			if (selection != null && selection.getFirstElement() instanceof HDF5NodeLink) {
 				HDF5NodeLink link = (HDF5NodeLink) selection.getFirstElement();
-				selectHDF5Node(link, InspectorType.LINE);
+				selectHDF5Node(link);
 			}
 		} catch (Exception e) {
 			logger.error("Error processing selection: {}", e.getMessage());
