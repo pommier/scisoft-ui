@@ -435,11 +435,13 @@ public class PlotView extends ViewPart implements IObserver, IObservable, IGuiIn
 
 	@Override
 	public void updateProcessed() {
-
 	}
 
 	@Override
 	public IMetaData getMetadata() throws Exception {
+		if (getMainPlotter() == null)
+			return null;
+
 		IDataset currentData = getMainPlotter().getCurrentDataSet();
 		if (currentData != null)
 			return currentData.getMetadata();
