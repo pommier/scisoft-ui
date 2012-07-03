@@ -298,7 +298,9 @@ public class HDF5Utils {
 			aSel.addChoice(newChoice, aSel.getMaxOrder() + 1);
 		}
 
-		return new HDF5Selection(InspectorType.LINE, null, link.getFullName(), axes, cData);
+		InspectorType itype = cData.getRank() == 1 ? InspectorType.LINE : InspectorType.IMAGE;
+
+		return new HDF5Selection(itype, null, link.getFullName(), axes, cData);
 	}
 
 	private static final String NXENTRY = "NXentry";
