@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.jface.viewers.ISelection;
@@ -320,6 +321,8 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 		setSelection(datasetSelection);
 	}
 
+	private final static Pattern SPACES = Pattern.compile("\\s+");
+
 	private void addMenu(IMetaData meta) {
 		// create context menu and handling
 		if (meta != null) {
@@ -336,13 +339,16 @@ public class ImageExplorer extends AbstractExplorer implements ISelectionProvide
 				Menu context = new Menu(viewer.getControl());
 				metaNames = new ArrayList<String>();
 				for (String n : names) {
-					try {
-						String v = meta.getMetaValue(n).toString();
-						Double.parseDouble(v);
-						metaNames.add(n);
-						MenuItem item = new MenuItem(context, SWT.PUSH);
-						item.addSelectionListener(contextListener);
-						item.setText(n + " = " + v);
+					try { // find entries with numerical values (and drop its units)
+						String[] vs = SPACES.split(meta.getMetaValue(n).toString());
+						for (String v : vs) {
+							Double.parseDouble(v);
+							metaNames.add(n);
+							MenuItem item = new MenuItem(context, SWT.PUSH);
+							item.addSelectionListener(contextListener);
+							item.setText(n + " = " + v);
+							break;
+						}
 					} catch (NumberFormatException e) {
 						
 					}
