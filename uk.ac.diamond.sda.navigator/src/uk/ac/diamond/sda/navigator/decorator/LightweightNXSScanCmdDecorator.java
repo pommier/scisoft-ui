@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.viewers.IDecoration;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ILightweightLabelDecorator;
@@ -71,7 +72,8 @@ public class LightweightNXSScanCmdDecorator extends LabelProvider implements ILi
 		decorator = "";
 		if (element instanceof IFile) {
 			IFile modelFile = (IFile) element;
-			if (NXS_EXT.equals(modelFile.getFileExtension())) {
+			IPath modelFilePath = modelFile.getLocation();
+			if (modelFilePath != null && modelFilePath.toFile().canRead() && NXS_EXT.equals(modelFile.getFileExtension())) {
 				IFile ifile = (IFile) element;
 
 				try {
