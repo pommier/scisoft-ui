@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cheatsheet
-      title="Using the Calibrant Functionality">
+      title="Using Calibrants">
    <intro>
       <description>
         <!-- It is possible to calibrate the detector distance using the tools available in the diffraction viewer. -->
