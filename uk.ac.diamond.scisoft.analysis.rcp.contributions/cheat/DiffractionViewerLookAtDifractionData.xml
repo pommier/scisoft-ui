@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cheatsheet
-      title="DIVA - Looking at difraction images">
+      title="DIVA - Looking at diffraction images">
    	<intro>
       	<description>
         	This Tutorial will show you how to get a first look at diffraction images to asses their general quality
@@ -20,7 +20,7 @@
         	<br/><br/>Now double click on the selected .img file and you will see the image appear in the <b>MX image</b> editor in the middle of the window.
         </description>
 	</item>
-	<item title="Navigating arround the image">
+	<item title="Navigating around the image">
    	   	<description>	
    	   		Move the mouse over to the <b>MX image</b> editor which shows the diffraction image and experiment with the following tools which are available to allow you to look around the image.
 			<br/><br/><b>Scroll Wheel</b>
@@ -31,13 +31,13 @@
 			<br/><br/>With this turned on, information can be found out about the image by moving the mouse pointer over it. The information is displayed in a new view that opens up.
         </description>
 	</item>
-	<item title="Changing the colourscale on the image">
+	<item title="Changing the colour scale on the image">
    	   	<description>	
 			Sometimes to get the best out of the data, changing the way the pixel values are mapped to a specific colour can really help.
 			<br/><br/>There is lots of functionality available here, but the easiest way to see a variety of different mappings is to use the <b>Colour mapping</b> tool in the <b>Image tools</b> drop-down. Select a different colour scheme, Try a few different ones, but then end up on 'Sqrt scale' which can be useful for pulling data out of the lower regions on the image.
         </description>
 	</item>
-	<item title="resolution Rings">
+	<item title="Resolution Rings">
    	   	<description>	
 			To see resolution rings on the image, use the tools in the <b>Resolution rings</b> drop-down. This allows various markers to be set on the image, including standards and ice rings.
 			<br/><br/>First, select the <b>Beam Centre</b> tool, which will show a point on the image which is where the metadata puts the beam centre.
