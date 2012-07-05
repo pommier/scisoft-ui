@@ -1344,8 +1344,12 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.contributions.CompareFilesCheatSheet"
             name="Compare Files Editor Introduction">
       </cheatsheet>
+      <category
+            id="uk.ac.diamond.scisoft.analysis.rcp.contributions.printing.category"
+            name="Printing">
+      </category>
       <cheatsheet
-            category="org.dawb.workbench.ui.cheat.sheet.basic.data.category"
+            category="uk.ac.diamond.scisoft.analysis.rcp.contributions.printing.category"
             composite="false"
             contentFile="cheat/PrintFeature.xml"
             id="uk.ac.diamond.scisoft.analysis.rcp.contributions.cheatsheet.printing"
