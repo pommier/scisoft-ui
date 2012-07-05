@@ -82,6 +82,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.AggregateDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
 import uk.ac.diamond.scisoft.analysis.io.AbstractFileLoader;
@@ -411,12 +412,51 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 		}
 	}
 
+
+	class FileSelection extends StructuredSelection implements IMetadataProvider {
+		private IMetaData metadata = null;
+
+		public FileSelection(SelectedFile f) {
+			super(f.f);
+			if (!f.hasDataHolder()) {
+				try {
+					DataHolder holder = explorer.loadFile(f.getAbsolutePath(), null);
+					if (holder != null)
+						f.setDataHolder(holder);
+				} catch (Exception e) {
+				}
+			}
+			if (f.hasMetadata()) {
+				metadata = f.m;
+			}
+		}
+
+		@Override
+		public IMetaData getMetadata() throws Exception {
+			return metadata;
+		}
+	}
+
 	@Override
 	public void createPartControl(Composite parent) {
 		Display display = parent.getDisplay();
 		sashComp = new SashForm(parent, SWT.VERTICAL);
 		sashComp.setLayout(new FillLayout(SWT.VERTICAL));
 		viewer = new TableViewer(sashComp, SWT.V_SCROLL);
+		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
+			public void selectionChanged(SelectionChangedEvent event) {
+				// inform metadata table view of currently selected file
+				ISelection is = event.getSelection();
+				if (is instanceof StructuredSelection) {
+					Object e = ((StructuredSelection) is).getFirstElement();
+					if (e instanceof SelectedFile) {
+						SelectedFile f = (SelectedFile) e;
+						setSelection(new FileSelection(f));
+					}
+				}
+			}
+		});
 
 		TableViewerColumn tVCol;
 		TableColumn tCol;
@@ -644,6 +684,7 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 	public void selectionChanged(SelectionChangedEvent e) {
 		ISelection sel = e.getSelection();
 
+		// TODO this should be in job/progress service
 		if (sel instanceof MetadataSelection) {
 			final String metaValue = ((MetadataSelection) sel).getPathname();  
 			loadMetaValues(metaValue);
@@ -1013,10 +1054,13 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 
 	@Override
 	public void setSelection(ISelection selection) {
-		if (selection instanceof DatasetSelection)
+		if (selection instanceof DatasetSelection) {
 			multipleSelection = (DatasetSelection) selection;
+		} else if (selection instanceof FileSelection) {
+		} else
+			return;
 
-		SelectionChangedEvent e = new SelectionChangedEvent(this, multipleSelection);
+		SelectionChangedEvent e = new SelectionChangedEvent(this, selection);
 		for (ISelectionChangedListener listener : listeners)
 			listener.selectionChanged(e);
 	}

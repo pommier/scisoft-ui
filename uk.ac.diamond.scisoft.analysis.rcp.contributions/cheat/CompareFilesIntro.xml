@@ -3,10 +3,7 @@
 	<intro>
 		<description>
 			This tutorial will show you how to use the compare files editor.
-		</description>
-	</intro>
-	<item title="Introduction">
-		<description>
+			<br/><br/>
 			The purpose of the compare files editor is to enable the user selection of a dataset in
 			one file and compare that with the corresponding datasets in other files using the
 			dataset inspector. There are two parts to a compare files editor: the top part is a
@@ -18,13 +15,14 @@
 			toggle its usage state. When the check is not visible, the file will not be used. The
 			entry will also indicate with a <b>yellow</b> background if the file does not contains
 			the chosen dataset (when one has been chosen). The centre column shows the full file
-			name for the row. The right column is titled Value and starts by at zero for the first
+			name for the row. The right column is titled Value and starts at zero for the first
 			file - it represents a per-file value.
 		</description>
-	</item>
+	</intro>
 	<item title="Choosing files to compare">
 		<description>
-			To populate the files table, read the tutorial on opening multiple files.
+			To populate the files table, read the tutorial on opening multiple files. For example,
+			select three of the four files in data > examples > results.
 		</description>
 	</item>
 	<item title="Choosing a dataset">
@@ -33,7 +31,9 @@
 			double clicking a dataset will make the compare files editor search through its list of
 			files and search for a dataset of the same name. If no dataset is found in a file, a
 			yellow warning is shown. All datasets are aggregated together into a single dataset,
-			possible axes and the per-file values are sent to the dataset inspector. 
+			possible axes and the per-file values are sent to the dataset inspector. In the example,
+			click on "image-01" and this will be shown via the Dataset Inspector as multiple 2D
+			images (read the Dataset Inspection Introduction to learn how to use it).
 		</description>
 	</item>
 	<item title="Choosing a metadata item for per-file values">
@@ -42,13 +42,16 @@
 			data or metadata items. The last column in the file table will show the selected
 			per-file values. In this case, the column heading switches to show that item's name and
 			any missing values are highlighted with a yellow background. A right-click on the column
-			title brings up a menu item to reset the values to row indices.
+			title brings up a menu item to reset the values to row indices. In the example,
+			right-click and choose "time_of_day" in the pop-up menu.   
 		</description>
 	</item>
 	<item title="Adding more files">
 		<description>
 			The table supports the insertion of more files by the action of dragging from any source
-			of files and dropping them anywhere below the first row.
+			of files and dropping them anywhere below the first row. In the example, click and drag
+			the last file in the results directory to the table and then click on "image-01" to
+			display all four files.
 		</description>
 	</item>
 </cheatsheet>
