@@ -1,30 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cheatsheet
-      title="Using the Calibrant Functionality">
+      title="Using Calibrants">
    <intro>
       <description>
-         Using the tools in the diffraction viewer it is possible to calibrate the detector distance using the tools avaliable in the diffraction viewer.
+        <!-- It is possible to calibrate the detector distance using the tools available in the diffraction viewer. -->
+		It's possible to display the rings from various calibrants using the tools in the MX image viewer. Before you being, go to the 
+<b>Project Explorer</b> and double-click to open e.g. the image &apos;data/examples/ref-testscale_1_001.img&apos;.
       </description>
    </intro>
    <item
          title="Calibrant">
       <description>
-         <b>Choosing the calibrant</b> There are a number of pre-entered calibrants entered in the preferences associated with the diffraction viewer. These are Cr2O3, Silicon and Bee&apos;s wax.
+         <b>Choosing the calibrant</b> There are a number of pre-entered calibrants in the preferences associated with the diffraction viewer. These are Cr2O3, Silicon and Bee&apos;s wax.
       </description>
       <subitem
-            label="These can be found by opening the preferences window by &apos;Window&apos; -&gt; &apos;Preferences&apos; from the menu. Searching for &apos;Diffraction Viewer&apos; to bring up the correct preferences window.">
+            label="These can be found by opening the preferences window by &apos;Window&apos; -&gt; &apos;Preferences&apos; from the menu.
+Search for &apos;Diffraction Viewer&apos; to bring up the correct set of preferences. Then click on the Calibration tab.">
       </subitem>
       <subitem
-            label="To add a custom calibrant enter the name and the d spacing speterated by commas and press add. Once the new calibrant is added select it from the list and click OK.">
+            label="To add a custom calibrant enter the name and the d spacing separated by commas and press add. Once the new calibrant is added, select it from the list and click OK.">
       </subitem>
    </item>
    <item
          title="Showing the Calibrant">
       <description>
-         The Calibrant can be seen by clicking the &apos;Resolution rings&apos; drop-down in the toolbar just above the image after. It is also useful to show the beam centre as well.
+         The calibrant rings can be seen by clicking the &apos;Resolution rings&apos; drop-down in the toolbar just above the image. It is also useful to show the beam centre.
       </description>
    </item>
-   <item
+   <!--item
          skip="false"
          title="Manipulating the detector position">
       <description>
@@ -37,5 +40,5 @@
       <subitem
             label="It is also possible to edit the beam position by clicking on the detector. To do this first make the beam centre visible and then, with the plot view selected, hold &apos;Shift&apos; and left click on the image where the beam centre should be. The beam centre will move to the position of the click.">
       </subitem>
-   </item>
+   </item-->
 </cheatsheet>
