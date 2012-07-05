@@ -1,45 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cheatsheet
-      title="Introduction To Diffraction Viewer">
+      title="Introduction To The Diffraction Viewer (DIVA)">
    <intro>
       <description>
-         <b>Starting the Diffraction Viewer.</b> The diffraction viewer is part of the sideplots which are associated with each plot within Dawn.
+         <b>Starting the Diffraction Viewer (DIVA).</b> Open the DIVA perspective e.g. by going Window --&gt; Open Perspective and clicking on DIVA. 
       </description>
    </intro>
    <item
          skip="false"
-         title="Starting the Diffraction Viewer">
+         title="Open a diffraction image">
       <description>
-         The diffraction viewer is started by pressing the red ruby crystal in the toolbar of a plot which is showing a 2D image. 
+         First go to the <b>Project Explorer</b> and double-click on the file &apos;data/examples/ref-testscale_1_001.img&apos;. 
       </description>
-      <subitem
-            label="When this button is pressed the sideplot corresponding to the plot will show the diffraction viewer. Once you have pressed the correct button then bring the sideplot to the top to access the functionality of the diffraction viewer."
-            skip="true">
-      </subitem>
-      <subitem
-            label="There are 6 tabs each of which contains different functionality"
-            skip="true">
-      </subitem>
    </item>
    <item
          skip="false"
          title="Basic Plot Manipulation">
-         <description>
-     When in the diffraction viewer is active the controls to manipulate the zoom and pan of the plot remain the same.
+      <description>
+		When the MX Image Viewer is active, scrolling the mouse wheel while hovering the mouse pointer over the image controls the zoom
+level. By default the panning tool is selected in the viewers toolbar. When this is active, you can pan by clicking anywhere in 
+the image and dragging in any direction.
       </description>
-      <subitem
-            label="That is, scrolling the central wheel controls the zoom level and clicking and dragging with the middle wheel will pan the plot.wheel will pan the plot."
-            skip="true">
-      </subitem>
    </item>
    <item
          skip="false"
          title="Metadata">
       <description>
-         This view shows the metadata associated with the diffraction image. Specific parts of this information can be edited if they are in error.
+         Below the <b>Project Explorer</b> and the <b>File Navigator</b> is a tab displaying the metadata associated with the selected 
+diffraction image. (Specific parts of this information can be edited if they are in error.)
       </description>
       <subitem
-            label="The wavelength, distance from the sample to the detector and the beam centre to be manipulated."
+            label="The wavelength, distance from the sample to the detector and the beam centre can be manipulated."
             skip="true">
       </subitem>
       <subitem
@@ -51,28 +42,14 @@
          skip="false"
          title="Line Profile">
       <description>
- d space calculations. This tab will display the results from left click drags across the plot. The line drawn across the image is plotted in the 1D plot. 
+        <b>d space calculations:</b> In the image toolbar under the <b>Image tools ...</b> drop-down, select the <b>Line Profile tool</b>. Now draw a line across a range of peaks in the image. The profile is displayed as a 1D plot in a tab to the right of the image.  
       </description>
       <subitem
             label="A peak finding routine then looks for the peaks and calculates the d spacing between the reflections."
             skip="true">
       </subitem>
    </item>
-   <item
-         skip="false"
-         title="Resolution Rings">
-      <description>
-         This tab allows various resolution rings to be plotted. There are buttons that will plot evenly spaced resolution rings, ice rings, the rings from a calibrant, as well as rings with a specified resolution. 
-      </description>
-      <subitem
-            label="There is also the possibility to drag a mask over the image and show the beam centre. When the mask is selected it will apear in red on the image. The size of the mask can be dragged by holding down &apos;Ctrl&apos; and left click dragging on the mask."
-            skip="true">
-      </subitem>
-      <subitem
-            label="Individual rings can be removed from the table by right clicking and selecting delete.">
-      </subitem>
-   </item>
-   <item
+   <!-- item
          skip="false"
          title="Area Viewing">
       <description>
@@ -86,5 +63,6 @@
             label="Holding down &apos;Ctrl&apos; and dragging will allow a custom box to be drawn.to be drawn."
             skip="true">
       </subitem>
-   </item>
+   </item 
+   -->
 </cheatsheet> 
