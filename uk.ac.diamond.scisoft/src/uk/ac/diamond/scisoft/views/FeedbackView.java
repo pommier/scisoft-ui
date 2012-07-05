@@ -116,7 +116,7 @@ public class FeedbackView extends ViewPart {
 			lblComment.setText("Comment");
 		}
 		{
-			messageText = new Text(parent, SWT.BORDER | SWT.MULTI);
+			messageText = new Text(parent, SWT.BORDER | SWT.MULTI | SWT.WRAP);
 			messageText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		}
 		{
