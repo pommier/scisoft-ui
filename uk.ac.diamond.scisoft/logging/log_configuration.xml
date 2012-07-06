@@ -8,11 +8,11 @@
 
 	<appender name="DebugFILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<File>${log.folder}/dawn_DEBUG.log</File>
-		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<FileNamePattern>${log.folder}/dawn_DEBUG.%d{yyyy-MM-dd}.log.gz
-			</FileNamePattern>
-		</rollingPolicy>
+		<append>false</append>
+		<file>${log.folder}/dawn_DEBUG.log</file>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>INFO</level>
+		</filter>
 		<layout class="ch.qos.logback.classic.PatternLayout">
 			<pattern>%d %-5level %logger - %m %ex %n</pattern>
 		</layout>
