@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -145,7 +146,9 @@ public class JythonCreator implements IStartup {
 			}
 			
 			// Set cachdir to something not in the installation directory
-			final File cachdir = new File(System.getProperty("user.home")+"/.dawn/jython");
+			final String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString();
+			final File cachdir = new File(workspace+"/.jython_cachedir");
+			
 			cachdir.mkdirs();
 			System.setProperty("python.cachedir", cachdir.getAbsolutePath());
 			
