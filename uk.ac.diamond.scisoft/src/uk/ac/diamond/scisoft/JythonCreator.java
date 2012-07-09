@@ -148,6 +148,10 @@ public class JythonCreator implements IStartup {
 
 			}
 			
+			// Set cachdir to something not in the installation directory
+			final File cachdir = new File(System.getProperty("user.home")+"/.dawn/jython");
+			cachdir.mkdirs();
+			System.setProperty("python.cachedir", cachdir.getAbsolutePath());
 			
 			logger.debug("executable path = {}", executable);
 
@@ -161,7 +165,7 @@ public class JythonCreator implements IStartup {
 			logger.debug("Script path = {}", script.getAbsolutePath());
 			
 			
-			String[] cmdarray = {"java", "-Xmx64m", "-jar",executable, REF.getFileAbsolutePath(script)};
+			String[] cmdarray = {"java", "-Xmx64m", "-Dpython.cachedir=\""+cachdir.getAbsolutePath()+"\"", "-jar",executable, REF.getFileAbsolutePath(script) };
 			File workingDir = new File(System.getProperty("java.io.tmpdir"));
 			IPythonNature nature = null;//new PythonNature();
 			Tuple<Process, String> outTup2 = new SimpleJythonRunner().run(cmdarray, workingDir, nature, monitor);
