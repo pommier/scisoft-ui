@@ -27,8 +27,9 @@ the image and dragging in any direction.
          title="Metadata">
       <description>
          Below the <b>Project Explorer</b> and the <b>File Navigator</b> is a tab displaying the metadata associated with the selected 
-diffraction image. (Specific parts of this information can be edited if they are in error.)
+diffraction image. <!--(Specific parts of this information can be edited if they are in error.) -->
       </description>
+	  <!--
       <subitem
             label="The wavelength, distance from the sample to the detector and the beam centre can be manipulated."
             skip="true">
@@ -37,7 +38,10 @@ diffraction image. (Specific parts of this information can be edited if they are
             label="These settings can be saved between images by pressing the &apos;Lock Settings&apos; button. Reverting to the original metadata can pressing &apos;Reset&apos;"
             skip="true">
       </subitem>
+      -->
    </item>
+
+<!--   
    <item
          skip="false"
          title="Line Profile">
@@ -49,6 +53,7 @@ diffraction image. (Specific parts of this information can be edited if they are
             skip="true">
       </subitem>
    </item>
+-->
    <!-- item
          skip="false"
          title="Area Viewing">
