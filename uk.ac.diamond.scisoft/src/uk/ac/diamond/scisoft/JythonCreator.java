@@ -26,18 +26,23 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.IStartup;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.osgi.framework.Bundle;
 import org.python.copiedfromeclipsesrc.JavaVmLocationFinder;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IPythonNature;
 import org.python.pydev.core.REF;
 import org.python.pydev.core.Tuple;
+import org.python.pydev.debug.newconsole.PydevConsoleConstants;
 import org.python.pydev.editor.codecompletion.revisited.ModulesManagerWithBuild;
 import org.python.pydev.plugin.PydevPlugin;
 import org.python.pydev.runners.SimpleJythonRunner;
@@ -54,6 +59,7 @@ public class JythonCreator implements IStartup {
 	@Override
 	public void earlyStartup() {
 		try {
+			initialiseConsole();
 			initialiseInterpreter(new NullProgressMonitor());
 		} catch (CoreException e) {
 			logger.error("Cannot create interpreter!", e);
@@ -61,6 +67,17 @@ public class JythonCreator implements IStartup {
 	}
 	
 	
+	private void initialiseConsole() {
+		// need to set some preferences to get the Pydev features working.
+		IPreferenceStore pydevDebugPreferenceStore =  new ScopedPreferenceStore(InstanceScope.INSTANCE,"org.python.pydev.debug");
+
+		pydevDebugPreferenceStore.setDefault(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS, "#Configuring Environment, please wait\nimport scisoftpy as dnp;import sys;sys.executable=''\n");
+		pydevDebugPreferenceStore.setDefault(PydevConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS, "-Xmx512m");
+		pydevDebugPreferenceStore.setDefault(PydevConsoleConstants.INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS, 4000);
+		
+	}
+
+
 	private static final String JYTHON_VERSION = "2.5.1";
 	public static final String  INTERPRETER_NAME = "Jython" + JYTHON_VERSION;
 	public static final String  GIT_SUFFIX = "_git";
@@ -144,6 +161,12 @@ public class JythonCreator implements IStartup {
 
 			}
 			
+			// Set cachdir to something not in the installation directory
+			final String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString();
+			final File cachdir = new File(workspace+"/.jython_cachedir");
+			
+			cachdir.mkdirs();
+			System.setProperty("python.cachedir", cachdir.getAbsolutePath());
 			
 			logger.debug("executable path = {}", executable);
 
@@ -157,7 +180,7 @@ public class JythonCreator implements IStartup {
 			logger.debug("Script path = {}", script.getAbsolutePath());
 			
 			
-			String[] cmdarray = {"java", "-Xmx64m", "-jar",executable, REF.getFileAbsolutePath(script)};
+			String[] cmdarray = {"java", "-Xmx64m", "-Dpython.cachedir=\""+cachdir.getAbsolutePath()+"\"", "-jar",executable, REF.getFileAbsolutePath(script) };
 			File workingDir = new File(System.getProperty("java.io.tmpdir"));
 			IPythonNature nature = null;//new PythonNature();
 			Tuple<Process, String> outTup2 = new SimpleJythonRunner().run(cmdarray, workingDir, nature, monitor);

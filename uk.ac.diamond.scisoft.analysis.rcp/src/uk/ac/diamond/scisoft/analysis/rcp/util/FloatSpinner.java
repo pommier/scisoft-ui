@@ -198,4 +198,8 @@ public class FloatSpinner extends Composite {
 		super.setEnabled(enabled);
 		spinner.setEnabled(enabled);
 	}
+
+	public boolean isSpinner(Object source) {
+		return source == spinner;
+	}
 }

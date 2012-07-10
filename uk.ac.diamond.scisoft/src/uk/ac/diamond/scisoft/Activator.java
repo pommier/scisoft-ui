@@ -94,7 +94,7 @@ public class Activator extends AbstractUIPlugin {
 			String logloc = System.getProperty("log.folder");
 			if (logloc == null) {
 				System.out.println("Log folder property not set, setting this manually to the temp directory");
-				String tmpDir = System.getProperty("java.io.tmpdir");
+				String tmpDir = System.getProperty("user.home")+"/.dawn/";
 				System.setProperty("log.folder", tmpDir);
 			}
 
