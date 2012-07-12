@@ -267,7 +267,7 @@ public class ImageExplorerView extends ViewPart implements IObserver, SelectionL
 			cmbDirectoryLocation.setText(dirPath);
 			currentDir = dirPath;
 		}
-		playback = new ImagePlayBack(getPreferencePlaybackView(), getViewSite().getPage(), sldProgress,
+		playback = new ImagePlayBack(parent, getPreferencePlaybackView(), getViewSite().getPage(), sldProgress,
 				getPreferenceTimeDelay(), getPreferencePlaybackRate());
 
 		isDisposed = false;
