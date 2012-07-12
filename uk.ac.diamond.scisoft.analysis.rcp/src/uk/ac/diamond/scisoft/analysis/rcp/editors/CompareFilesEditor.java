@@ -84,6 +84,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.DatasetUtils;
 import uk.ac.diamond.scisoft.analysis.dataset.ILazyDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
+import uk.ac.diamond.scisoft.analysis.dataset.LazyDataset;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
 import uk.ac.diamond.scisoft.analysis.io.AbstractFileLoader;
 import uk.ac.diamond.scisoft.analysis.io.DataHolder;
@@ -740,6 +741,10 @@ public class CompareFilesEditor extends EditorPart implements ISelectionChangedL
 				return;
 			}
 
+			// squeeze all datasets
+			for (ILazyDataset d : dataList)
+				d.squeeze(true);
+			
 			// remove incompatible data
 			int[][] shapes = AggregateDataset.calcShapes(extend, dataList.toArray(new ILazyDataset[0]));
 			int j = shapes.length - 1;
