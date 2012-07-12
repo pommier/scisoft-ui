@@ -23,6 +23,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +40,10 @@ public class InteractiveQueue {
 	private final BlockingDeque<InteractiveJob> jobQueue;
 	private Job handlerJob;
 	private boolean isDisposed;
+	private Control control;
 
-	public InteractiveQueue() {
+	public InteractiveQueue(Control c) {
+		control = c;
 		jobQueue = new LinkedBlockingDeque<InteractiveJob>();
 		isDisposed = false;
 		createHandlerJob();
@@ -56,6 +62,7 @@ public class InteractiveQueue {
 		 * one) and multiple threads break nexus and are inefficient.
 		 */
 		handlerJob = new Job("Interactive queue handling") {
+			private Cursor tempCursor;
 
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
@@ -68,10 +75,33 @@ public class InteractiveQueue {
 						final InteractiveJob obj = jobQueue.take(); // Blocks when null job
 						if (obj.isNull()) return Status.OK_STATUS; // Any null results in stopping the queue
 
+						final Display display = control != null ? control.getDisplay() : null;
+						if (display != null) {
+							display.syncExec(new Runnable() {
+
+								@Override
+								public void run() {
+									if (control != null && !control.isDisposed()) {
+										tempCursor = control.getCursor();
+										control.setCursor(display.getSystemCursor(SWT.CURSOR_WAIT));
+									}
+								}
+							});
+						}
 						try {
 							obj.run(monitor);
 						} catch (Exception e) {
 							logger.error("Cannot run job", e);
+						}
+						if (display != null) {
+							display.syncExec(new Runnable() {
+								@Override
+								public void run() {
+									if (control != null && !control.isDisposed())
+										control.setCursor(tempCursor);
+									tempCursor = null;
+								}
+							});
 						}
 					}
 					return Status.OK_STATUS;

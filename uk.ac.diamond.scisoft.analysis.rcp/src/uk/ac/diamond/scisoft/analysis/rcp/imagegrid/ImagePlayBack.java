@@ -19,6 +19,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.imagegrid;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -79,7 +80,7 @@ public class ImagePlayBack implements Runnable {
 
 	private InteractiveQueue jobQueue;
 
-	public ImagePlayBack(String viewName, IWorkbenchPage page, Slider slider, int delay, int step) {
+	public ImagePlayBack(Control control, String viewName, IWorkbenchPage page, Slider slider, int delay, int step) {
 		playPos = 0;
 		jobFiles = new ArrayList<String>();
 		allFiles = new ArrayList<String>();
@@ -88,7 +89,7 @@ public class ImagePlayBack implements Runnable {
 		this.delay = delay;
 		this.step = step;
 		this.sldProgress = slider;
-		jobQueue = new InteractiveQueue();
+		jobQueue = new InteractiveQueue(control);
 	}
 
 	private void sendOffLoadRequest(String filename) {

@@ -40,6 +40,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPartSite;
@@ -132,6 +133,10 @@ interface InspectionTab {
 	 */
 	public void stopInspection();
 
+	/**
+	 * @return control
+	 */
+	public Control getControl();
 }
 
 /**
@@ -196,6 +201,10 @@ abstract class ATab implements InspectionTab {
 		return false;
 	}
 
+	@Override
+	public Control getControl() {
+		return composite;
+	}
 }
 
 /**

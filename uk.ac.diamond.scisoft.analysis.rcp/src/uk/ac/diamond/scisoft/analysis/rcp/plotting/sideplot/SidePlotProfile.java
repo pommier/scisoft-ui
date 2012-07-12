@@ -120,7 +120,7 @@ public abstract class SidePlotProfile extends SidePlot implements Overlay2DConsu
 
 	@Override
 	public void createPartControl(Composite parent) {
-		roiQueue = new InteractiveQueue();
+		roiQueue = new InteractiveQueue(parent);
 	}
 
 	public int calcHandleSize(final int[] shape) {
