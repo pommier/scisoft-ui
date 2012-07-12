@@ -46,7 +46,6 @@ import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5TreeExplorer;
-import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
 
 public class HDF5TreeEditor extends EditorPart implements IPageChangedListener, IReusableEditor {
 
