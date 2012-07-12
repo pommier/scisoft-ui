@@ -82,8 +82,12 @@ public class Plotting1DUI extends AbstractPlotUI {
 						AbstractDataset data = dataSetAxis.getData();
 						yDatasets.add(data);
 						currentDataName = data.getName();
+						if(currentDataName.equals("")) // if no name given set default name
+							currentDataName = "Y";
 					}
 					currentXAxisName = xAxisValues.getName();
+					if(currentXAxisName.equals("")) // if no name given set default name
+						currentXAxisName = "X";
 
 					Collection<ITrace> currentTraces = plottingSystem.getTraces();
 					final ArrayList<ITrace> traceList = new ArrayList<ITrace>(currentTraces);
