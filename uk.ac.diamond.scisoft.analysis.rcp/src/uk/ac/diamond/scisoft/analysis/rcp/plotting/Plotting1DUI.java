@@ -83,11 +83,11 @@ public class Plotting1DUI extends AbstractPlotUI {
 						yDatasets.add(data);
 						currentDataName = data.getName();
 						if(currentDataName.equals("")) // if no name given set default name
-							currentDataName = "Y";
+							currentDataName = "Y-Axis";
 					}
 					currentXAxisName = xAxisValues.getName();
 					if(currentXAxisName.equals("")) // if no name given set default name
-						currentXAxisName = "X";
+						currentXAxisName = "X-Axis";
 
 					Collection<ITrace> currentTraces = plottingSystem.getTraces();
 					final ArrayList<ITrace> traceList = new ArrayList<ITrace>(currentTraces);
@@ -117,7 +117,9 @@ public class Plotting1DUI extends AbstractPlotUI {
 							xAxisName = "";
 						}
 						currentDataName = yData.getName();
-
+						if(currentDataName.equals("")) // if no name given set default name
+							currentDataName = "Y-Axis";
+						
 						// if same data being pushed to plot, we do an update instead of recreating the plot
 						if(currentDataName.equals(dataName)&&currentXAxisName.equals(xAxisName)){
 							ITrace plotTrace = plottingSystem.getTrace(currentDataName);
@@ -141,7 +143,10 @@ public class Plotting1DUI extends AbstractPlotUI {
 					// if x or y axis change then we create a new plot
 					if((!currentDataName.equals(dataName)||!currentXAxisName.equals(xAxisName))){
 						plottingSystem.clear();
+						xAxisValues.setName(currentXAxisName);
+						yDatasets.get(0).setName(currentDataName);
 						Collection<ITrace> traces = plottingSystem.createPlot1D(xAxisValues, yDatasets, null);
+						plottingSystem.setShowLegend(false);
 						for (ITrace iTrace : traces) {
 							final ILineTrace lineTrace = (ILineTrace)iTrace;
 							lineTrace.setTraceType(TraceType.SOLID_LINE);
