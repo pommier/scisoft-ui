@@ -42,5 +42,10 @@
             class="uk.ac.diamond.scisoft.PyDevAdditionalInterpreterSettings">
       </interpreter_new_custom_entries_participant>
    </extension>
-   
+   <extension
+         point="org.python.pydev.pydev_interpreter_provider">
+      <interpreter_provider_participant
+            class="uk.ac.diamond.scisoft.PythonInterpreterProviderFactory">
+      </interpreter_provider_participant>
+   </extension>
 </plugin>
