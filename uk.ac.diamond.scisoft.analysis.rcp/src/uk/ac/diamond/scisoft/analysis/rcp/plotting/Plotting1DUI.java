@@ -146,7 +146,7 @@ public class Plotting1DUI extends AbstractPlotUI {
 						xAxisValues.setName(currentXAxisName);
 						yDatasets.get(0).setName(currentDataName);
 						Collection<ITrace> traces = plottingSystem.createPlot1D(xAxisValues, yDatasets, null);
-						plottingSystem.setShowLegend(false);
+						//plottingSystem.setShowLegend(false);
 						for (ITrace iTrace : traces) {
 							final ILineTrace lineTrace = (ILineTrace)iTrace;
 							lineTrace.setTraceType(TraceType.SOLID_LINE);
