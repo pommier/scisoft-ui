@@ -45,8 +45,11 @@ import org.eclipse.swt.dnd.DragSourceAdapter;
 import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
@@ -147,6 +150,8 @@ public class FileView extends ViewPart {
 		return absolutePaths;
 	}
 	
+	private boolean updatingTextFromTreeSelections=true;
+	
 	@Override
 	public void createPartControl(final Composite parent) {
 		
@@ -169,28 +174,60 @@ public class FileView extends ViewPart {
 		this.filePath = new Text(top, SWT.BORDER);
 		if (savedSelection!=null) filePath.setText(savedSelection.getAbsolutePath());
 		filePath.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		FileContentProposalProvider prov = new FileContentProposalProvider();
-		ContentProposalAdapter ad = new ContentProposalAdapter(filePath, new TextContentAdapter(), prov, null, null);
+		final FileContentProposalProvider   prov = new FileContentProposalProvider();
+		final TextContentAdapter         adapter = new TextContentAdapter();
+		final ContentProposalAdapter ad = new ContentProposalAdapter(filePath, adapter, prov, null, null);
 		ad.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
 		ad.addContentProposalListener(new IContentProposalListener() {		
 			@Override
 			public void proposalAccepted(IContentProposal proposal) {
-				setSelectedFile(filePath.getText());
+				final String path = proposal.getContent();
+				try {
+					updatingTextFromTreeSelections=false;
+					setSelectedFile(path);
+				} finally {
+					updatingTextFromTreeSelections=true;
+				}
+			}
+		});
+	
+		filePath.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.character=='\t') {
+					if (ad.isProposalPopupOpen()) {
+						if (prov.getFirstPath()!=null) {
+							final String path = prov.getFirstPath();
+							
+							filePath.getDisplay().asyncExec(new Runnable() {
+								@Override
+								public void run() {
+									try {
+										updatingTextFromTreeSelections=false;
+										filePath.setFocus();
+										filePath.setText(path);
+										setSelectedFile(path);
+										filePath.setFocus();
+										filePath.setSelection(path.length(), path.length());
+									} finally {
+										updatingTextFromTreeSelections=true;
+									}
+								}
+							});
+						}
+					}
+				} else if (e.character=='\t' || e.character=='\n') {
+					final String path = filePath.getText();
+					try {
+						updatingTextFromTreeSelections=false;
+						setSelectedFile(path);
+					} finally {
+						updatingTextFromTreeSelections=true;
+					}
+				}
 			}
 		});
 		
-		filePath.addSelectionListener(new SelectionListener() {			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				setSelectedFile(filePath.getText());
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				setSelectedFile(filePath.getText());
-			}
-		});
-
 		tree = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER |SWT.VIRTUAL);
 		tree.getTree().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		tree.getTree().setHeaderVisible(true);
@@ -199,11 +236,16 @@ public class FileView extends ViewPart {
 		tree.addSelectionChangedListener(new ISelectionChangedListener() {			
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
-				
+				if (!updatingTextFromTreeSelections) return;
 				final File file = getSelectedFile();
 				if (file!=null &&  file.isDirectory()) {
-				    filePath.setText(file.getAbsolutePath());
-				    filePath.setSelection(filePath.getText().length());
+					try {
+						ad.setEnabled(false);
+					    filePath.setText(file.getAbsolutePath());
+					    filePath.setSelection(filePath.getText().length());
+					} finally {
+						ad.setEnabled(true);
+					}
 				}
 			}
 		});
@@ -256,7 +298,7 @@ public class FileView extends ViewPart {
 			
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if (e.character == '\n') {
+				if (e.character == '\n' || e.character == '\r') {
 					openSelectedFile();
 				}
 			}
