@@ -319,7 +319,7 @@ public class DatasetInspector extends Composite {
 		super(parent, style);
 		setLayout(new FillLayout());
 
-		sliceQueue = new InteractiveQueue();
+		sliceQueue = new InteractiveQueue(this);
 		this.site = site;
 
 		display = parent.getDisplay();

@@ -69,12 +69,9 @@ public class HDF5ValuePage extends Page  implements ISelectionListener, IPartLis
 		getSite().getPage().getWorkbenchWindow().getSelectionService().addSelectionListener(this);
 		getSite().getPage().addPartListener(this);
 		
-		try {
-			updateSelection(getActivePage().getSelection());
-		} catch (Throwable ignored) {
-			// There might not be a selection or page.
-		}
-
+		final IWorkbenchPage page = getActivePage();
+		if (page != null)
+			updateSelection(page.getSelection());
 	}
 
 	@Override

@@ -351,9 +351,6 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 			mainPlotter.cleanUp();
 			mainPlotterComposite.dispose();
 		}
-		if (plottingSystem == null || plottingSystem.isDisposed())
-			createPlottingSystem();
-		parentComp.layout();
 	}
 	
 	/**
@@ -608,12 +605,21 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM) {
 			if (plotMode.equals(GuiPlotMode.ONED)) {
 				cleanUpMainPlotter();
+				if (plottingSystem == null || plottingSystem.isDisposed())
+					createPlottingSystem();
+				parentComp.layout();
 				setupPlotting1D();
 			} else if (plotMode.equals(GuiPlotMode.TWOD)) {
 				cleanUpMainPlotter();
+				if (plottingSystem == null || plottingSystem.isDisposed())
+					createPlottingSystem();
+				parentComp.layout();
 				setupPlotting2D();
 			} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
 				cleanUpMainPlotter();
+				if (plottingSystem == null || plottingSystem.isDisposed())
+					createPlottingSystem();
+				parentComp.layout();
 				setupScatterPlotting2D();
 			} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
 				cleanUpPlottingSystem();
@@ -777,6 +783,9 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 					public void run() {
 						try {
 							cleanUpMainPlotter();
+							if (plottingSystem == null || plottingSystem.isDisposed())
+								createPlottingSystem();
+							parentComp.layout();
 							setupPlotting1D();
 						} finally {
 							undoBlock();
@@ -790,6 +799,9 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 					public void run() {
 						try {
 							cleanUpMainPlotter();
+							if (plottingSystem == null || plottingSystem.isDisposed())
+								createPlottingSystem();
+							parentComp.layout();
 							setupPlotting2D();
 						} finally {
 							undoBlock();
@@ -803,6 +815,9 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 					public void run() {
 						try {
 							cleanUpMainPlotter();
+							if (plottingSystem == null || plottingSystem.isDisposed())
+								createPlottingSystem();
+							parentComp.layout();
 							setupScatterPlotting2D();
 						} finally {
 							undoBlock();
