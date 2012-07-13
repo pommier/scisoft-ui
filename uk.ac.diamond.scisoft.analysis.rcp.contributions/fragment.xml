@@ -1355,6 +1355,13 @@
             id="uk.ac.diamond.scisoft.analysis.rcp.contributions.cheatsheet.printing"
             name="Printing">
       </cheatsheet>
+      <cheatsheet
+            category="uk.ac.diamond.scisoft.analysis.rcp.pythoncategory"
+            composite="false"
+            contentFile="cheat/PythonConsoleTutorial.xml"
+            id="uk.ac.diamond.scisoft.analysis.rcp.PythonCheatsheet"
+            name="Python Console Tutorial">
+      </cheatsheet>
    </extension>
    <extension
          point="org.eclipse.core.variables.dynamicVariables">
