@@ -61,6 +61,7 @@ import org.eclipse.ui.progress.UIJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.Activator;
 import uk.ac.diamond.scisoft.system.info.SystemInformation;
 
 public class FeedbackView extends ViewPart {
@@ -78,6 +79,9 @@ public class FeedbackView extends ViewPart {
 	private Text emailAddress;
 	private Text messageText;
 	private Text subjectText;
+	
+	private static final String EMAIL_PREF = FeedbackView.class.getName()+".emailAddress";
+	private static final String SUBJ_PREF  = FeedbackView.class.getName()+".subject";
 
 	/**
 	 * The constructor.
@@ -100,6 +104,9 @@ public class FeedbackView extends ViewPart {
 		{
 			emailAddress = new Text(parent, SWT.BORDER | SWT.MULTI);
 			emailAddress.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+			
+			final String email = Activator.getDefault().getPreferenceStore().getString(EMAIL_PREF);
+			if (email!=null && !"".equals(email)) emailAddress.setText(email);
 		}
 		{
 			Label lblSubject = new Label(parent, SWT.NONE);
@@ -109,6 +116,9 @@ public class FeedbackView extends ViewPart {
 		{
 			subjectText = new Text(parent, SWT.BORDER | SWT.MULTI);
 			subjectText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+			
+			final String subject = Activator.getDefault().getPreferenceStore().getString(SUBJ_PREF);
+			if (subject!=null && !"".equals(subject)) subjectText.setText(subject);
 		}
 		{
 			Label lblComment = new Label(parent, SWT.NONE);
@@ -180,11 +190,18 @@ public class FeedbackView extends ViewPart {
 						try {
 							String mailserver = "localhost";
 							String fromvalue = emailAddress.getText();
-							if (fromvalue.length() == 0) {
+							if (fromvalue==null || fromvalue.length() == 0) {
 								fromvalue = "user";
+							} else {
+								Activator.getDefault().getPreferenceStore().setValue(EMAIL_PREF, fromvalue);
+
 							}
+							
 							String from = fromvalue;
 							String subject = DAWN_FEEDBACK + " - " + subjectText.getText();
+							if (subjectText.getText()!=null && !"".equals(subjectText.getText())) {
+								Activator.getDefault().getPreferenceStore().setValue(SUBJ_PREF, subjectText.getText());
+							}
 							StringBuilder messageBody = new StringBuilder();
 							messageBody.append("Message from : "+ System.getProperty("user.name", "Unknown User")+"\n");
 							String computerName = "Unknown";
