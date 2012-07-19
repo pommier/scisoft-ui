@@ -328,7 +328,7 @@
             id="uk.ac.diamond.sda.navigator.nxsScancmdDecorator"
             label="Nexus Scan Command and Title Decorator"
             lightweight="true"
-            state="true">
+            state="false">
          <enablement>
             <objectClass
                   name="org.eclipse.core.resources.IResource">
@@ -343,7 +343,7 @@
             class="uk.ac.diamond.sda.navigator.hdf5.HDF5LabelProvider"
             id="uk.ac.diamond.sda.navigator.hdf5Decorator"
             label="HDF5 tree element Decorator"
-            state="true">
+            state="false">
          <enablement>
             <objectClass
                name="uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink">
