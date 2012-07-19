@@ -26,10 +26,6 @@ import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.region.IRegion;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,21 +86,12 @@ public class Plotting2DUI extends AbstractPlotUI {
 			}
 
 			if(yDatasets.get(0) != null){
-				//createPlot();
-				final Job job = new Job("Create image plot") {
-					@Override
-					protected IStatus run(IProgressMonitor monitor) {
-						if(xAxisValues!=null && yAxisValues!=null)
-							plottingSystem.updatePlot2D(yDatasets.get(0), axes, monitor);
-						else
-							plottingSystem.updatePlot2D(yDatasets.get(0), null, monitor);
-						logger.debug("Plot 2D updated");
-						return Status.OK_STATUS;
-					}
-				};
-				job.setUser(false);
-				job.setPriority(Job.BUILD);
-				job.schedule();
+				if(xAxisValues!=null && yAxisValues!=null)
+					plottingSystem.updatePlot2D(yDatasets.get(0), axes, null);
+				else
+					plottingSystem.updatePlot2D(yDatasets.get(0), null, null);
+				logger.debug("Plot 2D updated");
+
 			} else
 				logger.debug("No data to plot");
 		}

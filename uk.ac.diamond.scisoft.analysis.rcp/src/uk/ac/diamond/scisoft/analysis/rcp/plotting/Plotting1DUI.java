@@ -142,6 +142,7 @@ public class Plotting1DUI extends AbstractPlotUI {
 					}
 					// if x or y axis change then we create a new plot
 					if((!currentDataName.equals(dataName)||!currentXAxisName.equals(xAxisName))){
+						plottingSystem.getSelectedYAxis().setTitle("");
 						plottingSystem.clear();
 						xAxisValues.setName(currentXAxisName);
 						yDatasets.get(0).setName(currentDataName);
