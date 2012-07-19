@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
@@ -59,7 +60,6 @@ public class Plotting2DUI extends AbstractPlotUI {
 	private AbstractPlottingSystem plottingSystem;
 	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
 	private PlotWindow plotWindow;
-	private AbstractDataset data;
 	private static final Logger logger = LoggerFactory.getLogger(Plotting2DUI.class);
 
 	/**
@@ -77,32 +77,37 @@ public class Plotting2DUI extends AbstractPlotUI {
 			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
 			final List<AbstractDataset> yDatasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
 
+			final AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
+			final AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
+			final List<AbstractDataset> axes = Collections.synchronizedList(new LinkedList<AbstractDataset>());
+			axes.add(0, xAxisValues);
+			axes.add(1, yAxisValues);
+			
 			while (iter.hasNext()) {
 				DataSetWithAxisInformation dataSetAxis = iter.next();
 				AbstractDataset data = dataSetAxis.getData();
 				yDatasets.add(data);
 			}
 
-			data = yDatasets.get(0);
-			if(data != null){
-				createPlot();
+			if(yDatasets.get(0) != null){
+				//createPlot();
+				final Job job = new Job("Create image plot") {
+					@Override
+					protected IStatus run(IProgressMonitor monitor) {
+						if(xAxisValues!=null && yAxisValues!=null)
+							plottingSystem.updatePlot2D(yDatasets.get(0), axes, monitor);
+						else
+							plottingSystem.updatePlot2D(yDatasets.get(0), null, monitor);
+						logger.debug("Plot 2D updated");
+						return Status.OK_STATUS;
+					}
+				};
+				job.setUser(false);
+				job.setPriority(Job.BUILD);
+				job.schedule();
 			} else
 				logger.debug("No data to plot");
 		}
-	}
-
-	private void createPlot() {
-		final Job job = new Job("Create image plot") {
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				plottingSystem.updatePlot2D(data, null, monitor);
-				logger.debug("Plot 2D created");
-				return Status.OK_STATUS;
-			}
-		};
-		job.setUser(false);
-		job.setPriority(Job.BUILD);
-		job.schedule();
 	}
 
 	@Override
