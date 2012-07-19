@@ -82,10 +82,6 @@ public class DatasetTableView extends ViewPart {
 		pComp = parent;
 		parent.setLayout(new FillLayout());
 		createToolbar(getViewSite().getActionBars());
-//		AbstractDataset d = IntegerDataset.arange(45*20).reshape(45, 20);
-//		AbstractDataset r = DatasetUtils.linSpace(0, 1, 45, AbstractDataset.FLOAT32);
-//		AbstractDataset c = DatasetUtils.linSpace(-1, 1, 20, AbstractDataset.FLOAT32);
-//		setData(d, r, c);
 	}
 
 	@Override
