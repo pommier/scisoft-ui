@@ -20,12 +20,12 @@
          point="org.eclipse.ui.views">
       <category
             id="uk.ac.diamond.scisoft"
-            name="SDA">
+            name="DAWN">
       </category>
       <view
             category="uk.ac.diamond.scisoft"
             class="uk.ac.diamond.scisoft.views.FeedbackView"
-            icon="icons/sample.gif"
+            icon="icons/editor.gif"
             id="uk.ac.diamond.scisoft.views.FeedbackView"
             name="Feedback">
       </view>
