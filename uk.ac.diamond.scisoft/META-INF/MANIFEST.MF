@@ -21,3 +21,4 @@ Import-Package: ch.qos.logback.classic;version="0.9.15",
  org.slf4j;version="[1.5.0,2.0.0)"
 Export-Package: uk.ac.diamond.scisoft
 Bundle-Vendor: Diamond Light Source
+Bundle-ActivationPolicy: lazy
