@@ -67,34 +67,39 @@ public class Plotting2DUI extends AbstractPlotUI {
 	}
 
 	@Override
-	public void processPlotUpdate(DataBean dbPlot, boolean isUpdate){
-		Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
-		if (plotData != null) {
-			Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
-			final List<AbstractDataset> yDatasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
+	public void processPlotUpdate(final DataBean dbPlot, boolean isUpdate){
+		Display.getDefault().syncExec(new Runnable() {
+			@Override
+			public void run() {
+				Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
+				if (plotData != null) {
+					Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
+					final List<AbstractDataset> yDatasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
 
-			final AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
-			final AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
-			final List<AbstractDataset> axes = Collections.synchronizedList(new LinkedList<AbstractDataset>());
-			axes.add(0, xAxisValues);
-			axes.add(1, yAxisValues);
+					final AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS);
+					final AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS);
+					final List<AbstractDataset> axes = Collections.synchronizedList(new LinkedList<AbstractDataset>());
+					axes.add(0, xAxisValues);
+					axes.add(1, yAxisValues);
 			
-			while (iter.hasNext()) {
-				DataSetWithAxisInformation dataSetAxis = iter.next();
-				AbstractDataset data = dataSetAxis.getData();
-				yDatasets.add(data);
+					while (iter.hasNext()) {
+						DataSetWithAxisInformation dataSetAxis = iter.next();
+						AbstractDataset data = dataSetAxis.getData();
+						yDatasets.add(data);
+					}
+
+					if(yDatasets.get(0) != null){
+						if(xAxisValues!=null && yAxisValues!=null)
+							plottingSystem.updatePlot2D(yDatasets.get(0), axes, null);
+						else
+							plottingSystem.updatePlot2D(yDatasets.get(0), null, null);
+						logger.debug("Plot 2D updated");
+
+					} else
+						logger.debug("No data to plot");
+				}
 			}
-
-			if(yDatasets.get(0) != null){
-				if(xAxisValues!=null && yAxisValues!=null)
-					plottingSystem.updatePlot2D(yDatasets.get(0), axes, null);
-				else
-					plottingSystem.updatePlot2D(yDatasets.get(0), null, null);
-				logger.debug("Plot 2D updated");
-
-			} else
-				logger.debug("No data to plot");
-		}
+		});
 	}
 
 	@Override

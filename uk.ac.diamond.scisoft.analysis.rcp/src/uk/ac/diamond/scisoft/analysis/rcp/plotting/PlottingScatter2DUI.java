@@ -17,6 +17,10 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.dawb.common.ui.plot.AbstractPlottingSystem;
 import org.dawb.common.ui.plot.trace.ILineTrace;
@@ -56,9 +60,33 @@ public class PlottingScatter2DUI extends AbstractPlotUI {
 			public void run() {
 				Collection<DataSetWithAxisInformation> plotData = dbPlot.getData();
 				if (plotData != null) {
-
-					AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS+0);
-					AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS+0);
+					Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
+					final List<AbstractDataset> yDatasets = Collections.synchronizedList(new LinkedList<AbstractDataset>());
+					
+					int counter = 0;
+					
+					while (iter.hasNext()) {
+						DataSetWithAxisInformation dataSetAxis = iter.next();
+						AbstractDataset data = dataSetAxis.getData();
+						yDatasets.add(data);
+						
+						AbstractDataset xAxisValues = dbPlot.getAxis(AxisMapBean.XAXIS+Integer.toString(counter));
+						AbstractDataset yAxisValues = dbPlot.getAxis(AxisMapBean.YAXIS+Integer.toString(counter));
+						
+						plottingSystem.getSelectedYAxis().setTitle(yAxisValues.getName());
+						plottingSystem.clear();
+						ILineTrace scatterPlotPoints = plottingSystem.createLineTrace(yAxisValues.getName());
+						scatterPlotPoints.setTraceType(TraceType.POINT);
+						scatterPlotPoints.setTraceColor(ColorConstants.blue);
+						scatterPlotPoints.setPointStyle(PointStyle.FILLED_CIRCLE);
+						scatterPlotPoints.setPointSize(6);
+						scatterPlotPoints.setName(xAxisValues.getName());
+						scatterPlotPoints.setData(xAxisValues, yAxisValues);
+						plottingSystem.addTrace(scatterPlotPoints);
+						plottingSystem.autoscaleAxes();
+						logger.debug("Scatter plot created");
+						counter++;
+					}
 //					String currentXAxisName = xAxisValues.getName();
 //					String currentDataName = yAxisValues.getName();
 //					String dataName = "";
@@ -87,20 +115,6 @@ public class PlottingScatter2DUI extends AbstractPlotUI {
 //						logger.debug("Scatter plot updated");
 //					}
 
-					// if x or y axis change then we create a new plot
-					//if((!currentDataName.equals(dataName)||!currentXAxisName.equals(xAxisName))){
-						plottingSystem.clear();
-						ILineTrace scatterPlotPoints = plottingSystem.createLineTrace(yAxisValues.getName());
-						scatterPlotPoints.setTraceType(TraceType.POINT);
-						scatterPlotPoints.setTraceColor(ColorConstants.blue);
-						scatterPlotPoints.setPointStyle(PointStyle.FILLED_CIRCLE);
-						scatterPlotPoints.setPointSize(6);
-						scatterPlotPoints.setName(xAxisValues.getName());
-						scatterPlotPoints.setData(xAxisValues, yAxisValues);
-						plottingSystem.addTrace(scatterPlotPoints);
-						plottingSystem.autoscaleAxes();
-						logger.debug("Scatter plot created");
-					//}
 					
 				}
 			}

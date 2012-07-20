@@ -717,7 +717,7 @@ class PlotTab extends ATab {
 		}
 	}
 
-	private AbstractDataset make1DAxisSlice(List<AbstractDataset> slicedAxes, int dim) {
+	protected AbstractDataset make1DAxisSlice(List<AbstractDataset> slicedAxes, int dim) {
 		AbstractDataset axisSlice = slicedAxes.get(dim);
 		
 		// 2D plots can only handle 1D axis.
@@ -750,7 +750,7 @@ class PlotTab extends ATab {
 	 * @param rank
 	 * @return true if something wrong
 	 */
-	private boolean isRankBad(AbstractDataset a, int rank) {
+	protected boolean isRankBad(AbstractDataset a, int rank) {
 		if (a == null)
 			return true;
 		int r = a.getRank();
@@ -1167,8 +1167,10 @@ class DataTab extends PlotTab {
 
 		switch (itype) {
 		case DATA1D:
-			if (reorderedData.getRank() != 1)
+			if (isRankBad(reorderedData, 2))
 				return;
+
+			final AbstractDataset rAxisSlice = make1DAxisSlice(slicedAxes, 0);
 
 			composite.getDisplay().asyncExec(new Runnable() {
 				@Override
@@ -1176,20 +1178,24 @@ class DataTab extends PlotTab {
 					DatasetTableView tableView = getDatasetTableView();
 					if (tableView == null)
 						return;
-					tableView.setData(reorderedData.reshape(reorderedData.getShape()[0], 1), slicedAxes.get(0), null);		
+					tableView.setData(reorderedData.reshape(reorderedData.getShape()[0], 1), rAxisSlice, null);		
 				}
 			});
 			break;
 		case DATA2D:
-			if (reorderedData.getRank() != 2)
+			if (isRankBad(reorderedData, 2))
 				return;
+
+			final AbstractDataset yAxisSlice = make1DAxisSlice(slicedAxes, 0);
+			final AbstractDataset xAxisSlice = make1DAxisSlice(slicedAxes, 1);
+
 			composite.getDisplay().asyncExec(new Runnable() {
 				@Override
 				public void run() {
 					DatasetTableView tableView = getDatasetTableView();
 					if (tableView == null)
 						return;
-					tableView.setData(reorderedData, slicedAxes.get(1), slicedAxes.get(0));
+					tableView.setData(reorderedData, xAxisSlice, yAxisSlice);
 				}
 			});
 			break;

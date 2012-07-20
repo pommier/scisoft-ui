@@ -1027,24 +1027,27 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 	}
 
 	/**
-	 * Replace the current dataset that are have been plotted with a whole set of new ones
+	 * Replace all the current datasets that are have been plotted with a whole set of new ones
 	 * This is used when in new plotting mode
 	 * TODO do not reset the camera perspective
-	 * @param dataset
+	 * @param datasets
 	 * @throws PlotException
 	 *             throws a PlotException when something goes wrong
 	 */
-	public void replacePlot(IDataset dataset) throws PlotException {
-		if (checkForNan(dataset) || checkForInf(dataset))
-			throw new PlotException(ERROR_MESG);
+	public void replacePlot(Collection<? extends IDataset> datasets) throws PlotException {
 		
 		if (currentDataSet != null) {
 			currentDataSets.remove(0);
-			currentDataSets.add(0, dataset);
+			currentDataSets.addAll(0, datasets);
+			
+			if (checkForNan(currentDataSets.get(0)) || checkForInf(currentDataSets.get(0)))
+				throw new PlotException(ERROR_MESG);
+			
 			checkAndAddLegend(currentDataSets);
-			plotter.updateGraph(dataset);
+			plotter.updateGraph(currentDataSets);
+			
 		} else {
-			currentDataSets.add(dataset);
+			currentDataSets.addAll(datasets);
 			checkAndAddLegend(currentDataSets);
 			graph = plotter.buildGraph(currentDataSets, graph);
 		//	coordAxes = plotter.buildCoordAxis(coordAxes);
@@ -1058,8 +1061,11 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 			bbox = plotter.buildBoundingBox();
 			root.addChild(bbox);
 		}
-		currentDataSet = dataset;
-		checkForDiffractionImage(dataset);
+		if (currentDataSets.size() > 0) {
+			currentDataSet = currentDataSets.get(0);
+			checkForDiffractionImage(currentDataSet);
+		}
+		
 	}
 
 	/**
