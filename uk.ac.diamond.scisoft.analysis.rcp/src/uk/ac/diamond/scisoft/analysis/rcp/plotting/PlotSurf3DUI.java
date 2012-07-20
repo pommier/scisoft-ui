@@ -441,7 +441,7 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 					if (getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
 						mainPlotter.replaceAllPlots(datasets);
 					else if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
-						mainPlotter.replacePlot(datasets.get(0));
+						mainPlotter.replacePlot(datasets);
 						
 					}
 				} catch (PlotException e) {
@@ -514,6 +514,8 @@ public class PlotSurf3DUI extends AbstractPlotUI implements IObserver {
 				logger.debug("Surface plot ROI is out of the image bounds:"+e);
 			}catch(NullPointerException e){
 				logger.debug("The Surface plot has been closed and is null:"+e);
+			}catch(IllegalArgumentException e){
+				logger.debug("Error: "+e);
 			}
 		}
 		if(changeCode instanceof ColorMappingUpdate){
