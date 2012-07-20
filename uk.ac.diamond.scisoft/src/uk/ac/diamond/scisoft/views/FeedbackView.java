@@ -105,7 +105,9 @@ public class FeedbackView extends ViewPart {
 			emailAddress = new Text(parent, SWT.BORDER | SWT.MULTI);
 			emailAddress.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 			
-			final String email = Activator.getDefault().getPreferenceStore().getString(EMAIL_PREF);
+			final String email = Activator.getDefault()!=null
+					           ? Activator.getDefault().getPreferenceStore().getString(EMAIL_PREF)
+					           : null;
 			if (email!=null && !"".equals(email)) emailAddress.setText(email);
 		}
 		{
@@ -117,7 +119,9 @@ public class FeedbackView extends ViewPart {
 			subjectText = new Text(parent, SWT.BORDER | SWT.MULTI);
 			subjectText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 			
-			final String subject = Activator.getDefault().getPreferenceStore().getString(SUBJ_PREF);
+			final String subject = Activator.getDefault()!=null
+					             ? Activator.getDefault().getPreferenceStore().getString(SUBJ_PREF)
+					             : null;
 			if (subject!=null && !"".equals(subject)) subjectText.setText(subject);
 		}
 		{
@@ -193,14 +197,18 @@ public class FeedbackView extends ViewPart {
 							if (fromvalue==null || fromvalue.length() == 0) {
 								fromvalue = "user";
 							} else {
-								Activator.getDefault().getPreferenceStore().setValue(EMAIL_PREF, fromvalue);
+								if (Activator.getDefault()!=null) {
+									Activator.getDefault().getPreferenceStore().setValue(EMAIL_PREF, fromvalue);
+								}
 
 							}
 							
 							String from = fromvalue;
 							String subject = DAWN_FEEDBACK + " - " + subjectText.getText();
 							if (subjectText.getText()!=null && !"".equals(subjectText.getText())) {
-								Activator.getDefault().getPreferenceStore().setValue(SUBJ_PREF, subjectText.getText());
+								if (Activator.getDefault()!=null) {
+								    Activator.getDefault().getPreferenceStore().setValue(SUBJ_PREF, subjectText.getText());						
+								}
 							}
 							StringBuilder messageBody = new StringBuilder();
 							messageBody.append("Message from : "+ System.getProperty("user.name", "Unknown User")+"\n");

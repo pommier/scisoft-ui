@@ -69,6 +69,8 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		
+		plugin = this;
+
 		// First thing to do here is to try to set up the logging properly.
 		// during this, System.out will be used for logging
 		try {
@@ -118,8 +120,6 @@ public class Activator extends AbstractUIPlugin {
 		} 
 		
 		
-		plugin = this;
-
 		// NOTE: Mark B advised that the python configuration should not be done here as there is now 
 		// done in earlystartup extension point. Look at history if you want this code back.
 	}
