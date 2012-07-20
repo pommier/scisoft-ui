@@ -120,21 +120,8 @@ public class Activator extends AbstractUIPlugin {
 		
 		plugin = this;
 
-		// need to set some preferences to get the Pydev features working.
-		IPreferenceStore pydevDebugPreferenceStore =  new ScopedPreferenceStore(InstanceScope.INSTANCE,"org.python.pydev.debug");
-
-		pydevDebugPreferenceStore.setDefault(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS, "#Configuring Jython Environment, please wait\nimport sys;sys.executable=''\n");
-		pydevDebugPreferenceStore.setDefault(PydevConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS, "-Xmx512m");
-		pydevDebugPreferenceStore.setDefault(PydevConsoleConstants.INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS, 4000);
-
-		// We need to point Jython cache to a directory writable by a user
-		// Setting -Dpython.cachedir option to .jython_cachedir in users SDA workspace
-		IPreferenceStore pydevPreferenceStore =  new ScopedPreferenceStore(InstanceScope.INSTANCE,"org.python.pydev");
-		File cachdir_path = ResourcesPlugin.getWorkspace().getRoot().getLocation().append(".jython_cachedir").toFile();
-		if (cachdir_path.exists() || cachdir_path.mkdir())
-			pydevPreferenceStore.setDefault(IInterpreterManager.JYTHON_CACHE_DIR, cachdir_path.getAbsolutePath());
-		else
-			logger.warn("Failed to set Jyhton cache directory to {}", cachdir_path.getAbsolutePath());
+		// NOTE: Mark B advised that the python configuration should not be done here as there is now 
+		// done in earlystartup extension point. Look at history if you want this code back.
 	}
 
 
