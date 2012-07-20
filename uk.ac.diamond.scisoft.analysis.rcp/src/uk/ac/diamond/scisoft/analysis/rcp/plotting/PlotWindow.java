@@ -348,6 +348,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	 */
 	private void cleanUpMainPlotter(){
 		if (mainPlotter!=null && !mainPlotter.isDisposed()) {
+			bars.getToolBarManager().removeAll();
+			bars.getMenuManager().removeAll();
 			mainPlotter.cleanUp();
 			mainPlotterComposite.dispose();
 		}
