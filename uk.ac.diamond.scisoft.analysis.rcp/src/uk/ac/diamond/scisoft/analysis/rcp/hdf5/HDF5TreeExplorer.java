@@ -276,15 +276,8 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 	public void loadFileAndDisplay(String fileName, IMonitor mon) throws Exception {
 		loader = new HDF5Loader(fileName);
 		loader.setAsyncLoad(true);
-		HDF5File ltree = loader.loadTree(mon);
+		final HDF5File ltree = loader.loadTree(mon);
 		if (ltree != null) {
-			holder = new DataHolder();
-			Map<String, ILazyDataset> map = HDF5Loader.createDatasetsMap(ltree.getGroup());
-			for (String n : map.keySet()) {
-				holder.addDataset(n, map.get(n));
-			}
-			holder.setMetadata(HDF5Loader.createMetaData(ltree));
-
 			setFilename(fileName);
 
 			setHDF5Tree(ltree);
@@ -300,6 +293,12 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 						}
 					}
 					refreshTree();
+					holder = new DataHolder();
+					Map<String, ILazyDataset> map = HDF5Loader.createDatasetsMap(ltree.getGroup());
+					for (String n : map.keySet()) {
+						holder.addDataset(n, map.get(n));
+					}
+					holder.setMetadata(HDF5Loader.createMetaData(ltree));
 				}
 			}).start();
 		}
