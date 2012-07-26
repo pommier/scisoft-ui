@@ -235,7 +235,7 @@ public class DiffractionViewerSpotFit extends Composite implements Overlay1DCons
 	 * @param roi
 	 * @param data
 	 */
-	public void processROI(IDataset data, LinearROI roi) {
+	public void processROI(AbstractDataset data, LinearROI roi) {
 		if (roi.getLength() <= 1 || data.getSize() < 1)
 			return;
 		AbstractDataset[] dataSets = ROIProfile.line(data, roi, DiffractionViewer.lineStep);
