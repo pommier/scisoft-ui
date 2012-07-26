@@ -41,10 +41,6 @@ import org.dawb.common.ui.plot.trace.IImageTrace;
 import org.dawb.common.ui.plot.trace.IPaletteListener;
 import org.dawb.common.ui.plot.trace.ITrace;
 import org.dawb.common.ui.plot.trace.PaletteEvent;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
@@ -509,7 +505,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 				});
 			}else if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
 				if(newData instanceof AbstractDataset){
-					createPlot((AbstractDataset)newData);
+					createPlot((AbstractDataset)newData, inXAxis, inYAxis);
 				}else
 					logger.error("Cannot display 2D Data");
 				Display.getDefault().asyncExec(new Runnable() {
@@ -546,61 +542,73 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 		}
 	}
 
-	private void createPlot(final AbstractDataset data) {
+	private void createPlot(final AbstractDataset data, final AxisValues xValues, final AxisValues yValues) {
 		//clean the observer
 		if(overlay!=null){
 			overlay.cleanIObservers();
 		}
-		final Job job = new Job("Create image plot") {
+		
+		Display.getDefault().asyncExec(new Runnable() {
 			@Override
-			protected IStatus run(final IProgressMonitor monitor) {
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						plottingSystem.updatePlot2D(data, null, monitor);
-						plottingSystem.setTitle("");
-						try {
-							//create a region
-							IRegion region = plottingSystem.getRegion("Surface slice");
-							double upperX =plottingSystem.getSelectedXAxis().getUpper();
-							double lowerY =plottingSystem.getSelectedYAxis().getLower();
-							if(upperX>1000 && lowerY>1000){
-								upperX=500;
-								lowerY=500;
-							}
-							RectangularROI rroi = new RectangularROI(0, 0, upperX, lowerY, 0);
-							//Test if the region is already there and update the currentRegion
-							if(region!=null&&region.isVisible()){
-								currentROI = region.getROI();
-								if(currentROI.getPointX()<upperX && currentROI.getPointY()<lowerY)
-									region.setROI(currentROI);
-								else
-									region.setROI(rroi);
-							}else {
-								IRegion newRegion = plottingSystem.createRegion("Surface slice", RegionType.BOX);
-								newRegion.setROI(rroi);
-								plottingSystem.addRegion(newRegion);
-								plottingSystem.setToolVisible("org.dawnsci.rcp.histogram.histogram_tool_page",
-										ToolPageRole.ROLE_2D, "org.dawb.workbench.plotting.views.toolPageView.2D");
-							}
-						} catch (Exception e) {
-							logger.error("Couldn't open histogram view and create ROI", e);
-						}
-						// finally tie in the listener to the paletedata changes
-						Collection<ITrace> traces = plottingSystem.getTraces(IImageTrace.class);
-						image = traces!=null && traces.size()>0 ? (IImageTrace)traces.iterator().next():null;
-						if(image!=null){
-							image.addPaletteListener(paletteListener);
-						}
-					}
-				});
+			public void run() {
+				List<AbstractDataset> axes = Collections.synchronizedList(new LinkedList<AbstractDataset>());
+				AbstractDataset xAxisValues = AbstractDataset.createFromList(xValues.getValues());
+				AbstractDataset yAxisValues = AbstractDataset.createFromList(yValues.getValues());
+				axes.add(0, xAxisValues);
+				axes.add(1, yAxisValues);
+				if(xAxisValues!=null && yAxisValues!=null){
+					plottingSystem.updatePlot2D(data, axes, null);
+				}
+				else{
+					plottingSystem.updatePlot2D(data, null, null);
+				}
+				plottingSystem.setTitle("");
 				
-				return Status.OK_STATUS;
+				createRegion();
+				
+				// finally tie in the listener to the palettedata changes
+				Collection<ITrace> traces = plottingSystem.getTraces(IImageTrace.class);
+				image = traces!=null && traces.size()>0 ? (IImageTrace)traces.iterator().next():null;
+				if(image!=null){
+					image.addPaletteListener(paletteListener);
+				}
 			}
-		};
-		job.setUser(false);
-		job.setPriority(Job.BUILD);
-		job.schedule();
+		});
+	
+	}
+
+	private void createRegion(){
+		try {
+			IRegion region = plottingSystem.getRegion("Surface slice");
+			double upperX = plottingSystem.getSelectedXAxis().getUpper();
+			double lowerY = plottingSystem.getSelectedYAxis().getLower();
+
+			if(upperX>500 ){
+				upperX=500;
+			}
+			if(lowerY>500){
+				lowerY=500;
+			}
+
+			RectangularROI rroi = new RectangularROI(0, 0, upperX, lowerY, 0);
+			
+			//Test if the region is already there and update the currentRegion
+			if(region!=null&&region.isVisible()){
+				currentROI = region.getROI();
+				if(currentROI.getPointX()<upperX && currentROI.getPointY()<lowerY)
+					region.setROI(currentROI);
+				else
+					region.setROI(rroi);
+			}else {
+				IRegion newRegion = plottingSystem.createRegion("Surface slice", RegionType.BOX);
+				newRegion.setROI(rroi);
+				plottingSystem.addRegion(newRegion);
+				plottingSystem.setToolVisible("org.dawnsci.rcp.histogram.histogram_tool_page",
+						ToolPageRole.ROLE_2D, "org.dawb.workbench.plotting.views.toolPageView.2D");
+			}
+		} catch (Exception e) {
+			logger.error("Couldn't open histogram view and create ROI", e);
+		}
 	}
 
 	/**
@@ -770,8 +778,9 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 			if(plottingSystem !=null){
 				if (image != null)
 					image.removePaletteListener(paletteListener);
-				clearTraces(plottingSystem.getRegion("Surface slice"));
+				//clearTraces(plottingSystem.getRegion("Surface slice"));
 				plottingSystem.removeRegionListener(regionListener);
+				plottingSystem.removeRegion(plottingSystem.getRegion("Surface slice"));
 				overlay.deleteIObservers();
 				plottingSystem.dispose();
 			}
