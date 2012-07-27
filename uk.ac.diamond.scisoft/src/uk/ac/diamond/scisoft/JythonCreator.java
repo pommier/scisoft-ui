@@ -57,7 +57,7 @@ public class JythonCreator implements IStartup {
 
 	private static Logger logger = LoggerFactory.getLogger(JythonCreator.class);
 	private Boolean isRunningInEclipse;
-	
+
 	@Override
 	public void earlyStartup() {
 		try {
@@ -67,8 +67,7 @@ public class JythonCreator implements IStartup {
 			logger.error("Cannot create interpreter!", e);
 		}
 	}
-	
-	
+
 	private void initialiseConsole() {
 		// need to set some preferences to get the Pydev features working.
 		IPreferenceStore pydevDebugPreferenceStore =  new ScopedPreferenceStore(InstanceScope.INSTANCE,"org.python.pydev.debug");
@@ -82,6 +81,7 @@ public class JythonCreator implements IStartup {
 
 	private static final String JYTHON_VERSION = "2.5.1";
 	public static final String  INTERPRETER_NAME = "Jython" + JYTHON_VERSION;
+	private static String JYTHON_DIR = "jython" + JYTHON_VERSION;
 	public static final String  GIT_SUFFIX = "_git";
 	private static final String RUN_IN_ECLIPSE = "run.in.eclipse";
 	private static final String[] requiredKeys = {"org.python.pydev",
@@ -147,25 +147,27 @@ public class JythonCreator implements IStartup {
 			}
 
 			
-			// Code copies from Pydev when the user chooses a Jython interpreter - these are the defaults		
+			// Code copies from Pydev when the user chooses a Jython interpreter - these are the defaults
 			String executable = new File(getInterpreterDirectory(pluginsDir), "jython.jar").getAbsolutePath();
 			
-			final Bundle libBundle = Platform.getBundle("uk.ac.gda.libs");
-			
 			if(!(new File(executable)).exists()) { 
-			
 				logger.warn("Could not find jython jar, looking again");
 				// try to find the jar another way
-				String bundleLoc = libBundle.getLocation().replace("reference:file:", "");
-				File jarPath = new File(bundleLoc,"jython2.5.1/jython.jar");
-				
-				executable = jarPath.getAbsolutePath();
+				final Bundle libBundle = Platform.getBundle("uk.ac.gda.libs");
+				try {
+					File jarDirectory = new File(FileLocator.getBundleFile(libBundle), JYTHON_DIR);
+					File jarPath = new File(jarDirectory, "jython.jar");
 
+					executable = jarPath.getAbsolutePath();
+				} catch (IOException e) {
+					logger.error("Failed to find jython jar at all");
+					return;
+				}
 			}
-			
-			// Set cachdir to something not in the installation directory
+
+			// Set cache directory to something not in the installation directory
 			final String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString();
-			final File cachdir = new File(workspace+"/.jython_cachedir");
+			final File cachdir = new File(workspace, ".jython_cachedir");
 			
 			cachdir.mkdirs();
 			System.setProperty("python.cachedir", cachdir.getAbsolutePath());
@@ -178,15 +180,13 @@ public class JythonCreator implements IStartup {
 				logger.error("The file specified does not exist: {} ", script);
 				throw new RuntimeException("The file specified does not exist: " + script);
 			}
-
 			logger.debug("Script path = {}", script.getAbsolutePath());
-			
-			
+
 			String[] cmdarray = {"java", "-Xmx64m", "-Dpython.cachedir=\""+cachdir.getAbsolutePath()+"\"", "-jar",executable, REF.getFileAbsolutePath(script) };
 			File workingDir = new File(System.getProperty("java.io.tmpdir"));
 			IPythonNature nature = null;//new PythonNature();
 			Tuple<Process, String> outTup2 = new SimpleJythonRunner().run(cmdarray, workingDir, nature, monitor);
-		
+
 			String outputString = "";
 			try {
 				outputString = IOUtils.toString(outTup2.o1.getInputStream());
@@ -194,7 +194,7 @@ public class JythonCreator implements IStartup {
 				// TODO Auto-generated catch block
 				logger.error("TODO put description of error here", e1);
 			}
-			  
+
 			logger.debug("Output String is {}", outputString);
 
 			// this is the main info object which contains the environment data
@@ -211,7 +211,7 @@ public class JythonCreator implements IStartup {
 
 			} finally {
 				ModulesManagerWithBuild.IN_TESTS = false;
-			}		
+			}
 
 			if (info == null) {
 				logger.error("pydev info is set to null");
@@ -269,7 +269,7 @@ public class JythonCreator implements IStartup {
 							}
 							pyPaths.add(file.getAbsolutePath());
 							logger.debug("Adding jar file to python path : {} ", file.getAbsolutePath());
-						}						
+						}
 					}
 				}
 
@@ -412,7 +412,6 @@ public class JythonCreator implements IStartup {
 		}
 	}
 
-	private static String JYTHON_DIR = "jython" + JYTHON_VERSION;
 	private File getInterpreterDirectory(File pluginsDir) {
 
 		for (File file : pluginsDir.listFiles()) {
@@ -423,7 +422,7 @@ public class JythonCreator implements IStartup {
 
 		}
 		logger.error("Could not find a folder for 'uk.ac.gda.libs' defaulting to standard");
-		return new File(pluginsDir, "uk.ac.gda.libs/" + JYTHON_DIR);
+		return new File(new File(pluginsDir, "uk.ac.gda.libs"), JYTHON_DIR);
 	}
 
 	
