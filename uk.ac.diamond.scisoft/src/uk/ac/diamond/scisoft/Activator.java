@@ -73,7 +73,16 @@ public class Activator extends AbstractUIPlugin {
 
 		// First thing to do here is to try to set up the logging properly.
 		// during this, System.out will be used for logging
-		try {
+		try {			
+			String logloc = System.getProperty("log.folder");
+			if (logloc == null || "".equals(logloc)) {
+				System.out.println("Log folder property not set, setting this manually to the temp directory");
+				String tmpDir = System.getProperty("user.home")+"/.dawn/";
+				System.setProperty("log.folder", tmpDir);
+			}
+
+			System.out.println("log.folder java property set to '"+System.getProperty("log.folder")+"'");
+
 			System.out.println("Starting to Configure Logger");
 			LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
 			loggerContext.reset();
@@ -92,15 +101,6 @@ public class Activator extends AbstractUIPlugin {
 			} else {
 				System.out.println("Logging Configuration File Not found at '"+url+"'");
 			}
-			
-			String logloc = System.getProperty("log.folder");
-			if (logloc == null) {
-				System.out.println("Log folder property not set, setting this manually to the temp directory");
-				String tmpDir = System.getProperty("user.home")+"/.dawn/";
-				System.setProperty("log.folder", tmpDir);
-			}
-
-			System.out.println("log.folder java property set to '"+System.getProperty("log.folder")+"'");
 
 			JoranConfigurator configurator = new JoranConfigurator();
 			configurator.setContext(loggerContext);
