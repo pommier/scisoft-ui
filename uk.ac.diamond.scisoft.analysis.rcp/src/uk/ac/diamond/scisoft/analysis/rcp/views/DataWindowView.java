@@ -794,7 +794,7 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 	private IImageTrace image;
 
 	private IPaletteListener getPaletteListener(){
-		return new IPaletteListener(){
+		return new IPaletteListener.Stub(){
 			@Override
 			public void paletteChanged(PaletteEvent event) {
 				logger.debug("paletteChanged");
