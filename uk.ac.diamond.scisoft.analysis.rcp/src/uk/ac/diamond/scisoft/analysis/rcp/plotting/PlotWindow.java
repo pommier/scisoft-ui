@@ -1127,16 +1127,20 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 					//if we delete current ROI
 					if(currentRoiPair.getName().equals(obj.toString())){
 						currentRoiPair = previousRoiPair;
-						for (ROIPair<String, ROIBase> roiPair : roiPairList) {
-							if(previousRoiPair.getName().equals(roiPair.getName())){
-								roiPairList.remove(roiPair);
-								break;
+						if (roiPairList!=null) {
+							for (ROIPair<String, ROIBase> roiPair : roiPairList) {
+								if(previousRoiPair.getName().equals(roiPair.getName())){
+									roiPairList.remove(roiPair);
+									break;
+								}
 							}
-						}
-						if(roiPairList.size()>0)
-							previousRoiPair = roiPairList.get(0);
-						else
+							if(roiPairList.size()>0)
+								previousRoiPair = roiPairList.get(0);
+							else
+								previousRoiPair = null;
+						} else {
 							previousRoiPair = null;
+						}
 					}
 					//if we delete the previous ROI
 					else if(previousRoiPair.getName().equals(obj.toString())){
