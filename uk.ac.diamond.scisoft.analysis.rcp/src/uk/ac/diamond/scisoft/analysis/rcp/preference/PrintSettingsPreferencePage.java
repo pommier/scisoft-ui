@@ -16,6 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.preference;
 
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
@@ -23,6 +24,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.printing.Printer;
 import org.eclipse.swt.printing.PrinterData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -43,6 +45,7 @@ public class PrintSettingsPreferencePage extends PreferencePage implements IWork
 	private Combo printerListCombo;
 	private Combo orientationCombo;
 	private Combo resolutionCombo;
+	private Button keepAspectRatio;
 	private PrintSettings settings;
 	
 	public PrintSettingsPreferencePage() {
@@ -98,6 +101,9 @@ public class PrintSettingsPreferencePage extends PreferencePage implements IWork
 		Label resolutionLabel = new Label(printSettingsGroup, SWT.LEFT);
 		resolutionLabel.setText("Resolution: ");
 		resolutionCombo = new Combo(printSettingsGroup, SWT.RIGHT|SWT.READ_ONLY);
+		// no need of resolution if in new plotting
+		if(getDefaultPlottingSystemChoice()==PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM)
+			resolutionCombo.setEnabled(false);
 		resolutionCombo.setToolTipText("Change the resolution of the plot to be printed");
 		Resolution[] resolutionList = Resolution.values();
 		for (int i = 0; i < resolutionList.length; i++) {
@@ -107,13 +113,17 @@ public class PrintSettingsPreferencePage extends PreferencePage implements IWork
 		Label orientationLabel = new Label(printSettingsGroup, SWT.LEFT);
 		orientationLabel.setText("Orientation: ");
 		orientationCombo = new Combo(printSettingsGroup, SWT.RIGHT|SWT.READ_ONLY);
-	//	orientationCombo.setEnabled(false); //not yet fully functional
+		orientationCombo.setEnabled(false); //not yet fully functional
 		orientationCombo.setToolTipText("Not yet fully functional");
 		Orientation[] orientationList = Orientation.values();
 		for (int i = 0; i < orientationList.length; i++) {
 			orientationCombo.add(orientationList[i].getName().toString());
 		}
 
+		keepAspectRatio = new Button(printSettingsGroup, SWT.CHECK);
+		keepAspectRatio.setText("Keep Aspect Ratio");
+		keepAspectRatio.setToolTipText("Check to keep the aspect ratio of the plot");
+		
 		initializePage();
 
 		return comp;
@@ -138,6 +148,7 @@ public class PrintSettingsPreferencePage extends PreferencePage implements IWork
 		printerListCombo.select(getPrinterNamePreference());
 		orientationCombo.select(getOrientationPreference());
 		resolutionCombo.select(getResolutionPreference());
+		keepAspectRatio.setSelection(getKeepAspectRatio());
 	}
 
 	/**
@@ -204,6 +215,13 @@ public class PrintSettingsPreferencePage extends PreferencePage implements IWork
 		return getPreferenceStore().getInt(PreferenceConstants.PRINTSETTINGS_RESOLUTION);
 	}
 
+	public boolean getKeepAspectRatio() {
+		if (getPreferenceStore().isDefault(PreferenceConstants.PRINTSETTINGS_ASPECTRATIO)) {
+			return getPreferenceStore().getDefaultBoolean(PreferenceConstants.PRINTSETTINGS_ASPECTRATIO);
+		}
+		return getPreferenceStore().getBoolean(PreferenceConstants.PRINTSETTINGS_ASPECTRATIO);
+	}
+
 	public void setScalePreference(int value) {
 		settings.setScale(Scale.values()[value]);
 		getPreferenceStore().setValue(PreferenceConstants.PRINTSETTINGS_SCALE, value);
@@ -214,6 +232,11 @@ public class PrintSettingsPreferencePage extends PreferencePage implements IWork
 		getPreferenceStore().setValue(PreferenceConstants.PRINTSETTINGS_ORIENTATION, value);
 	}
 
+	public void setKeepAspectRatioPreference(boolean value) {
+		settings.setKeepAspectRatio(value);
+		getPreferenceStore().setValue(PreferenceConstants.PRINTSETTINGS_ASPECTRATIO, value);
+	}
+
 	public void setPrinterNamePreference(int value) {
 		settings.setPrinterData(Printer.getPrinterList()[value]);
 		getPreferenceStore().setValue(PreferenceConstants.PRINTSETTINGS_PRINTER_NAME, value);
@@ -222,6 +245,13 @@ public class PrintSettingsPreferencePage extends PreferencePage implements IWork
 	public void setResolutionPreference(int value) {
 		settings.setResolution(Resolution.values()[value]);
 		getPreferenceStore().setValue(PreferenceConstants.PRINTSETTINGS_RESOLUTION, value);
+	}
+
+	private int getDefaultPlottingSystemChoice() {
+		IPreferenceStore preferenceStore = AnalysisRCPActivator.getDefault().getPreferenceStore();
+		return preferenceStore.isDefault(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM) ? 
+				preferenceStore.getDefaultInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM)
+				: preferenceStore.getInt(PreferenceConstants.PLOT_VIEW_PLOTTING_SYSTEM);
 	}
 }
 
