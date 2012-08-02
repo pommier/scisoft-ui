@@ -44,6 +44,7 @@ public class PrintSettings {
 	private int verticalAlign = SWT.TOP;
 	private int horizontalAlign = SWT.CENTER;
 	private Orientation orientation = Orientation.PORTRAIT;
+	private boolean keepAspectRatio = false;
 	private PrinterData printerData = null;
 	private Scale scale = Scale.DEFAULT;
 	private Resolution resolution = Resolution.MEDIUM;
@@ -584,6 +585,21 @@ public class PrintSettings {
 	 */
 	public void setOrientation(Orientation orientation) {
 		this.orientation = orientation;
+	}
+
+	/**
+	 * @return The value of keep aspect ratio.
+	 */
+	public boolean getKeepAspectRatio() {
+		return keepAspectRatio;
+	}
+
+	/**
+	 * @param keepAspectRatio
+	 *            The new value for keep aspect ratio.
+	 */
+	public void setKeepAspectRatio(boolean keepAspectRatio) {
+		this.keepAspectRatio = keepAspectRatio;
 	}
 
 	/**
