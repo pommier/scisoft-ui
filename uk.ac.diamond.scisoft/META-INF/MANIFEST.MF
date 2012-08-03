@@ -11,7 +11,9 @@ Require-Bundle: org.eclipse.ui,
  org.python.pydev;bundle-version="2.5.0.2012060719",
  org.python.pydev.core;bundle-version="2.0.0",
  org.python.pydev.debug;bundle-version="2.0.0",
- uk.ac.diamond.scisoft.system.info;bundle-version="1.0.0"
+ uk.ac.diamond.scisoft.system.info;bundle-version="1.0.0",
+ org.apache.httpcomponents.httpclient;bundle-version="[4.2.1,4.3.0)",
+ org.apache.httpcomponents.httpcore;bundle-version="[4.2.1,4.3.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: ch.qos.logback.classic;version="0.9.15",
  ch.qos.logback.classic.joran;version="0.9.15",
