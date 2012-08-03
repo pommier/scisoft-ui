@@ -32,6 +32,14 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -71,6 +79,8 @@ public class FeedbackView extends ViewPart {
 	private static final String DAWN_FEEDBACK = "[DAWN-FEEDBACK]";
 	//this is the default to the java property "org.dawnsci.feedbackmail"
 	private static final String MAIL_TO = "dawnjira@diamond.ac.uk";
+	//this is the URL of the GAE servlet
+	private static final String SERVLET_URL = "http://dawnsci-feedback.appspot.com/dawnfeedback";
 	/**
 	 * The ID of the view as specified by the extension.
 	 */
@@ -192,6 +202,7 @@ public class FeedbackView extends ViewPart {
 					public IStatus runInUIThread(IProgressMonitor monitor) {
 
 						try {
+							@SuppressWarnings("unused")
 							String mailserver = "localhost";
 							String fromvalue = emailAddress.getText();
 							if (fromvalue==null || fromvalue.length() == 0) {
@@ -228,9 +239,11 @@ public class FeedbackView extends ViewPart {
 							File logpath = new File(System.getProperty("user.home"), "dawnlog.html");
 
 							// get the mail to address from the properties
+							@SuppressWarnings("unused")
 							String mailTo = System.getProperty("org.dawnsci.feedbackmail", MAIL_TO);
 														
-							sendMail(mailserver, from, mailTo, subject, messageBody.toString(), "log.html", logpath, monitor);
+							//sendMail(mailserver, from, mailTo, subject, messageBody.toString(), "log.html", logpath, monitor);
+							doSubmitMsg(SERVLET_URL, from, System.getProperty("user.name", "Unknown User"), subject, messageBody.toString(), logpath);
 						} catch (Exception e) {
 							return Status.CANCEL_STATUS;
 						}
@@ -334,4 +347,65 @@ public class FeedbackView extends ViewPart {
 
 	} 
 
+	/**
+	 * Method used to submit a form data/file through HTTP to a GAE servlet
+	 * @param url
+	 * @param email
+	 * @param name
+	 * @param subject
+	 * @param messageBody
+	 * @param file
+	 */
+	public void doSubmitMsg(String url, String email, String name, String subject, String messageBody, File file) {
+
+		DefaultHttpClient httpclient = new DefaultHttpClient();
+		
+		//We get the proxy preferences in preference store if any
+		String host = System.getProperty("http.proxyHost");
+		String port = System.getProperty("http.proxyPort");
+		HttpHost proxy = new HttpHost(host, Integer.valueOf(port), "http");
+		try {
+			httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+			
+			HttpPost httpost = new HttpPost(url);
+
+//			List<NameValuePair> nvps = new ArrayList<NameValuePair>(1);
+//			nvps.add(new BasicNameValuePair("email", email));
+//			nvps.add(new BasicNameValuePair("name", name));
+//			nvps.add(new BasicNameValuePair("subject", subject));
+//			nvps.add(new BasicNameValuePair("message", messageBody));
+//			
+//			UrlEncodedFormEntity fullUrl = new UrlEncodedFormEntity(nvps, Consts.UTF_8);
+//			String str = IOUtils.toString(fullUrl.getContent());
+			//httpost.setEntity(fullUrl);
+
+			MultipartEntity entity = new MultipartEntity();
+			//FileEntity entity = new FileEntity(file, ContentType.create("text/plain", "UTF-8"));
+			entity.addPart("name", new StringBody(name));
+			entity.addPart("email", new StringBody(email));
+			entity.addPart("subject", new StringBody(subject));
+			entity.addPart("message", new StringBody(messageBody));
+			entity.addPart("log.html", new FileBody(file));
+			httpost.setEntity(entity);
+			
+			//HttpPost post = new HttpPost("http://dawnsci-feedback.appspot.com/dawnfeedback?name=baha&email=baha@email.com&subject=thisisasubject&message=thisisthemessage");
+			HttpResponse response = httpclient.execute(httpost);
+
+			logger.debug("HTTP Response: " + response.getStatusLine());
+		} catch (Exception e) {
+			logger.error("Feedback email not sent", e);
+			Display.getDefault().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+							"Feedback not sent!", "Please check that you have an Internet connection. If behind a proxy server, please check the DAWN proxy settings (Window/Preferences/General/Network Connection). If the feedback is still not working, please go to http://www.dawnsci.org (accessible through the Welcome Screen) and register your problem there (See the Contact-Us page).");
+				}
+			});
+		} finally {
+			// When HttpClient instance is no longer needed,
+			// shut down the connection manager to ensure
+			// immediate deallocation of all system resources
+			httpclient.getConnectionManager().shutdown();
+		}
+	}
 }
