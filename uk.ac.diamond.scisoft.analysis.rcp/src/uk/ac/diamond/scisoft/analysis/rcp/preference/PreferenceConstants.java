@@ -97,7 +97,8 @@ public class PreferenceConstants {
 	public static final String FITTING_1D_DECIMAL_PLACES = "fitting1d.peak.dp";
 
 	// Analysis RPC preferences
-	public static final String ANALYSIS_RPC_SERVER_PORT = "analysisrpc.server.port";
+	public static final String ANALYSIS_RPC_SERVER_PORT        = "analysisrpc.server.port";
+	public static final String ANALYSIS_RPC_SERVER_PORT_AUTO   = "analysisrpc.server.port.auto";
 	public static final String ANALYSIS_RPC_TEMP_FILE_LOCATION = "analysisrpc.tempfile";
 
 	// RMI preferences

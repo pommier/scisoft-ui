@@ -25,9 +25,9 @@ import org.osgi.util.tracker.ServiceTracker;
 import uk.ac.diamond.scisoft.analysis.AnalysisRpcServerProvider;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
-import uk.ac.diamond.scisoft.analysis.RMIServerPortEvent;
-import uk.ac.diamond.scisoft.analysis.RMIServerPortListener;
 import uk.ac.diamond.scisoft.analysis.RMIServerProvider;
+import uk.ac.diamond.scisoft.analysis.ServerPortEvent;
+import uk.ac.diamond.scisoft.analysis.ServerPortListener;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.AnalysisRpcAndRmiPreferencePage;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rpc.FlatteningService;
@@ -35,7 +35,7 @@ import uk.ac.diamond.scisoft.analysis.rpc.FlatteningService;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class AnalysisRCPActivator extends AbstractUIPlugin implements RMIServerPortListener {
+public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPortListener {
 
 	/**
 	 * The plug-in ID
@@ -64,8 +64,8 @@ public class AnalysisRCPActivator extends AbstractUIPlugin implements RMIServerP
 		plotServerTracker.open();
 		PlotServer plotServer = (PlotServer)plotServerTracker.getService();
 		if( plotServer != null) PlotServerProvider.setPlotServer(plotServer);
-		
-		RMIServerProvider.getInstance().addPortListener(this);
+				
+		AnalysisRpcServerProvider.getInstance().addPortListener(this);
 		
 		// if the rmi server has been vetoed, dont start it up, this also has issues
 		if (Boolean.getBoolean("uk.ac.diamond.scisoft.analysis.analysisrpcserverprovider.disable") == false) {
@@ -76,19 +76,12 @@ public class AnalysisRCPActivator extends AbstractUIPlugin implements RMIServerP
 		}
 		
 	}
-	
-	/**
-	 * Simply sets properties for the temporary port if the RMIServerProvider
-	 * decides to get a temp one.
-	 */
+
 	@Override
-	public void portAssigned(RMIServerPortEvent evt) {
-		if (evt.isVolatilePort()) {
-			getPreferenceStore().setValue(PreferenceConstants.RMI_SERVER_PORT_AUTO, evt.getPort());
-		}else if (evt.getPort()>0) {
-			getPreferenceStore().setValue(PreferenceConstants.RMI_SERVER_PORT_AUTO, 0);
-		}
+	public void portAssigned(ServerPortEvent evt) {
+		getPreferenceStore().setValue(PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO, evt.getPort());
 	}
+	
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
