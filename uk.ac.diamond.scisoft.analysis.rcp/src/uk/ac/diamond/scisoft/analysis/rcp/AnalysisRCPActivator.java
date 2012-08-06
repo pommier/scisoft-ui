@@ -39,7 +39,7 @@ import uk.ac.diamond.scisoft.analysis.rpc.FlatteningService;
  * The activator class controls the plug-in life cycle
  */
 public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPortListener {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(AnalysisRCPActivator.class);
 	/**
 	 * The plug-in ID
@@ -87,11 +87,15 @@ public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPort
 					AnalysisRpcAndRmiPreferencePage.getAnalysisRpcTempFileLocation());
 		}
 		
+		// Seems to be needed in order to ensure class loading.
+		RMIServerProvider.getInstance().getPort();
+		AnalysisRpcServerProvider.getInstance().getPort();
 	}
 
 	@Override
 	public void portAssigned(ServerPortEvent evt) {
 		if (PlatformUI.isWorkbenchRunning()) { // Not workflow IApplication
+			logger.info("Setting "+PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO+" to: ",  evt.getPort());
 		    getPreferenceStore().setValue(PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO, evt.getPort());
 		}
 	}
