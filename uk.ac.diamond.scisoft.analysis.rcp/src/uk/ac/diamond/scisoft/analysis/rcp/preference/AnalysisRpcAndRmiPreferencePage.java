@@ -48,10 +48,15 @@ public class AnalysisRpcAndRmiPreferencePage extends FieldEditorPreferencePage i
 		addField(new DirectoryFieldEditor(PreferenceConstants.ANALYSIS_RPC_TEMP_FILE_LOCATION, "Directory:",
 				getFieldEditorParent()));
 
-		addField(new IntegerFieldEditor(PreferenceConstants.ANALYSIS_RPC_SERVER_PORT,
-				"Analysis RPC Port: (0 for auto, requires restart)", getFieldEditorParent()));
-		addField(new IntegerFieldEditor(PreferenceConstants.RMI_SERVER_PORT,
-				"RMI Port: (0 for auto, requires restart)", getFieldEditorParent()));
+		IntegerFieldEditor analysisPort = new IntegerFieldEditor(PreferenceConstants.ANALYSIS_RPC_SERVER_PORT,
+				"Analysis RPC Port: (0 for auto, requires restart)", getFieldEditorParent());
+		analysisPort.setValidRange(0, 65535);
+		addField(analysisPort);
+		
+		IntegerFieldEditor rmiPort = new IntegerFieldEditor(PreferenceConstants.RMI_SERVER_PORT,
+				"RMI Port: (0 for auto, requires restart)", getFieldEditorParent());
+		rmiPort.setValidRange(0, 65535);
+		addField(rmiPort);
 
 		addField(new LabelFieldEditor("The currently in use ports are:\n" + "- Analysis RPC: "
 				+ AnalysisRpcServerProvider.getInstance().getPort() + "\n" + "- RMI: "
