@@ -112,5 +112,6 @@ public class PreferenceConstants {
 	public static final String PRINTSETTINGS_ORIENTATION = "printsettings.orientation";
 	public static final String PRINTSETTINGS_SCALE = "printsettings.scale";
 	public static final String PRINTSETTINGS_RESOLUTION = "printsettings.resolution";
+	public static final String PRINTSETTINGS_ASPECTRATIO = "printsettings.aspectratio";
 
 }
