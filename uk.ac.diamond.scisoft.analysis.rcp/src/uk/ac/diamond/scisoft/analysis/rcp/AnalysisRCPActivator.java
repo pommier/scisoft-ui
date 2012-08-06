@@ -18,6 +18,7 @@ package uk.ac.diamond.scisoft.analysis.rcp;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
@@ -63,24 +64,24 @@ public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPort
 		super.start(context);
 		plugin = this;
 
+		AnalysisRpcServerProvider.getInstance().addPortListener(this);
+
 		plotServerTracker = new ServiceTracker(context, PlotServer.class.getName(), null);
 		plotServerTracker.open();
 		PlotServer plotServer = (PlotServer)plotServerTracker.getService();
-		if( plotServer != null) PlotServerProvider.setPlotServer(plotServer);
-				
-		AnalysisRpcServerProvider.getInstance().addPortListener(this);
+		if( plotServer != null) PlotServerProvider.setPlotServer(plotServer);			
 		
 		// if the rmi server has been vetoed, dont start it up, this also has issues
 		if (Boolean.getBoolean("uk.ac.diamond.scisoft.analysis.analysisrpcserverprovider.disable") == false) {
 			try {
 				AnalysisRpcServerProvider.getInstance().setPort(AnalysisRpcAndRmiPreferencePage.getAnalysisRpcPort());
 			} catch (IllegalStateException ex) {
-				logger.warn("Someone has already created an Analysis RPC server", ex);
+				logger.warn("An Analysis RPC server already exists", ex);
 			}
 			try {
 				RMIServerProvider.getInstance().setPort(AnalysisRpcAndRmiPreferencePage.getRmiPort());
 			} catch (IllegalStateException ex) {
-				logger.warn("Someone has already created an Analysis RMI server", ex);
+				logger.warn("An Analysis RMI server already exists", ex);
 			}
 			FlatteningService.getFlattener().setTempLocation(
 					AnalysisRpcAndRmiPreferencePage.getAnalysisRpcTempFileLocation());
@@ -90,7 +91,9 @@ public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPort
 
 	@Override
 	public void portAssigned(ServerPortEvent evt) {
-		getPreferenceStore().setValue(PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO, evt.getPort());
+		if (PlatformUI.isWorkbenchRunning()) { // Not workflow IApplication
+		    getPreferenceStore().setValue(PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO, evt.getPort());
+		}
 	}
 	
 
