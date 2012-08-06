@@ -22,6 +22,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.AnalysisRpcServerProvider;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
@@ -38,6 +40,7 @@ import uk.ac.diamond.scisoft.analysis.rpc.FlatteningService;
  */
 public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPortListener {
 
+	private static final Logger logger = LoggerFactory.getLogger(AnalysisRCPActivator.class);
 	/**
 	 * The plug-in ID
 	 */
@@ -75,11 +78,15 @@ public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPort
 			FlatteningService.getFlattener().setTempLocation(AnalysisRpcAndRmiPreferencePage.getAnalysisRpcTempFileLocation());
 		}
 		
+		// Seems to be needed in order to ensure class loading.
+		RMIServerProvider.getInstance().getPort();
+		AnalysisRpcServerProvider.getInstance().getPort();
 	}
 
 	@Override
 	public void portAssigned(ServerPortEvent evt) {
 		if (PlatformUI.isWorkbenchRunning()) { // Not workflow IApplication
+			logger.info("Setting "+PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO+" to: ",  evt.getPort());
 		    getPreferenceStore().setValue(PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO, evt.getPort());
 		}
 	}
