@@ -75,7 +75,7 @@ public class FeedbackView extends ViewPart {
 	/**
 	 * The ID of the view as specified by the extension.
 	 */
-	public static final String ID = "uk.ac.diamond.scisoft.views.FeedbackView";
+	public static final String ID = "uk.ac.diamond.scisoft.feedback.FeedbackView";
 	private Action feedbackAction;
 	private Text emailAddress;
 	private Text messageText;
