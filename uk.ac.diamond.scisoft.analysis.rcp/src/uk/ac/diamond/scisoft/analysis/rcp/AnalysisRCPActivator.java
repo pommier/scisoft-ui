@@ -16,8 +16,18 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp;
 
+import java.lang.reflect.InvocationTargetException;
+
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
@@ -28,15 +38,18 @@ import uk.ac.diamond.scisoft.analysis.AnalysisRpcServerProvider;
 import uk.ac.diamond.scisoft.analysis.PlotServer;
 import uk.ac.diamond.scisoft.analysis.PlotServerProvider;
 import uk.ac.diamond.scisoft.analysis.RMIServerProvider;
+import uk.ac.diamond.scisoft.analysis.ServerPortEvent;
+import uk.ac.diamond.scisoft.analysis.ServerPortListener;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.AnalysisRpcAndRmiPreferencePage;
+import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rpc.FlatteningService;
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class AnalysisRCPActivator extends AbstractUIPlugin {
-	private static final Logger logger = LoggerFactory.getLogger(AnalysisRCPActivator.class);
+public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPortListener {
 
+	private static final Logger logger = LoggerFactory.getLogger(AnalysisRCPActivator.class);
 	/**
 	 * The plug-in ID
 	 */
@@ -60,29 +73,46 @@ public class AnalysisRCPActivator extends AbstractUIPlugin {
 		super.start(context);
 		plugin = this;
 
+		AnalysisRpcServerProvider.getInstance().addPortListener(this);
+
 		plotServerTracker = new ServiceTracker(context, PlotServer.class.getName(), null);
 		plotServerTracker.open();
 		PlotServer plotServer = (PlotServer)plotServerTracker.getService();
-		if( plotServer != null)
-			PlotServerProvider.setPlotServer(plotServer);
+		if( plotServer != null) PlotServerProvider.setPlotServer(plotServer);			
 		
 		// if the rmi server has been vetoed, dont start it up, this also has issues
 		if (Boolean.getBoolean("uk.ac.diamond.scisoft.analysis.analysisrpcserverprovider.disable") == false) {
 			try {
 				AnalysisRpcServerProvider.getInstance().setPort(AnalysisRpcAndRmiPreferencePage.getAnalysisRpcPort());
 			} catch (IllegalStateException ex) {
-				logger.warn("Someone has already created an Analysis RPC server", ex);
+				logger.warn("An Analysis RPC server already exists", ex);
 			}
 			try {
 				RMIServerProvider.getInstance().setPort(AnalysisRpcAndRmiPreferencePage.getRmiPort());
 			} catch (IllegalStateException ex) {
-				logger.warn("Someone has already created an Analysis RMI server", ex);
+				logger.warn("An Analysis RMI server already exists", ex);
 			}
 			FlatteningService.getFlattener().setTempLocation(
 					AnalysisRpcAndRmiPreferencePage.getAnalysisRpcTempFileLocation());
 		}
 		
 	}
+
+	@Override
+	public void portAssigned(ServerPortEvent evt) {
+		if (PlatformUI.isWorkbenchRunning()) { // Not workflow IApplication
+			logger.info("Setting "+PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO+" to: ",  evt.getPort());
+		    getPreferenceStore().setValue(PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO, evt.getPort());
+
+		    try {
+		    	IWorkspace ws = ResourcesPlugin.getWorkspace();
+		    	ws.save(true, new NullProgressMonitor());
+		    } catch (CoreException e) {
+		    	logger.error("Cannot save "+PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO, e);
+		    }
+		}
+	}
+	
 
 	@Override
 	public void stop(BundleContext context) throws Exception {
@@ -123,5 +153,6 @@ public class AnalysisRCPActivator extends AbstractUIPlugin {
 		ImageDescriptor des = imageDescriptorFromPlugin(PLUGIN_ID, path);
 		return des.createImage();
 	}
+
 }
 
