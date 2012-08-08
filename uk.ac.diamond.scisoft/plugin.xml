@@ -8,7 +8,7 @@
             label="label"
             visible="true">
          <action
-               class="uk.ac.diamond.scisoft.FeedbackAction"
+               class="uk.ac.diamond.scisoft.feedback.FeedbackAction"
                id="uk.ac.diamond.scisoft.feedback"
                label="Leave Feedback"
                menubarPath="Help/"
@@ -24,9 +24,9 @@
       </category>
       <view
             category="uk.ac.diamond.scisoft"
-            class="uk.ac.diamond.scisoft.views.FeedbackView"
+            class="uk.ac.diamond.scisoft.feedback.FeedbackView"
             icon="icons/editor.gif"
-            id="uk.ac.diamond.scisoft.views.FeedbackView"
+            id="uk.ac.diamond.scisoft.feedback.FeedbackView"
             name="Feedback">
       </view>
    </extension>
