@@ -327,7 +327,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 			return;
 
 		tree = htree;
-		isOldGDA = HDF5Utils.isOldGDAFile(tree);
+		isOldGDA = HDF5Utils.isGDAFile(tree);
 
 		if (display != null)
 			display.asyncExec(new Runnable() {

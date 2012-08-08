@@ -18,8 +18,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.hdf5;
 
-import gda.analysis.io.ScanFileHolderException;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,12 +36,10 @@ import uk.ac.diamond.scisoft.analysis.hdf5.HDF5File;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Group;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5Node;
 import uk.ac.diamond.scisoft.analysis.hdf5.HDF5NodeLink;
-import uk.ac.diamond.scisoft.analysis.io.HDF5Loader;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisChoice;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.AxisSelection;
 import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
-import uk.ac.gda.monitor.IMonitor;
 
 public class HDF5Utils {
 	private static final Logger logger = LoggerFactory.getLogger(HDF5Utils.class);
@@ -310,29 +306,12 @@ public class HDF5Utils {
 //	private static final int GDAMINOR = 20;
 
 	/**
-	 * Analyses an HDF5 file to see if it is likely to be the old type of nexus file.
-	 * 
-	 * Warning loads whole tree and parses.
-	 * 
-	 * @param path
-	 * @param mon
-	 * @return true if old GDA tree
-	 * @throws ScanFileHolderException
-	 */
-	public static boolean isOldGDAFile(final String path, final IMonitor mon) throws ScanFileHolderException {
-		HDF5File ltree = new HDF5Loader(path).loadTree(mon);
-        return isOldGDAFile(ltree);
-	}
-	
-	/**
-	 * Analyses an HDF5 file to see if it is likely to be the old type of nexus file.
-	 * 
-	 * Warning - it has to parse a lot of the tree to do this.
+	 * Analyses an HDF5 tree to see if it is a GDA NeXus tree
 	 * 
 	 * @param tree
 	 * @return true is old
 	 */
-	public static boolean isOldGDAFile(HDF5File tree) {
+	public static boolean isGDAFile(HDF5File tree) {
 		for (HDF5NodeLink link : tree.getGroup()) {
 			if (link.isDestinationAGroup()) {
 				HDF5Group g = (HDF5Group) link.getDestination();
