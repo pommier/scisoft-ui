@@ -17,12 +17,18 @@
 package uk.ac.diamond.sda.navigator.views;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.dawb.common.services.IFileIconService;
 import org.dawb.common.services.ServiceManager;
 import org.dawb.common.ui.menu.CheckableActionGroup;
 import org.dawb.common.ui.util.EclipseUtils;
 import org.dawb.common.ui.views.ImageMonitorView;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
@@ -32,10 +38,12 @@ import org.eclipse.jface.fieldassist.ContentProposalAdapter;
 import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalListener;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
+import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.swt.SWT;
@@ -48,14 +56,11 @@ import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -216,7 +221,7 @@ public class FileView extends ViewPart {
 							});
 						}
 					}
-				} else if (e.character=='\t' || e.character=='\n') {
+				} else if (e.character=='\t' || e.character=='\n'|| e.character=='\r') {
 					final String path = filePath.getText();
 					try {
 						updatingTextFromTreeSelections=false;
@@ -316,6 +321,13 @@ public class FileView extends ViewPart {
 			}
 		}
 		
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				final TreePath path = new TreePath(new Object[]{File.listRoots()[0]});
+				tree.setExpandedState(path, true);
+			}
+		});
 
 	}
 	
@@ -338,9 +350,7 @@ public class FileView extends ViewPart {
 		
 		if (elements!=null) this.tree.setExpandedElements(elements);
 		if (file!=null)     {
-			this.tree.setExpandedState(file.getParentFile(), true);
-			this.tree.setExpandedState(file, true);
-			tree.setSelection(new StructuredSelection(file));
+			setSelectedFile(file);
 		}
 	}
 
@@ -358,10 +368,80 @@ public class FileView extends ViewPart {
 
 	public void setSelectedFile(String path) {
 		final File file = new File(path);
-		if (file.exists()) {
-			tree.setSelection(new StructuredSelection(file));
-			tree.setExpandedState(file, true);
+		setSelectedFile(file);
+	}
+	
+	public void setSelectedFile(final File file) {
+		if (file.exists()) {			
+			final List<File> segs = getSegments(file);
+			
+			final Job expandJob = new Job("Update tree expanded state") {
+				// Job needed because lazy tree - do not copy for all trees!	
+				// Required this funny way because tree is lazy
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					for (final File f : segs) {						
+						if (monitor.isCanceled()) break;
+						
+						int count = 0;
+						while (!getExpandedState(f) && count<1000) {
+							expand(f);
+							try {
+								if (monitor.isCanceled()) break;
+								Thread.sleep(20);
+								count++;
+							} catch (InterruptedException e) {
+								break;
+							}
+						}
+					}
+					
+					Display.getDefault().syncExec(new Runnable() {
+						@Override
+						public void run() {
+					        tree.setSelection(new StructuredSelection(file));
+						}
+					});
+					
+					return Status.OK_STATUS;
+				}
+				
+				private void expand(final File f) {
+					Display.getDefault().syncExec(new Runnable() {
+						@Override
+						public void run() {
+							tree.setExpandedState(f, true);
+						}
+					});
+				}
+				private boolean getExpandedState(final File f) {
+					final List<Boolean> res = new ArrayList<Boolean>(1);
+					Display.getDefault().syncExec(new Runnable() {
+						@Override
+						public void run() {
+							res.add(tree.getExpandedState(f));
+						}
+					});
+					return res.get(0);
+				}
+
+			};
+			expandJob.setUser(false);
+			expandJob.setSystem(true);
+			expandJob.setPriority(Job.INTERACTIVE);
+			expandJob.schedule();
 		}	
+	}
+
+	private List<File> getSegments(File file) {
+		final List<File> segs = new ArrayList<File>();
+		segs.add(file);
+		File par = file.getParentFile();
+		while(par!=null) {
+			segs.add(0, par);
+			par = par.getParentFile();
+		}
+		return segs;
 	}
 
 	private void createRightClickMenu() {
