@@ -23,7 +23,7 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
-import uk.ac.diamond.scisoft.views.FeedbackView;
+import uk.ac.diamond.scisoft.feedback.FeedbackView;
 
 public class FeedbackAction implements IWorkbenchWindowActionDelegate {
 
