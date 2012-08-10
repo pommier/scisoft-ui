@@ -23,15 +23,20 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IReusableEditor;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.AbstractExplorer;
 import uk.ac.diamond.scisoft.analysis.rcp.explorers.ImageExplorer;
 
-public class ImageEditor extends EditorPart {
+public class ImageEditor extends EditorPart implements IReusableEditor {
 
+	private static final Logger logger = LoggerFactory.getLogger(ImageEditor.class);
+	
 	private ImageExplorer imgxp;
 	private File file;
 
@@ -50,16 +55,24 @@ public class ImageEditor extends EditorPart {
 
 	@Override
 	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
-		file = EclipseUtils.getFile(input);
-		if (file == null || !file.exists()) {
-			throw new PartInitException("Input is not a file or file does not exist");
-		} else if (!file.canRead()) {
-			throw new PartInitException("Cannot read file (are permissions correct?)");
-		}
-
+		
 		setSite(site);
         setInput(input);
+        try {
+			createFile();
+		} catch (Exception e) {
+			logger.error("Cannot create file!", e);
+		}
 		setPartName(input.getName());
+	}
+
+	private void createFile() throws Exception{
+		file = EclipseUtils.getFile(getEditorInput());
+		if (file == null || !file.exists()) {
+			throw new Exception("Input is not a file or file does not exist");
+		} else if (!file.canRead()) {
+			throw new Exception("Cannot read file (are permissions correct?)");
+		}
 	}
 
 	@Override
@@ -85,6 +98,21 @@ public class ImageEditor extends EditorPart {
 		site.setSelectionProvider(imgxp);
 	}
 
+	@Override
+	public void setInput(IEditorInput input) {
+		super.setInput(input);
+        try {
+			createFile();
+		} catch (Exception e) {
+			logger.error("Cannot create file!", e);
+		}
+        try {
+			imgxp.loadFileAndDisplay(file.getPath(), null);
+		} catch (Exception e) {
+			return;
+		}
+	}
+	
 	@Override
 	public void setFocus() {
 		imgxp.setFocus();
