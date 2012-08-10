@@ -457,12 +457,14 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 			if (inXAxis == null || inXAxis.size() == 0)
 			{
 				xAxis.setValues(AbstractDataset.arange(0, xSize, xSamplingRate, AbstractDataset.INT32));
+				inXAxis = xAxis;
 			} else {
 				xAxis.setValues(inXAxis.subset(0, xSize, xSamplingRate).toDataset());
 			}
 			if (inYAxis == null || inYAxis.size() == 0)
 			{
 				yAxis.setValues(AbstractDataset.arange(0, ySize, ySamplingRate, AbstractDataset.INT32));
+				inYAxis = yAxis;
 			} else {
 				yAxis.setValues(inYAxis.subset(0, ySize, ySamplingRate).toDataset());
 			}
