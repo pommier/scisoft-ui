@@ -267,7 +267,14 @@ public class PollingView extends ViewPart implements IPollMonitor {
 
 						openEditor(newFileName);
 
-					} catch (Exception e) {
+					} catch (final Exception e) {
+						Display.getDefault().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								MessageDialog.openError(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+										"Error creating new polling job", e.getMessage());
+							}
+						});
 						e.printStackTrace();
 					}
 

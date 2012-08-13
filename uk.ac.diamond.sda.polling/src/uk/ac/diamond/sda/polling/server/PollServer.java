@@ -197,10 +197,10 @@ public class PollServer implements IPropertyChangeListener {
 
 	public String getNewJobFileName(PollJobContribution pollJobContribution) throws IOException {
 		
-		// first check the directory exists, and if it dosn't create it
+		// first check the directory exists, and if it doesn't create it
 		if(!pollFileDirectory.exists()) {
 			if (!pollFileDirectory.mkdirs()) {
-				throw new IOException("Failed to access poll directory, try changing to a diffenrent directory in the preferences");
+				throw new IOException("Failed to access poll folder, please check your polling configuration directory in the polling preferences (Window->Preferences->Polling preferences)");
 			}
 		}
 		
