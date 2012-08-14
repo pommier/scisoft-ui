@@ -20,10 +20,13 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
@@ -49,6 +52,9 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 
 	protected DataSetPlotter plotter;
 	protected AxisValues xAxisValues;
+	protected StackLayout stack;
+	protected Composite plotterComposite;
+	protected Composite stackComposite;
 	
 	protected abstract String getYAxis();
 
@@ -94,6 +100,22 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 			}
 		};
 	}
+	
+
+	/**
+	 * Use this after the first data is received to hide the default message and show the plotter.
+	 */
+	protected void showPlotter() {
+		if (stack.topControl != plotterComposite) {
+			stack.topControl = plotterComposite;
+			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					stackComposite.layout();
+				}
+			});
+		}
+	}
 
 
 	/**
@@ -103,17 +125,15 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
+		stackComposite = new Composite(parent,SWT.NONE);
+		
+		stack = new StackLayout();
+		stackComposite.setLayout(stack);
+		
+		plotterComposite = new Composite(stackComposite,SWT.NONE);
+		GridLayoutFactory.fillDefaults().applyTo(plotterComposite);
 
-		final GridLayout grid = new GridLayout(1, false);
-		grid.marginBottom = 0;
-		grid.marginTop = 0;
-		grid.horizontalSpacing = 0;
-		grid.marginWidth = 0;
-		grid.verticalSpacing = 0;
-		grid.marginHeight = 0;
-		parent.setLayout(grid);
-
-		this.plotter = new DataSetPlotter(PlottingMode.ONED, parent, false);
+		this.plotter = new DataSetPlotter(PlottingMode.ONED, plotterComposite, false);
 		plotter.getComposite().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
 		this.xAxisValues = new AxisValues();
@@ -126,8 +146,13 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 
 		final IPlotUI plotUI = createPlotActions(parent);
 		plotter.registerUI(plotUI);
+		
+		Label lblMessage = new Label(stackComposite,SWT.NONE);
+		lblMessage.setText("No data received yet.");
 
 		configurePlot(plotter);
+		
+		stack.topControl = lblMessage;
 	}
 
 	/**
