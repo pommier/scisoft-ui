@@ -100,7 +100,7 @@ public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPort
 
 	@Override
 	public void portAssigned(ServerPortEvent evt) {
-		if (PlatformUI.isWorkbenchRunning()) { // Not workflow IApplication
+		//if (PlatformUI.isWorkbenchRunning()) { // Not workflow IApplication
 			logger.info("Setting "+PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO+" to: ",  evt.getPort());
 		    getPreferenceStore().setValue(PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO, evt.getPort());
 
@@ -110,7 +110,7 @@ public class AnalysisRCPActivator extends AbstractUIPlugin implements ServerPort
 		    } catch (CoreException e) {
 		    	logger.error("Cannot save "+PreferenceConstants.ANALYSIS_RPC_SERVER_PORT_AUTO, e);
 		    }
-		}
+		//}
 	}
 	
 
