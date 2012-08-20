@@ -287,7 +287,7 @@ public class HDF5TreeExplorer extends AbstractExplorer implements ISelectionProv
 				public void run() {
 					while (loader.isLoading()) {
 						try {
-							Thread.sleep(1000l);
+							Thread.sleep(1000L);
 							refreshTree();
 						} catch (InterruptedException e) {
 						}
