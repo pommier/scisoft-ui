@@ -84,6 +84,7 @@ public class FeedbackView extends ViewPart {
 	private static final String EMAIL_PREF = FeedbackView.class.getName()+".emailAddress";
 	private static final String SUBJ_PREF  = FeedbackView.class.getName()+".subject";
 
+	private static final int MAX_SIZE = 10000 * 1024;
 	/**
 	 * The constructor.
 	 */
@@ -233,6 +234,10 @@ public class FeedbackView extends ViewPart {
 							String mailTo = System.getProperty("org.dawnsci.feedbackmail", MAIL_TO);
 														
 							//sendMail(mailserver, from, mailTo, subject, messageBody.toString(), "log.html", logpath, monitor);
+							if(logpath.length() > MAX_SIZE) {
+								logger.error("The log file size exceeds: "+ MAX_SIZE);
+								return Status.CANCEL_STATUS;
+							}
 							FeedbackRequest.doRequest(from, mailTo, System.getProperty("user.name", "Unknown User"), subject, messageBody.toString(), logpath);
 						} catch (Exception e) {
 							return Status.CANCEL_STATUS;
