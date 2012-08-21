@@ -230,11 +230,10 @@ public class FeedbackView extends ViewPart {
 							File logpath = new File(System.getProperty("user.home"), "dawnlog.html");
 
 							// get the mail to address from the properties
-							@SuppressWarnings("unused")
 							String mailTo = System.getProperty("org.dawnsci.feedbackmail", MAIL_TO);
 														
 							//sendMail(mailserver, from, mailTo, subject, messageBody.toString(), "log.html", logpath, monitor);
-							FeedbackRequest.doRequest(from, System.getProperty("user.name", "Unknown User"), subject, messageBody.toString(), logpath);
+							FeedbackRequest.doRequest(from, mailTo, System.getProperty("user.name", "Unknown User"), subject, messageBody.toString(), logpath);
 						} catch (Exception e) {
 							return Status.CANCEL_STATUS;
 						}

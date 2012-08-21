@@ -49,12 +49,13 @@ public class FeedbackRequest {
 	/**
 	 * Method used to submit a form data/file through HTTP to a GAE servlet
 	 * @param email
+	 * @param to
 	 * @param name
 	 * @param subject
 	 * @param messageBody
 	 * @param file
 	 */
-	public static void doRequest(String email, String name, String subject, String messageBody, File file) {
+	public static void doRequest(String email, String to, String name, String subject, String messageBody, File file) {
 
 		DefaultHttpClient httpclient = new DefaultHttpClient();
 
@@ -74,6 +75,7 @@ public class FeedbackRequest {
 			MultipartEntity entity = new MultipartEntity();
 			entity.addPart("name", new StringBody(name));
 			entity.addPart("email", new StringBody(email));
+			entity.addPart("to", new StringBody(to));
 			entity.addPart("subject", new StringBody(subject));
 			entity.addPart("message", new StringBody(messageBody));
 			entity.addPart("log.html", new FileBody(file));
