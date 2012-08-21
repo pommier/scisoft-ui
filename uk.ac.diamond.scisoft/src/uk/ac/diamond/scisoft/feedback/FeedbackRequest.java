@@ -83,22 +83,36 @@ public class FeedbackRequest {
 			
 			//HttpPost post = new HttpPost("http://dawnsci-feedback.appspot.com/dawnfeedback?name=baha&email=baha@email.com&subject=thisisasubject&message=thisisthemessage");
 			HttpResponse response = httpclient.execute(httpost);
-
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-							"Feedback successfully sent", "Thank you for your contribution");
-				}
-			});
+			final String reasonPhrase = response.getStatusLine().getReasonPhrase();
+			int statusCode = response.getStatusLine().getStatusCode();
+			if(statusCode==200){
+				logger.debug("Feedback Sent");
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+								"Feedback successfully sent", "Thank you for your contribution");
+					}
+				});
+			} else {
+				logger.debug("Feedback email not sent - HTTP response: "+ reasonPhrase);
+				Display.getDefault().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						MessageDialog.openWarning(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+								"Feedback not sent!", "The response from the server is the following:\n"+reasonPhrase+"\nPlease submit your feedback using the online feedback form available at http://dawnsci-feedback.appspot.com/");
+					}
+				});
+			}
+			
 			logger.debug("HTTP Response: " + response.getStatusLine());
 		} catch (Exception e) {
 			logger.error("Feedback email not sent", e);
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					MessageDialog.openInformation(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-							"Feedback not sent!", "Please check that you have an Internet connection. If behind a proxy server, please check the DAWN proxy settings (Window/Preferences/General/Network Connection). If the feedback is still not working, please go to http://www.dawnsci.org (accessible through the Welcome Screen) and register your problem there (See the Contact-Us page).");
+					MessageDialog.openWarning(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+							"Feedback not sent!", "Please check that you have an Internet connection. If the feedback is still not working, please submit your feedback using the online feedback form available at http://dawnsci-feedback.appspot.com/");
 				}
 			});
 		} finally {
