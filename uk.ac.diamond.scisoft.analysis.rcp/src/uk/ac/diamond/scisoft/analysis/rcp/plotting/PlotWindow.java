@@ -77,6 +77,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
+import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROIList;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
@@ -1227,23 +1228,27 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	public void roiChanged(ROIEvent evt) {
 		ROIBase roi = evt.getROI();
 		if(roi!=null){
-			ROIPair<String, ROIBase> evtPair = new ROIPair<String, ROIBase>(evt.getSource().toString(), roi);
-			if(currentRoiPair!=null && !evtPair.getName().equals(currentRoiPair.getName()))
-				previousRoiPair = currentRoiPair;
-			currentRoiPair = evtPair;
+			String id = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActivePart().getSite().getId();
+			if(id.startsWith(PlotView.ID)){
 			
-			if(previousRoiPair!=null && !roiPairList.contains(previousRoiPair))
-				roiPairList.add(new ROIPair<String, ROIBase>(previousRoiPair.getName(), previousRoiPair.getRoi()));
-			if (roiPairList.size()>0){
-				//Remove the current ROI from ROI List and replace it by previous one
-				for (ROIPair<String, ROIBase> roiPair : roiPairList) {
-					if(roiPair.getName().equals(currentRoiPair.getName())){
-						roiPairList.remove(roiPair);
-						break;
+				ROIPair<String, ROIBase> evtPair = new ROIPair<String, ROIBase>(evt.getSource().toString(), roi);
+				if(currentRoiPair!=null && !evtPair.getName().equals(currentRoiPair.getName()))
+					previousRoiPair = currentRoiPair;
+				currentRoiPair = evtPair;
+			
+				if(previousRoiPair!=null && !roiPairList.contains(previousRoiPair))
+					roiPairList.add(new ROIPair<String, ROIBase>(previousRoiPair.getName(), previousRoiPair.getRoi()));
+				if (roiPairList.size()>0){
+					//Remove the current ROI from ROI List and replace it by previous one
+					for (ROIPair<String, ROIBase> roiPair : roiPairList) {
+						if(roiPair.getName().equals(currentRoiPair.getName())){
+							roiPairList.remove(roiPair);
+							break;
+						}
 					}
 				}
+				updateGuiBean(roi);
 			}
-			updateGuiBean(roi);
 		}
 	}
 
