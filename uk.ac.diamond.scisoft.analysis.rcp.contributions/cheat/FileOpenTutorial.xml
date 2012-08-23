@@ -32,7 +32,7 @@
 	<item title="Access Your Data">
 		<description>
 			In both tabs, single (left-button) mouse clicks select a file. Any metadata held in the
-			file contents and supported by SDA will be display in the metadata view pane situated in
+			file contents and supported by DAWN will be display in the metadata view pane situated in
 			the bottom right-hand corner. Double clicking on a file will open that file in the
 			editor area.
 		</description>
