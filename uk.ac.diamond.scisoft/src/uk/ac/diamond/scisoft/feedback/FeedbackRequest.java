@@ -65,7 +65,7 @@ public class FeedbackRequest {
 
 		// if there is a proxy
 		if(host != null){
-			HttpHost proxy = new HttpHost(host, port, "http");
+			HttpHost proxy = new HttpHost(host, port);
 			httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
 		}
 
