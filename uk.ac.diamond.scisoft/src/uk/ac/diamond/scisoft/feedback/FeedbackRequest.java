@@ -17,6 +17,8 @@
 package uk.ac.diamond.scisoft.feedback;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -27,7 +29,10 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +45,8 @@ public class FeedbackRequest {
 
 	private static Logger logger = LoggerFactory.getLogger(FeedbackRequest.class);
 	//this is the URL of the GAE servlet
-	private static final String SERVLET_URL = "http://dawnsci-feedback.appspot.com/dawnfeedback";
+	private static final String SERVLET_URL = "http://dawnsci-feedback.appspot.com/";
+	private static final String SERVLET_NAME = "dawnfeedback";
 	//proxy
 	private static String host;
 	private static int port;
@@ -70,7 +76,7 @@ public class FeedbackRequest {
 		}
 
 		try {
-			HttpPost httpost = new HttpPost(SERVLET_URL);
+			HttpPost httpost = new HttpPost(SERVLET_URL+SERVLET_NAME);
 
 			MultipartEntity entity = new MultipartEntity();
 			entity.addPart("name", new StringBody(name));
@@ -99,20 +105,55 @@ public class FeedbackRequest {
 				Display.getDefault().asyncExec(new Runnable() {
 					@Override
 					public void run() {
-						MessageDialog.openWarning(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-								"Feedback not sent!", "The response from the server is the following:\n"+reasonPhrase+"\nPlease submit your feedback using the online feedback form available at http://dawnsci-feedback.appspot.com/");
+						MessageBox messageDialog = new MessageBox(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
+								SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
+						messageDialog.setText("Feedback not sent!");
+						messageDialog.setMessage("The response from the server is the following:\n"+reasonPhrase+"\nClick on OK to submit your feedback using the online feedback form available at http://dawnsci-feedback.appspot.com/");
+						int result = messageDialog.open();
+						if (result == SWT.CANCEL) {}
+						if(result == SWT.OK){
+							Display.getDefault().asyncExec(new Runnable() {
+								@Override
+								public void run() {
+									try {
+										PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(SERVLET_URL));
+									} catch (PartInitException e) {
+										logger.error("Error opening browser:", e);
+									} catch (MalformedURLException e) {
+										logger.error("Error - Malformed URL:", e);
+									}
+								}
+							});
+						}
 					}
 				});
 			}
-			
 			logger.debug("HTTP Response: " + response.getStatusLine());
 		} catch (Exception e) {
 			logger.error("Feedback email not sent", e);
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					MessageDialog.openWarning(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-							"Feedback not sent!", "Please check that you have an Internet connection. If the feedback is still not working, please submit your feedback using the online feedback form available at http://dawnsci-feedback.appspot.com/");
+					MessageBox messageDialog = new MessageBox(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
+							SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
+					messageDialog.setText("Feedback not sent!");
+					messageDialog.setMessage("Please check that you have an Internet connection. If the feedback is still not working, click on OK to submit your feedback using the online feedback form available at http://dawnsci-feedback.appspot.com/");
+					int result = messageDialog.open();
+					if (result == SWT.CANCEL) {}
+					if(result == SWT.OK){
+						Display.getDefault().asyncExec(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(SERVLET_URL));
+								} catch (PartInitException e) {
+									logger.error("Error opening browser:", e);
+								} catch (MalformedURLException e) {
+									logger.error("Error - Malformed URL:", e);
+								}
+							}
+						});
+					}
 				}
 			});
 		} finally {
