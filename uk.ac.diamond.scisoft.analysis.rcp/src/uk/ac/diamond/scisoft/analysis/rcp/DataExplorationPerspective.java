@@ -48,7 +48,7 @@ public class DataExplorationPerspective implements IPerspectiveFactory {
 		
 		layout.addView(plot, IPageLayout.RIGHT, 0.30f, editorArea);
 		if (layout.getViewLayout(plot) != null)
-			layout.getViewLayout(plot).setCloseable(false);
+			layout.getViewLayout(plot).setCloseable(true);
 
 		String sidePlot = SidePlotView.ID + ":Dataset Plot";
 		if(getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM){
