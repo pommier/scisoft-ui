@@ -28,6 +28,7 @@ import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.progress.UIJob;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
+import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
@@ -53,13 +54,20 @@ public class QStatMonitorView extends ViewPart {
 	private ArrayList<String> slotsList = new ArrayList<String>();
 	private ArrayList<String> tasksList = new ArrayList<String>();
 
+	private ArrayList<Double> timeList = new ArrayList<Double>();
+	private ArrayList<Integer> numberOfTasksList = new ArrayList<Integer>();
+	private ArrayList<Integer> loadList = new ArrayList<Integer>();
+
 	private int sleepTimeMilli;
 	private String qStatQuery;
 	private String userArg;
+	private boolean plotOption;
+
+	long startTime = System.nanoTime();
 
 	private final RefreshAction refreshAction = new RefreshAction();
 	private final OpenPreferencesAction openPreferencesAction = new OpenPreferencesAction();
-	private UpdaterThread updaterThread;
+	private TableUpdaterThread tableUpdaterThread;
 
 	/*
 	 * Runs the Qstat query and stores the resulting items in relevant arrays,
@@ -80,6 +88,7 @@ public class QStatMonitorView extends ViewPart {
 				queueNameList = lists[6];
 				slotsList = lists[7];
 				tasksList = lists[8];
+
 				redrawTable();
 			} catch (StringIndexOutOfBoundsException e) {
 				stopThreadAndJobs();
@@ -121,6 +130,14 @@ public class QStatMonitorView extends ViewPart {
 		}
 	};
 
+	private final UIJob replotJob = new UIJob("Replotting") {
+		@Override
+		public IStatus runInUIThread(IProgressMonitor monitor) {
+			plotResults();
+			return Status.OK_STATUS;
+		}
+	};
+
 	private final Runnable setContentDescriptionOnError = new Runnable() {
 		@Override
 		public void run() {
@@ -131,7 +148,7 @@ public class QStatMonitorView extends ViewPart {
 	/*
 	 * Runs a loop which updates the table
 	 */
-	private class UpdaterThread extends Thread {
+	private class TableUpdaterThread extends Thread {
 		private boolean runCondition = true;
 
 		@Override
@@ -142,7 +159,14 @@ public class QStatMonitorView extends ViewPart {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				updateTable();
+				if (runCondition) {
+					System.out.println("looping!!!!!!!!!!!"+Math.random());
+					System.out.println(sleepTimeMilli);
+					updateTable();
+					if (plotOption) {
+						updateListsAndPlot();
+					}
+				}
 			}
 		}
 
@@ -151,78 +175,127 @@ public class QStatMonitorView extends ViewPart {
 		}
 	};
 
-	/**
-	 * Constructor, gets preferences from the preference store and stores them
-	 * as variables within this object
-	 */
-	public QStatMonitorView() {
-		final IPreferenceStore store = new ScopedPreferenceStore(
-				InstanceScope.INSTANCE, "uk.ac.diamond.scisoft.qstatMonitor");
-		sleepTimeMilli = store.getInt(QStatMonitorPreferencePage.SLEEP);
-		qStatQuery = store.getString(QStatMonitorPreferencePage.QUERY);
-		userArg = store.getString(QStatMonitorPreferencePage.USER);
-		if (!store.getBoolean(QStatMonitorPreferencePage.DISABLE_AUTO_REFRESH)) {
-			System.out.println("Creating thread");
-			updaterThread = new UpdaterThread();
-		}
-
-		try {
-			final PlotView view = (PlotView) EclipseUtils.getPage().showView(
-					"uk.ac.diamond.scisoft.qstatMonitor.qstatPlot");
-		} catch (PartInitException e) {
-			e.printStackTrace();
-		}
-
-		plotResults();
-
+	public void resetPlot() {
+		startTime = System.nanoTime();
+		timeList.clear();
+		numberOfTasksList.clear();
+		loadList.clear();
 	}
 
-	private void plotResults() {
-
-		ArrayList<Integer> arr = new ArrayList<Integer>();
-		arr.add(1);
-		arr.add(55);
-		arr.add(22);
-		arr.add(88);
-
-		ArrayList<Integer> arr2 = new ArrayList<Integer>();
-		arr2.add(5);
-		arr2.add(65);
-		arr2.add(22);
-		arr2.add(77);
-
-		ArrayList<Integer> time = new ArrayList<Integer>();
-		time.add(5);
-		time.add(10);
-		time.add(12);
-		time.add(15);
-
-		final PlotView view = (PlotView) PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow().getActivePage()
-				.findView("uk.ac.diamond.scisoft.qstatMonitor.qstatPlot");
-
-		IntegerDataset timeDataset = (IntegerDataset) IntegerDataset
-				.createFromList(time);
-		timeDataset.setName("Time");
-
-		IntegerDataset[] datasetArr = {
-				(IntegerDataset) IntegerDataset.createFromList(arr),
-				(IntegerDataset) IntegerDataset.createFromList(arr2) };
-
-		datasetArr[0].setName("Num tasks");
-		datasetArr[1].setName("Slots");
-		
-		if (view != null) {
+	public void setPlotOption(boolean option) {
+		this.plotOption = option;
+		if (option) {
 			try {
-				SDAPlotter.plot("QStat Monitor Plot", timeDataset, datasetArr);
-			} catch (Exception e) {
+				final PlotView view = (PlotView) EclipseUtils.getPage()
+						.showView(
+								"uk.ac.diamond.scisoft.qstatMonitor.qstatPlot");
+			} catch (PartInitException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 
+	/**
+	 * Constructor, gets preferences from the preference store and stores them
+	 * as variables within this object
+	 */
+	public QStatMonitorView() {
+
+		final IPreferenceStore store = new ScopedPreferenceStore(
+				InstanceScope.INSTANCE, "uk.ac.diamond.scisoft.qstatMonitor");
+		sleepTimeMilli = store.getInt(QStatMonitorPreferencePage.SLEEP) * 1000;
+		qStatQuery = store.getString(QStatMonitorPreferencePage.QUERY);
+		userArg = store.getString(QStatMonitorPreferencePage.USER);
+		if (!store.getBoolean(QStatMonitorPreferencePage.DISABLE_AUTO_REFRESH)) {
+			tableUpdaterThread = new TableUpdaterThread();
+			tableUpdaterThread.start();
+		}
+
+		
+		plotOption = !store
+				.getBoolean(QStatMonitorPreferencePage.DISABLE_AUTO_PLOT);
+
+	}
+
+	private void updatePlotLists() {
+		timeList.add(getElapsedMinutes());
+		numberOfTasksList.add(jobNumberList.size());
+		int load = 0;
+		for (String state : stateList) {
+			if (state.equalsIgnoreCase("s") || state.equalsIgnoreCase("r")) {
+				load++;
+			}
+		}
+		loadList.add(load);
+	}
+
+	private double getElapsedMinutes() {
+		long estimatedTime = System.nanoTime() - startTime;
+		return estimatedTime / 60000000000.0;
+	}
+
+	private void updateListsAndPlot() {
+		updatePlotLists();
+		replotJob.cancel();
+		replotJob.schedule();
+	}
+
+	private void plotResults() {
+
+		if (timeList.isEmpty() && tasksList.isEmpty() && loadList.isEmpty()) {
+
+		} else {
+
+			PlotView view = null;
+			try {
+				view = (PlotView) PlatformUI
+						.getWorkbench()
+						.getActiveWorkbenchWindow()
+						.getActivePage()
+						.findView(
+								"uk.ac.diamond.scisoft.qstatMonitor.qstatPlot");
+			} catch (NullPointerException e) {
+				stopThreadAndJobs();
+			}
+
+			DoubleDataset timeDataset = (DoubleDataset) DoubleDataset
+					.createFromList(timeList);
+			timeDataset.setName("Time (mins)");
+
+			IntegerDataset numberOfTasksDataset = (IntegerDataset) IntegerDataset
+					.createFromList(numberOfTasksList);
+			numberOfTasksDataset.setName("Tasks");
+
+			IntegerDataset loadDataset = (IntegerDataset) IntegerDataset
+					.createFromList(loadList);
+			loadDataset.setName("Load");
+
+			IntegerDataset[] datasetArr = { numberOfTasksDataset, loadDataset };
+
+			if (view != null) {
+				try {
+					SDAPlotter.plot("QStat Monitor Plot", timeDataset,
+							datasetArr);
+					System.out.println("Plotting!!!!!!!!!!!!!!!!!!");
+				} catch (Exception e) {
+					System.out.println("plotting errorrrrrrrrrrrrrr");
+					e.printStackTrace();
+				}
+			} else {
+				System.out.println("nulll");
+			}
+
+		}
+
+	}
+
 	@Override
 	public void createPartControl(Composite parent) {
+
+		// setPlotOption(!store
+		// .getBoolean(QStatMonitorPreferencePage.DISABLE_AUTO_PLOT));
+
+	
 		IActionBars bars = getViewSite().getActionBars();
 		bars.getMenuManager().add(openPreferencesAction);
 		bars.getToolBarManager().add(refreshAction);
@@ -234,8 +307,21 @@ public class QStatMonitorView extends ViewPart {
 			TableColumn column = new TableColumn(table, SWT.NONE);
 			column.setText(titles[i]);
 		}
+
 		updateTable();
 		redrawTable();
+
+		if (plotOption) {
+			try {
+				final PlotView view = (PlotView) EclipseUtils.getPage()
+						.showView(
+								"uk.ac.diamond.scisoft.qstatMonitor.qstatPlot");
+			} catch (PartInitException e) {
+				e.printStackTrace();
+			}
+			updateListsAndPlot();
+		}
+
 	}
 
 	/**
@@ -278,8 +364,8 @@ public class QStatMonitorView extends ViewPart {
 	 * stops the updaterThread, getQstatInfoJob and redrawTableJob
 	 */
 	private void stopThreadAndJobs() {
-		if (updaterThread != null) {
-			updaterThread.stopThread();
+		if (tableUpdaterThread != null) {
+			tableUpdaterThread.stopThread();
 		}
 		getQstatInfoJob.cancel();
 		redrawTableJob.cancel();
@@ -336,8 +422,8 @@ public class QStatMonitorView extends ViewPart {
 	 * stops the updaterThread by setting its run condition to false
 	 */
 	public void stopRefreshing() {
-		if (updaterThread != null) {
-			updaterThread.stopThread();
+		if (tableUpdaterThread != null) {
+			tableUpdaterThread.stopThread();
 		}
 	}
 
@@ -345,11 +431,11 @@ public class QStatMonitorView extends ViewPart {
 	 * starts a new updaterThread, if one is already running it is stopped
 	 */
 	public void startRefreshing() {
-		if (updaterThread != null && updaterThread.isAlive()) {
-			updaterThread.stopThread();
+		if (tableUpdaterThread != null && tableUpdaterThread.isAlive()) {
+			tableUpdaterThread.stopThread();
 		}
-		updaterThread = new UpdaterThread();
-		updaterThread.start();
+		tableUpdaterThread = new TableUpdaterThread();
+		tableUpdaterThread.start();
 	}
 
 	/**
@@ -377,6 +463,7 @@ public class QStatMonitorView extends ViewPart {
 		public void run() {
 			updateTable();
 			redrawTable();
+			updateListsAndPlot();
 		}
 	}
 

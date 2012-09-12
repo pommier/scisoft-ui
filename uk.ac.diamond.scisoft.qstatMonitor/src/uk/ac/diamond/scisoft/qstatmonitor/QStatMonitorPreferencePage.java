@@ -25,12 +25,14 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 	public static final String SLEEP = "uk.ac.diamond.scisoft.qstatMonitor.Preferences.sleep";
 	public static final String USER = "uk.ac.diamond.scisoft.qstatMonitor.Preferences.user";
 	public static final String DISABLE_AUTO_REFRESH = "uk.ac.diamond.scisoft.qstatMonitor.Preferences.disableAutoRefresh";
+	public static final String DISABLE_AUTO_PLOT = "uk.ac.diamond.scisoft.qstatMonitor.Preferences.disableAutoPlot";
 
 	private Combo queryDropDown;
 	private StringFieldEditor sleepSecondsField;
 	private StringFieldEditor queryField;
 	private StringFieldEditor userField;
 	private BooleanFieldEditor disableAutoRefresh;
+	private BooleanFieldEditor disableAutoPlot;
 
 	private final String[] listOfQueries = { "qstat", "qstat -l tesla",
 			"qstat -l tesla64", "qstat", "qstat -l tesla", "qstat -l tesla64" };
@@ -58,6 +60,10 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 				"Disable automatic refreshing", getFieldEditorParent());
 		addField(disableAutoRefresh);
 
+		disableAutoPlot = new BooleanFieldEditor(DISABLE_AUTO_PLOT,
+				"Disable automatic plotting", getFieldEditorParent());
+		addField(disableAutoPlot);
+
 		Label axisLabel = new Label(getFieldEditorParent(), SWT.WRAP);
 		axisLabel.setText("Example queries");
 		queryDropDown = new Combo(getFieldEditorParent(), SWT.DROP_DOWN
@@ -76,7 +82,7 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 					userField.setStringValue("*");
 				} else {
 					userField.setStringValue("");
-				}				
+				}
 			}
 		});
 
@@ -108,8 +114,12 @@ public class QStatMonitorPreferencePage extends FieldEditorPreferencePage
 				view.stopRefreshing();
 			} else {
 				view.updateTable();
-				view.startRefreshing();				
+				view.startRefreshing();
 			}
+
+			view.setPlotOption(!disableAutoPlot.getBooleanValue());
+			view.resetPlot();
+
 		}
 		return true;
 	}

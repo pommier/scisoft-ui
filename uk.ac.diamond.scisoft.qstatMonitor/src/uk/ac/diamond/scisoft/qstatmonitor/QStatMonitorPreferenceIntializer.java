@@ -14,6 +14,7 @@ public class QStatMonitorPreferenceIntializer extends
 				InstanceScope.INSTANCE, "uk.ac.diamond.scisoft.qstatMonitor");
 		store.setDefault(QStatMonitorPreferencePage.SLEEP, "4.5");
 		store.setDefault(QStatMonitorPreferencePage.DISABLE_AUTO_REFRESH, false);
+		store.setDefault(QStatMonitorPreferencePage.DISABLE_AUTO_PLOT, false);
 		store.setDefault(QStatMonitorPreferencePage.QUERY, "qstat");
 		store.setDefault(QStatMonitorPreferencePage.USER, "*");		
 	}
