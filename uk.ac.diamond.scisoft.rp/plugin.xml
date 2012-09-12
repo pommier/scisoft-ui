@@ -2,6 +2,7 @@
              <view
                    category="org.dawb.workbench.application.data.analysis"
                    class="uk.ac.diamond.scisoft.rp.views.RenderImagesMainView"
+                   icon="icons/Render3D_Icon_Small.png"
                    id="uk.ac.diamond.scisoft.rp.MainView"
                    name="Render 3D"
                    restorable="true">
@@ -62,4 +63,14 @@
                                           id="uk.ac.diamond.scisoft.rp.generalCheat"
                                           name="Render 3D general">
                                     </cheatsheet>
+                                 </extension>
+                                 <extension
+                                       point="uk.ac.diamond.scisoft.introRegister">
+                                    <introPageRegister
+                                          class="uk.ac.diamond.scisoft.rp.Render3DPerspectiveLauch"
+                                          description="Opens the Render 3D perspective"
+                                          icon="icons/Render3D_Icon.png"
+                                          id="uk.ac.diamond.scisoft.rp.Render3DPageRegister"
+                                          name="Render 3D">
+                                    </introPageRegister>
                                  </extension></plugin>

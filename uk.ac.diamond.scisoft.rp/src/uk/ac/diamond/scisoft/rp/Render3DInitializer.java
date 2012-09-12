@@ -9,8 +9,7 @@ import org.eclipse.ui.preferences.ScopedPreferenceStore;
 public class Render3DInitializer extends AbstractPreferenceInitializer {
 
 	@Override
-	public void initializeDefaultPreferences() {		
-				
+	public void initializeDefaultPreferences() {						
 		final IPreferenceStore store = new ScopedPreferenceStore(
 				InstanceScope.INSTANCE, "uk.ac.diamond.scisoft.rp");
 		store.setDefault(Render3DPreferencePage.snapshotResX, 400);		
@@ -20,9 +19,9 @@ public class Render3DInitializer extends AbstractPreferenceInitializer {
 		store.setDefault(Render3DPreferencePage.movieResY,  300);
 		store.setDefault(Render3DPreferencePage.movieNumberOfFrames,  5);		
 		store.setDefault(Render3DPreferencePage.useCenter,  true);	
-		store.setDefault(Render3DPreferencePage.centX,  0);
-		store.setDefault(Render3DPreferencePage.centY,  0);
-		store.setDefault(Render3DPreferencePage.centZ,  0);				
+		store.setDefault(Render3DPreferencePage.centX,  "0");
+		store.setDefault(Render3DPreferencePage.centY,  "0");
+		store.setDefault(Render3DPreferencePage.centZ,  "0");				
 		store.setDefault(Render3DPreferencePage.openInIm,  true);	
 		store.setDefault(Render3DPreferencePage.openInIe,  false);					
 	}

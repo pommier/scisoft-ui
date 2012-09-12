@@ -354,12 +354,22 @@ public class AvizoImageUtils {
 		return 0;
 	}
 
+	/**
+	 * gets the extension substring of a given string
+	 * @param s the String to look at
+	 * @return the suffix of s after '.'
+	 */
 	private static String getExtension(String s) {
 		int pos = s.lastIndexOf('.');
 		String ext = s.substring(pos + 1);
 		return ext;
 	}
 
+	/**
+	 * Uses a BufferedWriter to write a string to a file
+	 * @param data the String to be written to file
+	 * @param outputDir the absolute path of the new file to be created, all directories in this path must already exist
+	 */
 	private static void writeTextToFile(String data, String outputDir) {
 		try {
 			// Create file

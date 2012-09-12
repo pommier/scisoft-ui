@@ -1,5 +1,6 @@
 package uk.ac.diamond.scisoft.rp;
 
+
 import org.dawb.common.ui.views.ImageMonitorView;
 
 public class ImageMonitorRefresherThread extends Thread {
@@ -10,11 +11,12 @@ public class ImageMonitorRefresherThread extends Thread {
 		this.im = imageMonitorView;
 	}
 
+	@Override
 	public void run() {
 		byte i = 0;
 		while (i < 6) {
 			try {
-				Thread.sleep(5000);
+				Thread.sleep(8000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -29,8 +31,8 @@ public class ImageMonitorRefresherThread extends Thread {
 		refreshIM();
 	}
 
-	private void refreshIM() {		
-			im.refreshAll();		
+	private void refreshIM() {
+		im.refreshAll();
 	}
 
 }

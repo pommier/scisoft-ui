@@ -11,8 +11,7 @@ public class Activator extends AbstractUIPlugin {
 	private static BundleContext context;
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "uk.ac.diamond.scisoft"; //$NON-NLS-1$
-
+	public static final String PLUGIN_ID = "uk.ac.diamond.scisoft";
 	// The shared instance
 	private static Activator plugin;
 

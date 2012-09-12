@@ -41,7 +41,6 @@ public class Render3DPreferencePage extends FieldEditorPreferencePage implements
 	private Combo remoteDropDown;
 	private StringFieldEditor sshNodeField;
 	
-
 	public Render3DPreferencePage() {
 		super(GRID);		
 		final IPreferenceStore store = new ScopedPreferenceStore(
@@ -138,19 +137,19 @@ public class Render3DPreferencePage extends FieldEditorPreferencePage implements
 				getFieldEditorParent());
 		addField(useCenterField);
 
-		final IntegerFieldEditor centXField = new IntegerFieldEditor(centX,
+		final StringFieldEditor centXField = new StringFieldEditor(centX,
 				"Center x", getFieldEditorParent());
 		addField(centXField);
 		centXField.getTextControl(getFieldEditorParent()).setToolTipText(
 				"The x coordinate point of rotate.");
 
-		final IntegerFieldEditor centYField = new IntegerFieldEditor(centY,
+		final StringFieldEditor centYField = new StringFieldEditor(centY,
 				"Center y", getFieldEditorParent());
 		addField(centYField);
 		centYField.getTextControl(getFieldEditorParent()).setToolTipText(
 				"The y coordinate point of rotate.");
 
-		final IntegerFieldEditor centZField = new IntegerFieldEditor(centZ,
+		final StringFieldEditor centZField = new StringFieldEditor(centZ,
 				"Center z", getFieldEditorParent());
 		addField(centZField);
 		centZField.getTextControl(getFieldEditorParent()).setToolTipText(
@@ -163,7 +162,7 @@ public class Render3DPreferencePage extends FieldEditorPreferencePage implements
 				getFieldEditorParent());
 		addField(openInIMField);		
 		final BooleanFieldEditor openInIEField = new BooleanFieldEditor(
-				openInIe, "Open output folder in Image Monitor.",
+				openInIe, "Open output folder in Image Explorer.",
 				getFieldEditorParent());
 		addField(openInIEField);
 			

@@ -7,14 +7,11 @@ public class LocalTaskHandler extends TaskHandler {
 
 	@Override
 	public void submitTask(ITask task) {
-
 		if (task.isSubmitted()) {
 			System.out.println("Task has already been submitted");
 			return;
-		}
-		
+		}		
 		ScriptUtils.runScript(task.getParameterList());
 		task.setTaskAsSubmitted();
-
 	}
 }

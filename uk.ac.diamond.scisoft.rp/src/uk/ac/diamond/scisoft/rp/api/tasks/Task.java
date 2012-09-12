@@ -18,6 +18,10 @@ public abstract class Task implements ITask{
 		this.submitted = true;
 	}
 	
+	/**
+	 * Gets the contents of the parameter list as one concatanated string
+	 * @return 
+	 */
 	public String getParameterString(){
 		String result = "";
 		List<String> paramList = getParameterList();
@@ -27,8 +31,7 @@ public abstract class Task implements ITask{
 			if(i != paramList.size() - 1){
 				result += " ";
 			}
-		}
-		
+		}		
 		return result;
 	}
 	
