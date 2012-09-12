@@ -164,9 +164,7 @@ public class AvizoImageUtils {
 					results.add(file.getPath());
 				}
 			}
-		}
-		// sort files in alphabetical order
-		Collections.sort(results);
+		}		
 		return results;
 	}
 
@@ -338,10 +336,11 @@ public class AvizoImageUtils {
 		writeTextToFile(data, outputDir);
 	}
 
-	
 	/**
 	 * Gets the index of the position of the first digit of the given string
-	 * @param s the string to look at
+	 * 
+	 * @param s
+	 *            the string to look at
 	 * @return the int index of the first digit
 	 */
 	private static int getIndexOfFirstDigit(String s) {
@@ -354,12 +353,28 @@ public class AvizoImageUtils {
 		return 0;
 	}
 
+	/**
+	 * gets the extension substring of a given string
+	 * 
+	 * @param s
+	 *            the String to look at
+	 * @return the suffix of s after '.'
+	 */
 	private static String getExtension(String s) {
 		int pos = s.lastIndexOf('.');
 		String ext = s.substring(pos + 1);
 		return ext;
 	}
 
+	/**
+	 * Uses a BufferedWriter to write a string to a file
+	 * 
+	 * @param data
+	 *            the String to be written to file
+	 * @param outputDir
+	 *            the absolute path of the new file to be created, all
+	 *            directories in this path must already exist
+	 */
 	private static void writeTextToFile(String data, String outputDir) {
 		try {
 			// Create file

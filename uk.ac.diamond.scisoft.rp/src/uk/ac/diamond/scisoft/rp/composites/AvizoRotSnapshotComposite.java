@@ -7,10 +7,6 @@ import org.dawb.common.ui.util.EclipseUtils;
 import org.dawb.common.ui.views.ImageMonitorView;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
@@ -29,17 +25,14 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
-
 import uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView;
 import uk.ac.diamond.scisoft.rp.IFolderRefresherThread;
+import uk.ac.diamond.scisoft.rp.ImageExplorerRefresherThread;
 import uk.ac.diamond.scisoft.rp.ImageMonitorRefresherThread;
 import uk.ac.diamond.scisoft.rp.Render3DPreferencePage;
 import uk.ac.diamond.scisoft.rp.api.AvizoImageUtils;
 import uk.ac.diamond.scisoft.rp.api.FieldVerifyUtils;
-import uk.ac.diamond.scisoft.rp.api.taskHandlers.LocalTaskHandler;
-import uk.ac.diamond.scisoft.rp.api.tasks.AvizoRotationAnimationTask;
 import uk.ac.diamond.scisoft.rp.api.tasks.AvizoRotationSnapshotTask;
 import uk.ac.diamond.scisoft.rp.api.tasks.RenderJob;
 import uk.ac.diamond.scisoft.rp.api.tasks.Task;
@@ -303,27 +296,6 @@ public class AvizoRotSnapshotComposite extends Composite {
 						new IFolderRefresherThread(ifolder).start();
 					}
 
-					if (store.getBoolean(Render3DPreferencePage.openInIe)) {
-						try {
-							ImageExplorerView ieView = (ImageExplorerView) EclipseUtils
-									.getPage().showView(ImageExplorerView.ID);
-							if (ieView != null) {
-								String folder = new File(outputLocationText
-										.getText()).getParent();
-								ArrayList<String> createdImages = AvizoImageUtils
-										.getFilesInFolderAbsolute(folder);
-								ieView.setLocationText(folder);
-								ieView.setDirPath(folder);
-								ieView.pushSelectedFiles(createdImages);
-								ieView.update(
-										ImageExplorerView.FOLDER_UPDATE_MARKER,
-										createdImages);
-							}
-						} catch (PartInitException e1) {
-							e1.printStackTrace();
-						}
-					}					
-					
 					if (store.getBoolean(Render3DPreferencePage.openInIm)) {
 						try {
 							ImageMonitorView view = (ImageMonitorView) EclipseUtils
@@ -334,7 +306,23 @@ public class AvizoRotSnapshotComposite extends Composite {
 						} catch (PartInitException e1) {
 							e1.printStackTrace();
 						}
-					}								
+					}
+
+					if (store.getBoolean(Render3DPreferencePage.openInIe)) {
+						try {
+							ImageExplorerView ieView = (ImageExplorerView) EclipseUtils
+									.getPage().showView(ImageExplorerView.ID);
+							if (ieView != null) {
+								String folder = new File(outputLocationText
+										.getText()).getParent();
+								new ImageExplorerRefresherThread(ieView, folder)
+										.start();
+							}
+						} catch (PartInitException e1) {
+							e1.printStackTrace();
+						}
+					}
+
 				}
 			}
 		});

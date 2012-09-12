@@ -160,7 +160,6 @@ public class AvizoRotationSnapshotTask extends Task {
 	@Override
 	public List<String> getParameterList() {
 		List<String> paramList = new ArrayList<String>();
-
 		
 		String scriptDir;
 

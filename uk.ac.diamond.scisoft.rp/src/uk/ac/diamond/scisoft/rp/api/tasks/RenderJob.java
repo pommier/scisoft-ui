@@ -9,7 +9,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.PlatformUI;
-
 import uk.ac.diamond.scisoft.rp.Render3DPreferencePage;
 import uk.ac.diamond.scisoft.rp.api.taskHandlers.LocalTaskHandler;
 import uk.ac.diamond.scisoft.rp.api.taskHandlers.QLoginTaskHandler;
@@ -24,7 +23,7 @@ public class RenderJob extends Job{
 	private IPreferenceStore store;
 	private IFolder ifolder;
 	private ImageMonitorView imageMonitorView;
-
+	
 	public RenderJob(String name) {
 		super(name);		
 	}
@@ -89,5 +88,7 @@ public class RenderJob extends Job{
 			}
 		}
 	}
-
+	
+	
+	
 }

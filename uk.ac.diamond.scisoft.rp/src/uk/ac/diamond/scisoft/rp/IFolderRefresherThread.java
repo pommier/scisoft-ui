@@ -6,14 +6,25 @@ import org.eclipse.core.runtime.CoreException;
 public class IFolderRefresherThread extends Thread {
 
 	private final IFolder ifolder;
+	private boolean runCondition = true;
+	private static IFolderRefresherThread CURRENT_THREAD;
 
 	public IFolderRefresherThread(IFolder ifolder) {
 		this.ifolder = ifolder;
 	}
 
+	@Override
 	public void run() {
+		if (IFolderRefresherThread.CURRENT_THREAD == null) {
+			IFolderRefresherThread.CURRENT_THREAD = this;
+		} else {
+			if (IFolderRefresherThread.CURRENT_THREAD.isAlive()) {
+				IFolderRefresherThread.CURRENT_THREAD.stopThread();
+			}
+			IFolderRefresherThread.CURRENT_THREAD = this;
+		}
 		byte i = 0;
-		while (i < 4) {
+		while (i < 4 && runCondition) {
 			try {
 				Thread.sleep(10000);
 			} catch (InterruptedException e) {
@@ -31,11 +42,17 @@ public class IFolderRefresherThread extends Thread {
 	}
 
 	private void refreshIFolder() {
-		try {
-			ifolder.refreshLocal(IFolder.DEPTH_INFINITE, null);
-		} catch (CoreException e) {
-			e.printStackTrace();
+		if (runCondition) {
+			try {
+				ifolder.refreshLocal(IFolder.DEPTH_INFINITE, null);
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
 		}
+	}
+
+	public void stopThread() {
+		runCondition = false;
 	}
 
 }

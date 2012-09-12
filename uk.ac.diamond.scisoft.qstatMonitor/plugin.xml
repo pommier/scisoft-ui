@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="uk.ac.diamond.scisoft.qstatmonitor.views.QStatMonitorView"
+            icon="icons/qstatMonitorIcon.gif"
+            id="uk.ac.diamond.qstatmonitor.views.QStatMonitorView"
+            name="QStat Monitor">
+      </view>
+      <view
+            category="uk.ac.diamond.scisoft.analysis.rcp"
+            class="uk.ac.diamond.scisoft.analysis.rcp.views.PlotView"
+            id="uk.ac.diamond.scisoft.qstatMonitor.qstatPlot"
+            name="QStat Monitor Plot"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            category="org.edna.workbench.preferences.root"
+            class="uk.ac.diamond.scisoft.qstatmonitor.QStatMonitorPreferencePage"
+            id="uk.ac.diamond.qstatMonitor.QStatMonitorPreferencePage"
+            name="QStat Monitor">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="uk.ac.diamond.scisoft.qstatmonitor.QStatMonitorPreferenceIntializer">
+      </initializer>
+   </extension>
+
+</plugin>

@@ -24,8 +24,7 @@ public class AvizoSliceAnimationTask extends Task {
 	private final String quality;	
 	private final String resX;
 	private final String resY;
-	private final String outputLocation;	
-	
+	private final String outputLocation;		
 	
 
 	public AvizoSliceAnimationTask(String inputDir, String axis,
