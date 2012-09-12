@@ -19,14 +19,6 @@ package uk.ac.diamond.scisoft.analysis.rcp.preference;
 
 public class PreferenceConstants {
 
-	public static final String IGNORE_DATASET_FILTERS = "ignore.data.set.filters";
-	public static final String SHOW_XY_COLUMN         = "show.xy.column.in.nexus.editor";
-	public static final String SHOW_DATA_SIZE         = "show.data.size.in.nexus.editor";
-	public static final String SHOW_DIMS              = "show.dims.in.nexus.editor";
-	public static final String SHOW_SHAPE             = "show.shape.in.nexus.editor";
-	public static final String DATA_FORMAT            = "data.format.editor.view";
-	public static final String PLAY_SPEED             = "data.format.slice.play.speed";
-
 	// sideplotter 1D preferences
 	public static final String SIDEPLOTTER1D_USE_LOG_Y = "sideplotter1d.useLog.y";
 

@@ -85,13 +85,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	@Override
 	public void initializeDefaultPreferences() {
 		IPreferenceStore store = AnalysisRCPActivator.getDefault().getPreferenceStore();
-		store.setDefault(PreferenceConstants.IGNORE_DATASET_FILTERS, false);
-		store.setDefault(PreferenceConstants.SHOW_XY_COLUMN, false);
-		store.setDefault(PreferenceConstants.SHOW_DATA_SIZE, false);
-		store.setDefault(PreferenceConstants.SHOW_DIMS, false);
-		store.setDefault(PreferenceConstants.SHOW_SHAPE, false);
-		store.setDefault(PreferenceConstants.DATA_FORMAT, "#0.00");
-		store.setDefault(PreferenceConstants.PLAY_SPEED, 1500);
 
 		store.setDefault(PreferenceConstants.SIDEPLOTTER1D_USE_LOG_Y, DEFAULT_SIDEPLOTTER1D_USE_LOG);
 

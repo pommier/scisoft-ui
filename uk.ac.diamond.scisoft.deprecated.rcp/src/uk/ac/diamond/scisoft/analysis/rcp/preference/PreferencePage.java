@@ -32,7 +32,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
-import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
+import uk.ac.diamond.scisoft.analysis.deprecated.rcp.Activator;
 
 
 public class PreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
@@ -43,7 +43,7 @@ public class PreferencePage extends FieldEditorPreferencePage implements IWorkbe
 	 */
 	public PreferencePage() {
 		super(GRID);
-		setPreferenceStore(AnalysisRCPActivator.getDefault().getPreferenceStore());
+		setPreferenceStore(Activator.getDefault().getPreferenceStore());
 		setDescription("Preferences for viewing data sets available in nexus and ascii data.");
 	}
 	
@@ -56,7 +56,7 @@ public class PreferencePage extends FieldEditorPreferencePage implements IWorkbe
 		if (config!=null && config.length>0) {
 			final Label sep = new Label(getFieldEditorParent(), SWT.NONE);
 			sep.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false, 1, 5));
-			BooleanFieldEditor showAll = new BooleanFieldEditor(PreferenceConstants.IGNORE_DATASET_FILTERS,"Show all possible data sets",getFieldEditorParent());
+			BooleanFieldEditor showAll = new BooleanFieldEditor(DeprecatedPreferenceConstants.IGNORE_DATASET_FILTERS,"Show all possible data sets",getFieldEditorParent());
 	      	addField(showAll);
 	
 			final StringBuilder buf = new StringBuilder("Current data set filters:\n");
@@ -73,28 +73,28 @@ public class PreferencePage extends FieldEditorPreferencePage implements IWorkbe
 			label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 		}
 		
-		BooleanFieldEditor showXY = new BooleanFieldEditor(PreferenceConstants.SHOW_XY_COLUMN,"Show XY column.",getFieldEditorParent());
+		BooleanFieldEditor showXY = new BooleanFieldEditor(DeprecatedPreferenceConstants.SHOW_XY_COLUMN,"Show XY column.",getFieldEditorParent());
       	addField(showXY);
 
-		BooleanFieldEditor showSize = new BooleanFieldEditor(PreferenceConstants.SHOW_DATA_SIZE,"Show size column.",getFieldEditorParent());
+		BooleanFieldEditor showSize = new BooleanFieldEditor(DeprecatedPreferenceConstants.SHOW_DATA_SIZE,"Show size column.",getFieldEditorParent());
       	addField(showSize);
       	
-		BooleanFieldEditor showDims = new BooleanFieldEditor(PreferenceConstants.SHOW_DIMS, "Show dimensions column.",getFieldEditorParent());
+		BooleanFieldEditor showDims = new BooleanFieldEditor(DeprecatedPreferenceConstants.SHOW_DIMS, "Show dimensions column.",getFieldEditorParent());
       	addField(showDims);
      	
-		BooleanFieldEditor showShape = new BooleanFieldEditor(PreferenceConstants.SHOW_SHAPE, "Show shape column.",getFieldEditorParent());
+		BooleanFieldEditor showShape = new BooleanFieldEditor(DeprecatedPreferenceConstants.SHOW_SHAPE, "Show shape column.",getFieldEditorParent());
       	addField(showShape);
  
       	new LabelFieldEditor("\nEditors with a 'Data' tab, show the data of the current plot.\nThis option sets the number format for the table and the csv file, if the data is exported.", getFieldEditorParent());
 
-		formatFieldEditor = new StringFieldEditor(PreferenceConstants.DATA_FORMAT, "Number format:", getFieldEditorParent());
+		formatFieldEditor = new StringFieldEditor(DeprecatedPreferenceConstants.DATA_FORMAT, "Number format:", getFieldEditorParent());
 		addField(formatFieldEditor);
 		
 		new LabelFieldEditor("Examples: #0.0000, 0.###E0, ##0.#####E0, 00.###E0", getFieldEditorParent());
 		
 		new LabelFieldEditor("\n", getFieldEditorParent());
 
-		IntegerFieldEditor playSpeed = new IntegerFieldEditor(PreferenceConstants.PLAY_SPEED,"Speed of slice play for n-Dimensional data sets (ms):",getFieldEditorParent()) {
+		IntegerFieldEditor playSpeed = new IntegerFieldEditor(DeprecatedPreferenceConstants.PLAY_SPEED,"Speed of slice play for n-Dimensional data sets (ms):",getFieldEditorParent()) {
 			@Override
 			protected boolean checkState() {
 				if (!super.checkState()) return false;
