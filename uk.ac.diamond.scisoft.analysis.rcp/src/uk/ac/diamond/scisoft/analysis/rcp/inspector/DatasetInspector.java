@@ -541,7 +541,7 @@ public class DatasetInspector extends Composite {
 		storedInspections = new HashMap<DatasetSelection, Inspection>();
 	}
 
-	private DatasetSelection processSelection(DatasetSelection oldSelection, DatasetSelection dSelection) {
+	private DatasetSelection processSelection(final DatasetSelection oldSelection, DatasetSelection dSelection) {
 		if (dSelection.equals(oldSelection))
 			return null;
 
@@ -551,7 +551,6 @@ public class DatasetInspector extends Composite {
 				SDAPlotter.clearPlot(PLOTNAME);
 			} catch (Exception e) {}
 
-			oldSelection = dSelection;
 			return null;
 		}
 

@@ -53,7 +53,6 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5Selection;
 import uk.ac.diamond.scisoft.analysis.rcp.hdf5.HDF5TreeExplorer;
-import uk.ac.diamond.scisoft.analysis.rcp.inspector.DatasetSelection.InspectorType;
 
 public class HDF5TreeView extends ViewPart implements IObserver {
 	HDF5TreeExplorer hdfxp;

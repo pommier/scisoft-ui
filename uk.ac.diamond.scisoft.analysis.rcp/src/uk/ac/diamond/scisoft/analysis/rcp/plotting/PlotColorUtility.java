@@ -129,7 +129,7 @@ public class PlotColorUtility {
 	}
 	
 	/**
-	 * Set a new default line width for example from the prefrences
+	 * Set a new default line width for example from the preferences
 	 * @param nr number in the table that should be replaced
 	 * @param newLineWidth new line width
 	 */
