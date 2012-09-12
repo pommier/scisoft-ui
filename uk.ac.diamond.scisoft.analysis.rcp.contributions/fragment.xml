@@ -919,12 +919,6 @@
       </page>
       <page
             category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
-            class="uk.ac.diamond.scisoft.analysis.rcp.preference.PreferencePage"
-            id="uk.ac.diamond.scisoft.analysis.rcp.preferencePage"
-            name="Dataset Viewing">
-      </page>
-      <page
-            category="uk.ac.diamond.scisoft.analysis.rcp.preferences.root"
             class="uk.ac.diamond.scisoft.analysis.rcp.preference.PlotViewPreferencePage"
             id="uk.ac.diamond.scisoft.analysis.rcp.plotViewPreferencePage"
             name="Plot View">
