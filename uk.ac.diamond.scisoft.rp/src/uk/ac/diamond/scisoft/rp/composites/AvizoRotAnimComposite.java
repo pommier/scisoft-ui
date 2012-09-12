@@ -316,15 +316,7 @@ public class AvizoRotAnimComposite extends Composite {
 									.getPage().showView(ImageExplorerView.ID);
 							if (ieView != null) {
 								String folder = new File(outputLocationText
-										.getText()).getParent();
-								ArrayList<String> createdImages = AvizoImageUtils
-										.getFilesInFolderAbsolute(folder);
-								ieView.setLocationText(folder);
-								ieView.setDirPath(folder);
-								ieView.pushSelectedFiles(createdImages);
-								ieView.update(
-										ImageExplorerView.FOLDER_UPDATE_MARKER,
-										createdImages);
+										.getText()).getParent();							
 								new ImageExplorerRefresherThread(ieView, folder)
 										.start();
 							}

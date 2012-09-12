@@ -49,7 +49,7 @@ public class RenderImageOpenAction extends AbstractHandler implements
 			@Override
 			public void run() {
 
-				if (sel != null) {
+				if (sel != null && sel.size() == 1) {
 					Object[] selObjects = sel.toArray();
 					if (selObjects[0] instanceof IFolder) {
 						try {

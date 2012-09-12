@@ -12,16 +12,21 @@ public class ImageExplorerRefresherThread extends Thread {
 
 	private final ImageExplorerView ieView;
 	private final String folder;
+	private boolean runCondition = true;
+	private static ImageExplorerRefresherThread CURRENT_THREAD;
 
 	private final UIJob j = new UIJob("Updating Image Explorer") {
 		@Override
 		public IStatus runInUIThread(IProgressMonitor monitor) {
 			ArrayList<String> createdImages = AvizoImageUtils
 					.getFilesInFolderAbsolute(folder);
-			ieView.setLocationText(folder);
-			ieView.setDirPath(folder);
-			ieView.pushSelectedFiles(createdImages);
-			ieView.update(ImageExplorerView.FOLDER_UPDATE_MARKER, createdImages);
+			if (!createdImages.isEmpty()) {
+				ieView.setLocationText(folder);
+				ieView.setDirPath(folder);
+				ieView.pushSelectedFiles(createdImages);
+				ieView.update(ImageExplorerView.FOLDER_UPDATE_MARKER,
+						createdImages);
+			}
 			return Status.OK_STATUS;
 		}
 	};
@@ -33,8 +38,17 @@ public class ImageExplorerRefresherThread extends Thread {
 
 	@Override
 	public void run() {
+		if (ImageExplorerRefresherThread.CURRENT_THREAD == null) {
+			ImageExplorerRefresherThread.CURRENT_THREAD = this;
+		} else {
+			if (ImageExplorerRefresherThread.CURRENT_THREAD.isAlive()) {
+				ImageExplorerRefresherThread.CURRENT_THREAD.stopThread();
+			}
+			ImageExplorerRefresherThread.CURRENT_THREAD = this;
+		}
 		byte i = 0;
-		while (i < 6) {
+		while (i < 6 && runCondition) {
+			refreshIE();
 			try {
 				Thread.sleep(8000);
 			} catch (InterruptedException e) {
@@ -52,7 +66,14 @@ public class ImageExplorerRefresherThread extends Thread {
 	}
 
 	private void refreshIE() {
-		j.schedule();
+		j.cancel();
+		if (runCondition) {
+			j.schedule();
+		}
+	}
+
+	public void stopThread() {
+		runCondition = false;
 	}
 
 }

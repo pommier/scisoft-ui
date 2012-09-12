@@ -295,8 +295,7 @@ public class AvizoRotSnapshotComposite extends Composite {
 					if (ifolder != null) {
 						new IFolderRefresherThread(ifolder).start();
 					}
-					
-					
+
 					if (store.getBoolean(Render3DPreferencePage.openInIm)) {
 						try {
 							ImageMonitorView view = (ImageMonitorView) EclipseUtils
@@ -307,8 +306,8 @@ public class AvizoRotSnapshotComposite extends Composite {
 						} catch (PartInitException e1) {
 							e1.printStackTrace();
 						}
-					}					
-					
+					}
+
 					if (store.getBoolean(Render3DPreferencePage.openInIe)) {
 						try {
 							ImageExplorerView ieView = (ImageExplorerView) EclipseUtils
@@ -316,21 +315,14 @@ public class AvizoRotSnapshotComposite extends Composite {
 							if (ieView != null) {
 								String folder = new File(outputLocationText
 										.getText()).getParent();
-								ArrayList<String> createdImages = AvizoImageUtils
-										.getFilesInFolderAbsolute(folder);
-								ieView.setLocationText(folder);
-								ieView.setDirPath(folder);
-								ieView.pushSelectedFiles(createdImages);
-								ieView.update(
-										ImageExplorerView.FOLDER_UPDATE_MARKER,
-										createdImages);
-								new ImageExplorerRefresherThread(ieView, folder).start();
+								new ImageExplorerRefresherThread(ieView, folder)
+										.start();
 							}
 						} catch (PartInitException e1) {
 							e1.printStackTrace();
 						}
 					}
-					
+
 				}
 			}
 		});

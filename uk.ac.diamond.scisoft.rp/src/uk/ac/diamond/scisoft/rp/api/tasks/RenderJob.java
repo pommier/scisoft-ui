@@ -1,7 +1,5 @@
 package uk.ac.diamond.scisoft.rp.api.tasks;
 
-import java.util.ArrayList;
-
 import org.dawb.common.ui.views.ImageMonitorView;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
@@ -11,11 +9,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.progress.UIJob;
-
-import uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView;
 import uk.ac.diamond.scisoft.rp.Render3DPreferencePage;
-import uk.ac.diamond.scisoft.rp.api.AvizoImageUtils;
 import uk.ac.diamond.scisoft.rp.api.taskHandlers.LocalTaskHandler;
 import uk.ac.diamond.scisoft.rp.api.taskHandlers.QLoginTaskHandler;
 import uk.ac.diamond.scisoft.rp.api.taskHandlers.QSubTaskHandler;
@@ -42,9 +36,6 @@ public class RenderJob extends Job{
 		this.imageMonitorView = (ImageMonitorView) PlatformUI
 				.getWorkbench().getActiveWorkbenchWindow()
 				.getActivePage().findView(ImageMonitorView.ID);
-		this.ieView =  (ImageExplorerView) PlatformUI
-				.getWorkbench().getActiveWorkbenchWindow()
-				.getActivePage().findView(ImageExplorerView.ID);
 	}
 
 

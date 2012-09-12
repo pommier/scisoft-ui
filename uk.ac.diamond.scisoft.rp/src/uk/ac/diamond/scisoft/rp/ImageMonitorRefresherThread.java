@@ -1,11 +1,12 @@
 package uk.ac.diamond.scisoft.rp;
 
-
 import org.dawb.common.ui.views.ImageMonitorView;
 
 public class ImageMonitorRefresherThread extends Thread {
 
 	private final ImageMonitorView im;
+	private boolean runCondition = true;
+	private static ImageMonitorRefresherThread CURRENT_THREAD;
 
 	public ImageMonitorRefresherThread(ImageMonitorView imageMonitorView) {
 		this.im = imageMonitorView;
@@ -13,6 +14,14 @@ public class ImageMonitorRefresherThread extends Thread {
 
 	@Override
 	public void run() {
+		if (ImageMonitorRefresherThread.CURRENT_THREAD == null) {
+			ImageMonitorRefresherThread.CURRENT_THREAD = this;
+		} else {
+			if (ImageMonitorRefresherThread.CURRENT_THREAD.isAlive()) {
+				ImageMonitorRefresherThread.CURRENT_THREAD.stopThread();
+			}
+			ImageMonitorRefresherThread.CURRENT_THREAD = this;
+		}
 		byte i = 0;
 		while (i < 6) {
 			try {
@@ -32,7 +41,13 @@ public class ImageMonitorRefresherThread extends Thread {
 	}
 
 	private void refreshIM() {
-		im.refreshAll();
+		if (runCondition) {
+			im.refreshAll();
+		}
+	}
+
+	public void stopThread() {
+		runCondition = false;
 	}
 
 }
