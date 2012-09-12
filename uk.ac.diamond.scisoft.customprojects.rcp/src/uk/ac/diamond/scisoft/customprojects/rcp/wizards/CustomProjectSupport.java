@@ -80,7 +80,7 @@ public class CustomProjectSupport {
             desc.setLocationURI(projectLocation);
             }
             
-            logger.debug("projectLocation: " + projectLocation.getPath());
+            logger.debug("projectLocation: {}", projectLocation == null ? null : projectLocation.getPath());
             try {
                 newProject.create(desc, null);
                 
@@ -105,14 +105,14 @@ public class CustomProjectSupport {
 //        }
 //    }
 
-    /**
-     * Create a folder structure with a parent root, overlay, and a few child
-     * folders.
-     *
-     * @param newProject
-     * @param paths
-     * @throws CoreException
-     */
+//    /**
+//     * Create a folder structure with a parent root, overlay, and a few child
+//     * folders.
+//     *
+//     * @param newProject
+//     * @param paths
+//     * @throws CoreException
+//     */
 //    private static void addToProjectStructure(IProject newProject, String[] paths) throws CoreException {
 //        for (String path : paths) {
 //            IFolder etcFolders = newProject.getFolder(path);
