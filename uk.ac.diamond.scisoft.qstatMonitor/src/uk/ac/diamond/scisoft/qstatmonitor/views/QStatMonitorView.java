@@ -54,9 +54,10 @@ public class QStatMonitorView extends ViewPart {
 	private ArrayList<String> slotsList = new ArrayList<String>();
 	private ArrayList<String> tasksList = new ArrayList<String>();
 
-	private ArrayList<Double> timeList = new ArrayList<Double>();
-	private ArrayList<Integer> numberOfTasksList = new ArrayList<Integer>();
-	private ArrayList<Integer> loadList = new ArrayList<Integer>();
+	private ArrayList<Double> timeList = new ArrayList<Double>();	
+	private ArrayList<Integer> suspendedList = new ArrayList<Integer>();
+	private ArrayList<Integer> runningList = new ArrayList<Integer>();
+	private ArrayList<Integer> queuedList = new ArrayList<Integer>();
 
 	private int sleepTimeMilli;
 	private String qStatQuery;
@@ -177,9 +178,10 @@ public class QStatMonitorView extends ViewPart {
 
 	public void resetPlot() {
 		startTime = System.nanoTime();
-		timeList.clear();
-		numberOfTasksList.clear();
-		loadList.clear();
+		timeList.clear();	
+		suspendedList.clear();
+		runningList.clear();
+		queuedList.clear();
 	}
 
 	public void setPlotOption(boolean option) {
@@ -218,15 +220,26 @@ public class QStatMonitorView extends ViewPart {
 	}
 
 	private void updatePlotLists() {
-		timeList.add(getElapsedMinutes());
-		numberOfTasksList.add(jobNumberList.size());
-		int load = 0;
+		timeList.add(getElapsedMinutes());		
+		int suspended = 0;
+		int running = 0;
+		int queued = 0;
 		for (String state : stateList) {
-			if (state.equalsIgnoreCase("s") || state.equalsIgnoreCase("r")) {
-				load++;
+			if (state.equalsIgnoreCase("s")){
+				suspended++;
+			}else{
+				if(state.equalsIgnoreCase("r")){
+					running++;
+				}else{
+					if(state.contains("q") || state.contains("Q")){
+						queued++;
+					}
+				}
 			}
 		}
-		loadList.add(load);
+		suspendedList.add(suspended);
+		runningList.add(running);
+		queuedList.add(queued);
 	}
 
 	private double getElapsedMinutes() {
@@ -242,9 +255,7 @@ public class QStatMonitorView extends ViewPart {
 
 	private void plotResults() {
 
-		if (timeList.isEmpty() && tasksList.isEmpty() && loadList.isEmpty()) {
-
-		} else {
+		if (!timeList.isEmpty()) {
 
 			PlotView view = null;
 			try {
@@ -262,23 +273,26 @@ public class QStatMonitorView extends ViewPart {
 					.createFromList(timeList);
 			timeDataset.setName("Time (mins)");
 
-			IntegerDataset numberOfTasksDataset = (IntegerDataset) IntegerDataset
-					.createFromList(numberOfTasksList);
-			numberOfTasksDataset.setName("Tasks");
+		
+			IntegerDataset suspendedDataset = (IntegerDataset) IntegerDataset
+					.createFromList(suspendedList);
+			suspendedDataset.setName("Suspended");
+			
+			IntegerDataset runningDataset = (IntegerDataset) IntegerDataset
+					.createFromList(runningList);
+			suspendedDataset.setName("Running");
+			
+			IntegerDataset queuedDataset = (IntegerDataset) IntegerDataset
+					.createFromList(queuedList);
+			suspendedDataset.setName("Queued");
 
-			IntegerDataset loadDataset = (IntegerDataset) IntegerDataset
-					.createFromList(loadList);
-			loadDataset.setName("Load");
-
-			IntegerDataset[] datasetArr = { numberOfTasksDataset, loadDataset };
+			IntegerDataset[] datasetArr = {suspendedDataset, queuedDataset, runningDataset };
 
 			if (view != null) {
 				try {
 					SDAPlotter.plot("QStat Monitor Plot", timeDataset,
-							datasetArr);
-					System.out.println("Plotting!!!!!!!!!!!!!!!!!!");
-				} catch (Exception e) {
-					System.out.println("plotting errorrrrrrrrrrrrrr");
+							datasetArr);					
+				} catch (Exception e) {					
 					e.printStackTrace();
 				}
 			} else {
