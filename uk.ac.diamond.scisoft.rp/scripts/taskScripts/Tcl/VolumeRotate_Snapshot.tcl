@@ -108,8 +108,12 @@ proc zoom {amount} {
 }
 
 proc takeSnapshots {numOfShots startAngle endAngle targetDir imgFormat resX resY} {	
-	set angleToTravel [expr {$endAngle - $startAngle}]	
-	set inc [expr {$angleToTravel / [expr {$numOfShots - 1}] } ]			
+	set angleToTravel [expr {$endAngle - $startAngle}]
+	if {$numOfShots > 1} {	
+		set inc [expr {$angleToTravel / [expr {$numOfShots - 1}] } ]		
+	} else {
+		set inc 0
+	}		
 	set i 1
 	set loopcnt $startAngle
 	while {$i <= $numOfShots} {		

@@ -42,7 +42,11 @@ proc takeSnapshots {numOfShots startSlice endSlice targetDir imgFormat resX resY
 		set startSlice 0
 	}
 	set numOfSlice [expr {$endSlice - $startSlice}]	
-	set inc [expr {$numOfSlice / [expr {$numOfShots - 1}] }]		
+	if {$numOfShots > 1} {	
+		set inc [expr {$numOfSlice / [expr {$numOfShots - 1}] }]	
+	} else {
+		set inc 0
+	}				
 	set i 1
 	set loopcnt $startSlice
 	while {$i <= $numOfShots} {		
