@@ -3,7 +3,6 @@ package uk.ac.diamond.scisoft.qstatmonitor.views;
 import java.util.ArrayList;
 
 import org.dawb.common.ui.util.EclipseUtils;
-import org.dawb.common.ui.views.ImageMonitorView;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -28,8 +27,8 @@ import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.progress.UIJob;
 
 import uk.ac.diamond.scisoft.analysis.SDAPlotter;
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IntegerDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.qstatmonitor.Activator;
@@ -54,7 +53,7 @@ public class QStatMonitorView extends ViewPart {
 	private ArrayList<String> slotsList = new ArrayList<String>();
 	private ArrayList<String> tasksList = new ArrayList<String>();
 
-	private ArrayList<Double> timeList = new ArrayList<Double>();	
+	private ArrayList<Double> timeList = new ArrayList<Double>();
 	private ArrayList<Integer> suspendedList = new ArrayList<Integer>();
 	private ArrayList<Integer> runningList = new ArrayList<Integer>();
 	private ArrayList<Integer> queuedList = new ArrayList<Integer>();
@@ -161,8 +160,6 @@ public class QStatMonitorView extends ViewPart {
 					e.printStackTrace();
 				}
 				if (runCondition) {
-					System.out.println("looping!!!!!!!!!!!"+Math.random());
-					System.out.println(sleepTimeMilli);
 					updateTable();
 					if (plotOption) {
 						updateListsAndPlot();
@@ -176,14 +173,22 @@ public class QStatMonitorView extends ViewPart {
 		}
 	};
 
+	/**
+	 * Resets the time and clears the plot lists
+	 */
 	public void resetPlot() {
 		startTime = System.nanoTime();
-		timeList.clear();	
+		timeList.clear();
 		suspendedList.clear();
 		runningList.clear();
 		queuedList.clear();
 	}
 
+	/**
+	 * Setter for plotOption If option is true; opens the plot view
+	 * 
+	 * @param option
+	 */
 	public void setPlotOption(boolean option) {
 		this.plotOption = option;
 		if (option) {
@@ -213,26 +218,29 @@ public class QStatMonitorView extends ViewPart {
 			tableUpdaterThread.start();
 		}
 
-		
 		plotOption = !store
 				.getBoolean(QStatMonitorPreferencePage.DISABLE_AUTO_PLOT);
 
 	}
 
+	/**
+	 * Updates the plot lists
+	 */
 	private void updatePlotLists() {
-		timeList.add(getElapsedMinutes());		
+		timeList.add(getElapsedMinutes());
 		int suspended = 0;
 		int running = 0;
 		int queued = 0;
-		for (String state : stateList) {
-			if (state.equalsIgnoreCase("s")){
-				suspended++;
-			}else{
-				if(state.equalsIgnoreCase("r")){
-					running++;
-				}else{
-					if(state.contains("q") || state.contains("Q")){
-						queued++;
+		for (int i = 0; i < jobNumberList.size(); i++) {
+			if (stateList.get(i).equalsIgnoreCase("s")) {
+				suspended += Integer.parseInt(slotsList.get(i));
+			} else {
+				if (stateList.get(i).equalsIgnoreCase("r")) {
+					running += Integer.parseInt(slotsList.get(i));
+				} else {
+					if (stateList.get(i).contains("q")
+							|| stateList.get(i).contains("Q")) {
+						queued += Integer.parseInt(slotsList.get(i));
 					}
 				}
 			}
@@ -242,19 +250,30 @@ public class QStatMonitorView extends ViewPart {
 		queuedList.add(queued);
 	}
 
+	/**
+	 * Gets the time in minutes since the time was last reset
+	 * 
+	 * @return
+	 */
 	private double getElapsedMinutes() {
 		long estimatedTime = System.nanoTime() - startTime;
 		return estimatedTime / 60000000000.0;
 	}
+	
 
+	/**
+	 * Calles updatePlotLists(), then schedules the replotJob
+	 */
 	private void updateListsAndPlot() {
 		updatePlotLists();
 		replotJob.cancel();
 		replotJob.schedule();
 	}
 
+	/**
+	 * Plots the plot list values to the plot view
+	 */
 	private void plotResults() {
-
 		if (!timeList.isEmpty()) {
 
 			PlotView view = null;
@@ -273,26 +292,32 @@ public class QStatMonitorView extends ViewPart {
 					.createFromList(timeList);
 			timeDataset.setName("Time (mins)");
 
-		
-			IntegerDataset suspendedDataset = (IntegerDataset) IntegerDataset
+			AbstractDataset suspendedDataset = IntegerDataset
 					.createFromList(suspendedList);
 			suspendedDataset.setName("Suspended");
-			
-			IntegerDataset runningDataset = (IntegerDataset) IntegerDataset
-					.createFromList(runningList);
-			suspendedDataset.setName("Running");
-			
-			IntegerDataset queuedDataset = (IntegerDataset) IntegerDataset
-					.createFromList(queuedList);
-			suspendedDataset.setName("Queued");
 
-			IntegerDataset[] datasetArr = {suspendedDataset, queuedDataset, runningDataset };
+			AbstractDataset queuedDataset = IntegerDataset
+					.createFromList(queuedList);
+			queuedDataset.setName("Queued");
+
+			AbstractDataset runningDataset = IntegerDataset
+					.createFromList(runningList);
+			runningDataset.setName("Running");
+			
+					
+			AbstractDataset[] datasetArr = { suspendedDataset, queuedDataset,
+					runningDataset};
+			
+			//ArrayList<AbstractDataset> list = new ArrayList<AbstractDataset>();
+			//list.add(suspendedDataset);
+			//list.add(queuedDataset);
+			//list.add(runningDataset);
 
 			if (view != null) {
 				try {
-					SDAPlotter.plot("QStat Monitor Plot", timeDataset,
-							datasetArr);					
-				} catch (Exception e) {					
+					SDAPlotter.plot("QStat Monitor Plot", timeDataset,	datasetArr);
+					//SDAPlotter.plot("QStat Monitor Plot", timeDataset,	list.toArray(new AbstractDataset[3]));
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			} else {
@@ -306,10 +331,7 @@ public class QStatMonitorView extends ViewPart {
 	@Override
 	public void createPartControl(Composite parent) {
 
-		// setPlotOption(!store
-		// .getBoolean(QStatMonitorPreferencePage.DISABLE_AUTO_PLOT));
-
-	
+		// Create action bar and add actions to it
 		IActionBars bars = getViewSite().getActionBars();
 		bars.getMenuManager().add(openPreferencesAction);
 		bars.getToolBarManager().add(refreshAction);
