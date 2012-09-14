@@ -2,6 +2,7 @@ package uk.ac.diamond.scisoft.rp.api.tasks;
 
 import org.dawb.common.ui.views.ImageMonitorView;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -17,27 +18,22 @@ import uk.ac.diamond.scisoft.rp.api.taskHandlers.QrshTaskHandler;
 import uk.ac.diamond.scisoft.rp.api.taskHandlers.SSHTaskHandler;
 import uk.ac.diamond.scisoft.rp.api.taskHandlers.TaskHandler;
 
-public class RenderJob extends Job{
-	
+public class RenderJob extends Job {
+
 	private Task task;
 	private IPreferenceStore store;
 	private IFolder ifolder;
-	private ImageMonitorView imageMonitorView;
-	
+
 	public RenderJob(String name) {
-		super(name);		
+		super(name);
 	}
-	
+
 	public RenderJob(String name, Task task, IPreferenceStore store, IFolder ifolder) {
-		super(name);		
+		super(name);
 		this.task = task;
 		this.store = store;
 		this.ifolder = ifolder;
-		this.imageMonitorView = (ImageMonitorView) PlatformUI
-				.getWorkbench().getActiveWorkbenchWindow()
-				.getActivePage().findView(ImageMonitorView.ID);
 	}
-
 
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
@@ -48,9 +44,7 @@ public class RenderJob extends Job{
 			th = new LocalTaskHandler();
 			break;
 		case 1:
-			th = new SSHTaskHandler(
-					true,
-					store.getString(Render3DPreferencePage.sshNode));
+			th = new SSHTaskHandler(true, store.getString(Render3DPreferencePage.sshNode));
 			break;
 		case 2:
 			th = new QSubTaskHandler();
@@ -71,24 +65,27 @@ public class RenderJob extends Job{
 		refreshIM();
 		return Status.OK_STATUS;
 	}
-	
-	private void refreshIM(){
-		if(imageMonitorView != null){
+
+	private void refreshIM() {
+		ImageMonitorView imageMonitorView = null;
+		try {
+			imageMonitorView = (ImageMonitorView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage()
+					.findView(ImageMonitorView.ID);
+		} catch (NullPointerException e) {
+		}
+		if (imageMonitorView != null) {
 			imageMonitorView.refreshAll();
 		}
 	}
-	
-	
+
 	private void refreshIFolder() {
 		if (ifolder != null) {
 			try {
-				ifolder.refreshLocal(IFolder.DEPTH_INFINITE, null);
+				ifolder.refreshLocal(IResource.DEPTH_INFINITE, null);
 			} catch (CoreException e) {
 				e.printStackTrace();
 			}
 		}
 	}
-	
-	
-	
+
 }

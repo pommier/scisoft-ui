@@ -4,6 +4,7 @@ import java.io.File;
 import org.dawb.common.ui.util.EclipseUtils;
 import org.dawb.common.ui.views.ImageMonitorView;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -364,7 +365,7 @@ public class AvizoSliceSnapshotComposite extends Composite {
 	private void refreshIFolder() {
 		if (ifolder != null) {
 			try {
-				ifolder.refreshLocal(IFolder.DEPTH_INFINITE, null);
+				ifolder.refreshLocal(IResource.DEPTH_INFINITE, null);
 			} catch (CoreException e) {
 				e.printStackTrace();
 			}

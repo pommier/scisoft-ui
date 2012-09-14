@@ -1,6 +1,7 @@
 package uk.ac.diamond.scisoft.rp;
 
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 
 public class IFolderRefresherThread extends Thread {
@@ -44,7 +45,7 @@ public class IFolderRefresherThread extends Thread {
 	private void refreshIFolder() {
 		if (runCondition) {
 			try {
-				ifolder.refreshLocal(IFolder.DEPTH_INFINITE, null);
+				ifolder.refreshLocal(IResource.DEPTH_INFINITE, null);
 			} catch (CoreException e) {
 				e.printStackTrace();
 			}

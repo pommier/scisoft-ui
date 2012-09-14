@@ -20,12 +20,14 @@ public class ImageExplorerRefresherThread extends Thread {
 		public IStatus runInUIThread(IProgressMonitor monitor) {
 			ArrayList<String> createdImages = AvizoImageUtils
 					.getFilesInFolderAbsolute(folder);
+			System.out.println("refreshing");
 			if (!createdImages.isEmpty()) {
 				ieView.setLocationText(folder);
 				ieView.setDirPath(folder);
-				ieView.pushSelectedFiles(createdImages);
+				ieView.pushSelectedFiles(createdImages);				
 				ieView.update(ImageExplorerView.FOLDER_UPDATE_MARKER,
 						createdImages);
+				System.out.println("here");
 			}
 			return Status.OK_STATUS;
 		}
@@ -47,10 +49,10 @@ public class ImageExplorerRefresherThread extends Thread {
 			ImageExplorerRefresherThread.CURRENT_THREAD = this;
 		}
 		byte i = 0;
-		while (i < 6 && runCondition) {
+		while (i < 15 && runCondition) {
 			refreshIE();
 			try {
-				Thread.sleep(8000);
+				Thread.sleep(4000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
