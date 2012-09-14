@@ -22,7 +22,7 @@ public class ScriptUtils {
 
 	/**
 	 * Gets the absolute path of the script where it is been run from, this script folder is in the same directory as the scr folder
-	 * @return
+	 * @return path
 	 */
 	public static String getAbsoluteScriptPath() {
 
@@ -42,12 +42,15 @@ public class ScriptUtils {
 			System.out.print("No path found returning null");
 			return null;
 		}
-		java.io.File f = new File(url.getFile());
-		if (f == null) {
+
+		java.io.File f;
+		try {
+			f = new File(url.getFile());
+		} catch (Exception e) {
 			System.out.print("No path found returning null");
 			return null;
 		}
-
+		
 		String resultTest = f.getAbsolutePath();
 
 		if (resultTest == null) {
@@ -57,10 +60,9 @@ public class ScriptUtils {
 
 		if (isFolder(resultTest + "/scripts")) { //not in script folder
 			return resultTest + "/scripts/";
-		} else {
-			File file = new File(resultTest);
-			return file.getParent()+"/scripts/";
 		}
+		File file = new File(resultTest);
+		return file.getParent()+"/scripts/";
 
 	}
 	
@@ -71,7 +73,7 @@ public class ScriptUtils {
 	
 	/**
 	 * Gets the absolute path of where it is been run from
-	 * @return
+	 * @return path
 	 */
 	public static String getAbsolutePath() {
 		java.security.ProtectionDomain pd = ScriptUtils.class
@@ -90,11 +92,14 @@ public class ScriptUtils {
 			System.out.print("No path found returning null");
 			return null;
 		}
-		java.io.File f = new File(url.getFile());
-		if (f == null) {
+		java.io.File f;
+		try {
+			f = new File(url.getFile());
+		} catch (Exception e) {
 			System.out.print("No path found returning null");
 			return null;
 		}
+
 		String resultTest = f.getAbsolutePath();
 		if (resultTest == null) {
 			System.out.print("No path found returning null");

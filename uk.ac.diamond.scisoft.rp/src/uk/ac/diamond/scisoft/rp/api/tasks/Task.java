@@ -10,17 +10,19 @@ public abstract class Task implements ITask{
 	
 	protected boolean submitted = false;
 	
+	@Override
 	public boolean isSubmitted() {
 		return this.submitted;
 	}
 
+	@Override
 	public void setTaskAsSubmitted() {
 		this.submitted = true;
 	}
 	
 	/**
-	 * Gets the contents of the parameter list as one concatanated string
-	 * @return 
+	 * Gets the contents of the parameter list as one concatenated string
+	 * @return string
 	 */
 	public String getParameterString(){
 		String result = "";
