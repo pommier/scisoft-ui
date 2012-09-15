@@ -3,6 +3,7 @@ package uk.ac.diamond.scisoft.rp.composites;
 import java.io.File;
 
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -44,7 +45,7 @@ public class CreateImageInfoComposite extends Composite {
 	private final Button browseFolderToSearchButton;
 
 	private IFolder ifolder;
-	
+
 	public CreateImageInfoComposite(Composite parent, int style) {
 		super(parent, style);
 
@@ -115,8 +116,7 @@ public class CreateImageInfoComposite extends Composite {
 					folderToSearchText.setEnabled(false);
 					browseFolderToSearchButton.setEnabled(false);
 					stackSizeText.setEnabled(true);
-					if (FieldVerifyUtils.isPositiveInteger(stackSizeText
-							.getText())) {
+					if (FieldVerifyUtils.isPositiveInteger(stackSizeText.getText())) {
 						stackSizeText.setBackground(white);
 					} else {
 						stackSizeText.setBackground(red);
@@ -199,39 +199,24 @@ public class CreateImageInfoComposite extends Composite {
 					Job renderJob = new Job("Creating image .info file") {
 
 						String baseName = baseNameText.getText();
-						int pixelSizeX = Integer.parseInt(pixelSizeXText
-								.getText());
-						int pixelSizeY = Integer.parseInt(pixelSizeYText
-								.getText());
-						int zPositionInc = Integer.parseInt(zPositionIncText
-								.getText());
+						int pixelSizeX = Integer.parseInt(pixelSizeXText.getText());
+						int pixelSizeY = Integer.parseInt(pixelSizeYText.getText());
+						int zPositionInc = Integer.parseInt(zPositionIncText.getText());
 						String imageExtension = imageExtensionText.getText();
 						String location = outputLocationText.getText();
-						boolean searchFolder = searchFolderButton
-								.getSelection();
+						boolean searchFolder = searchFolderButton.getSelection();
 						File folder = new File(folderToSearchText.getText());
 
-						int stackSize = getIntegerFromString(stackSizeText
-								.getText());
+						int stackSize = getIntegerFromString(stackSizeText.getText());
 
 						@Override
 						protected IStatus run(IProgressMonitor monitor) {
 							if (searchFolder) {
-								AvizoImageUtils.writeStackedImageInfoFile(
-										folder, baseName, imageExtension,
-										pixelSizeX, pixelSizeY, zPositionInc,
-										location);
+								AvizoImageUtils.writeStackedImageInfoFile(folder, baseName, imageExtension, pixelSizeX,
+										pixelSizeY, zPositionInc, location);
 							} else {
-								AvizoImageUtils.writeStackedImageInfoFile(
-										baseName, pixelSizeX, pixelSizeY,
-										zPositionInc, stackSize,
-										imageExtension, location);
-							}																					
-							// sleep so that job progress is displayed
-							try {
-								Thread.sleep(300);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
+								AvizoImageUtils.writeStackedImageInfoFile(baseName, pixelSizeX, pixelSizeY,
+										zPositionInc, stackSize, imageExtension, location);
 							}
 							refreshIFolder();
 							return Status.OK_STATUS;
@@ -321,19 +306,19 @@ public class CreateImageInfoComposite extends Composite {
 		}
 		return result;
 	}
-	
+
 	public void setIFolder(IFolder ifolder) {
 		this.ifolder = ifolder;
 	}
 
-	private void refreshIFolder() {		
-		if (ifolder != null) {			
+	private void refreshIFolder() {
+		if (ifolder != null) {
 			try {
-				ifolder.refreshLocal(IFolder.DEPTH_INFINITE, null);				
+				ifolder.refreshLocal(IResource.DEPTH_INFINITE, null);
 			} catch (CoreException e) {
 				e.printStackTrace();
 			}
 		}
 	}
-	
+
 }
