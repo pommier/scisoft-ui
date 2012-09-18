@@ -99,11 +99,15 @@ public class DatasetInspector extends Composite {
 		private PropertyChangeListener plotAxisListener;
 		private PropertyChangeListener datasetAxisListener;
 
-		public Inspection(DatasetSelection selection) {
+		public Inspection(DatasetSelection selection, InspectorType type) {
 			datasetAxes = selection.getAxes() == null ? new ArrayList<AxisSelection>() : new ArrayList<AxisSelection>(selection.getAxes());
 			allSlices = new HashMap<DatasetSelection.InspectorType, List<SliceProperty>>();
 			allPlotAxes = new HashMap<DatasetSelection.InspectorType, List<PlotAxisProperty>>();
-			itype = selection.getType();
+			itype = type;
+		}
+
+		public Inspection(DatasetSelection selection) {
+			this(selection, selection.getType());
 		}
 
 		/**
@@ -578,7 +582,8 @@ public class DatasetInspector extends Composite {
 		}
 
 		if (inspection == null) {
-			inspection = new Inspection(dSelection);
+			inspection = oldSelection == null ? new Inspection(dSelection) :
+				new Inspection(dSelection, oldSelection.getType()); // allow old selection to override type
 			storedInspections.put(dSelection, inspection);
 			int[] shape = cData.getShape();
 			int rank = shape.length;
