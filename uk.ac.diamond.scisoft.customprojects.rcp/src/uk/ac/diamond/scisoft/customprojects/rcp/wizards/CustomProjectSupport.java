@@ -55,12 +55,7 @@ public class CustomProjectSupport {
         return project;
     }
 
-    /**
-     * Just do the basics: create a basic project.
-     *
-     * @param location
-     * @param projectName
-     */
+
     private static IProject createBaseProject(String projectName, URI location) {
     	logger.debug("projectName= " + projectName + "  location= " + location);
         
@@ -95,30 +90,7 @@ public class CustomProjectSupport {
         return newProject;
     }
 
-//    private static void createFolder(IFolder folder) throws CoreException {
-//        IContainer parent = folder.getParent();
-//        if (parent instanceof IFolder) {
-//            createFolder((IFolder) parent);
-//        }
-//        if (!folder.exists()) {
-//            folder.create(false, true, null);
-//        }
-//    }
 
-//    /**
-//     * Create a folder structure with a parent root, overlay, and a few child
-//     * folders.
-//     *
-//     * @param newProject
-//     * @param paths
-//     * @throws CoreException
-//     */
-//    private static void addToProjectStructure(IProject newProject, String[] paths) throws CoreException {
-//        for (String path : paths) {
-//            IFolder etcFolders = newProject.getFolder(path);
-//            createFolder(etcFolders);
-//        }
-//    }
 
     private static void addNature(IProject project) throws CoreException {
         if (!project.hasNature(SingleLevelProjectNature.NATURE_ID)) {
