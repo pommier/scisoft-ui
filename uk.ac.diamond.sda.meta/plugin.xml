@@ -14,7 +14,7 @@
             class="uk.ac.diamond.sda.meta.views.MetadataPageView"
             icon="icons/diffraction-meta.png"
             id="uk.ac.diamond.sda.meta.MetadataPageView"
-            name="Metadata View"
+            name="File Header"
             restorable="true">
       </view>
    </extension>
@@ -47,6 +47,16 @@
             id="uk.ac.diamond.sda.meta.preferences.MetadataAccociationPreferences"
             name="Metadata Accociation Preferences">
       </page>
+   </extension>
+   <extension
+         point="org.dawb.common.ui.toolPage">
+      <plotting_tool_page
+            class="uk.ac.diamond.sda.meta.tools.MetadataTool"
+            icon="icons/diffraction-meta.png"
+            id="uk.ac.diamond.sda.meta.tools.metadataTool"
+            label="Metadata"
+            tooltip="A tool to edit the metadata for images">
+      </plotting_tool_page>
    </extension>
 
 </plugin>

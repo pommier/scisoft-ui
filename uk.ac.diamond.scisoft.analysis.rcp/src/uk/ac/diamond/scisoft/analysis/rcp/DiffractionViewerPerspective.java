@@ -19,9 +19,11 @@ package uk.ac.diamond.scisoft.analysis.rcp;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.IFolderLayout;
+import org.eclipse.ui.IViewLayout;
 
 public class DiffractionViewerPerspective implements IPerspectiveFactory {
 
+	static final String METADATAPAGE_ID = "uk.ac.diamond.sda.meta.MetadataPageView";
 	static final String ID = "uk.ac.diamond.scisoft.diffractionviewerperspective";
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
@@ -33,7 +35,10 @@ public class DiffractionViewerPerspective implements IPerspectiveFactory {
 		navigatorLayout.addView("org.eclipse.ui.navigator.ProjectExplorer");
 
 		IFolderLayout metadataLayout = layout.createFolder("metadataFolder", IPageLayout.BOTTOM, 0.65f, "navigatorFolder");
-		metadataLayout.addView("uk.ac.diamond.sda.meta.MetadataPageView");
+		metadataLayout.addView(METADATAPAGE_ID);
+		IViewLayout metadataPageView = layout.getViewLayout(METADATAPAGE_ID);
+		if (metadataPageView != null)
+			metadataPageView.setCloseable(false);
 
 		IFolderLayout explorerLayout = layout.createFolder("explorerFolder", IPageLayout.BOTTOM, 0.70f, layout.getEditorArea());
 		explorerLayout.addView("uk.ac.diamond.scisoft.analysis.rcp.views.ImageExplorerView");
@@ -41,7 +46,6 @@ public class DiffractionViewerPerspective implements IPerspectiveFactory {
 		
 		IFolderLayout toolPageLayout = layout.createFolder("toolPageFolder", IPageLayout.RIGHT, 0.50f, layout.getEditorArea());
 		toolPageLayout.addPlaceholder("*");
-		
 		
 		
 		if (layout.getViewLayout("uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView") != null)

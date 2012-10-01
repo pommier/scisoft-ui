@@ -58,6 +58,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.IMetadataProvider;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.sda.meta.Activator;
 import uk.ac.diamond.sda.meta.contribution.MetadataPageContribution;
+import uk.ac.diamond.sda.meta.page.DiffractionMetadataComposite;
 import uk.ac.diamond.sda.meta.page.IMetadataPage;
 import uk.ac.diamond.sda.meta.preferences.PreferenceConstants;
 import uk.ac.diamond.sda.meta.utils.MapUtils;
@@ -196,6 +197,11 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 						for (Control iterable_element : parent.getChildren()) {
 							iterable_element.dispose();
 						}
+
+						if (loadedPages.get(mpc.getExtentionPointname()) instanceof DiffractionMetadataComposite) {
+							((DiffractionMetadataComposite)loadedPages.get(mpc.getExtentionPointname())).setEditable(false);
+						}
+						
 						loadedPages.get(mpc.getExtentionPointname()).createComposite(parent);
 						loadedPages.get(mpc.getExtentionPointname()).setMetaData(meta);
 						parent.layout();
@@ -224,7 +230,7 @@ public class MetadataPageView extends ViewPart implements ISelectionListener, IP
 				meta = ((IMetadataProvider) part).getMetadata();
 				metadataChanged(meta);
 			} catch (Exception e) {
-				logger.error("There was a error reading the metadata from the selection", e);
+				logger.error("There was an error reading the metadata from the selection", e);
 			}
 		else {
 			if (selection != null)

@@ -21,6 +21,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -29,6 +33,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.UIJob;
 
 import uk.ac.diamond.scisoft.analysis.diffraction.DetectorProperties;
@@ -57,11 +64,41 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 	private Text xBeam;
 	private Text yBeam;
 	private Composite content;
+	private double[] beam;
+	private DetectorProperties detprop;
+	private DiffractionCrystalEnvironment diffenv;
+	private boolean editable;
 
 	public DiffractionMetadataComposite() {
 
 	}
 
+	double moveXBeam(int milllimeters) {
+		double mm = (beam[0] * detprop.getHPxSize()) + milllimeters;
+		xBeam.setText(String.valueOf(mm));
+		updateBeamX(mm);
+		return mm;
+	}
+	
+	double moveYBeam(int milllimeters) {
+		double mm = (beam[1] * detprop.getVPxSize()) + milllimeters;
+		yBeam.setText(String.valueOf(mm));
+		updateBeamY(mm);
+		return mm;
+	}
+	
+	void updateBeamX(double millimeter) {
+		// Calculate and set the new property value
+		beam[0] = millimeter / detprop.getHPxSize();
+		detprop.setBeamLocation(beam);
+	}
+	
+	void updateBeamY(double millimeter) {
+		// Calculate and set the new property value
+		beam[1] = millimeter / detprop.getVPxSize();
+		detprop.setBeamLocation(beam);
+	}
+	
 	@Override
 	public Composite createComposite(Composite parent) {
 
@@ -218,70 +255,136 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		}
 
 		new Label(detectorMetadata, SWT.NONE).setText("");
-		{
-			Group grpBeamCentreControls = new Group(comp, SWT.NONE);
-			grpBeamCentreControls.setLayout(new GridLayout(2, false));
-			grpBeamCentreControls.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-			grpBeamCentreControls.setText("Beam Centre");
-			{
-				Composite beamCentreControls = new Composite(grpBeamCentreControls, SWT.NONE);
-				beamCentreControls.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
-				beamCentreControls.setLayout(new GridLayout(3, false));
-				new Label(beamCentreControls, SWT.NONE).setText("");
-				{
-					Button upBeam = new Button(beamCentreControls, SWT.NONE);
-					upBeam.setImage(Activator.getImageDescriptor("/icons/arrow_up.png").createImage());
-					upBeam.setEnabled(false);
+		Group grpBeamCentreControls = new Group(comp, SWT.NONE);
+		grpBeamCentreControls.setLayout(new GridLayout(2, false));
+		grpBeamCentreControls.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		grpBeamCentreControls.setText("Beam Centre");
+
+		// 3 x 3 grid for buttons to move beam centre   
+		
+		Composite beamCentreControls = new Composite(grpBeamCentreControls, SWT.NONE);
+		beamCentreControls.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, true, 1, 1));
+		beamCentreControls.setLayout(new GridLayout(3, false));
+
+		if (editable) {
+				
+				// Top left tile in grid is empty 
+			new Label(beamCentreControls, SWT.NONE).setText("");
+	
+			// Top centre tile contains arrow up
+			Button upBeam = new Button(beamCentreControls, SWT.NONE);
+			upBeam.setImage(Activator.getImageDescriptor("/icons/arrow_up.png").createImage());
+			upBeam.setEnabled(editable);
+			upBeam.setVisible(editable);
+			upBeam.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					moveYBeam(-1);
 				}
-				new Label(beamCentreControls, SWT.NONE).setText("");
-				{
-					Button leftBeam = new Button(beamCentreControls, SWT.NONE);
-
-					leftBeam.setImage(Activator.getImageDescriptor("/icons/arrow_left.png").createImage());
-					leftBeam.setEnabled(false);
+			});
+	
+			// Top right tile is empty
+			new Label(beamCentreControls, SWT.NONE).setText("");
+	
+			// Middle left tile contains the left button
+			Button leftBeam = new Button(beamCentreControls, SWT.NONE);
+	
+			leftBeam.setImage(Activator.getImageDescriptor("/icons/arrow_left.png").createImage());
+			leftBeam.setEnabled(editable);
+			leftBeam.setVisible(editable);
+			leftBeam.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					moveXBeam(-1);
 				}
-				{
-					showBeam = new Button(beamCentreControls, SWT.TOGGLE);
-					showBeam.setToolTipText("Show beam centre");
-					showBeam.setImage(Activator.getImageDescriptor("icons/asterisk_yellow.png").createImage());
-					showBeam.setEnabled(false);
+			});
+	
+			// Middle centre tile contains the button to show the beam centre
+			showBeam = new Button(beamCentreControls, SWT.TOGGLE);
+			showBeam.setToolTipText("Show beam centre");
+			showBeam.setImage(Activator.getImageDescriptor("icons/asterisk_yellow.png").createImage());
+			showBeam.setEnabled(editable);
+			showBeam.setVisible(editable);
+	
+			// Middle right tile contains the right button
+			Button rightBeam = new Button(beamCentreControls, SWT.NONE);
+			rightBeam.setImage(Activator.getImageDescriptor("/icons/arrow_right.png").createImage());
+			rightBeam.setEnabled(editable);
+			rightBeam.setVisible(editable);
+			rightBeam.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					moveXBeam(1);
 				}
-				{
-					Button rightBeam = new Button(beamCentreControls, SWT.NONE);
-					rightBeam.setImage(Activator.getImageDescriptor("/icons/arrow_right.png").createImage());
-					rightBeam.setEnabled(false);
+			});
+	
+			// Lower left tile is empty
+			new Label(beamCentreControls, SWT.NONE).setText("");
+	
+			// Lower centre tile contains the down arrow
+			Button downBeam = new Button(beamCentreControls, SWT.NONE);
+			downBeam.setImage(Activator.getImageDescriptor("/icons/arrow_down.png").createImage());
+			downBeam.setEnabled(editable);
+			downBeam.setVisible(editable);
+			downBeam.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					moveYBeam(1);
 				}
-				new Label(beamCentreControls, SWT.NONE).setText("");
-				{
-					Button downBeam = new Button(beamCentreControls, SWT.NONE);
-					downBeam.setImage(Activator.getImageDescriptor("/icons/arrow_down.png").createImage());
-					downBeam.setEnabled(false);
-				}
-				new Label(beamCentreControls, SWT.NONE).setText("");
-
-				Composite beamSpinners = new Composite(grpBeamCentreControls, SWT.FILL);
-				beamSpinners.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
-				beamSpinners.setLayout(new GridLayout(2, false));
-
-				Label labXBeam = new Label(beamSpinners, SWT.NONE);
-				labXBeam.setText("Beam X");
-
-				xBeam = new Text(beamSpinners, SWT.READ_ONLY);
-				xBeam.setBackground(grpBeamCentreControls.getBackground());
-
-				Label labYBeam = new Label(beamSpinners, SWT.NONE);
-				labYBeam.setText("Beam Y");
-
-				yBeam = new Text(beamSpinners, SWT.READ_ONLY);
-				yBeam.setBackground(grpBeamCentreControls.getBackground());
-			}
+			});
+	
+			// Lower right button is empty
+			new Label(beamCentreControls, SWT.NONE).setText("");
 		}
+
+		// 2 x 2 grid for labels showing the beam position
+		Composite beamSpinners = new Composite(grpBeamCentreControls, SWT.FILL);
+		beamSpinners.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
+		beamSpinners.setLayout(new GridLayout(2, false));
+
+		// Beam X label
+		Label labXBeam = new Label(beamSpinners, SWT.NONE);
+		labXBeam.setText("X");
+
+		// Beam X value
+		xBeam = new Text(beamSpinners, SWT.BORDER);
+		xBeam.setLayoutData(beamSpinners.getLayoutData());
+		xBeam.setBackground(grpBeamCentreControls.getBackground());
+		xBeam.setEditable(editable);
+		xBeam.addModifyListener(new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent e) {
+				String t = xBeam.getText();
+				updateBeamX(Double.valueOf(t));
+			}
+		});
+		
+		// Beam Y label
+		Label labYBeam = new Label(beamSpinners, SWT.NONE);
+		labYBeam.setText("Y");
+
+		// Beam Y value
+		yBeam = new Text(beamSpinners, SWT.BORDER);
+		//yBeam.setSize(width, height);
+		yBeam.setLayoutData(beamSpinners.getLayoutData());
+		yBeam.setBackground(grpBeamCentreControls.getBackground());
+		yBeam.setEditable(editable);
+		yBeam.addModifyListener(new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent e) {
+				String t = yBeam.getText();
+				updateBeamY(Double.valueOf(t));
+			}
+		});
+
 
 		scrComp.setContent(comp);
 		final Point controlsSize = comp.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 		comp.setSize(controlsSize);
-
 		return content;
+	}
+	public void setEditable(boolean editable) {
+		this.editable = editable;
 	}
 
 	private void updateGUI(final IDiffractionMetadata meta) {
@@ -289,9 +392,6 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
-
-				DetectorProperties detprop = meta.getDetector2DProperties();
-				DiffractionCrystalEnvironment diffenv = meta.getDiffractionCrystalEnvironment();
 				wavelength.setText(String.valueOf(diffenv.getWavelength()));
 				phiStart.setText(String.valueOf(diffenv.getPhiStart()));
 				phiStop.setText(String.valueOf(diffenv.getPhiStart() + diffenv.getPhiRange()));
@@ -307,15 +407,17 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 				minPxVal.setText(String.valueOf("N/A"));
 				meanPxVal.setText(String.valueOf("N/A"));
 				overload.setText(String.valueOf("N/A"));
-				int[] beam = detprop.pixelCoords(detprop.getBeamPosition());
+				beam = detprop.getBeamLocation();
 				xBeam.setText(String.valueOf(beam[0] * detprop.getHPxSize()));
 				yBeam.setText(String.valueOf(beam[1] * detprop.getVPxSize()));
+
 				return Status.OK_STATUS;
 			}
 		};
 		update.schedule();
 	}
 
+	
 //	@Override
 //	public void update(Object source, Object arg) {
 //		if (source instanceof IMetadataProvider) {
@@ -366,11 +468,12 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 	@Override
 	public void setMetaData(IMetaData metadata) {
 		if (metadata instanceof IDiffractionMetadata) {
-			updateGUI((IDiffractionMetadata) metadata);
+			this.detprop = ((IDiffractionMetadata)metadata).getDetector2DProperties(); 
+			this.diffenv = ((IDiffractionMetadata)metadata).getDiffractionCrystalEnvironment();
+			updateGUI((IDiffractionMetadata)metadata);
 		}
-		if (metadata == null) {
-			clearGUI();
-		}
+//		if (metadata == null) {
+//			clearGUI();
+//		}
 	}
-
 }
