@@ -54,7 +54,7 @@
             class="uk.ac.diamond.sda.meta.tools.MetadataTool"
             icon="icons/diffraction-meta.png"
             id="uk.ac.diamond.sda.meta.tools.metadataTool"
-            label="Metadata"
+            label="Metadata Editor"
             tooltip="A tool to edit the metadata for images">
       </plotting_tool_page>
    </extension>
