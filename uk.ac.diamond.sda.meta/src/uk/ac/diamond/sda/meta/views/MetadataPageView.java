@@ -65,7 +65,7 @@ import uk.ac.diamond.sda.meta.utils.MapUtils;
 
 public class MetadataPageView extends ViewPart implements ISelectionListener, IPartListener {
 
-	public final static String ID = "uk.ac.diamond.sda.meta.MetadataPageView";
+	public final static String ID = "uk.ac.diamond.sda.meta.MetadataPageView"; // This ID is used ("hard-coded") elsewhere, don't change!
 
 	private static final Logger logger = LoggerFactory.getLogger(MetadataPageView.class);
 
