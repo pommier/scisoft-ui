@@ -31,6 +31,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -50,7 +51,7 @@ import uk.ac.diamond.sda.meta.Activator;
 
 public class DiffractionMetadataComposite implements IMetadataPage {
 
-	private Text wavelength;
+	private FloatSpinner wavelength;
 	private Text phiStart;
 	private Text phiStop;
 	private Text phiRange;
@@ -137,18 +138,21 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 			lblWavelength.setText("Wavelength");
 		}
 		{
-			wavelength = new Text(experimentmetadata, SWT.READ_ONLY);
+			wavelength = new FloatSpinner(experimentmetadata, SWT.SINGLE | SWT.BORDER | SWT.RIGHT, 9, 4);
 			wavelength.setBackground(experimentmetadata.getBackground());
-			wavelength.setEditable(editable);
-			
-			wavelength.addModifyListener(new ModifyListener() {
+			wavelength.setEnabled(editable);
+			wavelength.setIncrement(0.01);
+			wavelength.addSelectionListener(new SelectionListener() {
 				@Override
-				public void modifyText(ModifyEvent e) {
-					String t = wavelength.getText();
-					updateWavelength(Double.valueOf(t));
+				public void widgetSelected(SelectionEvent e) {
+					updateWavelength(wavelength.getDouble());
 				}
-			});
 
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+					// TODO Auto-generated method stub
+				}
+			});		
 		}
 		new Label(experimentmetadata, SWT.NONE).setText("\u00c5");
 		{
@@ -188,22 +192,19 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 			lblDistance.setText("Distance");
 		}
 		{
-			//distanceToDetector = new Text(detectorMetadata, SWT.READ_ONLY);
-			
-			distanceToDetector = new FloatSpinner(detectorMetadata, SWT.SINGLE | SWT.BORDER | SWT.RIGHT, 6, 2);
+			distanceToDetector = new FloatSpinner(detectorMetadata, SWT.SINGLE | SWT.BORDER | SWT.RIGHT, 9, 4);
 			distanceToDetector.setBackground(detectorMetadata.getBackground());
 			distanceToDetector.setEnabled(editable);
-			
-			distanceToDetector.addKeyListener(new KeyListener() {
+			distanceToDetector.setIncrement(1.0);
+			distanceToDetector.addSelectionListener(new SelectionListener() {
 				@Override
-				public void keyReleased(KeyEvent e) {
+				public void widgetSelected(SelectionEvent e) {
+					updateDistanceToDetector(distanceToDetector.getDouble());
 				}
 
 				@Override
-				public void keyPressed(KeyEvent e) {
-					if (e.keyCode == SWT.CR) {
-						updateDistanceToDetector(distanceToDetector.getDouble());
-					}
+				public void widgetDefaultSelected(SelectionEvent e) {
+					// TODO Auto-generated method stub
 				}
 			});		
 		}
@@ -440,7 +441,7 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
-				wavelength.setText(String.valueOf(diffenv.getWavelength()));
+				wavelength.setDouble(diffenv.getWavelength());
 				phiStart.setText(String.valueOf(diffenv.getPhiStart()));
 				phiStop.setText(String.valueOf(diffenv.getPhiStart() + diffenv.getPhiRange()));
 				phiRange.setText(String.valueOf(diffenv.getPhiRange()));
@@ -490,7 +491,7 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 
-				wavelength.setText("");
+				wavelength.setDouble(0.0);
 				phiStart.setText("");
 				phiStop.setText("");
 				phiRange.setText("");
