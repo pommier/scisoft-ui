@@ -25,11 +25,11 @@ import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.views.DatasetInspectorView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView;
-import uk.ac.diamond.sda.meta.views.MetadataPageView;
 
 public class DataExplorationPerspective implements IPerspectiveFactory {
 
 	public static final String ID = "uk.ac.diamond.scisoft.dataexplorationperspective";
+	final static String METADATAPAGE_ID = "uk.ac.diamond.sda.meta.MetadataPageView";
 	@Override
 	public void createInitialLayout(IPageLayout layout) {
 		String editorArea = layout.getEditorArea();
@@ -56,7 +56,7 @@ public class DataExplorationPerspective implements IPerspectiveFactory {
 			layout.addView(sidePlot, IPageLayout.RIGHT, 0.60f, plot);
 			if (layout.getViewLayout(sidePlot) != null)
 				layout.getViewLayout(sidePlot).setCloseable(false);
-			layout.addView(MetadataPageView.ID, IPageLayout.BOTTOM, 0.60f, sidePlot);
+			layout.addView(METADATAPAGE_ID, IPageLayout.BOTTOM, 0.60f, sidePlot);
 		}
 		if(getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM){
 			IFolderLayout metaFolderLayout = layout.createFolder("toolPageFolder", IPageLayout.RIGHT, 0.6f, plot);
@@ -68,8 +68,8 @@ public class DataExplorationPerspective implements IPerspectiveFactory {
 //			layout.getViewLayout(tool2D).setCloseable(false);
 			metaFolderLayout.addView("org.dawb.workbench.views.dataSetView");
 
-			//layout.addView(MetadataPageView.ID, IPageLayout.BOTTOM, 0.6f, "toolPageFolder");
-			metaFolderLayout.addView(MetadataPageView.ID);
+			//layout.addView(METADATAPAGE_ID, IPageLayout.BOTTOM, 0.6f, "toolPageFolder");
+			metaFolderLayout.addView(METADATAPAGE_ID);
 		}
 
 		String inspector = DatasetInspectorView.ID;

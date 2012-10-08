@@ -202,4 +202,12 @@ public class FloatSpinner extends Composite {
 	public boolean isSpinner(Object source) {
 		return source == spinner;
 	}
+	
+	public void setIncrement(double inc) {
+		spinner.setIncrement((int) (inc * factor));
+	}
+	
+	public double getIncrement() {
+		return spinner.getIncrement() / factor;
+	}
 }

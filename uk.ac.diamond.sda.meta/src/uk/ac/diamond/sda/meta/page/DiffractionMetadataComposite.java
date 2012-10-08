@@ -16,15 +16,22 @@
 
 package uk.ac.diamond.sda.meta.page;
 
+import java.util.HashSet;
+
+import javax.vecmath.Vector3d;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -33,24 +40,22 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IViewPart;
-import org.eclipse.ui.IViewReference;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.progress.UIJob;
 
 import uk.ac.diamond.scisoft.analysis.diffraction.DetectorProperties;
 import uk.ac.diamond.scisoft.analysis.diffraction.DiffractionCrystalEnvironment;
 import uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
+import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
 import uk.ac.diamond.sda.meta.Activator;
 
 public class DiffractionMetadataComposite implements IMetadataPage {
 
-	private Text wavelength;
+	private FloatSpinner wavelength;
 	private Text phiStart;
 	private Text phiStop;
 	private Text phiRange;
-	private Text distanceToDetector;
+	private FloatSpinner distanceToDetector;
 	private Text detectorSizeX;
 	private Text detectorSizeY;
 	private Text PixelSizeX;
@@ -68,6 +73,7 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 	private DetectorProperties detprop;
 	private DiffractionCrystalEnvironment diffenv;
 	private boolean editable;
+	private HashSet<IDiffractionMetadataCompositeListener> diffMetaCompListeners; 
 
 	public DiffractionMetadataComposite() {
 
@@ -99,6 +105,16 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		detprop.setBeamLocation(beam);
 	}
 	
+	void updateWavelength(double angstrom) {
+		diffenv.setWavelength(angstrom);
+	}
+
+	void updateDistanceToDetector(double mm) {
+		Vector3d origin = detprop.getOrigin();
+		origin.z = mm;
+		detprop.setOrigin(origin);
+	}
+	
 	@Override
 	public Composite createComposite(Composite parent) {
 
@@ -122,8 +138,21 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 			lblWavelength.setText("Wavelength");
 		}
 		{
-			wavelength = new Text(experimentmetadata, SWT.READ_ONLY);
+			wavelength = new FloatSpinner(experimentmetadata, SWT.SINGLE | SWT.BORDER | SWT.RIGHT, 9, 4);
 			wavelength.setBackground(experimentmetadata.getBackground());
+			wavelength.setEnabled(editable);
+			wavelength.setIncrement(0.01);
+			wavelength.addSelectionListener(new SelectionListener() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					updateWavelength(wavelength.getDouble());
+				}
+
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+					// TODO Auto-generated method stub
+				}
+			});		
 		}
 		new Label(experimentmetadata, SWT.NONE).setText("\u00c5");
 		{
@@ -163,9 +192,21 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 			lblDistance.setText("Distance");
 		}
 		{
-			distanceToDetector = new Text(detectorMetadata, SWT.READ_ONLY);
+			distanceToDetector = new FloatSpinner(detectorMetadata, SWT.SINGLE | SWT.BORDER | SWT.RIGHT, 9, 4);
 			distanceToDetector.setBackground(detectorMetadata.getBackground());
+			distanceToDetector.setEnabled(editable);
+			distanceToDetector.setIncrement(1.0);
+			distanceToDetector.addSelectionListener(new SelectionListener() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					updateDistanceToDetector(distanceToDetector.getDouble());
+				}
 
+				@Override
+				public void widgetDefaultSelected(SelectionEvent e) {
+					// TODO Auto-generated method stub
+				}
+			});		
 		}
 		new Label(detectorMetadata, SWT.NONE).setText("mm");
 		{
@@ -305,7 +346,15 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 			showBeam.setImage(Activator.getImageDescriptor("icons/asterisk_yellow.png").createImage());
 			showBeam.setEnabled(editable);
 			showBeam.setVisible(editable);
+			showBeam.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					fireDiffractionMetadataCompositeListeners(new DiffractionMetadataCompositeEvent(this, "Beam Center"));
+				}
+			});
 	
+			
+			
 			// Middle right tile contains the right button
 			Button rightBeam = new Button(beamCentreControls, SWT.NONE);
 			rightBeam.setImage(Activator.getImageDescriptor("/icons/arrow_right.png").createImage());
@@ -392,12 +441,12 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
-				wavelength.setText(String.valueOf(diffenv.getWavelength()));
+				wavelength.setDouble(diffenv.getWavelength());
 				phiStart.setText(String.valueOf(diffenv.getPhiStart()));
 				phiStop.setText(String.valueOf(diffenv.getPhiStart() + diffenv.getPhiRange()));
 				phiRange.setText(String.valueOf(diffenv.getPhiRange()));
 
-				distanceToDetector.setText(String.valueOf(detprop.getOrigin().z));
+				distanceToDetector.setDouble(detprop.getOrigin().z);
 				detectorSizeX.setText(String.valueOf(detprop.getDetectorSizeH()));
 				detectorSizeY.setText(String.valueOf(detprop.getDetectorSizeV()));
 				PixelSizeX.setText(String.valueOf(detprop.getHPxSize()));
@@ -442,12 +491,12 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 
-				wavelength.setText("");
+				wavelength.setDouble(0.0);
 				phiStart.setText("");
 				phiStop.setText("");
 				phiRange.setText("");
 
-				distanceToDetector.setText("");
+				distanceToDetector.setDouble(0.0);
 				detectorSizeX.setText("");
 				detectorSizeY.setText("");
 				PixelSizeX.setText("");
@@ -476,4 +525,30 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 //			clearGUI();
 //		}
 	}
+	
+	
+	public void addDiffractionMetadataCompositeListener(IDiffractionMetadataCompositeListener l) {
+		if (diffMetaCompListeners==null) 
+			diffMetaCompListeners = new HashSet<IDiffractionMetadataCompositeListener>(5);
+		diffMetaCompListeners.add(l);
+	}
+	/**
+	 * Call from dispose of part listening to listen to detector properties changing
+	 * @param l
+	 */
+	public void removeDiffractionMetadataCompositeListener(IDiffractionMetadataCompositeListener l) {
+		if (diffMetaCompListeners==null) 
+			return;
+		diffMetaCompListeners.remove(l);
+	}
+	
+	protected void fireDiffractionMetadataCompositeListeners(DiffractionMetadataCompositeEvent evt) {
+		if (diffMetaCompListeners==null) 
+			return;
+		for (IDiffractionMetadataCompositeListener l : diffMetaCompListeners) {
+			l.diffractionMetadataCompositeChanged(evt);
+		}
+	}
+
+
 }
