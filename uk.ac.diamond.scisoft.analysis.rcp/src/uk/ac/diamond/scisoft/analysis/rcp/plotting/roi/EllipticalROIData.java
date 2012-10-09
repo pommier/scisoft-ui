@@ -18,14 +18,14 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting.roi;
 
 import uk.ac.diamond.scisoft.analysis.roi.EllipticalFitROI;
 import uk.ac.diamond.scisoft.analysis.roi.EllipticalROI;
-import uk.ac.diamond.scisoft.analysis.roi.PolygonalROI;
+import uk.ac.diamond.scisoft.analysis.roi.PolylineROI;
 
 public class EllipticalROIData extends ROIData {
 	public EllipticalROIData(EllipticalROI eroi) {
 		roi = eroi;
 	}
 
-	public EllipticalROIData(PolygonalROI proi) {
+	public EllipticalROIData(PolylineROI proi) {
 		roi = new EllipticalFitROI(proi);
 	}
 }
