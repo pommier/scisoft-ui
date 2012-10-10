@@ -21,10 +21,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -75,7 +75,6 @@ public class JythonCreator implements IStartup {
 		pydevDebugPreferenceStore.setDefault(PydevConsoleConstants.INITIAL_INTERPRETER_CMDS, "#Configuring Environment, please wait\nimport scisoftpy as dnp;import sys;sys.executable=''\n");
 		pydevDebugPreferenceStore.setDefault(PydevConsoleConstants.INTERACTIVE_CONSOLE_VM_ARGS, "-Xmx512m");
 		pydevDebugPreferenceStore.setDefault(PydevConsoleConstants.INTERACTIVE_CONSOLE_MAXIMUM_CONNECTION_ATTEMPTS, 4000);
-		
 	}
 
 
@@ -133,7 +132,7 @@ public class JythonCreator implements IStartup {
 			File pluginsDir = null;
 			if (defaultPluginsDir != null) {
 				pluginsDir = new File(defaultPluginsDir);
-				logger.debug("SDA_HOME defined as " + defaultPluginsDir);
+				logger.debug("SDA_HOME defined as {}", defaultPluginsDir);
 				if (!pluginsDir.isDirectory()) {
 					logger.debug("But SDA_HOME does not exist or is not a directory");
 					pluginsDir = null;
@@ -145,8 +144,9 @@ public class JythonCreator implements IStartup {
 				logger.error("Failed to find plugins directory!");
 				return;
 			}
+			logger.debug("Plugins directory is {}", pluginsDir);
 
-			
+			// TODO fix for moving to Diamond's Jython plugin
 			// Code copies from Pydev when the user chooses a Jython interpreter - these are the defaults
 			String executable = new File(getInterpreterDirectory(pluginsDir), "jython.jar").getAbsolutePath();
 			
@@ -164,15 +164,14 @@ public class JythonCreator implements IStartup {
 					return;
 				}
 			}
+			logger.debug("executable path = {}", executable);
 
 			// Set cache directory to something not in the installation directory
 			final String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString();
-			final File cachdir = new File(workspace, ".jython_cachedir");
+			final File cachedir = new File(workspace, ".jython_cachedir");
 			
-			cachdir.mkdirs();
-			System.setProperty("python.cachedir", cachdir.getAbsolutePath());
-			
-			logger.debug("executable path = {}", executable);
+			cachedir.mkdirs();
+			System.setProperty("python.cachedir", cachedir.getAbsolutePath());
 
 			// check for the existence of this standard pydev script
 			final File script = PydevPlugin.getScriptWithinPySrc("interpreterInfo.py");
@@ -182,7 +181,7 @@ public class JythonCreator implements IStartup {
 			}
 			logger.debug("Script path = {}", script.getAbsolutePath());
 
-			String[] cmdarray = {"java", "-Xmx64m", "-Dpython.cachedir=\""+cachdir.getAbsolutePath()+"\"", "-jar",executable, REF.getFileAbsolutePath(script) };
+			String[] cmdarray = {"java", "-Xmx64m", "-Dpython.cachedir=\""+cachedir.getAbsolutePath()+"\"", "-jar",executable, REF.getFileAbsolutePath(script) };
 			File workingDir = new File(System.getProperty("java.io.tmpdir"));
 			IPythonNature nature = null;//new PythonNature();
 			Tuple<Process, String> outTup2 = new SimpleJythonRunner().run(cmdarray, workingDir, nature, monitor);
@@ -207,7 +206,7 @@ public class JythonCreator implements IStartup {
 				info = InterpreterInfo.fromString(outputString, false);
 			} catch (Exception e) {
 				logger.error("InterpreterInfo.fromString(outTup.o1) has failed in pydev setup with exception");
-				logger.error("{}",e);
+				logger.error("{}", e);
 
 			} finally {
 				ModulesManagerWithBuild.IN_TESTS = false;
@@ -218,40 +217,38 @@ public class JythonCreator implements IStartup {
 				return;
 			}
 
-			// set of python paths
-			Set<String> pyPaths = new HashSet<String>();
-
 			// the executable is the jar itself
 			info.executableOrJar = executable;
 
-			if (System.getProperty("os.name").contains("Windows"))
-				logPaths("Library paths:", System.getenv("PATH"));
-			else
-				logPaths("Library paths:", System.getenv("LD_LIBRARY_PATH"));
+			// TODO include 'Mac OS X' if needed "DYLD_LIBRARY_PATH" + others ...
+			final String pathEnv = System.getProperty("os.name").contains("Windows") ? "PATH" : "LD_LIBRARY_PATH";
+			logPaths("Library paths:", System.getenv(pathEnv));
 
 			logPaths("Class paths:", System.getProperty("java.library.path"));
 
+			// set of python paths
+			Set<String> pyPaths = new TreeSet<String>();
+
 			// we have to find the jars before we restore the compiled libs
-			List<File> jars = JavaVmLocationFinder.findDefaultJavaJars();
+			final List<File> jars = JavaVmLocationFinder.findDefaultJavaJars();
 			for (File jar : jars) {
-				if (pyPaths.contains(jar.getAbsolutePath())) {
-					logger.warn("File already there!");
+				if (!pyPaths.add(jar.getAbsolutePath())) {
+					logger.warn("File {} already there!", jar.getName());
 				}
-				pyPaths.add(jar.getAbsolutePath());
 			}
 
 			// Defines all third party libs that can be used in scripts.
 			logger.debug("Adding files to python path");
-			final List<File> gdaJars = findJars(pluginsDir);
-			for (File file : gdaJars) {
-				if (pyPaths.contains(file.getAbsolutePath())) {
-					logger.warn("File already there!");
+			final List<File> allJars = findJars(pluginsDir);
+			for (File file : allJars) {
+				if (pyPaths.add(file.getAbsolutePath())) {
+					logger.debug("Adding jar file to python path : {} ", file.getAbsolutePath());
+				} else {
+					logger.warn("File {} already there!", file.getName());
 				}
-				pyPaths.add(file.getAbsolutePath());
-				logger.debug("Adding jar file to python path : {} ", file.getAbsolutePath());
 			}
 
-			final List<File> gdaDirs = findDirs(pluginsDir);
+			final List<File> allPluginDirs = findDirs(pluginsDir);
 
 			logger.debug("All Jars prepared");
 
@@ -259,68 +256,69 @@ public class JythonCreator implements IStartup {
 				File bundles = pluginsDir.getParentFile();
 				if (bundles.isDirectory()) {
 					// ok checking for items inside the tp directory
+					if (!new File(bundles, "tp").isDirectory()) {
+						String ws = bundles.getName();
+						int i = ws.indexOf(GIT_SUFFIX);
+						if (i >= 0) {
+							bundles = new File(bundles.getParentFile(), ws.substring(0, i));
+						}
+					}
+					final File wsPluginsDir = new File(bundles, "plugins");
+					if (wsPluginsDir.isDirectory()) {
+						allPluginDirs.addAll(findDirs(wsPluginsDir));
+					}
 					bundles = new File(bundles, "tp");
 					if (bundles.isDirectory()) {
 						bundles = new File(bundles, "plugins");
 						final List<File> tJars = findJars(bundles);
 						for (File file : tJars) {
-							if (pyPaths.contains(file.getAbsolutePath())) {
-								logger.warn("File already there!");
+							if (pyPaths.add(file.getAbsolutePath())) {
+								logger.debug("Adding jar file to python path : {} ", file.getAbsolutePath());
+							} else {
+								logger.warn("File {} already there!", file.getName());
 							}
-							pyPaths.add(file.getAbsolutePath());
-							logger.debug("Adding jar file to python path : {} ", file.getAbsolutePath());
 						}
 					}
 				}
 
 				// add plugins and ScisoftPy package
-				for (File file: gdaDirs) {
+				for (File file: allPluginDirs) {
 					File b = new File(file, "bin");
 					if (b.isDirectory()) {
-						if (pyPaths.contains(b.getAbsolutePath())) {
-							logger.warn("File already there!");
-						}
-						pyPaths.add(b.getAbsolutePath());
-						logger.debug("Adding dir to python path : {} ", b.getAbsolutePath());
-					} 
-					// also check for internal jars
-					File j = new File(file, "jars");
-					if (j.isDirectory()) {
-						for(File jar : j.listFiles()) {
-							if (pyPaths.contains(jar.getAbsolutePath())) {
-								logger.warn("File already there!");
-							}
-							pyPaths.add(jar.getAbsolutePath());
-							logger.debug("Adding jar to python path : {} ", jar.getAbsolutePath());
+						if (pyPaths.add(b.getAbsolutePath())) {
+							logger.debug("Adding dir to python path: {} ", b.getAbsolutePath());
+						} else {
+							logger.warn("Dir {} already there!", b.getAbsolutePath());
 						}
 					} 
-					// and 1 further possible place
 					// also check for internal jars
-					File jj = new File(j, "ext");
-					if (jj.isDirectory()) {
-						for(File jar : jj.listFiles()) {
-							if (pyPaths.contains(jar.getAbsolutePath())) {
-								logger.warn("File already there!");
-							}
-							pyPaths.add(jar.getAbsolutePath());
-							logger.debug("Adding jar to python path : {} ", jar.getAbsolutePath());
+					final List<File> tJars = findJars(file);
+					for (File j : tJars) {
+						if (pyPaths.add(j.getAbsolutePath())) {
+							logger.debug("Adding jar file to python path : {} ", j.getAbsolutePath());
+						} else {
+							logger.warn("File {} already there!", j.getName());
 						}
 					}
-
 				}
 			} else {
 				// and add all unjarred folders
-				for (File file: gdaDirs) {
-					if (pyPaths.contains(file.getAbsolutePath())) {
-						logger.warn("File already there!");
+				for (File file: allPluginDirs) {
+					if (pyPaths.add(file.getAbsolutePath())) {
+						logger.debug("Adding dir to python path: {} ", file.getAbsolutePath());
+					} else {
+						logger.warn("Dir {} already there!", file.getName());
 					}
-					pyPaths.add(file.getAbsolutePath());
-					logger.debug("Adding dir to python path : {} ", file.getAbsolutePath());
 				}
 			}
 
+			Set<String> removals = new HashSet<String>();
+			for (String s : info.libs) {
+				if (s.endsWith("PySrc"))
+					removals.add(s);
+			}
+			info.libs.removeAll(removals);
 			info.libs.addAll(pyPaths);
-			Collections.sort(info.libs);
 
 			// now set up the LD_LIBRARY_PATH, or PATH for windows
 			File libraryDir = new File(pluginsDir.getParentFile(), "lib");
@@ -331,7 +329,7 @@ public class JythonCreator implements IStartup {
 				StringBuilder allPaths = new StringBuilder();
 				String osarch = Platform.getOS() + "-" + Platform.getOSArch();
 				logger.debug("Using OS and ARCH: {}", osarch);
-				for (File dir : gdaDirs) {
+				for (File dir : allPluginDirs) {
 					File d = new File(dir, "lib");
 					if (d.isDirectory()) {
 						d = new File(d, osarch);
@@ -339,7 +337,7 @@ public class JythonCreator implements IStartup {
 							if (allPaths.length() != 0) {
 								allPaths.append(File.pathSeparatorChar);
 							}
-							logger.debug("Adding library path : {}", d);
+							logger.debug("Adding library path: {}", d);
 							allPaths.append(d.getAbsolutePath());
 						}
 					}
@@ -348,10 +346,7 @@ public class JythonCreator implements IStartup {
 				libraryPath = allPaths.toString();
 			}
 
-			// TODO include 'Mac OS X' if needed "DYLD_LIBRARY_PATH" + others ...
-			String pathEnv = System.getProperty("os.name").contains("Windows") ? "PATH" : "LD_LIBRARY_PATH";
 			String env = pathEnv + "=" + libraryPath + File.pathSeparator + System.getenv(pathEnv);
-
 			logPaths("Setting " + pathEnv + " for dynamic libraries", env);
 
 			PyDevAdditionalInterpreterSettings settings = new PyDevAdditionalInterpreterSettings();
@@ -425,9 +420,8 @@ public class JythonCreator implements IStartup {
 		return new File(new File(pluginsDir, "uk.ac.gda.libs"), JYTHON_DIR);
 	}
 
-	
 	/**
-	 * Method returns recursively all the jars found in a directory
+	 * Method returns recursively all the jars found in a directory (apart from Jython directory)
 	 * 
 	 * @return list of jar Files
 	 */
@@ -437,13 +431,13 @@ public class JythonCreator implements IStartup {
 
 		if (directoryName.exists() && directoryName.isDirectory()) {
 			for (File f : directoryName.listFiles()) {
-
+				final String name = f.getName();
 				// if the file is a jar, then add it
-				if (f.getName().endsWith(".jar")) {
+				if (name.endsWith(".jar")) {
 					if (isRequired(f, requiredKeys)) {
 						libs.add(f);
 					}
-				} else if (f.isDirectory()) {
+				} else if (f.isDirectory() && !name.equals(JYTHON_DIR)) {
 					for (File file : findJars(f)) {
 						libs.add(file);
 					}
@@ -458,14 +452,14 @@ public class JythonCreator implements IStartup {
 		Bundle b = Platform.getBundle(Activator.PLUGIN_ID);
 		logger.debug("Bundle: {}", b);
 		try {
-			File f = FileLocator.getBundleFile(b);
-			logger.debug("Bundle location: {}", f.getParent());
+			File f = FileLocator.getBundleFile(b).getParentFile();
+			logger.debug("Bundle location: {}", f.getAbsolutePath());
 
 			if (isRunningInEclipse) {
-				File git = f.getParentFile().getParentFile().getParentFile();
-				File parent = git.getParentFile();
-				String projectName = git.getName().replace(GIT_SUFFIX, "");
-				File plugins = new File(parent, projectName + "/plugins");
+				File gitws = f.getParentFile().getParentFile();
+				File parent = gitws.getParentFile();
+				String wsName = gitws.getName().replace(GIT_SUFFIX, "");
+				File plugins = new File(new File(parent, wsName), "plugins");
 
 				if (plugins.isDirectory()) {
 					logger.debug("Plugins location: {}", plugins);
@@ -473,7 +467,7 @@ public class JythonCreator implements IStartup {
 				}
 			}
 
-			return f.getParentFile();
+			return f;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -497,7 +491,7 @@ public class JythonCreator implements IStartup {
 	private List<File> findDirs(File directoryName) {
 
 		// ok we get the plugins directory here, so we need to explore a bit further for git
-		final List<File> libs = new ArrayList<File>();
+		final List<File> plugins = new ArrayList<File>();
 
 		// get the basic plugins directory
 		if (directoryName.exists() && directoryName.isDirectory()) {
@@ -505,7 +499,7 @@ public class JythonCreator implements IStartup {
 				if (f.isDirectory()) {
 					if (isRequired(f, pluginKeys)) {
 						logger.debug("Adding plugin directory {}", f);
-						libs.add(f);
+						plugins.add(f);
 					}
 				}
 			}
@@ -514,7 +508,9 @@ public class JythonCreator implements IStartup {
 		// get down to the git checkouts
 		// only do this if we are running inside Eclipse
 		if (isRunningInEclipse) {
-			String gitpathname = directoryName.getParentFile().getAbsolutePath() + JythonCreator.GIT_SUFFIX;
+			String gitpathname = directoryName.getParentFile().getAbsolutePath();
+			if (!gitpathname.endsWith(GIT_SUFFIX))
+				gitpathname += GIT_SUFFIX;
 
 			List<File> dirs = new ArrayList<File>();
 
@@ -539,19 +535,19 @@ public class JythonCreator implements IStartup {
 					if (plugin.isDirectory()) {
 						if (isRequired(plugin, pluginKeys)) {
 							logger.debug("Adding plugin directory {}", f);
-							libs.add(plugin);
+							plugins.add(plugin);
 						}
 					}
 				}
 			}
 		}
 
-		return libs;
+		return plugins;
 	}
 
 	private static boolean isRequired(File file, String[] keys) {
 		String filename = file.getName();
-		logger.debug("Jar/dir found: {}", filename);
+//		logger.debug("Jar/dir found: {}", filename);
 		for (String key : keys) {
 			if (filename.startsWith(key)) return true;
 		}
