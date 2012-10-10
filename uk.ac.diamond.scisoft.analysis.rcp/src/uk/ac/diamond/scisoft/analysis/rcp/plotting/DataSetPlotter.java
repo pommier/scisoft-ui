@@ -2074,7 +2074,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, Listene
 		try {
 			PlotExportUtil.saveGraph(filename, fileType, viewerApp);
 		} catch (Exception e) {
-			logger.error(e.getCause().getMessage(), e);
+			logger.error("writing graph file failed", e);
 		 	Status status = new Status(IStatus.ERROR, AnalysisRCPActivator.PLUGIN_ID, e.getMessage(), e); 
 		 	ErrorDialog.openError(getComposite().getShell(), "Image export error", "Error saving image file", status);
 		} finally {
