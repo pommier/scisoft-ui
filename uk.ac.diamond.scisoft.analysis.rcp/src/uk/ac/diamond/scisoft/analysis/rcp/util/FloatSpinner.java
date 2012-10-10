@@ -16,9 +16,16 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.util;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dawb.common.ui.menu.MenuAction;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -26,11 +33,14 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Spinner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A spinner class that supports floating point numbers of fixed precision
  */
 public class FloatSpinner extends Composite {
+	private static final Logger logger = LoggerFactory.getLogger(FloatSpinner.class);
 
 	private int width;
 	private int precision;
@@ -209,5 +219,52 @@ public class FloatSpinner extends Composite {
 	
 	public double getIncrement() {
 		return spinner.getIncrement() / factor;
+	}
+	
+	/**
+	 * Method creates a right-click menu for a FloatSpinner with options for resetting to original value, and for setting the increment.
+	 * @param increments an array of doubles representing the different increments allowed
+	 * @param resetObject the object from which the resetGetter is invoked
+	 * @param resetMethod the method that gets the original value
+	 */
+	public void createMenu(final double[] increments, final Object resetObject, final Method resetMethod) {
+ 		final MenuManager popupMenu = new MenuManager();
+ 		popupMenu.setRemoveAllWhenShown(true);
+ 		getControl().setMenu(popupMenu.createContextMenu(getControl()));
+ 		popupMenu.addMenuListener(new IMenuListener() {
+			@Override
+			public void menuAboutToShow(IMenuManager manager) {
+		 		MenuAction incMenu = new MenuAction("Increment");
+		 		popupMenu.add(incMenu);
+		 		
+		 		for (final double inc: increments)  {
+		 			incMenu.add(new Action(String.valueOf(inc)) {
+		 				@Override
+		 				public void run() {
+		 					setIncrement(inc);
+		 				}
+		 			});
+		 		}
+
+		 		popupMenu.add(new Action("Reset") {
+		 			@Override
+		 			public void run() {
+		 				Object[] params = new Object[0];
+		 				
+						try {
+							resetMethod.invoke(resetObject, params);
+						} catch (IllegalArgumentException e) {
+							logger.error("Can't invoke method (illegal argument).", e);
+						} catch (IllegalAccessException e) {
+							logger.error("Can't invoke method (illegal access).", e);
+						} catch (InvocationTargetException e) {
+							logger.error("Can't invoke method (invokation target).", e);
+						}
+		 			}
+		 		});
+
+		 		manager.update();
+			}
+		});
 	}
 }

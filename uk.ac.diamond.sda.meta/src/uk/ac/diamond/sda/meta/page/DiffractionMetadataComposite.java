@@ -18,6 +18,8 @@ package uk.ac.diamond.sda.meta.page;
 
 import java.util.HashSet;
 
+import java.lang.reflect.Method;
+
 import javax.vecmath.Vector3d;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -25,8 +27,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -41,6 +41,8 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.progress.UIJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.diffraction.DetectorProperties;
 import uk.ac.diamond.scisoft.analysis.diffraction.DiffractionCrystalEnvironment;
@@ -50,6 +52,8 @@ import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
 import uk.ac.diamond.sda.meta.Activator;
 
 public class DiffractionMetadataComposite implements IMetadataPage {
+
+	private static final Logger logger = LoggerFactory.getLogger(DiffractionMetadataComposite.class);
 
 	private FloatSpinner wavelength;
 	private Text phiStart;
@@ -73,6 +77,7 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 	private DetectorProperties detprop;
 	private DiffractionCrystalEnvironment diffenv;
 	private boolean editable;
+	private double wavelengthOriginal, distanceToDetectorOriginal;
 	private HashSet<IDiffractionMetadataCompositeListener> diffMetaCompListeners; 
 
 	public DiffractionMetadataComposite() {
@@ -114,9 +119,20 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		origin.z = mm;
 		detprop.setOrigin(origin);
 	}
+
+	public void resetWavelengthToOriginal() {
+		updateWavelength(wavelengthOriginal);
+		wavelength.setDouble(wavelengthOriginal);
+	}
+
+	public void resetDistanceToDetectorToOriginal() {
+		updateDistanceToDetector(distanceToDetectorOriginal);
+		distanceToDetector.setDouble(distanceToDetectorOriginal);
+	}
 	
 	@Override
 	public Composite createComposite(Composite parent) {
+		final double[] incs = {1.0, 0.1, 0.01, 0.001, 0.0001}; 
 
 		this.content = new Composite(parent, SWT.NONE);
 		content.setLayout(new GridLayout(1, true));
@@ -133,27 +149,38 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		experimentmetadata.setLayout(new GridLayout(3, false));
 		experimentmetadata.setText("Experimental Information");
 
-		{
-			Label lblWavelength = new Label(experimentmetadata, SWT.NONE);
-			lblWavelength.setText("Wavelength");
-		}
-		{
-			wavelength = new FloatSpinner(experimentmetadata, SWT.SINGLE | SWT.BORDER | SWT.RIGHT, 9, 4);
-			wavelength.setBackground(experimentmetadata.getBackground());
-			wavelength.setEnabled(editable);
-			wavelength.setIncrement(0.01);
-			wavelength.addSelectionListener(new SelectionListener() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					updateWavelength(wavelength.getDouble());
-				}
+		Label lblWavelength = new Label(experimentmetadata, SWT.NONE);
+		lblWavelength.setText("Wavelength");
+		lblWavelength.setEnabled(true);
+		lblWavelength.setToolTipText("");
 
-				@Override
-				public void widgetDefaultSelected(SelectionEvent e) {
-					// TODO Auto-generated method stub
-				}
-			});		
+		
+		Method resetWavelengthToOriginalMethod = null;
+		try {
+			resetWavelengthToOriginalMethod = this.getClass().getMethod("resetWavelengthToOriginal", (Class<?>[])null);
+		} catch (SecurityException e1) {
+			logger.error("Can't get method getWavelengthOriginal (security exception)", e1);
+		} catch (NoSuchMethodException e1) {
+			logger.error("Can't get method getWavelengthOriginal (no such method)", e1);
 		}
+
+		wavelength = new FloatSpinner(experimentmetadata, SWT.SINGLE | SWT.BORDER | SWT.RIGHT, 7, 4);
+		wavelength.createMenu(incs, this, resetWavelengthToOriginalMethod);
+		wavelength.setBackground(experimentmetadata.getBackground());
+		wavelength.setEnabled(editable);
+		wavelength.setIncrement(0.01);
+		wavelength.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				updateWavelength(wavelength.getDouble());
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+			}
+		});
+
 		new Label(experimentmetadata, SWT.NONE).setText("\u00c5");
 		{
 			Label lblStart = new Label(experimentmetadata, SWT.NONE);
@@ -175,7 +202,7 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		new Label(experimentmetadata, SWT.NONE).setText("\u00B0");
 		{
 			Label lblOscillationRange = new Label(experimentmetadata, SWT.NONE);
-			lblOscillationRange.setText("Oscillation Range");
+			lblOscillationRange.setText("Osc. Range");
 		}
 		{
 			phiRange = new Text(experimentmetadata, SWT.READ_ONLY);
@@ -187,27 +214,36 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		detectorMetadata.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 2));
 		detectorMetadata.setLayout(new GridLayout(3, false));
 		detectorMetadata.setText("Detector Metadata");
-		{
-			Label lblDistance = new Label(detectorMetadata, SWT.NONE);
-			lblDistance.setText("Distance");
-		}
-		{
-			distanceToDetector = new FloatSpinner(detectorMetadata, SWT.SINGLE | SWT.BORDER | SWT.RIGHT, 9, 4);
-			distanceToDetector.setBackground(detectorMetadata.getBackground());
-			distanceToDetector.setEnabled(editable);
-			distanceToDetector.setIncrement(1.0);
-			distanceToDetector.addSelectionListener(new SelectionListener() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					updateDistanceToDetector(distanceToDetector.getDouble());
-				}
 
-				@Override
-				public void widgetDefaultSelected(SelectionEvent e) {
-					// TODO Auto-generated method stub
-				}
-			});		
+		Label lblDistance = new Label(detectorMetadata, SWT.NONE);
+		lblDistance.setText("Distance");
+
+		Method resetDistanceToDetectorToOriginalMethod = null;
+		try {
+			resetDistanceToDetectorToOriginalMethod = this.getClass().getMethod("resetDistanceToDetectorToOriginal", (Class<?>[])null);
+		} catch (SecurityException e1) {
+			logger.error("Can't get method getDistanceToDetectorOriginal (security exception)", e1);
+		} catch (NoSuchMethodException e1) {
+			logger.error("Can't get method getDistanceToDetectorOriginal (no such method)", e1);
 		}
+		
+		distanceToDetector = new FloatSpinner(detectorMetadata, SWT.SINGLE | SWT.BORDER | SWT.RIGHT, 8, 4);
+		distanceToDetector.createMenu(incs, this, resetDistanceToDetectorToOriginalMethod);
+		distanceToDetector.setBackground(detectorMetadata.getBackground());
+		distanceToDetector.setEnabled(editable);
+		distanceToDetector.setIncrement(1.0);
+		distanceToDetector.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				updateDistanceToDetector(distanceToDetector.getDouble());
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+			}
+		});		
+
 		new Label(detectorMetadata, SWT.NONE).setText("mm");
 		{
 			Label lblSizex = new Label(detectorMetadata, SWT.NONE);
@@ -248,7 +284,7 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		new Label(detectorMetadata, SWT.NONE).setText("mm");
 		{
 			Label lblTime = new Label(detectorMetadata, SWT.NONE);
-			lblTime.setText("Exposure Time");
+			lblTime.setText("Exp. Time");
 		}
 		{
 			ExposureTime = new Text(detectorMetadata, SWT.READ_ONLY);
@@ -257,7 +293,7 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		new Label(detectorMetadata, SWT.NONE).setText("s");
 		{
 			Label lblMaxPxVal = new Label(detectorMetadata, SWT.NONE);
-			lblMaxPxVal.setText("Maximum Value");
+			lblMaxPxVal.setText("Max. Val.");
 			lblMaxPxVal.setToolTipText("Maximum pixel value of the dataset being plotted.");
 		}
 		{
@@ -267,7 +303,7 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		new Label(detectorMetadata, SWT.NONE).setText("");
 		{
 			Label lblMinPxVal = new Label(detectorMetadata, SWT.NONE);
-			lblMinPxVal.setText("Minimum Value");
+			lblMinPxVal.setText("Min. Val.");
 			lblMinPxVal.setToolTipText("Minimum pixel value of the dataset being plotted.");
 		}
 		{
@@ -287,7 +323,7 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		new Label(detectorMetadata, SWT.NONE).setText("");
 		{
 			Label lblThreashold = new Label(detectorMetadata, SWT.NONE);
-			lblThreashold.setText("Overload Value");
+			lblThreashold.setText("Overload Val.");
 			lblThreashold.setToolTipText("Displays the maximum possible pixel value");
 		}
 		{
@@ -442,11 +478,12 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				wavelength.setDouble(diffenv.getWavelength());
+				wavelengthOriginal = diffenv.getWavelength();
 				phiStart.setText(String.valueOf(diffenv.getPhiStart()));
 				phiStop.setText(String.valueOf(diffenv.getPhiStart() + diffenv.getPhiRange()));
 				phiRange.setText(String.valueOf(diffenv.getPhiRange()));
-
 				distanceToDetector.setDouble(detprop.getOrigin().z);
+				distanceToDetectorOriginal = detprop.getOrigin().z;
 				detectorSizeX.setText(String.valueOf(detprop.getDetectorSizeH()));
 				detectorSizeY.setText(String.valueOf(detprop.getDetectorSizeV()));
 				PixelSizeX.setText(String.valueOf(detprop.getHPxSize()));
