@@ -106,6 +106,10 @@ public class ImageEditor extends EditorPart implements IReusableEditor {
 		} catch (Exception e) {
 			logger.error("Cannot create file!", e);
 		}
+
+        if (imgxp == null)
+        	return;
+
         try {
 			imgxp.loadFileAndDisplay(file.getPath(), null);
 		} catch (Exception e) {
