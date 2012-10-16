@@ -181,7 +181,7 @@ public class JythonCreator implements IStartup {
 			}
 			logger.debug("Script path = {}", script.getAbsolutePath());
 
-			String[] cmdarray = {"java", "-Xmx64m", "-Dpython.cachedir=\""+cachedir.getAbsolutePath()+"\"", "-jar",executable, REF.getFileAbsolutePath(script) };
+			String[] cmdarray = {"java", "-Xmx64m", "-Dpython.cachedir="+cachedir.getAbsolutePath(), "-jar",executable, REF.getFileAbsolutePath(script) };
 			File workingDir = new File(System.getProperty("java.io.tmpdir"));
 			IPythonNature nature = null;//new PythonNature();
 			Tuple<Process, String> outTup2 = new SimpleJythonRunner().run(cmdarray, workingDir, nature, monitor);
@@ -243,8 +243,8 @@ public class JythonCreator implements IStartup {
 			for (File file : allJars) {
 				if (pyPaths.add(file.getAbsolutePath())) {
 					logger.debug("Adding jar file to python path : {} ", file.getAbsolutePath());
-				} else {
-					logger.warn("File {} already there!", file.getName());
+//				} else {
+//					logger.warn("File {} already there!", file.getName());
 				}
 			}
 
@@ -274,8 +274,8 @@ public class JythonCreator implements IStartup {
 						for (File file : tJars) {
 							if (pyPaths.add(file.getAbsolutePath())) {
 								logger.debug("Adding jar file to python path : {} ", file.getAbsolutePath());
-							} else {
-								logger.warn("File {} already there!", file.getName());
+//							} else {
+//								logger.warn("File {} already there!", file.getName());
 							}
 						}
 					}
@@ -287,8 +287,8 @@ public class JythonCreator implements IStartup {
 					if (b.isDirectory()) {
 						if (pyPaths.add(b.getAbsolutePath())) {
 							logger.debug("Adding dir to python path: {} ", b.getAbsolutePath());
-						} else {
-							logger.warn("Dir {} already there!", b.getAbsolutePath());
+//						} else {
+//							logger.warn("Dir {} already there!", b.getAbsolutePath());
 						}
 					} 
 					// also check for internal jars
@@ -296,8 +296,8 @@ public class JythonCreator implements IStartup {
 					for (File j : tJars) {
 						if (pyPaths.add(j.getAbsolutePath())) {
 							logger.debug("Adding jar file to python path : {} ", j.getAbsolutePath());
-						} else {
-							logger.warn("File {} already there!", j.getName());
+//						} else {
+//							logger.warn("File {} already there!", j.getName());
 						}
 					}
 				}
@@ -306,8 +306,8 @@ public class JythonCreator implements IStartup {
 				for (File file: allPluginDirs) {
 					if (pyPaths.add(file.getAbsolutePath())) {
 						logger.debug("Adding dir to python path: {} ", file.getAbsolutePath());
-					} else {
-						logger.warn("Dir {} already there!", file.getName());
+//					} else {
+//						logger.warn("Dir {} already there!", file.getName());
 					}
 				}
 			}
