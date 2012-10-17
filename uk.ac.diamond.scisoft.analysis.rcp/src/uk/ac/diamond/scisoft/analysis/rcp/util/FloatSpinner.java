@@ -26,6 +26,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -234,10 +235,34 @@ public class FloatSpinner extends Composite {
  		popupMenu.addMenuListener(new IMenuListener() {
 			@Override
 			public void menuAboutToShow(IMenuManager manager) {
+				Action cutAction = new Action("Cut") {
+					@Override
+					public void run() {
+						spinner.cut();
+					}
+				};
+				Action copyAction = new Action("Copy") {
+					@Override
+					public void run() {
+						spinner.copy();
+					}
+				};
+				Action pasteAction = new Action("Paste") {
+					@Override
+					public void run() {
+						spinner.paste();
+					}
+				};
+				
+				popupMenu.add(cutAction);
+				popupMenu.add(copyAction);
+				popupMenu.add(pasteAction);
+				popupMenu.add(new Separator());
+
 		 		MenuAction incMenu = new MenuAction("Increment");
 		 		popupMenu.add(incMenu);
 		 		
-		 		for (final double inc: increments)  {
+		 		for (final double inc: increments) {
 		 			incMenu.add(new Action(String.valueOf(inc)) {
 		 				@Override
 		 				public void run() {
