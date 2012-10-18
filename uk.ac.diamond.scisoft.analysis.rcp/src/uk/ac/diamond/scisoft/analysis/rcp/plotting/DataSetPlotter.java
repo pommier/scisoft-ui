@@ -57,6 +57,7 @@ import org.dawnsci.plotting.jreality.legend.LegendTable;
 import org.dawnsci.plotting.jreality.overlay.Overlay1DConsumer;
 import org.dawnsci.plotting.jreality.overlay.Overlay2DConsumer;
 import org.dawnsci.plotting.jreality.overlay.OverlayConsumer;
+import org.dawnsci.plotting.jreality.swt.InfoBoxComponent;
 import org.dawnsci.plotting.jreality.tick.TickFormatting;
 import org.dawnsci.plotting.jreality.tool.CameraRotationTool;
 import org.dawnsci.plotting.jreality.tool.ClickWheelZoomTool;
