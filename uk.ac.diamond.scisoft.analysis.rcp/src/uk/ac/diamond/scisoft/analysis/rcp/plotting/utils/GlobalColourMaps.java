@@ -23,26 +23,26 @@ import java.util.LinkedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.AbstractMapFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.ConstMapFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.CosMapFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.CubicMapFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.CustomAPieceWiseLinearMapFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.FourthRootMapFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.GeoBlueMapFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.GeoGreenMapFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.GeoRedMapFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.LinearMapFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.NCDGamma2BlueFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.NCDGamma2GreenFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.NCDGamma2RedFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.QuarticMapFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.SinMapFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.SpecialExposureFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.SquareMapFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.SquareRootMapFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.SquareScaleOffsetMapFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.UserCustomFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.AbstractMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.ConstMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.CosMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.CubicMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.CustomAPieceWiseLinearMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.FourthRootMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.GeoBlueMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.GeoGreenMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.GeoRedMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.LinearMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.NCDGamma2BlueFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.NCDGamma2GreenFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.NCDGamma2RedFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.QuarticMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.SinMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.SpecialExposureFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.SquareMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.SquareRootMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.SquareScaleOffsetMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.UserCustomFunction;
 
 /**
  *

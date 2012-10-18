@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.RGBDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.Stats;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.AbstractMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.AbstractMapFunction;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.GlobalColourMaps;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.SWTImageUtils;
 

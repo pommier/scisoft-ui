@@ -23,7 +23,7 @@ import org.eclipse.swt.graphics.RGB;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IndexIterator;
 import uk.ac.diamond.scisoft.analysis.dataset.RGBDataset;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.AbstractMapFunction;
+import uk.ac.diamond.scisoft.analysis.histogram.mapfunctions.AbstractMapFunction;
 
 /**
  * Helper methods to convert to SWT images from datasets
