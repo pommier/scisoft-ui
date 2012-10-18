@@ -904,105 +904,110 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 			}
 		}
 		if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM) {
-			if(!plotMode.equals(GuiPlotMode.EMPTY)){
-				cleanUp(plotMode);
-				if (plotMode.equals(GuiPlotMode.ONED)){
-					doBlock();
-					parentComp.getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								setupPlotting1D();
-							} finally {
-								undoBlock();
-							}
+			if (plotMode.equals(GuiPlotMode.ONED)){
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							cleanUp(GuiPlotMode.ONED);
+							setupPlotting1D();
+						} finally {
+							undoBlock();
 						}
-					});
-				} else if (plotMode.equals(GuiPlotMode.TWOD)) {
-					doBlock();
-					parentComp.getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								setupPlotting2D();
-							} finally {
-								undoBlock();
-							}
+					}
+				});
+			} else if (plotMode.equals(GuiPlotMode.TWOD)) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							cleanUp(GuiPlotMode.TWOD);
+							setupPlotting2D();
+						} finally {
+							undoBlock();
 						}
-					});
-				} else if (plotMode.equals(GuiPlotMode.TWOD_ROIPROFILES)) {
-					doBlock();
-					parentComp.getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								setupPlotting2DROIProfile();
-							} finally {
-								undoBlock();
-							}
+					}
+				});
+			} else if (plotMode.equals(GuiPlotMode.TWOD_ROIPROFILES)) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							cleanUp(GuiPlotMode.TWOD_ROIPROFILES);
+							setupPlotting2DROIProfile();
+						} finally {
+							undoBlock();
 						}
-					});
-				} else if (plotMode.equals(GuiPlotMode.SCATTER2D)){
-					doBlock();
-					parentComp.getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								setupScatterPlotting2D();
-							} finally {
-								undoBlock();
-							}
+					}
+				});
+			} else if (plotMode.equals(GuiPlotMode.SCATTER2D)){
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							cleanUp(GuiPlotMode.SCATTER2D);
+							setupScatterPlotting2D();
+						} finally {
+							undoBlock();
 						}
-					});
-				} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
-					doBlock();
-					parentComp.getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								setupMulti1DPlot();
-							} finally {
-								undoBlock();
-							}
+					}
+				});
+			} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							cleanUp(GuiPlotMode.ONED_THREED);
+							setupMulti1DPlot();
+						} finally {
+							undoBlock();
 						}
-					});
-				} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
-					doBlock();
-					parentComp.getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								setup2DSurface();
-							} finally {
-								undoBlock();
-							}
+					}
+				});
+			} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							cleanUp(GuiPlotMode.SURF2D);
+							setup2DSurface();
+						} finally {
+							undoBlock();
 						}
-					});
-				} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
-					doBlock();
-					parentComp.getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								setupScatter3DPlot();
-							} finally {
-								undoBlock();
-							}
+					}
+				});
+			} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							cleanUp(GuiPlotMode.SCATTER3D);
+							setupScatter3DPlot();
+						} finally {
+							undoBlock();
 						}
-					});
-				} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
-					doBlock();
-					parentComp.getDisplay().asyncExec(new Runnable() {
-						@Override
-						public void run() {
-							try {
-								setupMulti2D();
-							} finally {
-								undoBlock();
-							}
+					}
+				});
+			} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
+				doBlock();
+				parentComp.getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							cleanUp(GuiPlotMode.MULTI2D);
+							setupMulti2D();
+						} finally {
+							undoBlock();
 						}
-					});
-				}
+					}
+				});
 			}else if (plotMode.equals(GuiPlotMode.EMPTY)) {
 				doBlock();
 				parentComp.getDisplay().asyncExec(new Runnable() {
