@@ -38,7 +38,10 @@ import org.dawb.common.ui.plot.region.IRegion;
 import org.dawb.common.ui.plot.region.IRegionListener;
 import org.dawb.common.ui.plot.region.ROIEvent;
 import org.dawb.common.ui.plot.region.RegionEvent;
+import org.dawb.common.ui.plot.tool.IProfileToolPage;
+import org.dawb.common.ui.plot.tool.IToolPage;
 import org.dawb.common.ui.plot.tool.IToolPageSystem;
+import org.dawb.common.ui.plot.tool.ToolPageFactory;
 import org.dawb.common.ui.plot.trace.IImageTrace;
 import org.dawb.common.ui.plot.trace.ILineTrace;
 import org.dawb.common.ui.plot.trace.ITrace;
@@ -77,7 +80,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramDataUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DuplicatePlotAction;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.InjectPyDevConsoleHandler;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.BoxLineProfileTool;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
@@ -110,8 +112,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	private String name;
 
 	private AbstractPlottingSystem plottingSystem;
-	private BoxLineProfileTool sideProfile1;
-	private BoxLineProfileTool sideProfile2;
+	private IProfileToolPage sideProfile1;
+	private IProfileToolPage sideProfile2;
 
 	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
 	private IGuiInfoManager manager = null;
@@ -302,7 +304,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 			plottingSystem.createPlotPart(sashForm2, name, bars, PlotType.PT1D, (IViewPart)manager);
 			plottingSystem.repaint();
 			
-			sideProfile1 = new BoxLineProfileTool(BoxLineType.HORIZONTAL_TYPE);
+			sideProfile1 = (IProfileToolPage)ToolPageFactory.getToolPage("org.dawb.workbench.plotting.tools.boxLineProfileTool");
+			sideProfile1.setLineType(BoxLineType.HORIZONTAL_TYPE);
 			sideProfile1.setToolSystem(plottingSystem);
 			sideProfile1.setPlottingSystem(plottingSystem);
 			sideProfile1.setTitle(name+"1");
@@ -312,7 +315,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 			sideProfile1.createControl(sashForm2);
 			sideProfile1.activate();
 			
-			sideProfile2 = new BoxLineProfileTool(BoxLineType.VERTICAL_TYPE);
+			sideProfile2 = (IProfileToolPage)ToolPageFactory.getToolPage("org.dawb.workbench.plotting.tools.boxLineProfileTool");
+			sideProfile2.setLineType(BoxLineType.VERTICAL_TYPE);
 			sideProfile2.setToolSystem(plottingSystem);
 			sideProfile2.setPlottingSystem(plottingSystem);
 			sideProfile2.setTitle(name+"2");
