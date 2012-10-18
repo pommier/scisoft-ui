@@ -37,6 +37,10 @@ public enum PlottingMode {
 	/**
 	 * 
 	 */
+	TWOD_ROIPROFILES(GuiPlotMode.TWOD_ROIPROFILES), 
+	/**
+	 * 
+	 */
 	SURF2D(GuiPlotMode.SURF2D),
 	/**
 	 * 

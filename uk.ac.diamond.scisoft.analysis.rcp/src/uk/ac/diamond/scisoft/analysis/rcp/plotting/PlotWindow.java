@@ -47,6 +47,7 @@ import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.layout.FillLayout;
@@ -54,6 +55,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -63,6 +65,8 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
+import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
@@ -73,6 +77,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.DuplicatePlotAction;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.actions.InjectPyDevConsoleHandler;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
+import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.BoxLineProfileTool;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
@@ -81,6 +86,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROIList;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
+import uk.ac.diamond.scisoft.analysis.roi.ROIProfile.BoxLineType;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROI;
 import uk.ac.diamond.scisoft.analysis.roi.RectangularROIList;
 import uk.ac.diamond.scisoft.analysis.roi.SectorROI;
@@ -104,6 +110,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	private String name;
 
 	private AbstractPlottingSystem plottingSystem;
+	private BoxLineProfileTool sideProfile1;
+	private BoxLineProfileTool sideProfile2;
 
 	private List<IObserver> observers = Collections.synchronizedList(new LinkedList<IObserver>());
 	private IGuiInfoManager manager = null;
@@ -135,6 +143,9 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	private boolean exclusiveToolars = false;
 
 	private Composite plotSystemComposite;
+	private SashForm sashForm;
+	private SashForm sashForm2;
+	private SashForm sashForm3;
 	private Composite mainPlotterComposite;
 	
 	/**
@@ -172,10 +183,15 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 			createDatasetPlotter(PlottingMode.ONED);
 		
 		if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM) {
-			createPlottingSystem();
-			cleanUpMainPlotter();
+			// if we are in 2D plotting mode with side profiles plot then we create 
+			// the MultiPlotting System
+			if(!plotMode.equals(GuiPlotMode.TWOD_ROIPROFILES))
+				createPlottingSystem();
+			else
+				createMultiPlottingSystem();
+			cleanUpDatasetPlotter();
 		}
-		
+		// Setting up
 		if (plotMode.equals(GuiPlotMode.ONED)) {
 			if(getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_DATASETPLOTTER_PLOTTING_SYSTEM)
 				setup1D();
@@ -188,6 +204,8 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 				setup2D();
 			else
 				setupPlotting2D();
+		} else if (plotMode.equals(GuiPlotMode.TWOD_ROIPROFILES)) {
+			setupPlotting2DROIProfile();
 		} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
 			setup2DSurface();
 		} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
@@ -260,7 +278,61 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 			logger.error("Cannot locate any Abstract plotting System!", e);
 		}
 	}
-	
+
+	/**
+	 * Create a plotting system layout with a main plotting system and two side plot profiles
+	 */
+	private void createMultiPlottingSystem(){
+		parentComp.setLayout(new FillLayout());
+		plotSystemComposite = new Composite(parentComp, SWT.NONE);
+		plotSystemComposite.setLayout(new GridLayout(1, true));
+		sashForm = new SashForm(plotSystemComposite, SWT.HORIZONTAL);
+		sashForm.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		
+		sashForm2 = new SashForm(sashForm, SWT.VERTICAL);
+		sashForm2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		sashForm3 = new SashForm(sashForm, SWT.VERTICAL);
+		sashForm3.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		
+		try {
+			plottingSystem = PlottingFactory.createPlottingSystem();
+			plottingSystem.setColorOption(ColorOption.NONE);
+			plottingSystem.setDatasetChoosingRequired(false);
+			
+			plottingSystem.createPlotPart(sashForm2, name, bars, PlotType.PT1D, (IViewPart)manager);
+			plottingSystem.repaint();
+			
+			sideProfile1 = new BoxLineProfileTool(BoxLineType.HORIZONTAL_TYPE);
+			sideProfile1.setToolSystem(plottingSystem);
+			sideProfile1.setPlottingSystem(plottingSystem);
+			sideProfile1.setTitle(name+"1");
+			sideProfile1.setPart((IViewPart)manager);
+			String id = this.manager.getGUIInfo().get(GuiParameters.PLOTID).toString()+"1";
+			sideProfile1.setToolId(id);
+			sideProfile1.createControl(sashForm2);
+			sideProfile1.activate();
+			
+			sideProfile2 = new BoxLineProfileTool(BoxLineType.VERTICAL_TYPE);
+			sideProfile2.setToolSystem(plottingSystem);
+			sideProfile2.setPlottingSystem(plottingSystem);
+			sideProfile2.setTitle(name+"2");
+			sideProfile2.setPart((IViewPart)manager);
+			id = id+"2";
+			sideProfile2.setToolId(id);
+			sideProfile2.createControl(sashForm3);
+			sideProfile2.activate();
+			
+			Label metaDataLabel = new Label(sashForm3, SWT.BORDER | SWT.CENTER);
+			metaDataLabel.setText("Metadata");
+			sashForm.setWeights(new int[]{1, 1});
+			this.regionListener = getRegionListener();
+			this.plottingSystem.addRegionListener(this.regionListener);
+			
+		} catch (Exception e) {
+			logger.error("Cannot locate any Abstract plotting System!", e);
+		}
+	}
+
 	/**
 	 * Return current page.
 	 * 
@@ -343,10 +415,55 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	}
 
 	/**
+	 * Cleaning up the plot view according to the current plot mode
+	 * 
+	 * @param mode
+	 */
+	private void cleanUp(GuiPlotMode mode){
+		if(mode.equals(GuiPlotMode.ONED) || mode.equals(GuiPlotMode.TWOD)
+				|| mode.equals(GuiPlotMode.SCATTER2D)){
+			cleanUpDatasetPlotter();
+			cleanUpMultiPlottingSystem();
+			if (plottingSystem == null || plottingSystem.isDisposed())
+				createPlottingSystem();
+		} else if(mode.equals(GuiPlotMode.TWOD_ROIPROFILES)){
+			cleanUpDatasetPlotter();
+			cleanUpPlottingSystem();
+			if (plottingSystem == null || plottingSystem.isDisposed())
+				createMultiPlottingSystem();
+		} else if(mode.equals(GuiPlotMode.ONED_THREED)){
+			cleanUpPlottingSystem();
+			cleanUpMultiPlottingSystem();
+			if(mainPlotter==null || mainPlotter.isDisposed())
+				createDatasetPlotter(PlottingMode.ONED_THREED);
+			cleanUpFromOldMode(true);
+		} else if(mode.equals(GuiPlotMode.SURF2D)){
+			cleanUpPlottingSystem();
+			cleanUpMultiPlottingSystem();
+			if(mainPlotter==null || mainPlotter.isDisposed())
+				createDatasetPlotter(PlottingMode.SURF2D);
+			cleanUpFromOldMode(true);
+		} else if(mode.equals(GuiPlotMode.SCATTER3D)){
+			cleanUpPlottingSystem();
+			cleanUpMultiPlottingSystem();
+			if(mainPlotter==null || mainPlotter.isDisposed())
+				createDatasetPlotter(PlottingMode.SCATTER3D);
+			cleanUpFromOldMode(true);
+		} else if(mode.equals(GuiPlotMode.MULTI2D)){
+			cleanUpPlottingSystem();
+			cleanUpMultiPlottingSystem();
+			if(mainPlotter==null || mainPlotter.isDisposed())
+				createDatasetPlotter(PlottingMode.MULTI2D);
+			cleanUpFromOldMode(true);
+		}
+		parentComp.layout();
+	}
+
+	/**
 	 * Cleaning of the DatasetPlotter and its composite
 	 * before the setting up of a Plotting System
 	 */
-	private void cleanUpMainPlotter(){
+	private void cleanUpDatasetPlotter(){
 		if (mainPlotter!=null && !mainPlotter.isDisposed()) {
 			bars.getToolBarManager().removeAll();
 			bars.getMenuManager().removeAll();
@@ -360,15 +477,31 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 	 * before the setting up of a datasetPlotter
 	 */
 	private void cleanUpPlottingSystem(){
-		if(!plottingSystem.isDisposed()){
+		if(!plottingSystem.isDisposed() 
+				&& (sideProfile1 == null || sideProfile1.isDisposed())
+				&& (sideProfile2 == null || sideProfile2.isDisposed())){
 			bars.getToolBarManager().removeAll();
 			bars.getMenuManager().removeAll();
 			for (Iterator<IRegion> iterator = plottingSystem.getRegions().iterator(); iterator.hasNext();) {
 				IRegion region = iterator.next();
 				plottingSystem.removeRegion(region);
 			}
+			plottingSystem.removeRegionListener(regionListener);
 			plottingSystem.dispose();
 			plotSystemComposite.dispose();
+		}
+	}
+
+	/**
+	 * Cleaning of the plotting system and its composite
+	 * before the setting up of a datasetPlotter
+	 */
+	private void cleanUpMultiPlottingSystem(){
+		if(sideProfile1 != null && !sideProfile1.isDisposed()){
+			sideProfile1.dispose();
+		}
+		if(sideProfile2 != null && !sideProfile2.isDisposed()){
+			sideProfile2.dispose();
 		}
 	}
 
@@ -531,6 +664,26 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		addDuplicateAction();
 	}
 
+	// AbstractPlottingSystem
+	private void setupPlotting2DROIProfile(){
+		setupPlotting2D();
+		// set the profiles axes
+		AbstractDataset xAxisValues = myBeanMemory.getAxis(AxisMapBean.XAXIS);
+		AbstractDataset yAxisValues = myBeanMemory.getAxis(AxisMapBean.YAXIS);
+		List<AbstractDataset> axes1 = Collections.synchronizedList(new LinkedList<AbstractDataset>());
+		List<AbstractDataset> axes2 = Collections.synchronizedList(new LinkedList<AbstractDataset>());
+		if(xAxisValues!=null){
+			axes1.add(0, xAxisValues);
+			axes2.add(0, yAxisValues);
+		}
+		if(yAxisValues!=null){
+			axes1.add(1, yAxisValues);
+			axes2.add(1, xAxisValues);
+		}
+		sideProfile1.setAxes(axes1);
+		sideProfile2.setAxes(axes2);
+	}
+
 	private void setupMulti2D() {
 		mainPlotter.setMode(PlottingMode.MULTI2D);
 		plotUI = new Plot2DMultiUI(this, mainPlotter, manager, parentComp, getPage(), bars, name);
@@ -605,53 +758,26 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 			}
 		}
 		if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM) {
-			if (plotMode.equals(GuiPlotMode.ONED)) {
-				cleanUpMainPlotter();
-				if (plottingSystem == null || plottingSystem.isDisposed())
-					createPlottingSystem();
-				parentComp.layout();
-				setupPlotting1D();
-			} else if (plotMode.equals(GuiPlotMode.TWOD)) {
-				cleanUpMainPlotter();
-				if (plottingSystem == null || plottingSystem.isDisposed())
-					createPlottingSystem();
-				parentComp.layout();
-				setupPlotting2D();
-			} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
-				cleanUpMainPlotter();
-				if (plottingSystem == null || plottingSystem.isDisposed())
-					createPlottingSystem();
-				parentComp.layout();
-				setupScatterPlotting2D();
-			} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
-				cleanUpPlottingSystem();
-				if(mainPlotter==null || mainPlotter.isDisposed())
-					createDatasetPlotter(PlottingMode.ONED_THREED);
-				parentComp.layout();
-				cleanUpFromOldMode(true);
-				setupMulti1DPlot();
-			} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
-				cleanUpPlottingSystem();
-				if(mainPlotter==null || mainPlotter.isDisposed())
-					createDatasetPlotter(PlottingMode.SURF2D);
-				parentComp.layout();
-				cleanUpFromOldMode(true);
-				setup2DSurface();
-			} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
-				cleanUpPlottingSystem();
-				if(mainPlotter==null || mainPlotter.isDisposed())
-					createDatasetPlotter(PlottingMode.SCATTER3D);
-				parentComp.layout();
-				cleanUpFromOldMode(true);
-				setupScatter3DPlot();
-			} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
-				cleanUpPlottingSystem();
-				if(mainPlotter==null || mainPlotter.isDisposed())
-					createDatasetPlotter(PlottingMode.MULTI2D);
-				parentComp.layout();
-				cleanUpFromOldMode(true);
-				setupMulti2D();
-			} else if (plotMode.equals(GuiPlotMode.EMPTY)) {
+			if(!plotMode.equals(GuiPlotMode.EMPTY)){
+				cleanUp(plotMode);
+				if (plotMode.equals(GuiPlotMode.ONED)) {
+					setupPlotting1D();
+				} else if (plotMode.equals(GuiPlotMode.TWOD)) {
+					setupPlotting2D();
+				} else if(plotMode.equals(GuiPlotMode.TWOD_ROIPROFILES)){
+					setupPlotting2DROIProfile();
+				} else if (plotMode.equals(GuiPlotMode.SCATTER2D)) {
+					setupScatterPlotting2D();
+				} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
+					setupMulti1DPlot();
+				} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
+					setup2DSurface();
+				} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
+					setupScatter3DPlot();
+				} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
+					setupMulti2D();
+				} 
+			}else if (plotMode.equals(GuiPlotMode.EMPTY)) {
 				clearPlot();
 			}
 		}
@@ -778,123 +904,106 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 			}
 		}
 		if (getDefaultPlottingSystemChoice() == PreferenceConstants.PLOT_VIEW_ABSTRACT_PLOTTING_SYSTEM) {
-			if (plotMode.equals(GuiPlotMode.ONED)){
-				doBlock();
-				parentComp.getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							cleanUpMainPlotter();
-							if (plottingSystem == null || plottingSystem.isDisposed())
-								createPlottingSystem();
-							parentComp.layout();
-							setupPlotting1D();
-						} finally {
-							undoBlock();
+			if(!plotMode.equals(GuiPlotMode.EMPTY)){
+				cleanUp(plotMode);
+				if (plotMode.equals(GuiPlotMode.ONED)){
+					doBlock();
+					parentComp.getDisplay().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								setupPlotting1D();
+							} finally {
+								undoBlock();
+							}
 						}
-					}
-				});
-			} else if (plotMode.equals(GuiPlotMode.TWOD)) {
-				doBlock();
-				parentComp.getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							cleanUpMainPlotter();
-							if (plottingSystem == null || plottingSystem.isDisposed())
-								createPlottingSystem();
-							parentComp.layout();
-							setupPlotting2D();
-						} finally {
-							undoBlock();
+					});
+				} else if (plotMode.equals(GuiPlotMode.TWOD)) {
+					doBlock();
+					parentComp.getDisplay().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								setupPlotting2D();
+							} finally {
+								undoBlock();
+							}
 						}
-					}
-				});
-			} else if (plotMode.equals(GuiPlotMode.SCATTER2D)){
-				doBlock();
-				parentComp.getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							cleanUpMainPlotter();
-							if (plottingSystem == null || plottingSystem.isDisposed())
-								createPlottingSystem();
-							parentComp.layout();
-							setupScatterPlotting2D();
-						} finally {
-							undoBlock();
+					});
+				} else if (plotMode.equals(GuiPlotMode.TWOD_ROIPROFILES)) {
+					doBlock();
+					parentComp.getDisplay().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								setupPlotting2DROIProfile();
+							} finally {
+								undoBlock();
+							}
 						}
-					}
-				});
-			} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
-				doBlock();
-				parentComp.getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							cleanUpPlottingSystem();
-							if(mainPlotter==null || mainPlotter.isDisposed())
-								createDatasetPlotter(PlottingMode.ONED_THREED);
-							parentComp.layout();
-							cleanUpFromOldMode(true);
-							setupMulti1DPlot();
-						} finally {
-							undoBlock();
+					});
+				} else if (plotMode.equals(GuiPlotMode.SCATTER2D)){
+					doBlock();
+					parentComp.getDisplay().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								setupScatterPlotting2D();
+							} finally {
+								undoBlock();
+							}
 						}
-					}
-				});
-			} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
-				doBlock();
-				parentComp.getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							cleanUpPlottingSystem();
-							if(mainPlotter==null || mainPlotter.isDisposed())
-								createDatasetPlotter(PlottingMode.SURF2D);
-							parentComp.layout();
-							cleanUpFromOldMode(true);
-							setup2DSurface();
-						} finally {
-							undoBlock();
+					});
+				} else if (plotMode.equals(GuiPlotMode.ONED_THREED)) {
+					doBlock();
+					parentComp.getDisplay().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								setupMulti1DPlot();
+							} finally {
+								undoBlock();
+							}
 						}
-					}
-				});
-			} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
-				doBlock();
-				parentComp.getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							cleanUpPlottingSystem();
-							if(mainPlotter==null || mainPlotter.isDisposed())
-								createDatasetPlotter(PlottingMode.SCATTER3D);
-							parentComp.layout();
-							cleanUpFromOldMode(true);
-							setupScatter3DPlot();
-						} finally {
-							undoBlock();
+					});
+				} else if (plotMode.equals(GuiPlotMode.SURF2D)) {
+					doBlock();
+					parentComp.getDisplay().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								setup2DSurface();
+							} finally {
+								undoBlock();
+							}
 						}
-					}
-				});
-			} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
-				doBlock();
-				parentComp.getDisplay().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							cleanUpPlottingSystem();
-							if(mainPlotter==null || mainPlotter.isDisposed())
-								createDatasetPlotter(PlottingMode.MULTI2D);
-							parentComp.layout();
-							cleanUpFromOldMode(true);
-							setupMulti2D();
-						} finally {
-							undoBlock();
+					});
+				} else if (plotMode.equals(GuiPlotMode.SCATTER3D)) {
+					doBlock();
+					parentComp.getDisplay().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								setupScatter3DPlot();
+							} finally {
+								undoBlock();
+							}
 						}
-					}
-				});
-			} else if (plotMode.equals(GuiPlotMode.EMPTY)) {
+					});
+				} else if (plotMode.equals(GuiPlotMode.MULTI2D)) {
+					doBlock();
+					parentComp.getDisplay().asyncExec(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								setupMulti2D();
+							} finally {
+								undoBlock();
+							}
+						}
+					});
+				}
+			}else if (plotMode.equals(GuiPlotMode.EMPTY)) {
 				doBlock();
 				parentComp.getDisplay().asyncExec(new Runnable() {
 					@Override
@@ -1043,8 +1152,14 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 				plottingSystem.removeRegionListener(regionListener);
 				plottingSystem.dispose();
 			}
+			if(sideProfile1 != null && !sideProfile1.isDisposed()){
+				sideProfile1.dispose();
+			}
+			if(sideProfile2 != null && !sideProfile2.isDisposed()){
+				sideProfile2.dispose();
+			}
 		} catch (Exception ne) {
-			logger.debug("Cannot clean up main plotter!", ne);
+			logger.debug("Cannot clean up plotter!", ne);
 		}
 		deleteIObservers();
 		mainPlotter = null;
