@@ -1142,7 +1142,7 @@
       </content-type>
    </extension>
    <extension
-         point="uk.ac.diamond.scisoft.introRegister">
+         point="org.dawnsci.introRegister">
       <introPageRegister
             description="Opens the diffraction view perspective for viewing and analysing diffraction images"
             icon="icons/diva_intro.png"
