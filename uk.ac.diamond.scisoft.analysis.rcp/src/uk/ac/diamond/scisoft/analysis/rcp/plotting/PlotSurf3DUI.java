@@ -43,6 +43,7 @@ import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractCompoundDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
@@ -55,12 +56,12 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.ScaleType;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.SurfPlotStyles;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.TickFormatting;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.SurfacePlotROI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 import uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
+import uk.ac.diamond.scisoft.analysis.roi.data.SurfacePlotROI;
 
 /**
  * A very general UI for 2D surface plotting using SWT / Eclipse RCP

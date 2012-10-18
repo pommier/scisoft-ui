@@ -21,9 +21,9 @@ import java.util.Map;
 
 import org.dawb.common.util.list.PrimitiveArrayEncoder;
 
+import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.AxisValues;
 
 /**
  * Stores information required to restore a plot. Should serialise to 

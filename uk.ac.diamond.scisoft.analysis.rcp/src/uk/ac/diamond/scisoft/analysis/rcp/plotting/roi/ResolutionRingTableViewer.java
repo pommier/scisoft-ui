@@ -45,6 +45,7 @@ import org.eclipse.swt.widgets.TableColumn;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.roi.ResolutionRing;
+import uk.ac.diamond.scisoft.analysis.roi.data.ROIData;
 
 /**
  * Class that extends a table viewer for linear regions of interests

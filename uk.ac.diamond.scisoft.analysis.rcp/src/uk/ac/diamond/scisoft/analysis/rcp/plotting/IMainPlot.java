@@ -19,6 +19,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import java.util.List;
 
+import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 
 

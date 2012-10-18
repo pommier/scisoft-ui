@@ -48,11 +48,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.OverlayType;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.PrimitiveType;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.VectorOverlayStyles;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.GridROIData;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.GridROIHandler;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.GridROITableViewer;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.HandleStatus;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIDataList;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
@@ -61,6 +57,10 @@ import uk.ac.diamond.scisoft.analysis.roi.GridPreferences;
 import uk.ac.diamond.scisoft.analysis.roi.GridROI;
 import uk.ac.diamond.scisoft.analysis.roi.GridROIList;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
+import uk.ac.diamond.scisoft.analysis.roi.data.GridROIData;
+import uk.ac.diamond.scisoft.analysis.roi.data.ROIData;
+import uk.ac.diamond.scisoft.analysis.roi.handler.GridROIHandler;
+import uk.ac.diamond.scisoft.analysis.roi.handler.HandleStatus;
 
 /**
  * A GridProfile side plot for marking regions of interest with a configurable grid layout This side plot is not

@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.GridProfile;
 import uk.ac.diamond.scisoft.analysis.roi.GridROI;
+import uk.ac.diamond.scisoft.analysis.roi.data.GridROIData;
 
 /**
  * Class that extends a table viewer for linear regions of interests

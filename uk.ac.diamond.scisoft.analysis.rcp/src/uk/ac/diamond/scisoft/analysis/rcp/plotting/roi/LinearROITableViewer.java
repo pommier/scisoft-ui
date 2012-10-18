@@ -21,6 +21,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
+import uk.ac.diamond.scisoft.analysis.roi.data.LinearROIData;
 
 /**
  * Class that extends a table viewer for linear regions of interests

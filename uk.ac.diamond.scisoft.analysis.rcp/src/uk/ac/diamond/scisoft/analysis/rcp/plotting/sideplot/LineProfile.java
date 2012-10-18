@@ -48,9 +48,9 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.AxisValues;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DAppearance;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DGraphTable;
@@ -62,11 +62,7 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.OverlayType;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.Plot1DStyles;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.PrimitiveType;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.VectorOverlayStyles;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.HandleStatus;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.LinearROIData;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.LinearROIHandler;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.LinearROITableViewer;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIDataList;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
@@ -76,6 +72,10 @@ import uk.ac.diamond.scisoft.analysis.rcp.views.plot.StaticScanPlotView;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROI;
 import uk.ac.diamond.scisoft.analysis.roi.LinearROIList;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
+import uk.ac.diamond.scisoft.analysis.roi.data.LinearROIData;
+import uk.ac.diamond.scisoft.analysis.roi.data.ROIData;
+import uk.ac.diamond.scisoft.analysis.roi.handler.HandleStatus;
+import uk.ac.diamond.scisoft.analysis.roi.handler.LinearROIHandler;
 
 import com.swtdesigner.SWTResourceManager;
 

@@ -53,16 +53,16 @@ import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay2DConsumer;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay2DProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.OverlayProvider;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.IRowData;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIDataList;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROIHandler;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.ROITableViewer;
 import uk.ac.diamond.scisoft.analysis.rcp.queue.InteractiveQueue;
 import uk.ac.diamond.scisoft.analysis.rcp.views.PlotView;
 import uk.ac.diamond.scisoft.analysis.roi.MaskingBean;
 import uk.ac.diamond.scisoft.analysis.roi.ROIBase;
 import uk.ac.diamond.scisoft.analysis.roi.ROIList;
+import uk.ac.diamond.scisoft.analysis.roi.data.IRowData;
+import uk.ac.diamond.scisoft.analysis.roi.data.ROIData;
+import uk.ac.diamond.scisoft.analysis.roi.handler.ROIHandler;
 
 /**
  * Abstract class to extend for any side plots that uses overlays and stuff on 2D images

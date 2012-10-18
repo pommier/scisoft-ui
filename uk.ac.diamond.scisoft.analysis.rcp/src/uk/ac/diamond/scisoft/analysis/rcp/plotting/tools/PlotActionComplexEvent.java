@@ -16,8 +16,8 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.tools;
 
+import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.AxisValues;
 
 /**
  * Complex Plot Action event that not only provides the position on the graph

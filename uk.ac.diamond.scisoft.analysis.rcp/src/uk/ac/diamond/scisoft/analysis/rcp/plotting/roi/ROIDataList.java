@@ -18,6 +18,8 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting.roi;
 
 import java.util.ArrayList;
 
+import uk.ac.diamond.scisoft.analysis.roi.data.ROIData;
+
 public class ROIDataList extends ArrayList<ROIData> {
 
 }

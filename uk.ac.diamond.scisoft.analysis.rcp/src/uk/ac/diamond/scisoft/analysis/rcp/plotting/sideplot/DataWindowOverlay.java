@@ -34,10 +34,10 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.VectorOverlayStyles;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay2DConsumer;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay2DProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.OverlayProvider;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.roi.SurfacePlotROI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView;
+import uk.ac.diamond.scisoft.analysis.roi.data.SurfacePlotROI;
 
 /**
  *

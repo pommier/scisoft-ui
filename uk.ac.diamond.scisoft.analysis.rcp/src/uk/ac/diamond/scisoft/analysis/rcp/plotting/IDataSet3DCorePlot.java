@@ -16,6 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
+import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColourImageData;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
