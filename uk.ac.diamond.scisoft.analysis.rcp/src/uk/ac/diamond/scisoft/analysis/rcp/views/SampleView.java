@@ -21,6 +21,11 @@ import gda.observable.IObserver;
 
 import java.util.LinkedList;
 
+import org.dawnsci.plotting.jreality.core.AxisMode;
+import org.dawnsci.plotting.jreality.impl.PlotException;
+import org.dawnsci.plotting.jreality.overlay.DemoOverlay;
+import org.dawnsci.plotting.jreality.tool.AreaSelectEvent;
+import org.dawnsci.plotting.jreality.tool.PlotActionEvent;
 import org.eclipse.swt.widgets.Composite;
 
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
@@ -28,12 +33,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotException;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.DemoOverlay;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.AreaSelectEvent;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.AbstractPlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.PlotBean;
 

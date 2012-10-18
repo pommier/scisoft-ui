@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.dawnsci.plotting.jreality.tool.AreaSelectEvent;
+import org.dawnsci.plotting.jreality.tool.PlotActionEvent;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
@@ -33,8 +35,6 @@ import org.eclipse.ui.IActionBars;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.AbstractPlotUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.AreaSelectEvent;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.views.HistogramView;
 

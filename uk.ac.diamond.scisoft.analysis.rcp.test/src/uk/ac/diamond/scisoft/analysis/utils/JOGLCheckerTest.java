@@ -18,15 +18,11 @@ package uk.ac.diamond.scisoft.analysis.utils;
 
 import junit.framework.Assert;
 
+import org.dawnsci.plotting.jreality.util.JOGLChecker;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import uk.ac.diamond.scisoft.system.info.JOGLChecker;
-
-import de.jreality.util.Secure;
-import de.jreality.util.SystemProperties;
 
 public class JOGLCheckerTest {
 
@@ -35,8 +31,6 @@ public class JOGLCheckerTest {
 	public void testJOGLChecker() {
 		Display display = new Display();
 		Shell shell = new Shell(display);
-		String viewer = Secure.getProperty(SystemProperties.VIEWER,
-										   SystemProperties.VIEWER_DEFAULT_JOGL);
-		Assert.assertEquals(true, JOGLChecker.canUseJOGL_OpenGL(viewer, shell));
+		Assert.assertEquals(true, JOGLChecker.canUseJOGL_OpenGL(null, shell));
 	}
 }

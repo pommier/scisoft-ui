@@ -17,6 +17,7 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.actions;
 
 import java.util.ArrayList;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;

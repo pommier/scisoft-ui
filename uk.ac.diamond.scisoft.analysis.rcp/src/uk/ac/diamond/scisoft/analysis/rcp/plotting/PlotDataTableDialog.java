@@ -26,6 +26,8 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Iterator;
 
+import org.dawnsci.plotting.jreality.tool.PlotActionComplexEvent;
+import org.dawnsci.plotting.jreality.tool.SelectedWindow;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -47,8 +49,6 @@ import org.eclipse.swt.widgets.TableItem;
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionComplexEvent;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.SelectedWindow;
 import uk.ac.gda.common.rcp.util.DialogUtils;
 
 /**

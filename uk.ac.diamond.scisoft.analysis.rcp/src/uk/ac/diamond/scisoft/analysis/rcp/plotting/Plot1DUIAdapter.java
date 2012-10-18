@@ -26,6 +26,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.dawnsci.plotting.jreality.core.ScaleType;
+import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
+import org.dawnsci.plotting.jreality.impl.Plot1DGraphTable;
+import org.dawnsci.plotting.jreality.impl.Plot1DStyles;
+import org.dawnsci.plotting.jreality.tick.TickFormatting;
+import org.dawnsci.plotting.jreality.tool.PlotActionEvent;
+import org.dawnsci.plotting.jreality.tool.PlotActionEventListener;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
@@ -41,11 +48,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.Plot1DStyles;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.ScaleType;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.TickFormatting;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEvent;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEventListener;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
 import uk.ac.diamond.scisoft.analysis.rcp.util.ResourceProperties;
 

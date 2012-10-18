@@ -19,6 +19,7 @@ package uk.ac.diamond.scisoft.analysis.rcp.views;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dawnsci.plotting.jreality.overlay.Overlay2DConsumer;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.swt.SWT;
@@ -41,7 +42,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IGuiInfoManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay2DConsumer;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.ISidePlot;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.ISidePlotView;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.SidePlotManager;

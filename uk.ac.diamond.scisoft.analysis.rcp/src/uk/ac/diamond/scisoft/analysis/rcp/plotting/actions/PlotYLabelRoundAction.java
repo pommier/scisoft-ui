@@ -16,13 +16,13 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.actions;
 
+import org.dawnsci.plotting.jreality.tick.TickFormatting;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.PlatformUI;
 
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.TickFormatting;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.AbstractPlotView;
 
 /**

@@ -19,6 +19,11 @@ package uk.ac.diamond.scisoft.analysis.rcp.views.plot;
 import java.util.Collection;
 import java.util.Map;
 
+import org.dawnsci.plotting.jreality.core.AxisMode;
+import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
+import org.dawnsci.plotting.jreality.impl.Plot1DStyles;
+import org.dawnsci.plotting.jreality.tool.PlotActionComplexEvent;
+import org.dawnsci.plotting.jreality.tool.PlotActionEvent;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -31,15 +36,10 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DAppearance;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DUIAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotColorUtility;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotDataTableDialog;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.Plot1DStyles;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionComplexEvent;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEvent;
 
 /**
  * Class is extended by classes that require the ability to take a graph snap shot and put it into a static plot. Not

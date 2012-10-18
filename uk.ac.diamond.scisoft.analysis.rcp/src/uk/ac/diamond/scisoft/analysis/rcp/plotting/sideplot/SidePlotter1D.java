@@ -16,6 +16,12 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
+import org.dawnsci.plotting.jreality.core.ScaleType;
+import org.dawnsci.plotting.jreality.impl.DataSet3DPlot1D;
+import org.dawnsci.plotting.jreality.tool.PlotActionComplexEvent;
+import org.dawnsci.plotting.jreality.tool.PlotActionEvent;
+import org.dawnsci.plotting.jreality.tool.PlotActionEventListener;
+import org.dawnsci.plotting.jreality.tool.PlotRightClickActionTool;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
@@ -25,14 +31,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.preferences.ViewSettingsDialog;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSet3DPlot1D;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.ScaleType;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionComplexEvent;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEvent;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEventListener;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotRightClickActionTool;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 
 /**

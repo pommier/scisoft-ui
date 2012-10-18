@@ -16,11 +16,11 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.printing;
 
+import org.dawnsci.plotting.jreality.impl.Plot1DGraphTable;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Display;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DGraphTable;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
 import de.jreality.ui.viewerapp.AbstractViewerApp;
 

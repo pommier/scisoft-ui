@@ -17,11 +17,13 @@
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
 import gda.observable.IObservable;
+
+import org.dawnsci.plotting.jreality.tool.AreaSelectEventListener;
+import org.dawnsci.plotting.jreality.tool.PlotActionEventListener;
+
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.ISidePlotView;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.AreaSelectEventListener;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEventListener;
 
 /**
  * Generic interface for Plotting UI attached to different Plotters

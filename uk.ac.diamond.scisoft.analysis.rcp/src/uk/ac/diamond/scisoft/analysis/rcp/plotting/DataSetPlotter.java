@@ -16,8 +16,6 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting;
 
-import gda.observable.IObserver;
-
 import java.awt.Component;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -33,6 +31,42 @@ import javax.swing.BoxLayout;
 import javax.swing.JApplet;
 import javax.swing.JPanel;
 
+import org.dawnsci.plotting.jreality.compositing.CompositeEntry;
+import org.dawnsci.plotting.jreality.compositing.CompositeOp;
+import org.dawnsci.plotting.jreality.compositing.CompositingControl;
+import org.dawnsci.plotting.jreality.core.AxisMode;
+import org.dawnsci.plotting.jreality.core.IDataSet3DCorePlot;
+import org.dawnsci.plotting.jreality.core.ScaleType;
+import org.dawnsci.plotting.jreality.data.ColourImageData;
+import org.dawnsci.plotting.jreality.impl.DataSet3DPlot1D;
+import org.dawnsci.plotting.jreality.impl.DataSet3DPlot1DStack;
+import org.dawnsci.plotting.jreality.impl.DataSet3DPlot2D;
+import org.dawnsci.plotting.jreality.impl.DataSet3DPlot2DMulti;
+import org.dawnsci.plotting.jreality.impl.DataSet3DPlot3D;
+import org.dawnsci.plotting.jreality.impl.DataSetScatterPlot2D;
+import org.dawnsci.plotting.jreality.impl.DataSetScatterPlot3D;
+import org.dawnsci.plotting.jreality.impl.HistogramChartPlot1D;
+import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
+import org.dawnsci.plotting.jreality.impl.Plot1DGraphTable;
+import org.dawnsci.plotting.jreality.impl.PlotException;
+import org.dawnsci.plotting.jreality.impl.SurfPlotStyles;
+import org.dawnsci.plotting.jreality.legend.LegendChangeEvent;
+import org.dawnsci.plotting.jreality.legend.LegendChangeEventListener;
+import org.dawnsci.plotting.jreality.legend.LegendComponent;
+import org.dawnsci.plotting.jreality.legend.LegendTable;
+import org.dawnsci.plotting.jreality.overlay.Overlay1DConsumer;
+import org.dawnsci.plotting.jreality.overlay.Overlay2DConsumer;
+import org.dawnsci.plotting.jreality.overlay.OverlayConsumer;
+import org.dawnsci.plotting.jreality.tick.TickFormatting;
+import org.dawnsci.plotting.jreality.tool.CameraRotationTool;
+import org.dawnsci.plotting.jreality.tool.ClickWheelZoomTool;
+import org.dawnsci.plotting.jreality.tool.ClickWheelZoomToolWithScrollBar;
+import org.dawnsci.plotting.jreality.tool.PanActionListener;
+import org.dawnsci.plotting.jreality.tool.PanningTool;
+import org.dawnsci.plotting.jreality.tool.PlotActionEvent;
+import org.dawnsci.plotting.jreality.tool.PlotActionEventListener;
+import org.dawnsci.plotting.jreality.tool.SceneDragTool;
+import org.dawnsci.plotting.jreality.util.JOGLChecker;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -67,38 +101,13 @@ import uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColorMappingUpdate;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColourImageData;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColourLookupTable;
-import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramChartPlot1D;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.AbstractMapFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.compositing.CompositeEntry;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.compositing.CompositingControl;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.CompositeOp;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.ScaleType;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.SurfPlotStyles;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.TickFormatting;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.legend.LegendChangeEvent;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.legend.LegendChangeEventListener;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.legend.LegendComponent;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.legend.LegendTable;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay1DConsumer;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay2DConsumer;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.OverlayConsumer;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.printing.PlotPrintPreviewDialog;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.printing.PrintSettings;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.CameraRotationTool;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.ClickWheelZoomTool;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.ClickWheelZoomToolWithScrollBar;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PanActionListener;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PanningTool;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEvent;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEventListener;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.SceneDragTool;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.PlotExportUtil;
 import uk.ac.diamond.scisoft.analysis.roi.data.SurfacePlotROI;
-import uk.ac.diamond.scisoft.system.info.JOGLChecker;
 import de.jreality.math.MatrixBuilder;
 import de.jreality.scene.Camera;
 import de.jreality.scene.SceneGraphComponent;
@@ -117,7 +126,7 @@ import de.jreality.util.SystemProperties;
  * Central Plotting class responsible for all kind of plots and interaction with them
  */
 
-public class DataSetPlotter extends JPanel implements ComponentListener, IObserver, Listener, PaintListener,
+public class DataSetPlotter extends JPanel implements ComponentListener, Listener, PaintListener,
 		LegendChangeEventListener, PlotActionEventListener, IMainPlot, SelectionListener, PanActionListener {
 	protected IDataSet3DCorePlot plotter = null;
 
@@ -191,7 +200,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 
 	private PrinterData defaultPrinterData;
 	private PrintSettings settings;
-	
+
 	/**
 	 * Define the handness of the coordinate system
 	 */
@@ -266,7 +275,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 			hasJOGL = JOGLChecker.canUseJOGL_OpenGL(viewer, parent);
 		}
 		hasData = false;
-		
+
 		defaultPrinterData = Printer.getDefaultPrinterData();
 	}
 
@@ -292,7 +301,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 			legendTable.setLayoutData(gridData);
 		}
 		container.setWeights(new int[] {90, 10});		
-		legendTable.addIObserver(this);
+		//legendTable.addIObserver(this);
 		legendTable.addLegendChangeEventListener(this);
 	}
 
@@ -320,7 +329,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 			container.setWeights(new int[] {90, 10});					
 		}
 	}
-	
+
 	/**
 	 * Get the SWT composite of the DataSetPlotter
 	 * 
@@ -339,7 +348,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 	 */
 
 	private Composite createSWTGUI(Composite parent) {
-		
+
 		container = new SashForm(parent, SWT.NONE|SWT.VERTICAL);
 		container.addPaintListener(this);
 		GridLayout gridLayout = new GridLayout();
@@ -589,14 +598,14 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 	 * 			Histogram update object
 	 * 
 	 */
-	
+
 	public void applyColourCast(HistogramUpdate update) {
 		applyColourCast(update.getRedMapFunction(), update.getGreenMapFunction(), 
 						update.getBlueMapFunction(), update.getAlphaMapFunction(), 
 						update.inverseRed(), update.inverseGreen(),	update.inverseBlue(), 
 						update.inverseAlpha(), update.getMinValue(), update.getMaxValue());
 	}
-	
+
 	/**
 	 * This function applies the colour cast 
 	 * 
@@ -904,7 +913,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 			replaceAllPlots(dataSets);
 		}
 	}
-	
+
 	public void replaceAllPlots(Collection<? extends IDataset> dataSets,
 								List<AxisValues> xAxisValues,
 								List<AxisValues> yAxisValues) throws PlotException
@@ -996,7 +1005,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 			plotter.setXAxisLabel(xAxisLabel);
 			if (currentMode == PlottingMode.ONED)
 				((DataSet3DPlot1D)plotter).setSecondaryXAxisLabel(x2AxisLabel);
-			
+
 			plotter.setYAxisLabel(yAxisLabel);
 			plotter.setZAxisLabel(zAxisLabel);
 		}
@@ -1036,17 +1045,17 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 	 *             throws a PlotException when something goes wrong
 	 */
 	public void replacePlot(Collection<? extends IDataset> datasets) throws PlotException {
-		
+
 		if (currentDataSet != null) {
 			currentDataSets.remove(0);
 			currentDataSets.addAll(0, datasets);
-			
+
 			if (checkForNan(currentDataSets.get(0)) || checkForInf(currentDataSets.get(0)))
 				throw new PlotException(ERROR_MESG);
-			
+
 			checkAndAddLegend(currentDataSets);
 			plotter.updateGraph(currentDataSets);
-			
+
 		} else {
 			currentDataSets.addAll(datasets);
 			checkAndAddLegend(currentDataSets);
@@ -1066,7 +1075,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 			currentDataSet = currentDataSets.get(0);
 			checkForDiffractionImage(currentDataSet);
 		}
-		
+
 	}
 
 	/**
@@ -1195,7 +1204,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 	 * Empty the plot
 	 * 
 	 */	
-	
+
 	public void emptyPlot() {
 		setMode(PlottingMode.EMPTY);
 		coordXLabels.setVisible(false);
@@ -1203,7 +1212,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 		coordZLabels.setVisible(false);
 		coordAxes.setVisible(false);		
 	}
-	
+
 	private void clearPlot() {
 		historyCounter = 0;
 		currentDataSets.clear();
@@ -1223,9 +1232,9 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 			cmpControl.dispose();
 			cmpControl = null;
 		}
-		
+
 	}
-	
+
 	/**
 	 * Set the plotter to a new plotting mode
 	 * 
@@ -1542,7 +1551,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 		}
 	}
 
-	
+
 	/**
 	 * Push current graph in 1D mode onto history
 	 */
@@ -1636,7 +1645,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 				((DataSet3DPlot1D)plotter).setSecondaryXAxisLabel(axisName);			
 		}
 	}
-	
+
 	/**
 	 * Set y Axis values that map from each entry of the data set as an y value
 	 * 
@@ -2048,7 +2057,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 
 	public synchronized void saveGraph(String filename, String fileType) {
 		isInExporting = true;
-		
+
 		// Can't reach file permissions error message in JReality. Checking explicitly here. 
 		File p = new File(filename).getParentFile();
 		if (!p.canWrite()) {
@@ -2059,7 +2068,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 			isInExporting = false;
 			return;
 		}
-		
+
 		try {
 			PlotExportUtil.saveGraph(filename, fileType, viewerApp);
 		} catch (Exception e) {
@@ -2089,7 +2098,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 			isInExporting = false;
 		}
 	}
-	
+
 	public void printGraph() {
 		isInExporting = true;
 		if (currentMode == PlottingMode.ONED || currentMode == PlottingMode.ONED_THREED
@@ -2109,7 +2118,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 		isInExporting = false;
 
 	}
-	
+
 	/**
 	 * Copy the graph to the Clipboard.
 	 * 
@@ -2121,17 +2130,6 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 			logger.error(e.getCause().getMessage(), e);
 			Status status = new Status(IStatus.ERROR, AnalysisRCPActivator.PLUGIN_ID, e.getMessage(), e); 
 			ErrorDialog.openError(getComposite().getShell(), "Image copy error", "Error copying image to clipboard", status);
-		}
-	}
-
-	@Override
-	public void update(Object theObserved, Object changeCode) {
-		if (theObserved.equals(legendTable)) {
-			if (currentMode == PlottingMode.ONED || currentMode == PlottingMode.ONED_THREED
-					|| currentMode == PlottingMode.SCATTER2D) {
-				((DataSet3DPlot1D) plotter).updateAllGraphAppearances();
-				viewerApp.getCurrentViewer().render();
-			}
 		}
 	}
 
@@ -2203,6 +2201,15 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 					legendTable.updateTable(graphColourTable);
 				refresh(false);
 			}
+		}
+	}
+
+	@Override
+	public void legendUpdated(LegendChangeEvent evt) {
+		if (currentMode == PlottingMode.ONED || currentMode == PlottingMode.ONED_THREED
+				|| currentMode == PlottingMode.SCATTER2D) {
+			((DataSet3DPlot1D) plotter).updateAllGraphAppearances();
+			viewerApp.getCurrentViewer().render();
 		}
 	}
 
@@ -2391,7 +2398,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 			((DataSetScatterPlot3D) plotter).setUniformSize(uniform);
 		}
 	}
-	
+
 	/**
 	 * Enable/Disable Diffraction mode, this will display error pixels and overloaded pixels that seems to be specific
 	 * to MX requirements
@@ -2546,7 +2553,7 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 	public Composite getPlotArea() {
 		return plotArea;
 	}
-	
+
 	public void enableImageScrollBars(boolean enable) {
 		if (!enable) {
 			if (hBar != null && hBar.isVisible())
@@ -2561,21 +2568,21 @@ public class DataSetPlotter extends JPanel implements ComponentListener, IObserv
 		}
 		showScrollBars = enable;
 	}
-		
+
 
 	public void hideAllPlots() {
 		for (int i = 0; i < graphColourTable.getLegendSize(); i++)
 			graphColourTable.getLegendEntry(i).setVisible(false);
 		refresh(true);
 	}
-	
+
 	public void showAllPlots() {
 		for (int i = 0; i < graphColourTable.getLegendSize(); i++)
 			graphColourTable.getLegendEntry(i).setVisible(true);
 		refresh(true);
 	}
-	
-	
+
+
 	public void toggleErrorBars(boolean xcoord, boolean ycoord, boolean zcoord) {		
 		plotter.toggleErrorBars(xcoord, ycoord, zcoord);
 	}

@@ -20,9 +20,10 @@ import java.util.LinkedList;
 
 import junit.framework.Assert;
 
+import org.dawnsci.plotting.jreality.tick.Tick;
+import org.dawnsci.plotting.jreality.tick.TickFactory;
+import org.dawnsci.plotting.jreality.tick.TickFormatting;
 import org.junit.Test;
-
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.TickFormatting;
 
 public class TickFactoryTest {
 

@@ -20,7 +20,7 @@ import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.Plot1DStyles;
+import org.dawnsci.plotting.jreality.impl.Plot1DStyles;
 
 /**
  * Class encapsulates generating unique colours for plots.

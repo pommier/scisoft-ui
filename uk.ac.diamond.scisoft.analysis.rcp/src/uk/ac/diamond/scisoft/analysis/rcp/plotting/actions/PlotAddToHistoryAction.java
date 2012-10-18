@@ -16,16 +16,16 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.actions;
 
+import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
+import org.dawnsci.plotting.jreality.impl.Plot1DStyles;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.PlatformUI;
 
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DAppearance;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DUIAdapter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotColorUtility;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.Plot1DStyles;
 import uk.ac.diamond.scisoft.analysis.rcp.views.plot.AbstractPlotView;
 
 /**

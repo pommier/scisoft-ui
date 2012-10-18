@@ -19,6 +19,12 @@ package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 import java.util.Arrays;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.dawnsci.plotting.jreality.overlay.Overlay2DConsumer;
+import org.dawnsci.plotting.jreality.overlay.Overlay2DProvider2;
+import org.dawnsci.plotting.jreality.overlay.OverlayImage;
+import org.dawnsci.plotting.jreality.overlay.OverlayProvider;
+import org.dawnsci.plotting.jreality.overlay.OverlayType;
+import org.dawnsci.plotting.jreality.tool.IImagePositionEvent;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
@@ -38,13 +44,7 @@ import uk.ac.diamond.scisoft.analysis.plotserver.GuiBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.GuiParameters;
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.OverlayType;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay2DConsumer;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay2DProvider2;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.OverlayImage;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.OverlayProvider;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.MCView.PaintMode;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
 import uk.ac.diamond.scisoft.analysis.roi.MaskingBean;
 
 class xyPointList {

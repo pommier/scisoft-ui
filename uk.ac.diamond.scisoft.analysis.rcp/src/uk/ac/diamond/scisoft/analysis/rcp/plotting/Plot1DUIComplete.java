@@ -23,6 +23,12 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.dawnsci.plotting.jreality.core.AxisMode;
+import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
+import org.dawnsci.plotting.jreality.impl.Plot1DGraphTable;
+import org.dawnsci.plotting.jreality.impl.PlotException;
+import org.dawnsci.plotting.jreality.tool.PlotActionComplexEvent;
+import org.dawnsci.plotting.jreality.tool.PlotActionEvent;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;
@@ -39,10 +45,7 @@ import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.plotserver.AxisMapBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataBean;
 import uk.ac.diamond.scisoft.analysis.plotserver.DataSetWithAxisInformation;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot.ISidePlotView;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionComplexEvent;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.PlotActionEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.views.SidePlotView;
 
 

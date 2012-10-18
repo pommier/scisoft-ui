@@ -16,6 +16,7 @@
 
 package uk.ac.diamond.scisoft.analysis.rcp.plotting.sideplot;
 
+import org.dawnsci.plotting.jreality.overlay.OverlayConsumer;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
@@ -28,7 +29,6 @@ import uk.ac.diamond.scisoft.analysis.rcp.histogram.HistogramUpdate;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IGuiInfoManager;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IMainPlot;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.OverlayConsumer;
 
 /**
  * An ISidePlot is the interface that a side plot needs to implement to provide

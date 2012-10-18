@@ -23,18 +23,18 @@ import gda.observable.IObserver;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import org.dawnsci.plotting.jreality.impl.DataSet3DPlot3D;
+import org.dawnsci.plotting.jreality.overlay.Overlay2DConsumer;
+import org.dawnsci.plotting.jreality.overlay.Overlay2DProvider;
+import org.dawnsci.plotting.jreality.overlay.OverlayProvider;
+import org.dawnsci.plotting.jreality.overlay.OverlayType;
+import org.dawnsci.plotting.jreality.overlay.VectorOverlayStyles;
+import org.dawnsci.plotting.jreality.overlay.primitives.PrimitiveType;
+import org.dawnsci.plotting.jreality.tool.IImagePositionEvent;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import uk.ac.diamond.scisoft.analysis.rcp.AnalysisRCPActivator;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.ColorMappingUpdate;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSet3DPlot3D;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.OverlayType;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.PrimitiveType;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.VectorOverlayStyles;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay2DConsumer;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay2DProvider;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.OverlayProvider;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.IImagePositionEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.preference.PreferenceConstants;
 import uk.ac.diamond.scisoft.analysis.rcp.views.DataWindowView;
 import uk.ac.diamond.scisoft.analysis.roi.data.SurfacePlotROI;

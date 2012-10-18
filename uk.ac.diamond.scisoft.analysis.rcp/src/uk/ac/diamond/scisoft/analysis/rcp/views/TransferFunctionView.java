@@ -22,6 +22,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import org.dawnsci.plotting.jreality.overlay.Overlay1DConsumer;
+import org.dawnsci.plotting.jreality.overlay.Overlay1DProvider;
+import org.dawnsci.plotting.jreality.overlay.OverlayProvider;
+import org.dawnsci.plotting.jreality.overlay.OverlayType;
+import org.dawnsci.plotting.jreality.overlay.primitives.PrimitiveType;
+import org.dawnsci.plotting.jreality.tool.AreaSelectEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
@@ -32,12 +38,6 @@ import uk.ac.diamond.scisoft.analysis.dataset.IDataset;
 import uk.ac.diamond.scisoft.analysis.dataset.LongDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.AbstractMapFunction;
 import uk.ac.diamond.scisoft.analysis.rcp.histogram.mapfunctions.UserCustomFunction;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.OverlayType;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.PrimitiveType;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay1DConsumer;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.Overlay1DProvider;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.overlay.OverlayProvider;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.tools.AreaSelectEvent;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.utils.GlobalColourMaps;
 import uk.ac.diamond.scisoft.analysis.rcp.volimage.CommandClient;
 

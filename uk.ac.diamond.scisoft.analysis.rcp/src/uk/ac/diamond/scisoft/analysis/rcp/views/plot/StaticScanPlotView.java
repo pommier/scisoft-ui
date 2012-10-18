@@ -34,6 +34,10 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.dawnsci.plotting.jreality.core.AxisMode;
+import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
+import org.dawnsci.plotting.jreality.impl.Plot1DStyles;
+import org.dawnsci.plotting.jreality.impl.PlotException;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
@@ -56,12 +60,8 @@ import org.slf4j.LoggerFactory;
 import uk.ac.diamond.scisoft.analysis.dataset.AbstractDataset;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.DataSetPlotter;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.IPlotUI;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DAppearance;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DUIAdapter;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlotException;
 import uk.ac.diamond.scisoft.analysis.rcp.plotting.PlottingMode;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.AxisMode;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.enums.Plot1DStyles;
 
 import com.swtdesigner.SWTResourceManager;
 

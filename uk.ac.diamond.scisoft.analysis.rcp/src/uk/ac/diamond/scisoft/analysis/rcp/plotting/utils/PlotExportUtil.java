@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 
+import org.dawnsci.plotting.jreality.impl.Plot1DAppearance;
+import org.dawnsci.plotting.jreality.impl.Plot1DGraphTable;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.FileTransfer;
@@ -42,9 +44,6 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DAppearance;
-import uk.ac.diamond.scisoft.analysis.rcp.plotting.Plot1DGraphTable;
 
 import de.jreality.softviewer.PSRenderer;
 import de.jreality.softviewer.SVGRenderer;
