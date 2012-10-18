@@ -33,6 +33,7 @@ import org.dawnsci.plotting.jreality.impl.Plot1DStyles;
 import org.dawnsci.plotting.jreality.tick.TickFormatting;
 import org.dawnsci.plotting.jreality.tool.PlotActionEvent;
 import org.dawnsci.plotting.jreality.tool.PlotActionEventListener;
+import org.dawnsci.plotting.jreality.util.PlotColorUtility;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
