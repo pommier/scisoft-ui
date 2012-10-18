@@ -24,6 +24,7 @@ import java.util.Iterator;
 
 import org.junit.Test;
 
+import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
 import uk.ac.diamond.scisoft.analysis.dataset.DoubleDataset;
 
 public class AxisValuesTest {
