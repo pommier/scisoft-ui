@@ -26,10 +26,15 @@ import org.dawnsci.plotting.jreality.tool.PlotActionComplexEvent;
 import org.dawnsci.plotting.jreality.tool.PlotActionEvent;
 import org.dawnsci.plotting.jreality.util.PlotColorUtility;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import uk.ac.diamond.scisoft.analysis.axis.AxisValues;
@@ -49,6 +54,10 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 
 	protected DataSetPlotter plotter;
 	protected AxisValues xAxisValues;
+	protected StackLayout stack;
+	protected Composite plotterComposite;
+	protected Composite stackComposite;
+	protected Label positionLabel;
 	
 	protected abstract String getYAxis();
 
@@ -83,16 +92,32 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 						}
 					});
 				} else {
-
 					parent.getDisplay().asyncExec(new Runnable() {
 						@Override
 						public void run() {
-							plotter.getComposite().setToolTipText(event.toString() + "\nRight click to view data.");
+							double x = event.getPosition()[0];
+							double y = event.getPosition()[1];
+							positionLabel.setText(String.format("X:%.6g Y:%.6g", x, y));
 						}
 					});
 				}
 			}
 		};
+	}
+
+	/**
+	 * Use this after the first data is received to hide the default message and show the plotter.
+	 */
+	protected void showPlotter() {
+		if (stack.topControl != plotterComposite) {
+			stack.topControl = plotterComposite;
+			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					stackComposite.layout();
+				}
+			});
+		}
 	}
 
 
@@ -103,6 +128,17 @@ public abstract class AbstractPlotView extends ViewPart implements PlotView {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
+		stackComposite = new Composite(parent,SWT.NONE);
+		
+		stack = new StackLayout();
+		stackComposite.setLayout(stack);
+		
+		plotterComposite = new Composite(stackComposite,SWT.NONE);
+		GridLayoutFactory.fillDefaults().numColumns(1).applyTo(plotterComposite);
+		
+		positionLabel = new Label(plotterComposite, SWT.LEFT);
+		positionLabel.setText("X: Y:");
+		GridDataFactory.fillDefaults().applyTo(positionLabel);
 
 		final GridLayout grid = new GridLayout(1, false);
 		grid.marginBottom = 0;
