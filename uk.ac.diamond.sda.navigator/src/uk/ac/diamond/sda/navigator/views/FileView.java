@@ -25,6 +25,7 @@ import org.dawb.common.services.ServiceManager;
 import org.dawb.common.ui.menu.CheckableActionGroup;
 import org.dawb.common.ui.util.EclipseUtils;
 import org.dawb.common.ui.views.ImageMonitorView;
+import org.dawb.common.util.io.IFileSelector;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -38,7 +39,6 @@ import org.eclipse.jface.fieldassist.ContentProposalAdapter;
 import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalListener;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
-import org.eclipse.jface.util.SafeRunnable;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -86,7 +86,7 @@ import uk.ac.gda.util.OSUtils;
  * It is lazy in loading the file tree.
  *
  */
-public class FileView extends ViewPart {
+public class FileView extends ViewPart implements IFileSelector {
 
 	public static final String ID = "uk.ac.diamond.sda.navigator.views.FileView";
 	
