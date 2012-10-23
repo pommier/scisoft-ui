@@ -256,7 +256,7 @@ class PlotTab extends ATab {
 		if (daxes != null)
 			populateCombos();
 
-		if (itype == InspectorType.LINESTACK) {
+		if (itype == InspectorType.LINESTACK || itype==InspectorType.LINE ) {
 			final Button x = new Button(holder, SWT.CHECK);
 			x.setText("X autoscale");
 			x.setToolTipText("Automatic rescaling of the X-Axis in lightweight plotting mode");
@@ -288,6 +288,8 @@ class PlotTab extends ATab {
 				x.setEnabled(true);
 				y.setEnabled(true);
 			}
+		}
+			if (itype == InspectorType.LINESTACK ) {
 			final Button b = new Button(holder, SWT.CHECK);
 			b.setText("In 3D");
 			b.setToolTipText("Check to plot stack of lines in 3D");
