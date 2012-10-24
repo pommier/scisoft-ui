@@ -279,7 +279,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 			plottingSystem.setColorOption(ColorOption.NONE);
 			plottingSystem.setDatasetChoosingRequired(false);
 			
-			plottingSystem.createPlotPart(plotSystemComposite, name, bars, PlotType.PT1D, (IViewPart)manager);
+			plottingSystem.createPlotPart(plotSystemComposite, name, bars, PlotType.XY, (IViewPart)manager);
 			plottingSystem.repaint();
 			
 			this.regionListener = getRegionListener();
@@ -310,7 +310,7 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 			plottingSystem.setColorOption(ColorOption.NONE);
 			plottingSystem.setDatasetChoosingRequired(false);
 			
-			plottingSystem.createPlotPart(sashForm2, name, bars, PlotType.PT1D, (IViewPart)manager);
+			plottingSystem.createPlotPart(sashForm2, name, bars, PlotType.XY, (IViewPart)manager);
 			plottingSystem.repaint();
 			
 			sideProfile1 = (IProfileToolPage)ToolPageFactory.getToolPage("org.dawb.workbench.plotting.tools.boxLineProfileTool");
