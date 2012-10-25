@@ -277,7 +277,6 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		try {
 			plottingSystem = PlottingFactory.createPlottingSystem();
 			plottingSystem.setColorOption(ColorOption.NONE);
-			plottingSystem.setDatasetChoosingRequired(false);
 			
 			plottingSystem.createPlotPart(plotSystemComposite, name, bars, PlotType.XY, (IViewPart)manager);
 			plottingSystem.repaint();
@@ -308,7 +307,6 @@ public class PlotWindow implements IObserver, IObservable, IPlotWindow, IROIList
 		try {
 			plottingSystem = PlottingFactory.createPlottingSystem();
 			plottingSystem.setColorOption(ColorOption.NONE);
-			plottingSystem.setDatasetChoosingRequired(false);
 			
 			plottingSystem.createPlotPart(sashForm2, name, bars, PlotType.XY, (IViewPart)manager);
 			plottingSystem.repaint();

@@ -417,7 +417,6 @@ public class DataWindowView extends ViewPart implements IObserver, SelectionList
 		try {
 			plottingSystem = PlottingFactory.createPlottingSystem();
 			plottingSystem.setColorOption(ColorOption.NONE);
-			plottingSystem.setDatasetChoosingRequired(false);
 			plottingSystem.createPlotPart(parent, this.getPartName(), getViewSite().getActionBars(), PlotType.XY, this);
 			//plottingSystem.getPlotActionSystem().fillRegionActions(getViewSite().getActionBars().getToolBarManager());
 
