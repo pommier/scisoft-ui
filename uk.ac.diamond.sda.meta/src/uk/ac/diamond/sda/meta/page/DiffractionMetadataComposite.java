@@ -20,7 +20,6 @@ import java.util.HashSet;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -139,10 +138,12 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 
 	void updatePixelSizeX(double mm) {
 		detprop.setHPxSize(mm);
+		detectorSizeX.setText(String.valueOf(detprop.getDetectorSizeH()));
 	}
 
 	void updatePixelSizeY(double mm) {
 		detprop.setVPxSize(mm);
+		detectorSizeY.setText(String.valueOf(detprop.getDetectorSizeV()));
 	}
 
 	public void resetWavelengthToOriginal() {
@@ -708,9 +709,6 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		return this.dataset;
 	}
 	
-
-	private final double DEFAULT_WAVELENGTH = 1.0;
-
 	@Override
 	public void setMetaData(IMetaData metadata) {
 		this.metadata = metadata;
@@ -720,52 +718,16 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		if (metadata instanceof IDiffractionMetadata) {
 			detprop = ((IDiffractionMetadata)metadata).getDetector2DProperties();
 			diffenv = ((IDiffractionMetadata)metadata).getDiffractionCrystalEnvironment();
+			this.detprop = detprop;  
+			this.diffenv = diffenv; 
 		}
 		
-		if (detprop == null) {
-			detprop = new DetectorProperties();
-
-			Vector3d origin = new Vector3d(1,1,1);
-			Vector3d beamVector = new Vector3d(0, 1, 0);
-			int widthInPixels = 0; 
-			int heightInPixels = 0;
-			if (dataset != null) {
-				int[] shape = dataset.getShape();
-				heightInPixels = shape[0];
-				widthInPixels = shape[1];
-			}
-			
-			double pixelHeightInmm = 0.01;
-			double pixelWidthInmm = 0.01;
-			
-			/* orientation: matrix describing the orientation of the detector relative to the reference 
-	 		frame. This matrix's columns describes the direction of decreasing image rows, the direction 
-	 		of decreasing image columns and the detector plane normal.*/
-			
-			Matrix3d orientation = new Matrix3d();
-			orientation.setColumn(0, 0, 1, 0);
-			orientation.setColumn(1, -1, 0, 0);
-			orientation.setColumn(2, 0, 1, 1);
-			
-			detprop = new DetectorProperties(origin, beamVector, heightInPixels, widthInPixels, pixelHeightInmm,
-					pixelWidthInmm, orientation);
-
-			double[] loc = new double[]{widthInPixels/2d, heightInPixels/2d};
-			detprop.setBeamLocation(loc);
-		
-		}
-		this.detprop = detprop;  
-
-		if (diffenv == null) {
-				diffenv = new DiffractionCrystalEnvironment();
-				diffenv.setWavelength(DEFAULT_WAVELENGTH);
-		}
-		this.diffenv = diffenv; 
 		updateGUI();
 
 //		if (metadata == null) {
 //			clearGUI();
 //		}
+		
 	}
 	
 	public void addDiffractionMetadataCompositeListener(IDiffractionMetadataCompositeListener l) {
