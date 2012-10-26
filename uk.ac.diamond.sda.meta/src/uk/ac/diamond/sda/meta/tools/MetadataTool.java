@@ -37,7 +37,8 @@ public class MetadataTool extends AbstractToolPage {
 			if (dataset != null) {
 				diffMetadataComp.setData(dataset);
 				IMetaData meta = dataset.getMetadata();
-				diffMetadataComp.setMetaData(meta);
+				if (meta != null)
+					diffMetadataComp.setMetaData(meta);
 			}
 		}
 

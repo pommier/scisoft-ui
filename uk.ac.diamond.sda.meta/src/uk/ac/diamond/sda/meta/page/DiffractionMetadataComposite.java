@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -27,8 +28,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -60,8 +61,8 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 	private FloatSpinner distanceToDetector;
 	private Text detectorSizeX;
 	private Text detectorSizeY;
-	private Text pixelSizeX;
-	private Text pixelSizeY;
+	private FloatSpinner pixelSizeX;
+	private FloatSpinner pixelSizeY;
 	private Text ExposureTime;
 	private Spinner maxPxVal;
 	private Spinner minPxVal;
@@ -77,7 +78,6 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 	private DetectorProperties detprop;
 	private DiffractionCrystalEnvironment diffenv;
 	private boolean editable;
-	private double wavelengthOriginal, distanceToDetectorOriginal, xBeamOriginal, yBeamOriginal;
 	private HashSet<IDiffractionMetadataCompositeListener> diffMetaCompListeners; 
 
 	public DiffractionMetadataComposite() {
@@ -129,34 +129,87 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 	void updateOverload(double value) {
 	}
 	
+	void updateDetectorSizeX(double mm) {
+		detprop.setPx((int)(mm / detprop.getHPxSize()));
+	}
+	
+	void updateDetectorSizeY(double mm) {
+		detprop.setPy((int)(mm / detprop.getVPxSize()));
+	}
+
+	void updatePixelSizeX(double mm) {
+		detprop.setHPxSize(mm);
+	}
+
+	void updatePixelSizeY(double mm) {
+		detprop.setVPxSize(mm);
+	}
 
 	public void resetWavelengthToOriginal() {
-		updateWavelength(wavelengthOriginal);
-		wavelength.setDouble(wavelengthOriginal);
+		DiffractionCrystalEnvironment diffenvO = diffenv.getOriginal();
+		if (diffenvO != null) {
+			double wavelengthOriginal = diffenvO.getWavelength();
+			updateWavelength(wavelengthOriginal);
+			wavelength.setDouble(wavelengthOriginal);
+		}
 	}
 
 	public void resetDistanceToDetectorToOriginal() {
-		updateDistanceToDetector(distanceToDetectorOriginal);
-		distanceToDetector.setDouble(distanceToDetectorOriginal);
+		DetectorProperties detpropO = detprop.getOriginal();
+		if (detpropO != null) {
+			double distanceToDetectorOriginal = detprop.getOriginal().getOrigin().z;
+			updateDistanceToDetector(distanceToDetectorOriginal);
+			distanceToDetector.setDouble(distanceToDetectorOriginal);
+		}
 	}
 	
 	public void resetXBeamToOriginal() {
-		updateBeamX(xBeamOriginal);
-		xBeam.setDouble(xBeamOriginal);
+		DetectorProperties detpropO = detprop.getOriginal();
+		if (detpropO != null) {
+			double [] beam = detpropO.getBeamLocation();
+			double hPxSize = detpropO.getHPxSize();
+			double xBeamOriginal = beam[0] * hPxSize;
+			updateBeamX(xBeamOriginal);
+			xBeam.setDouble(xBeamOriginal);
+		}
 	}
 	
 	public void resetYBeamToOriginal() {
-		updateBeamY(yBeamOriginal);
-		yBeam.setDouble(yBeamOriginal);
+		DetectorProperties detpropO = detprop.getOriginal();
+		if (detpropO != null) {
+			double [] beam = detpropO.getBeamLocation();
+			double vPxSize = detpropO.getVPxSize();
+			double yBeamOriginal = beam[1] * vPxSize;
+			updateBeamY(yBeamOriginal);
+			yBeam.setDouble(yBeamOriginal);
+		}
 	}
 	
+	public void resetPixelSizeXToOriginal() {
+		DetectorProperties detpropO = detprop.getOriginal();
+		if (detpropO != null) {
+			pixelSizeX.setDouble(detpropO.getHPxSize());
+		}
+		detprop.restoreHPxSize();
+	}
+	
+	public void resetPixelSizeYToOriginal() {
+		DetectorProperties detpropO = detprop.getOriginal();
+		if (detpropO != null) {
+			pixelSizeY.setDouble(detpropO.getVPxSize());
+		}
+		detprop.restoreVPxSize();
+	}
+
 	public void resetAllToOriginal() {
 		resetWavelengthToOriginal();
 		resetDistanceToDetectorToOriginal();
 		resetXBeamToOriginal();
 		resetYBeamToOriginal();
+		resetPixelSizeXToOriginal();
+		resetPixelSizeYToOriginal();
 	}
-	
+
 	@Override
 	public Composite createComposite(Composite parent) {
 		final double[] incs = {1.0, 0.1, 0.01, 0.001, 0.0001}; 
@@ -164,11 +217,14 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		Method resetWavelengthToOriginalMethod = null;
 		Method resetDistanceToDetectorToOriginalMethod = null;
 		Method resetXBeamToOriginalMethod = null, resetYBeamToOriginalMethod = null;
+		Method resetPixelSizeXToOriginalMethod = null, resetPixelSizeYToOriginalMethod = null;
 		try {
 			resetWavelengthToOriginalMethod = this.getClass().getMethod("resetWavelengthToOriginal", (Class<?>[])null);
 			resetDistanceToDetectorToOriginalMethod = this.getClass().getMethod("resetDistanceToDetectorToOriginal", (Class<?>[])null);
 			resetXBeamToOriginalMethod = this.getClass().getMethod("resetXBeamToOriginal", (Class<?>[])null);
 			resetYBeamToOriginalMethod = this.getClass().getMethod("resetYBeamToOriginal", (Class<?>[])null);
+			resetPixelSizeXToOriginalMethod = this.getClass().getMethod("resetPixelSizeXToOriginal", (Class<?>[])null);
+			resetPixelSizeYToOriginalMethod = this.getClass().getMethod("resetPixelSizeYToOriginal", (Class<?>[])null);
 		} catch (SecurityException e1) {
 			logger.error("Can't get reset methods (security exception)", e1);
 		} catch (NoSuchMethodException e1) {
@@ -201,16 +257,12 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		wavelength.setBackground(experimentmetadata.getBackground());
 		wavelength.setEnabled(editable);
 		wavelength.setIncrement(0.01);
-		wavelength.setToolTipText("Right-click to reset and set increment.");
-		wavelength.addSelectionListener(new SelectionListener() {
+		wavelength.setMinimum(0.0);
+		wavelength.setToolTipText("Right-click to reset or set increment.");
+		wavelength.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				updateWavelength(wavelength.getDouble());
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
 			}
 		});
 
@@ -248,65 +300,68 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		distanceToDetector.setBackground(detectorMetadata.getBackground());
 		distanceToDetector.setEnabled(editable);
 		distanceToDetector.setIncrement(1.0);
-		distanceToDetector.setToolTipText("Right-click to reset and set increment.");
-		distanceToDetector.addSelectionListener(new SelectionListener() {
+		distanceToDetector.setMinimum(0.0);
+		distanceToDetector.setToolTipText("Right-click to reset or set increment.");
+		distanceToDetector.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				updateDistanceToDetector(distanceToDetector.getDouble());
 			}
+		});		
 
+		new Label(detectorMetadata, SWT.NONE).setText("mm");
+		Label lblSizex = new Label(detectorMetadata, SWT.NONE);
+		lblSizex.setText("Size (x)");
+		detectorSizeX = new Text(detectorMetadata, SWT.READ_ONLY); 
+		detectorSizeX.setBackground(detectorMetadata.getBackground());
+		
+		new Label(detectorMetadata, SWT.NONE).setText("mm");
+		
+		Label lblSizey = new Label(detectorMetadata, SWT.NONE);
+		lblSizey.setText("Size (y)");
+		detectorSizeY = new Text(detectorMetadata, SWT.READ_ONLY);
+		detectorSizeY.setBackground(detectorMetadata.getBackground());
+
+		new Label(detectorMetadata, SWT.NONE).setText("mm");
+		
+		Label lblPixelSizex = new Label(detectorMetadata, SWT.NONE);
+		lblPixelSizex.setText("Pixel Size (x)");
+		pixelSizeX = new FloatSpinner(detectorMetadata, SWT.SINGLE | SWT.BORDER | SWT.RIGHT, 8, 4);
+		pixelSizeX.createMenu(incs, this, resetPixelSizeXToOriginalMethod);
+		pixelSizeX.setBackground(detectorMetadata.getBackground());
+		pixelSizeX.setEnabled(editable);
+		pixelSizeX.setIncrement(0.01);
+		pixelSizeX.setMinimum(0.0);
+		pixelSizeX.setToolTipText("Right-click to reset or set increment.");
+		pixelSizeX.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
+			public void widgetSelected(SelectionEvent e) {
+				updatePixelSizeX(pixelSizeX.getDouble());
 			}
 		});		
 
 		new Label(detectorMetadata, SWT.NONE).setText("mm");
-		{
-			Label lblSizex = new Label(detectorMetadata, SWT.NONE);
-			lblSizex.setText("Size (x)");
-		}
-		{
-			detectorSizeX = new Text(detectorMetadata, SWT.READ_ONLY);
-			detectorSizeX.setBackground(detectorMetadata.getBackground());
+		Label lblPixelSizey = new Label(detectorMetadata, SWT.NONE);
+		lblPixelSizey.setText("Pixel Size (y)");
+		pixelSizeY = new FloatSpinner(detectorMetadata, SWT.SINGLE | SWT.BORDER | SWT.RIGHT, 8, 4);
+		pixelSizeY.createMenu(incs, this, resetPixelSizeYToOriginalMethod);
+		pixelSizeY.setBackground(detectorMetadata.getBackground());
+		pixelSizeY.setEnabled(editable);
+		pixelSizeY.setIncrement(0.01);
+		pixelSizeY.setMinimum(0.0);
+		pixelSizeY.setToolTipText("Right-click to reset or set increment.");
+		pixelSizeY.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				updatePixelSizeY(pixelSizeY.getDouble());
+			}
+		});		
 
-		}
 		new Label(detectorMetadata, SWT.NONE).setText("mm");
-		{
-			Label lblSizey = new Label(detectorMetadata, SWT.NONE);
-			lblSizey.setText("Size (y)");
-		}
-		{
-			detectorSizeY = new Text(detectorMetadata, SWT.READ_ONLY);
-			detectorSizeY.setBackground(detectorMetadata.getBackground());
-		}
-		new Label(detectorMetadata, SWT.NONE).setText("mm");
-		{
-			Label lblPixelSizex = new Label(detectorMetadata, SWT.NONE);
-			lblPixelSizex.setText("Pixel Size (x)");
-		}
-		{
-			pixelSizeX = new Text(detectorMetadata, SWT.READ_ONLY);
-			pixelSizeX.setBackground(detectorMetadata.getBackground());
-		}
-		new Label(detectorMetadata, SWT.NONE).setText("mm");
-		{
-			Label lblPixelSizey = new Label(detectorMetadata, SWT.NONE);
-			lblPixelSizey.setText("Pixel Size (y)");
-		}
-		{
-			pixelSizeY = new Text(detectorMetadata, SWT.READ_ONLY);
-			pixelSizeY.setBackground(detectorMetadata.getBackground());
-		}
-		new Label(detectorMetadata, SWT.NONE).setText("mm");
-		{
-			Label lblTime = new Label(detectorMetadata, SWT.NONE);
-			lblTime.setText("Exp. Time");
-		}
-		{
-			ExposureTime = new Text(detectorMetadata, SWT.READ_ONLY);
-			ExposureTime.setBackground(detectorMetadata.getBackground());
-		}
+		Label lblTime = new Label(detectorMetadata, SWT.NONE);
+		lblTime.setText("Exp. Time");
+		ExposureTime = new Text(detectorMetadata, SWT.READ_ONLY);
+		ExposureTime.setBackground(detectorMetadata.getBackground());
 		new Label(detectorMetadata, SWT.NONE).setText("s");
 		
 		
@@ -327,15 +382,10 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 			maxPxVal.setMinimum(Integer.MIN_VALUE);
 			maxPxVal.setIncrement(1);
 			maxPxVal.setSize(50, 15);
-			maxPxVal.addSelectionListener(new SelectionListener() {
+			maxPxVal.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					updateMaxPxVal(maxPxVal.getSelection()); 
-				}
-	
-				@Override
-				public void widgetDefaultSelected(SelectionEvent e) {
-					// TODO Auto-generated method stub
 				}
 			});		
 	
@@ -349,15 +399,10 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 			minPxVal.setMaximum(Integer.MAX_VALUE);
 			minPxVal.setMinimum(Integer.MIN_VALUE);
 			minPxVal.setIncrement(1);
-			minPxVal.addSelectionListener(new SelectionListener() {
+			minPxVal.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					updateMinPxVal(minPxVal.getSelection());
-				}
-	
-				@Override
-				public void widgetDefaultSelected(SelectionEvent e) {
-					// TODO Auto-generated method stub
 				}
 			});		
 	
@@ -379,15 +424,10 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 			overload.setIncrement(1);
 			overload.setMaximum(Integer.MAX_VALUE);
 			overload.setMinimum(0);
-			overload.addSelectionListener(new SelectionListener() {
+			overload.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					updateOverload(overload.getSelection());
-				}
-	
-				@Override
-				public void widgetDefaultSelected(SelectionEvent e) {
-					// TODO Auto-generated method stub
 				}
 			});		
 		}
@@ -488,7 +528,7 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		// 2 x 2 grid for labels showing the beam position
 		Composite beamSpinners = new Composite(grpBeamCentreControls, SWT.FILL);
 		beamSpinners.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false));
-		beamSpinners.setLayout(new GridLayout(2, false));
+		beamSpinners.setLayout(new GridLayout(3, false));
 
 		// Beam X label
 		Label labXBeam = new Label(beamSpinners, SWT.NONE);
@@ -500,20 +540,18 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		xBeam.setBackground(grpBeamCentreControls.getBackground());
 		xBeam.setEnabled(editable);
 		xBeam.setIncrement(1.0);
-		xBeam.setToolTipText("Right-click to reset and set increment.");
-		xBeam.addSelectionListener(new SelectionListener() {
+		xBeam.setMinimum(0.0);
+		xBeam.setToolTipText("Right-click to reset or set increment.");
+		xBeam.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				updateBeamX(xBeam.getDouble());
 			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-			}
 		});		
 
-		
+		// Units
+		Label labXBeamUnits = new Label(beamSpinners, SWT.NONE);
+		labXBeamUnits.setText("mm");
 		
 		// Beam Y label
 		Label labYBeam = new Label(beamSpinners, SWT.NONE);
@@ -525,20 +563,20 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		yBeam.setBackground(grpBeamCentreControls.getBackground());
 		yBeam.setEnabled(editable);
 		yBeam.setIncrement(1.0);
-		yBeam.setToolTipText("Right-click to reset and set increment.");
-		yBeam.addSelectionListener(new SelectionListener() {
+		yBeam.setMinimum(0.0);
+		yBeam.setToolTipText("Right-click to reset or set increment.");
+		yBeam.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				updateBeamY(yBeam.getDouble());
 			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-			}
 		});		
 
+		// Units
+		Label labYBeamUnits = new Label(beamSpinners, SWT.NONE);
+		labYBeamUnits.setText("mm");
 
+		// Put it all together
 		scrComp.setContent(comp);
 		final Point controlsSize = comp.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 		comp.setSize(controlsSize);
@@ -554,16 +592,14 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 			@Override
 			public IStatus runInUIThread(IProgressMonitor monitor) {
 				wavelength.setDouble(diffenv.getWavelength());
-				wavelengthOriginal = diffenv.getWavelength();
 				phiStart.setText(String.valueOf(diffenv.getPhiStart()));
 				phiStop.setText(String.valueOf(diffenv.getPhiStart() + diffenv.getPhiRange()));
 				phiRange.setText(String.valueOf(diffenv.getPhiRange()));
 				distanceToDetector.setDouble(detprop.getOrigin().z);
-				distanceToDetectorOriginal = detprop.getOrigin().z;
 				detectorSizeX.setText(String.valueOf(detprop.getDetectorSizeH()));
 				detectorSizeY.setText(String.valueOf(detprop.getDetectorSizeV()));
-				pixelSizeX.setText(String.valueOf(detprop.getHPxSize()));
-				pixelSizeY.setText(String.valueOf(detprop.getVPxSize()));
+				pixelSizeX.setDouble(detprop.getHPxSize());
+				pixelSizeY.setDouble(detprop.getVPxSize());
 				ExposureTime.setText(String.valueOf(diffenv.getExposureTime()));
 				
 				AbstractDataset dataset = getData();
@@ -608,9 +644,7 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 
 				beam = detprop.getBeamLocation();
 				xBeam.setDouble(beam[0] * detprop.getHPxSize());
-				xBeamOriginal = xBeam.getDouble();
 				yBeam.setDouble(beam[1] * detprop.getVPxSize());
-				yBeamOriginal = yBeam.getDouble();
 
 				return Status.OK_STATUS;
 			}
@@ -651,8 +685,8 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 				distanceToDetector.setDouble(0.0);
 				detectorSizeX.setText("");
 				detectorSizeY.setText("");
-				pixelSizeX.setText("");
-				pixelSizeY.setText("");
+				pixelSizeX.setDouble(Double.NaN);
+				pixelSizeY.setDouble(Double.NaN);
 				ExposureTime.setText("");
 				maxPxVal.setSelection(0); //.setDouble(Double.NaN);
 				minPxVal.setSelection(0); //.setDouble(Double.NaN);
@@ -674,15 +708,61 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		return this.dataset;
 	}
 	
-	
+
+	private final double DEFAULT_WAVELENGTH = 1.0;
+
 	@Override
 	public void setMetaData(IMetaData metadata) {
 		this.metadata = metadata;
+		DetectorProperties detprop = null;
+		DiffractionCrystalEnvironment diffenv = null;
+
 		if (metadata instanceof IDiffractionMetadata) {
-			this.detprop = ((IDiffractionMetadata)metadata).getDetector2DProperties(); 
-			this.diffenv = ((IDiffractionMetadata)metadata).getDiffractionCrystalEnvironment();
-			updateGUI();
+			detprop = ((IDiffractionMetadata)metadata).getDetector2DProperties();
+			diffenv = ((IDiffractionMetadata)metadata).getDiffractionCrystalEnvironment();
 		}
+		
+		if (detprop == null) {
+			detprop = new DetectorProperties();
+
+			Vector3d origin = new Vector3d(1,1,1);
+			Vector3d beamVector = new Vector3d(0, 1, 0);
+			int widthInPixels = 0; 
+			int heightInPixels = 0;
+			if (dataset != null) {
+				int[] shape = dataset.getShape();
+				heightInPixels = shape[0];
+				widthInPixels = shape[1];
+			}
+			
+			double pixelHeightInmm = 0.01;
+			double pixelWidthInmm = 0.01;
+			
+			/* orientation: matrix describing the orientation of the detector relative to the reference 
+	 		frame. This matrix's columns describes the direction of decreasing image rows, the direction 
+	 		of decreasing image columns and the detector plane normal.*/
+			
+			Matrix3d orientation = new Matrix3d();
+			orientation.setColumn(0, 0, 1, 0);
+			orientation.setColumn(1, -1, 0, 0);
+			orientation.setColumn(2, 0, 1, 1);
+			
+			detprop = new DetectorProperties(origin, beamVector, heightInPixels, widthInPixels, pixelHeightInmm,
+					pixelWidthInmm, orientation);
+
+			double[] loc = new double[]{widthInPixels/2d, heightInPixels/2d};
+			detprop.setBeamLocation(loc);
+		
+		}
+		this.detprop = detprop;  
+
+		if (diffenv == null) {
+				diffenv = new DiffractionCrystalEnvironment();
+				diffenv.setWavelength(DEFAULT_WAVELENGTH);
+		}
+		this.diffenv = diffenv; 
+		updateGUI();
+
 //		if (metadata == null) {
 //			clearGUI();
 //		}
