@@ -357,7 +357,7 @@ public class FileView extends ViewPart implements IFileSelector {
 	private void createContent(boolean setItemCount) {
 		
 		if (setItemCount) tree.getTree().setItemCount(File.listRoots().length);
-		tree.setContentProvider(new FileContentProvider());
+		tree.setContentProvider(new FileContentProvider(getViewSite().getActionBars().getStatusLineManager()));
 		if (File.listRoots().length==1) {
 			tree.setInput(File.listRoots()[0]);
 		} else {
