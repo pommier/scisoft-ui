@@ -500,7 +500,7 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 			showBeam.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					fireDiffractionMetadataCompositeListeners(new DiffractionMetadataCompositeEvent(this, "Beam Center"));
+					fireDiffractionMetadataCompositeListeners(new DiffractionMetadataCompositeEvent(this, EventType.BEAM_CENTRE));
 				}
 			});
 	

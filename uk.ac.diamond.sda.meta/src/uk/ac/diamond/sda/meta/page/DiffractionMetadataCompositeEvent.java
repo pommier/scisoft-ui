@@ -18,22 +18,19 @@ package uk.ac.diamond.sda.meta.page;
 
 import java.util.EventObject;
 
-// TODO Karl check if event member data is ok :)
 public class DiffractionMetadataCompositeEvent extends EventObject {
+	protected static enum EventType {
+		BEAM_CENTRE,
+	}
 
-	private String propertyName;
+	private EventType type;
 
-	public DiffractionMetadataCompositeEvent(Object source, String propertyName) {
+	public DiffractionMetadataCompositeEvent(Object source, EventType propertyType) {
 		super(source);
-		this.propertyName = propertyName;
+		type = propertyType;
 	}
 
-	public String getPropertyName() {
-		return propertyName;
+	public boolean hasBeamCentreChanged() {
+		return type == EventType.BEAM_CENTRE;
 	}
-
-	public void setPropertyName(String propertyName) {
-		this.propertyName = propertyName;
-	}
-
 }
