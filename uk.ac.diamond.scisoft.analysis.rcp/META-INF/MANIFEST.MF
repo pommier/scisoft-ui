@@ -26,7 +26,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.variables,
  org.dawb.common.ui;bundle-version="1.2.0",
  uk.ac.gda.common.rcp;bundle-version="1.0.0",
- org.dawnsci.plotting.jreality;bundle-version="1.0.0"
+ org.dawnsci.plotting.jreality;bundle-version="1.0.0",
+ javax.vecmath;bundle-version="1.5.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.swtdesigner,
  uk.ac.diamond.scisoft.analysis.rcp,
@@ -52,8 +53,7 @@ Export-Package: com.swtdesigner,
  uk.ac.diamond.scisoft.analysis.rcp.views.plot,
  uk.ac.diamond.scisoft.analysis.rcp.volimage,
  uk.ac.diamond.scisoft.analysis.rcp.wizards
-Import-Package: javax.vecmath,
- org.apache.commons.beanutils;version="1.8.0",
+Import-Package: org.apache.commons.beanutils;version="1.8.0",
  org.apache.commons.collections,
  org.apache.commons.collections.map,
  org.apache.commons.lang,
