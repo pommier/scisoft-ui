@@ -97,6 +97,13 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		return mm;
 	}
 	
+	public void updateBeamPositionPixels(double[] points) {
+		beam = points;
+		xBeam.setDouble(beam[0] * detprop.getHPxSize());
+		yBeam.setDouble(beam[1] * detprop.getVPxSize());
+		detprop.setBeamLocation(beam);
+	}
+	
 	void updateBeamX(double millimeter) {
 		// Calculate and set the new property value
 		beam[0] = millimeter / detprop.getHPxSize();
@@ -146,6 +153,11 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 		detectorSizeY.setText(String.valueOf(detprop.getDetectorSizeV()));
 	}
 
+	
+	public double[] getBeamCentre() {
+		return detprop.getBeamLocation();
+	}
+	
 	public void resetWavelengthToOriginal() {
 		DiffractionCrystalEnvironment diffenvO = diffenv.getOriginal();
 		if (diffenvO != null) {
@@ -733,7 +745,11 @@ public class DiffractionMetadataComposite implements IMetadataPage {
 	public void addDiffractionMetadataCompositeListener(IDiffractionMetadataCompositeListener l) {
 		if (diffMetaCompListeners==null) 
 			diffMetaCompListeners = new HashSet<IDiffractionMetadataCompositeListener>(5);
-		diffMetaCompListeners.add(l);
+		
+		//Only add if not there already, prevents double adding
+		if (!diffMetaCompListeners.contains(l)) diffMetaCompListeners.add(l);
+		
+		
 	}
 	/**
 	 * Call from dispose of part listening to listen to detector properties changing
