@@ -16,12 +16,13 @@
 
 package uk.ac.diamond.sda.meta.page;
 
-import java.util.HashSet;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 
 import javax.vecmath.Vector3d;
 
+import org.dawnsci.common.widgets.spinner.FloatSpinner;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -47,7 +48,6 @@ import uk.ac.diamond.scisoft.analysis.diffraction.DetectorProperties;
 import uk.ac.diamond.scisoft.analysis.diffraction.DiffractionCrystalEnvironment;
 import uk.ac.diamond.scisoft.analysis.io.IDiffractionMetadata;
 import uk.ac.diamond.scisoft.analysis.io.IMetaData;
-import uk.ac.diamond.scisoft.analysis.rcp.util.FloatSpinner;
 
 public class DiffractionMetadataComposite implements IMetadataPage {
 
