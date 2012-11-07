@@ -78,17 +78,23 @@ public class Plotting1DUI extends AbstractPlotUI {
 					final ArrayList<ITrace> traceList = new ArrayList<ITrace>(previousTraces);
 
 					int i=0;
+					int plotDataSize=plotData.size();
 					String title = "";
 					Iterator<DataSetWithAxisInformation> iter = plotData.iterator();
 					while (iter.hasNext()) {
 						DataSetWithAxisInformation dataSetAxis = iter.next();
 						AbstractDataset data = dataSetAxis.getData();
 						yDatasets.add(data);
-						currentDataName = data.getName();
-						if(i>0)
-							title += ", "+ data.getName();
-						else
+						currentDataName = data.getName();						
+						if(i==0){
 							title += data.getName();
+						}													
+						if(1==plotDataSize-1 && i==1){
+							title += ","+data.getName();
+						}					
+						if(i==plotDataSize-1 && i!=0 && i!=1){						
+							title += "..."+data.getName();
+						}
 
 						if(currentDataName.equals("")) // if no name given set default name
 							currentDataName = "Y-Axis";
